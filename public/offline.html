@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline - FieldSync</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #f0f4f8;
+    }
+    .offline-container {
+      text-align: center;
+      padding: 40px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      max-width: 400px;
+    }
+    .offline-icon { font-size: 80px; margin-bottom: 20px; }
+    h1 { color: #1a202c; margin-bottom: 12px; }
+    p { color: #64748b; margin-bottom: 20px; line-height: 1.6; }
+    .retry-btn {
+      background: #1e3a5f; color: white; border: none;
+      padding: 12px 32px; border-radius: 8px;
+      font-size: 16px; cursor: pointer;
+      transition: background 0.3s;
+    }
+    .retry-btn:hover { background: #2a4a7a; }
+    .status-indicator {
+      display: inline-block; padding: 6px 16px;
+      border-radius: 20px; font-size: 14px; margin-top: 16px;
+    }
+    .offline { background: #fee2e2; color: #991b1b; }
+    .online { background: #d1fae5; color: #065f37; }
+  </style>
+</head>
+<body>
+  <div class="offline-container">
+    <div class="offline-icon">📡</div>
+    <h1>You're Offline</h1>
+    <p>Don't worry! FieldSync works offline.<br>
+    Your data is safe and will sync when you're back online.</p>
+    <button class="retry-btn" onclick="window.location.reload()">🔄 Retry Connection</button>
+    <div>
+      <span class="status-indicator offline" id="statusBadge">🔴 Offline</span>
+    </div>
+  </div>
+  <script>
+    function updateStatus() {
+      const badge = document.getElementById('statusBadge');
+      if (navigator.onLine) {
+        badge.className = 'status-indicator online';
+        badge.textContent = '🟢 Online';
+      } else {
+        badge.className = 'status-indicator offline';
+        badge.textContent = '🔴 Offline';
+      }
+    }
+    updateStatus();
+    window.addEventListener('online', updateStatus);
+    window.addEventListener('offline', updateStatus);
+  </script>
+</body>
+</html>
