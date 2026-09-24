@@ -101,7 +101,7 @@ export default function MainLayout({
   } = screenTimeInfo || {};
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans antialiased flex flex-col">
+    <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] font-sans antialiased flex flex-col transition-colors duration-200">
       <Toaster
         position="top-right"
         toastOptions={{

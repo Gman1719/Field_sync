@@ -1,22 +1,27 @@
-// src/components/landing/LandingPage.jsx – Professional Modernized Landing & Home Page
-// Dynamic data-driven presentation of FieldSync without hardcoded operational statistics.
+// src/components/landing/LandingPage.jsx – Professional Enterprise-Grade Landing Page
+// Complete Light/Dark theme fidelity (NO black blocks in light theme),
+// zero hardcoded personal names, and clear real-world problem-solving presentation.
 
 import React, { useState, useEffect } from 'react';
 import {
-  Radio, ShieldCheck, Wifi, WifiOff, Database, Users,
-  BarChart3, CheckCircle2, ArrowRight, ChevronRight, MapPin,
-  Building2, Server, Clock, Lock, RefreshCw, AlertTriangle,
-  FileCheck, GitBranch, Cpu, Globe, KeyRound, Sparkles
+  Radio, ShieldCheck, Users, BarChart3, CheckCircle2,
+  ArrowRight, ChevronRight, MapPin, Building2, Server,
+  Clock, Lock, RefreshCw, FileText, Check, Smartphone,
+  Layers, Search, AlertCircle, Sparkles, Globe, Eye,
+  Sun, Moon, Menu, X, Fingerprint, Award, CheckCheck,
+  FileCheck2, Database, ShieldAlert, WifiOff
 } from 'lucide-react';
+import { useTheme } from '../../context/ThemeContext';
 import { API_BASE } from '../../config/api';
 
 export default function LandingPage({ onGoToLogin, isOnline = true }) {
+  const { theme, toggleTheme } = useTheme();
+
+  // Live cluster metrics fetched dynamically from backend
   const [telemetry, setTelemetry] = useState({
     loading: true,
     healthy: false,
     version: '1.0.0',
-    provider: 'PostgreSQL',
-    orm: 'Prisma',
     counts: {
       regions: null,
       zones: null,
@@ -29,26 +34,25 @@ export default function LandingPage({ onGoToLogin, isOnline = true }) {
   });
 
   const [regionsList, setRegionsList] = useState([]);
-  const [activeTab, setActiveTab] = useState('officer');
+  const [selectedRegion, setSelectedRegion] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Fetch real-time health and administrative hierarchy data from backend
-  const fetchLiveTelemetry = async () => {
+  // Fetch real-time operational data from backend
+  const fetchTelemetry = async () => {
     setRefreshing(true);
-    const startTime = performance.now();
+    const start = performance.now();
     try {
-      // 1. Fetch live system health
-      const healthRes = await fetch(`${API_BASE}/health`);
-      const latency = Math.round(performance.now() - startTime);
+      // 1. Health check & real-time counts
+      const res = await fetch(`${API_BASE}/health`);
+      const latency = Math.round(performance.now() - start);
 
-      if (healthRes.ok) {
-        const data = await healthRes.json();
+      if (res.ok) {
+        const data = await res.json();
         setTelemetry({
           loading: false,
           healthy: data.status === 'healthy',
           version: data.version || '1.0.0',
-          provider: data.database?.provider || 'PostgreSQL',
-          orm: data.database?.orm || 'Prisma',
           counts: {
             regions: data.database?.counts?.regions ?? 0,
             zones: data.database?.counts?.zones ?? 0,
@@ -61,21 +65,23 @@ export default function LandingPage({ onGoToLogin, isOnline = true }) {
         });
       }
 
-      // 2. Fetch live active administrative regions
-      const regionsRes = await fetch(`${API_BASE}/locations/regions`);
-      if (regionsRes.ok) {
-        const regData = await regionsRes.json();
+      // 2. Administrative regions
+      const regRes = await fetch(`${API_BASE}/locations/regions`);
+      if (regRes.ok) {
+        const regData = await regRes.json();
         if (regData.success && Array.isArray(regData.data)) {
           setRegionsList(regData.data);
+          if (regData.data.length > 0 && !selectedRegion) {
+            setSelectedRegion(regData.data[0]);
+          }
         }
       }
     } catch (err) {
-      console.warn('Telemetry fetch notice: Running in offline/disconnected preview mode', err);
+      console.warn('Network notice: Portal running in offline preview mode', err);
       setTelemetry((prev) => ({
         ...prev,
         loading: false,
         healthy: false,
-        latencyMs: null,
       }));
     } finally {
       setRefreshing(false);
@@ -83,425 +89,546 @@ export default function LandingPage({ onGoToLogin, isOnline = true }) {
   };
 
   useEffect(() => {
-    fetchLiveTelemetry();
+    fetchTelemetry();
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans selection:bg-[#1E3A8A] selection:text-white">
-      {/* 1. TOP NAVIGATION BAR */}
-      <header className="sticky top-0 z-50 bg-slate-900/85 backdrop-blur-md border-b border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          {/* Logo & Brand */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#1E3A8A] to-blue-500 flex items-center justify-center shadow-lg shadow-blue-500/20 text-white">
+    <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0F172A] text-[#0F172A] dark:text-[#F8FAFC] font-sans antialiased selection:bg-[#2563EB] selection:text-white flex flex-col transition-colors duration-200">
+      {/* MAIN NAVIGATION BAR */}
+      <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#111827]/95 backdrop-blur-md border-b border-[#E2E8F0] dark:border-[#334155] shadow-xs transition-colors duration-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+          {/* Logo & Platform Name */}
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-[#2563EB] flex items-center justify-center text-white shadow-md shadow-blue-600/25">
               <Radio className="w-5 h-5 animate-pulse" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-bold text-lg tracking-tight text-white">FieldSync</span>
-                <span className="text-[10px] uppercase font-semibold px-1.5 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-800/80">
-                  Enterprise
+                <span className="text-xl font-extrabold tracking-tight text-[#0F172A] dark:text-[#F8FAFC]">
+                  FieldSync
+                </span>
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/80 text-[#2563EB] dark:text-[#60A5FA] border border-blue-200 dark:border-blue-800">
+                  National
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 hidden sm:block">
-                Offline-First National Registry & Field Intelligence
+              <p className="text-[11px] text-[#64748B] dark:text-[#94A3B8] font-medium hidden sm:block">
+                Civil Registration & Field Command
               </p>
             </div>
           </div>
 
-          {/* Center Links (Desktop) */}
-          <nav className="hidden md:flex items-center gap-6 text-sm text-slate-300 font-medium">
-            <a href="#overview" className="hover:text-white transition-colors">Overview</a>
-            <a href="#roles" className="hover:text-white transition-colors">Role Matrix</a>
-            <a href="#architecture" className="hover:text-white transition-colors">Architecture</a>
-            <a href="#coverage" className="hover:text-white transition-colors">National Coverage</a>
-            <a href="#security" className="hover:text-white transition-colors">Security & Audit</a>
+          {/* Desktop Navigation Links */}
+          <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-[#64748B] dark:text-[#94A3B8]">
+            <a href="#problem-solution" className="hover:text-[#2563EB] dark:hover:text-[#60A5FA] transition-colors">
+              Impact & Solutions
+            </a>
+            <a href="#key-pillars" className="hover:text-[#2563EB] dark:hover:text-[#60A5FA] transition-colors">
+              Core Pillars
+            </a>
+            <a href="#roles" className="hover:text-[#2563EB] dark:hover:text-[#60A5FA] transition-colors">
+              Role Portals
+            </a>
+            <a href="#coverage" className="hover:text-[#2563EB] dark:hover:text-[#60A5FA] transition-colors">
+              National Hierarchy
+            </a>
+            <a href="#security" className="hover:text-[#2563EB] dark:hover:text-[#60A5FA] transition-colors">
+              Security & Trust
+            </a>
           </nav>
 
-          {/* Live Cluster Status & CTA */}
+          {/* Actions: Theme Toggle & Sign In */}
           <div className="flex items-center gap-3">
-            {/* Live Health Badge */}
-            <div
-              onClick={fetchLiveTelemetry}
-              title="Click to refresh cluster telemetry"
-              className="cursor-pointer hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-medium border bg-slate-800/80 border-slate-700 hover:border-slate-600 transition-all text-slate-300"
+            {/* Theme Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              aria-label="Toggle color theme"
+              title={theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
+              className="p-2.5 rounded-xl text-[#64748B] dark:text-[#94A3B8] hover:text-[#0F172A] dark:hover:text-white bg-[#F1F5F9] dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] transition-all"
             >
-              <span className={`w-2 h-2 rounded-full ${telemetry.healthy ? 'bg-emerald-500 animate-ping' : 'bg-amber-500'}`} />
-              <span>
-                {telemetry.loading
-                  ? 'Connecting...'
-                  : telemetry.healthy
-                  ? `Cluster Online ${telemetry.latencyMs ? `(${telemetry.latencyMs}ms)` : ''}`
-                  : 'Offline Mode'}
-              </span>
-              <RefreshCw className={`w-3 h-3 text-slate-400 ${refreshing ? 'animate-spin' : ''}`} />
-            </div>
+              {theme === 'dark' ? (
+                <Sun className="w-4 h-4 text-amber-400" />
+              ) : (
+                <Moon className="w-4 h-4 text-slate-600" />
+              )}
+            </button>
 
-            {/* Launch Login Button */}
+            {/* Workstation Sign In */}
             <button
               onClick={() => onGoToLogin()}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white text-sm font-semibold shadow-md shadow-blue-600/30 transition-all transform hover:-translate-y-0.5"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#2563EB] hover:bg-blue-700 active:bg-blue-800 text-white text-sm font-bold shadow-sm shadow-blue-600/20 transition-all transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
             >
-              <span>Sign In</span>
+              <span>Workstation Sign In</span>
               <ArrowRight className="w-4 h-4" />
+            </button>
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 rounded-xl text-[#64748B] dark:text-[#94A3B8] hover:text-[#0F172A] dark:hover:text-white bg-[#F1F5F9] dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155]"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
-      </header>
 
-      {/* 2. HERO SECTION */}
-      <section id="overview" className="relative pt-16 pb-20 overflow-hidden border-b border-slate-800/80">
-        {/* Subtle Background Glows */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-gradient-to-r from-blue-600/15 via-indigo-600/10 to-teal-500/10 blur-3xl pointer-events-none -z-10" />
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          {/* Pill Badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800/90 border border-slate-700/80 text-blue-400 text-xs font-medium mb-6">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Field Operations Framework for Ethiopia</span>
-            <span className="w-1 h-1 rounded-full bg-slate-500" />
-            <span className="text-slate-300">Offline-First Architecture</span>
-          </div>
-
-          {/* Main Headline */}
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-tight sm:leading-none max-w-4xl mx-auto">
-            Offline-First Citizen Registration & Operational Intelligence
-          </h1>
-
-          {/* Brief System Explanation (No hardcoded claims, strictly explanatory) */}
-          <p className="mt-6 text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
-            FieldSync equips frontline teams to collect verified citizen records and field reports in remote kebeles with <strong className="text-white">zero network connectivity</strong>. When network access is restored, transactions sync seamlessly to central PostgreSQL clusters with tamper-evident audit trails.
-          </p>
-
-          {/* Primary Action Buttons */}
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-            <button
-              onClick={() => onGoToLogin()}
-              className="px-6 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm sm:text-base shadow-xl shadow-blue-600/25 flex items-center gap-2 transition-all transform hover:-translate-y-0.5"
-            >
-              <span>Access Workstation</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-
+        {/* Mobile Navigation Drawer */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-[#E2E8F0] dark:border-[#334155] bg-white dark:bg-[#111827] px-4 py-4 space-y-3">
             <a
-              href="#architecture"
-              className="px-6 py-3.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold text-sm sm:text-base flex items-center gap-2 transition-all"
+              href="#problem-solution"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block text-sm font-semibold text-[#0F172A] dark:text-[#F8FAFC] py-1.5"
             >
-              <span>Explore Architecture</span>
-              <ChevronRight className="w-4 h-4 text-slate-400" />
+              Impact & Solutions
+            </a>
+            <a
+              href="#key-pillars"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block text-sm font-semibold text-[#0F172A] dark:text-[#F8FAFC] py-1.5"
+            >
+              Core Pillars
+            </a>
+            <a
+              href="#roles"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block text-sm font-semibold text-[#0F172A] dark:text-[#F8FAFC] py-1.5"
+            >
+              Role Portals
+            </a>
+            <a
+              href="#coverage"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block text-sm font-semibold text-[#0F172A] dark:text-[#F8FAFC] py-1.5"
+            >
+              National Hierarchy
+            </a>
+            <a
+              href="#security"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block text-sm font-semibold text-[#0F172A] dark:text-[#F8FAFC] py-1.5"
+            >
+              Security & Trust
             </a>
           </div>
+        )}
+      </header>
 
-          {/* Quick Demo Role Jumpers */}
-          <div className="mt-10 pt-8 border-t border-slate-800/60 max-w-2xl mx-auto">
-            <p className="text-xs uppercase tracking-wider text-slate-400 font-semibold mb-3">
-              Explore Live Role Workspaces
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-              <button
-                onClick={() => onGoToLogin('FIELD_OFFICER')}
-                className="group p-2.5 rounded-lg bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 hover:border-blue-500/50 text-left transition-all"
-              >
-                <div className="flex items-center justify-between text-xs font-semibold text-slate-200 group-hover:text-blue-400">
-                  <span>Field Officer</span>
-                  <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-                <div className="text-[11px] text-slate-400 truncate mt-0.5">Offline Registration & GPS</div>
-              </button>
+      {/* 3. HERO SECTION & CORE OPERATIONAL PILLARS (NO MOCKUP/IMAGE PARTS) */}
+      <section className="relative pt-16 pb-20 lg:pt-24 lg:pb-28 bg-[#F8FAFC] dark:bg-[#0F172A] border-b border-[#E2E8F0] dark:border-[#334155] overflow-hidden transition-colors duration-200">
+        {/* Subtle Ambient Depth */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-teal-500/10 dark:from-blue-500/15 dark:via-indigo-500/15 dark:to-teal-500/15 blur-3xl -z-10 pointer-events-none rounded-full" />
 
-              <button
-                onClick={() => onGoToLogin('SUPERVISOR')}
-                className="group p-2.5 rounded-lg bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 hover:border-blue-500/50 text-left transition-all"
-              >
-                <div className="flex items-center justify-between text-xs font-semibold text-slate-200 group-hover:text-blue-400">
-                  <span>Supervisor</span>
-                  <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-                <div className="text-[11px] text-slate-400 truncate mt-0.5">Zonal Review & QA</div>
-              </button>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+          {/* Main Headline */}
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-[#0F172A] dark:text-[#F8FAFC] tracking-tight leading-[1.12] max-w-4xl mx-auto mb-6">
+            Bridging Remote Field Teams <br className="hidden sm:inline" />
+            <span className="text-[#2563EB] dark:text-[#60A5FA]">&amp; The National Registry</span>
+          </h1>
 
-              <button
-                onClick={() => onGoToLogin('MANAGER')}
-                className="group p-2.5 rounded-lg bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 hover:border-blue-500/50 text-left transition-all"
-              >
-                <div className="flex items-center justify-between text-xs font-semibold text-slate-200 group-hover:text-blue-400">
-                  <span>Manager</span>
-                  <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-                <div className="text-[11px] text-slate-400 truncate mt-0.5">Analytics & Audit Trails</div>
-              </button>
+          {/* Problem & Solution Narrative */}
+          <p className="text-base sm:text-lg lg:text-xl text-[#475569] dark:text-[#94A3B8] leading-relaxed max-w-3xl mx-auto mb-14 font-normal">
+            In remote woredas and rural kebeles where cellular coverage is absent, paper records cause lost documents, identity fraud, and delays. FieldSync enables field teams to register citizens completely offline on digital devices, automatically synchronizing verified records to the national database upon network reconnection.
+          </p>
+
+          {/* 3 Core Pillars Showcase Grid */}
+          <div id="key-pillars" className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left max-w-5xl mx-auto">
+            {/* Pillar 1: 100% Offline Intake */}
+            <div className="group relative p-7 rounded-2xl bg-white dark:bg-[#111827] border border-[#E2E8F0] dark:border-[#334155] hover:border-blue-500/60 dark:hover:border-blue-500/60 shadow-xs hover:shadow-md hover:-translate-y-1 transition-all duration-200">
+              <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/80 text-[#2563EB] dark:text-[#60A5FA] border border-blue-200/60 dark:border-blue-800/60 flex items-center justify-center mb-5 group-hover:scale-105 transition-transform">
+                <WifiOff className="w-6 h-6" />
+              </div>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#2563EB] dark:text-[#60A5FA] block mb-1">
+                Frontline Intake
+              </span>
+              <h3 className="text-lg font-bold text-[#0F172A] dark:text-[#F8FAFC] mb-2">
+                100% Offline Intake
+              </h3>
+              <p className="text-xs sm:text-sm text-[#64748B] dark:text-[#94A3B8] leading-relaxed">
+                Field officers enroll citizens door-to-door without cellular network. Biometrics, demographic data, and household coordinates are saved in local encrypted storage.
+              </p>
+              <div className="mt-5 pt-4 border-t border-[#F1F5F9] dark:border-slate-800/80 flex items-center gap-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                <span>Auto-syncs on network reconnection</span>
+              </div>
+            </div>
+
+            {/* Pillar 2: Cross-Kebele Deduplication */}
+            <div className="group relative p-7 rounded-2xl bg-white dark:bg-[#111827] border border-[#E2E8F0] dark:border-[#334155] hover:border-emerald-500/60 dark:hover:border-emerald-500/60 shadow-xs hover:shadow-md hover:-translate-y-1 transition-all duration-200">
+              <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/80 text-[#16A34A] dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/60 flex items-center justify-center mb-5 group-hover:scale-105 transition-transform">
+                <ShieldCheck className="w-6 h-6" />
+              </div>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#16A34A] dark:text-emerald-400 block mb-1">
+                Identity Verification
+              </span>
+              <h3 className="text-lg font-bold text-[#0F172A] dark:text-[#F8FAFC] mb-2">
+                Cross-Kebele Deduplication
+              </h3>
+              <p className="text-xs sm:text-sm text-[#64748B] dark:text-[#94A3B8] leading-relaxed">
+                Algorithmic identity cross-checks across woredas and zones flag duplicate enrollments, preventing ghost records and multiple claims across administrative boundaries.
+              </p>
+              <div className="mt-5 pt-4 border-t border-[#F1F5F9] dark:border-slate-800/80 flex items-center gap-2 text-xs font-semibold text-[#2563EB] dark:text-[#60A5FA]">
+                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                <span>National registry cross-referencing</span>
+              </div>
+            </div>
+
+            {/* Pillar 3: Zonal Scoping & Audit Trails */}
+            <div className="group relative p-7 rounded-2xl bg-white dark:bg-[#111827] border border-[#E2E8F0] dark:border-[#334155] hover:border-indigo-500/60 dark:hover:border-indigo-500/60 shadow-xs hover:shadow-md hover:-translate-y-1 transition-all duration-200">
+              <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-800/60 flex items-center justify-center mb-5 group-hover:scale-105 transition-transform">
+                <FileCheck2 className="w-6 h-6" />
+              </div>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 block mb-1">
+                Operational Governance
+              </span>
+              <h3 className="text-lg font-bold text-[#0F172A] dark:text-[#F8FAFC] mb-2">
+                Zonal Scoping & Audit Trails
+              </h3>
+              <p className="text-xs sm:text-sm text-[#64748B] dark:text-[#94A3B8] leading-relaxed">
+                Strict geographic role boundaries enforce woreda and zonal boundaries, while immutable cryptographically timestamped audit logs record every officer intake and supervisor review.
+              </p>
+              <div className="mt-5 pt-4 border-t border-[#F1F5F9] dark:border-slate-800/80 flex items-center gap-2 text-xs font-semibold text-indigo-600 dark:text-indigo-400">
+                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                <span>100% Traceable accountability</span>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 3. DYNAMIC LIVE CLUSTER TELEMETRY (NO HARDCODED METRICS) */}
-      <section className="bg-slate-950 py-10 border-b border-slate-800">
+      {/* 4. REAL-TIME NATIONAL TELEMETRY RIBBON (LIGHT in light mode, DARK in dark mode) */}
+      <section className="bg-white dark:bg-[#0F172A] py-16 text-[#0F172A] dark:text-white border-b border-[#E2E8F0] dark:border-[#334155] transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <div className="mb-10">
             <div>
-              <div className="flex items-center gap-2">
-                <Server className="w-4 h-4 text-blue-400" />
-                <h2 className="text-xs font-bold uppercase tracking-wider text-slate-300">
-                  Live PostgreSQL Cluster Telemetry
-                </h2>
-              </div>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Real-time metrics queried directly from the connected database backend
+              <span className="text-xs uppercase font-bold tracking-wider text-[#2563EB] dark:text-[#60A5FA] block mb-1">
+                Real-Time National Telemetry
+              </span>
+              <h3 className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] dark:text-white">
+                Current Operational Deployment Across Ethiopia
+              </h3>
+              <p className="text-xs text-[#64748B] dark:text-[#94A3B8] mt-1">
+                Directly synchronized with the centralized PostgreSQL national registry
               </p>
             </div>
-
-            <div className="flex items-center gap-2 text-xs text-slate-400">
-              <Clock className="w-3.5 h-3.5" />
-              <span>
-                Last verified:{' '}
-                {telemetry.timestamp ? new Date(telemetry.timestamp).toLocaleTimeString() : 'Awaiting heartbeat'}
-              </span>
-            </div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            {/* Regions count */}
-            <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 transition-colors">
-              <div className="text-slate-400 text-xs font-medium flex items-center gap-1.5">
-                <Globe className="w-3.5 h-3.5 text-blue-400" />
-                <span>Regions & Cities</span>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
+            {/* Card 1: Regions */}
+            <div className="p-6 rounded-2xl bg-[#F8FAFC] dark:bg-[#111827] border border-[#E2E8F0] dark:border-[#334155] hover:border-blue-500/50 dark:hover:border-blue-500/50 transition-all shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-[#64748B] dark:text-[#94A3B8] text-xs font-semibold">Administrative Regions</span>
+                <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-500/10 text-[#2563EB] dark:text-[#60A5FA] flex items-center justify-center">
+                  <Globe className="w-4 h-4" />
+                </div>
               </div>
-              <div className="mt-2 text-2xl font-bold text-white tracking-tight">
-                {telemetry.loading ? (
-                  <span className="animate-pulse text-slate-600">--</span>
-                ) : (
-                  telemetry.counts.regions ?? 0
-                )}
+              <div className="mt-4 text-3xl sm:text-4xl font-extrabold text-[#0F172A] dark:text-white tracking-tight">
+                {telemetry.loading ? '--' : (telemetry.counts.regions ?? 0)}
               </div>
-              <div className="text-[11px] text-slate-500 mt-1">National coverage units</div>
+              <p className="mt-1 text-xs text-[#64748B] dark:text-[#94A3B8] font-medium">12 States & 2 Chartered Cities</p>
             </div>
 
-            {/* Zones count */}
-            <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 transition-colors">
-              <div className="text-slate-400 text-xs font-medium flex items-center gap-1.5">
-                <Building2 className="w-3.5 h-3.5 text-indigo-400" />
-                <span>Operational Zones</span>
+            {/* Card 2: Zones */}
+            <div className="p-6 rounded-2xl bg-[#F8FAFC] dark:bg-[#111827] border border-[#E2E8F0] dark:border-[#334155] hover:border-indigo-500/50 dark:hover:border-indigo-500/50 transition-all shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-[#64748B] dark:text-[#94A3B8] text-xs font-semibold">Operational Zones</span>
+                <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                  <Building2 className="w-4 h-4" />
+                </div>
               </div>
-              <div className="mt-2 text-2xl font-bold text-white tracking-tight">
-                {telemetry.loading ? (
-                  <span className="animate-pulse text-slate-600">--</span>
-                ) : (
-                  telemetry.counts.zones ?? 0
-                )}
+              <div className="mt-4 text-3xl sm:text-4xl font-extrabold text-[#0F172A] dark:text-white tracking-tight">
+                {telemetry.loading ? '--' : (telemetry.counts.zones ?? 0)}
               </div>
-              <div className="text-[11px] text-slate-500 mt-1">Sub-cities & zones</div>
+              <p className="mt-1 text-xs text-[#64748B] dark:text-[#94A3B8] font-medium">Sub-cities & zonal councils</p>
             </div>
 
-            {/* Woredas count */}
-            <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 transition-colors">
-              <div className="text-slate-400 text-xs font-medium flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Woredas</span>
+            {/* Card 3: Woredas */}
+            <div className="p-6 rounded-2xl bg-[#F8FAFC] dark:bg-[#111827] border border-[#E2E8F0] dark:border-[#334155] hover:border-emerald-500/50 dark:hover:border-emerald-500/50 transition-all shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-[#64748B] dark:text-[#94A3B8] text-xs font-semibold">Woredas / Districts</span>
+                <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-[#16A34A] dark:text-emerald-400 flex items-center justify-center">
+                  <MapPin className="w-4 h-4" />
+                </div>
               </div>
-              <div className="mt-2 text-2xl font-bold text-white tracking-tight">
-                {telemetry.loading ? (
-                  <span className="animate-pulse text-slate-600">--</span>
-                ) : (
-                  telemetry.counts.woredas ?? 0
-                )}
+              <div className="mt-4 text-3xl sm:text-4xl font-extrabold text-[#0F172A] dark:text-white tracking-tight">
+                {telemetry.loading ? '--' : (telemetry.counts.woredas ?? 0)}
               </div>
-              <div className="text-[11px] text-slate-500 mt-1">Districts & frontline hubs</div>
+              <p className="mt-1 text-xs text-[#64748B] dark:text-[#94A3B8] font-medium">Frontline operational units</p>
             </div>
 
-            {/* Registered Citizens */}
-            <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 transition-colors">
-              <div className="text-slate-400 text-xs font-medium flex items-center gap-1.5">
-                <Users className="w-3.5 h-3.5 text-cyan-400" />
-                <span>Citizen Records</span>
+            {/* Card 4: Registered Citizens */}
+            <div className="p-6 rounded-2xl bg-[#F8FAFC] dark:bg-[#111827] border border-[#E2E8F0] dark:border-[#334155] hover:border-cyan-500/50 dark:hover:border-cyan-500/50 transition-all shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-[#64748B] dark:text-[#94A3B8] text-xs font-semibold">Citizen Records</span>
+                <div className="w-8 h-8 rounded-lg bg-cyan-50 dark:bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 flex items-center justify-center">
+                  <Users className="w-4 h-4" />
+                </div>
               </div>
-              <div className="mt-2 text-2xl font-bold text-white tracking-tight">
-                {telemetry.loading ? (
-                  <span className="animate-pulse text-slate-600">--</span>
-                ) : (
-                  telemetry.counts.citizens ?? 0
-                )}
+              <div className="mt-4 text-3xl sm:text-4xl font-extrabold text-[#0F172A] dark:text-white tracking-tight">
+                {telemetry.loading ? '--' : (telemetry.counts.citizens ?? 0)}
               </div>
-              <div className="text-[11px] text-slate-500 mt-1">Stored in central registry</div>
+              <p className="mt-1 text-xs text-[#64748B] dark:text-[#94A3B8] font-medium">Enrolled in central registry</p>
             </div>
 
-            {/* System Status / Engine */}
-            <div className="col-span-2 md:col-span-1 p-4 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 transition-colors">
-              <div className="text-slate-400 text-xs font-medium flex items-center gap-1.5">
-                <Database className="w-3.5 h-3.5 text-amber-400" />
-                <span>Core Engine</span>
+            {/* Card 5: Staff */}
+            <div className="col-span-2 md:col-span-1 p-6 rounded-2xl bg-[#F8FAFC] dark:bg-[#111827] border border-[#E2E8F0] dark:border-[#334155] hover:border-amber-500/50 dark:hover:border-amber-500/50 transition-all shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-[#64748B] dark:text-[#94A3B8] text-xs font-semibold">Active Field Personnel</span>
+                <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                  <ShieldCheck className="w-4 h-4" />
+                </div>
               </div>
-              <div className="mt-2 text-sm font-bold text-white tracking-tight flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                <span>{telemetry.provider}</span>
+              <div className="mt-4 text-3xl sm:text-4xl font-extrabold text-[#0F172A] dark:text-white tracking-tight">
+                {telemetry.loading ? '--' : (telemetry.counts.users ?? 0)}
               </div>
-              <div className="text-[11px] text-slate-500 mt-1">
-                {telemetry.orm} • Offline Dexie.js
+              <p className="mt-1 text-xs text-[#64748B] dark:text-[#94A3B8] font-medium">Officers, supervisors & mgrs</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. HOW FIELDSYNC SOLVES REAL-WORLD CHALLENGES (PROBLEM & SOLUTION) */}
+      <section id="problem-solution" className="py-20 bg-[#F8FAFC] dark:bg-[#111827] border-b border-[#E2E8F0] dark:border-[#334155] transition-colors duration-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0F172A] dark:text-[#F8FAFC]">
+              Solving Critical Public Administration Challenges
+            </h2>
+            <p className="mt-4 text-[#64748B] dark:text-[#94A3B8] text-base leading-relaxed">
+              Paper registers and fragile internet connections have historically prevented governments from maintaining accurate citizen registries. FieldSync resolves these challenges on the ground.
+            </p>
+          </div>
+
+          {/* 4 Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Solution 1 */}
+            <div className="bg-white dark:bg-[#1E293B] p-7 rounded-2xl border border-[#E2E8F0] dark:border-[#334155] shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/80 text-[#2563EB] dark:text-[#60A5FA] flex items-center justify-center font-bold mb-5">
+                  <Smartphone className="w-6 h-6" />
+                </div>
+                <h3 className="text-lg font-bold text-[#0F172A] dark:text-[#F8FAFC] mb-2">
+                  Uninterrupted Rural Civil Intake
+                </h3>
+                <p className="text-xs text-[#64748B] dark:text-[#94A3B8] leading-relaxed">
+                  Field officers can conduct door-to-door registrations in remote villages with zero connectivity. Intake forms, photos, and household GPS records are preserved locally on the device.
+                </p>
+              </div>
+              <div className="mt-6 pt-4 border-t border-[#E2E8F0] dark:border-[#334155] flex items-center gap-2 text-xs font-semibold text-[#2563EB] dark:text-[#60A5FA]">
+                <Check className="w-3.5 h-3.5" />
+                <span>Zero Data Loss in Remote Areas</span>
+              </div>
+            </div>
+
+            {/* Solution 2 */}
+            <div className="bg-white dark:bg-[#1E293B] p-7 rounded-2xl border border-[#E2E8F0] dark:border-[#334155] shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/80 text-[#16A34A] dark:text-emerald-400 flex items-center justify-center font-bold mb-5">
+                  <Database className="w-6 h-6" />
+                </div>
+                <h3 className="text-lg font-bold text-[#0F172A] dark:text-[#F8FAFC] mb-2">
+                  Automatic Reconnect Synchronization
+                </h3>
+                <p className="text-xs text-[#64748B] dark:text-[#94A3B8] leading-relaxed">
+                  Eliminates weeks of manual paper transport. As soon as a field device connects to Wi-Fi, 3G/4G, or a woreda office hub, records automatically sync to central database clusters.
+                </p>
+              </div>
+              <div className="mt-6 pt-4 border-t border-[#E2E8F0] dark:border-[#334155] flex items-center gap-2 text-xs font-semibold text-[#16A34A] dark:text-emerald-400">
+                <Check className="w-3.5 h-3.5" />
+                <span>Instant Data Transmission</span>
+              </div>
+            </div>
+
+            {/* Solution 3 */}
+            <div className="bg-white dark:bg-[#1E293B] p-7 rounded-2xl border border-[#E2E8F0] dark:border-[#334155] shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold mb-5">
+                  <ShieldCheck className="w-6 h-6" />
+                </div>
+                <h3 className="text-lg font-bold text-[#0F172A] dark:text-[#F8FAFC] mb-2">
+                  Fraud & Duplicate Prevention
+                </h3>
+                <p className="text-xs text-[#64748B] dark:text-[#94A3B8] leading-relaxed">
+                  Automated duplicate detection flags multiple registrations across kebele boundaries, matching phone records and citizen identifiers for supervisor verification before approval.
+                </p>
+              </div>
+              <div className="mt-6 pt-4 border-t border-[#E2E8F0] dark:border-[#334155] flex items-center gap-2 text-xs font-semibold text-indigo-600 dark:text-indigo-400">
+                <Check className="w-3.5 h-3.5" />
+                <span>Single Identity Verification</span>
+              </div>
+            </div>
+
+            {/* Solution 4 */}
+            <div className="bg-white dark:bg-[#1E293B] p-7 rounded-2xl border border-[#E2E8F0] dark:border-[#334155] shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-teal-50 dark:bg-teal-950/80 text-[#0F766E] dark:text-[#2DD4BF] flex items-center justify-center font-bold mb-5">
+                  <BarChart3 className="w-6 h-6" />
+                </div>
+                <h3 className="text-lg font-bold text-[#0F172A] dark:text-[#F8FAFC] mb-2">
+                  National Demographic Intelligence
+                </h3>
+                <p className="text-xs text-[#64748B] dark:text-[#94A3B8] leading-relaxed">
+                  Provides regional and federal authorities with live population coverage dashboards by Region, Zone, and Woreda, enabling fair public service distribution and policy planning.
+                </p>
+              </div>
+              <div className="mt-6 pt-4 border-t border-[#E2E8F0] dark:border-[#334155] flex items-center gap-2 text-xs font-semibold text-[#0F766E] dark:text-[#2DD4BF]">
+                <Check className="w-3.5 h-3.5" />
+                <span>Evidence-Based Governance</span>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 4. THREE CORE OPERATIONAL ROLES */}
-      <section id="roles" className="py-20 bg-slate-900 border-b border-slate-800">
+      {/* 6. AUTHORIZED OPERATIONAL ROLE SECTION (NO HARDCODED PERSONAL NAMES) */}
+      <section id="roles" className="py-20 bg-white dark:bg-[#0F172A] border-b border-[#E2E8F0] dark:border-[#334155] transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-blue-400 mb-2">
-              Role-Based Governance Matrix
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0F172A] dark:text-[#F8FAFC]">
+              Select Your Authorized Operational Role
             </h2>
-            <h3 className="text-2xl sm:text-4xl font-extrabold text-white">
-              Purpose-Built for Every Operational Tier
-            </h3>
-            <p className="mt-4 text-sm sm:text-base text-slate-300">
-              FieldSync enforces separation of duties across field data collection, zonal verification, and executive national analytics.
+            <p className="mt-4 text-[#64748B] dark:text-[#94A3B8] text-base leading-relaxed">
+              Each portal provides dedicated views and permissions tailored to frontline field officers, zonal supervisors, and national managers.
             </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* 1. Field Officer */}
-            <div className="flex flex-col bg-slate-800/70 border border-slate-700/80 rounded-2xl p-6 sm:p-8 hover:border-blue-500/50 transition-all shadow-lg hover:shadow-blue-500/5">
-              <div className="w-12 h-12 rounded-xl bg-blue-900/60 border border-blue-700/60 flex items-center justify-center text-blue-300 mb-5">
-                <Users className="w-6 h-6" />
-              </div>
-              <div className="flex items-center gap-2">
-                <h4 className="text-xl font-bold text-white">Field Officer</h4>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-950 text-blue-300 border border-blue-800 font-semibold">
-                  Frontline Tier
-                </span>
-              </div>
-              <p className="text-xs text-slate-400 mt-1">
-                Stationed at Woredas and Kebeles for direct citizen intake.
-              </p>
+            {/* 1. Field Officer Workstation (Blue Accent) */}
+            <div className="bg-[#F8FAFC] dark:bg-[#111827] rounded-2xl border border-blue-200 dark:border-[#334155] p-8 flex flex-col justify-between hover:border-[#2563EB] dark:hover:border-blue-500 transition-all shadow-xs hover:shadow-md hover:-translate-y-0.5">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#2563EB] dark:text-[#60A5FA] bg-blue-50 dark:bg-blue-950/80 px-2.5 py-1 rounded-md border border-blue-200 dark:border-blue-800">
+                    Frontline Tier
+                  </span>
+                  <Smartphone className="w-5 h-5 text-[#2563EB] dark:text-[#60A5FA]" />
+                </div>
 
-              <ul className="mt-6 space-y-3 text-xs sm:text-sm text-slate-300 flex-1">
-                <li className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
-                  <span><strong>Offline Citizen Intake:</strong> Register citizen demographics, contact, and biometrics with zero connectivity.</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
-                  <span><strong>GPS Geo-Tagging:</strong> Automatically capture verified geographic coordinates during registration.</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
-                  <span><strong>IndexedDB Local Storage:</strong> Drafts saved safely to browser sandbox with auto-sync retry on reconnect.</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
-                  <span><strong>Daily Activity Reports:</strong> Submit end-of-day operations logs and attendance verification.</span>
-                </li>
-              </ul>
+                <h3 className="text-xl font-bold text-[#0F172A] dark:text-[#F8FAFC]">Field Officer Workstation</h3>
+                <p className="text-xs text-[#64748B] dark:text-[#94A3B8] mt-1">Direct Citizen Registration & Kebele Intake</p>
 
-              <div className="mt-8 pt-5 border-t border-slate-700/80">
-                <div className="flex items-center justify-between text-xs text-slate-400 mb-3">
-                  <span>Demo Account:</span>
-                  <code className="text-slate-200 bg-slate-900 px-2 py-0.5 rounded">meseret@fieldsync.com</code>
+                <ul className="mt-6 space-y-3 text-xs text-[#0F172A] dark:text-[#CBD5E1]">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[#16A34A] shrink-0" />
+                    <span>Citizen demographic and vital intake</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[#16A34A] shrink-0" />
+                    <span>GPS geo-location capture for households</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[#16A34A] shrink-0" />
+                    <span>Guaranteed offline operation in remote areas</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[#16A34A] shrink-0" />
+                    <span>Daily attendance check-in & work logs</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="mt-8 pt-6 border-t border-[#E2E8F0] dark:border-[#334155]">
+                <div className="text-[11px] text-[#64748B] dark:text-[#94A3B8] mb-2 font-medium">
+                  Operational Scope: Frontline Kebele Registration
                 </div>
                 <button
                   onClick={() => onGoToLogin('FIELD_OFFICER')}
-                  className="w-full py-2.5 px-4 rounded-xl bg-slate-700/80 hover:bg-blue-600 text-white font-semibold text-xs sm:text-sm transition-all flex items-center justify-center gap-2"
+                  className="w-full py-3 px-4 rounded-xl bg-[#2563EB] hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-xs focus:outline-none focus:ring-2 focus:ring-blue-500/40 cursor-pointer"
                 >
-                  <span>Launch Officer Portal</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <span>Enter Officer Workstation</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
 
-            {/* 2. Supervisor */}
-            <div className="flex flex-col bg-slate-800/70 border border-slate-700/80 rounded-2xl p-6 sm:p-8 hover:border-indigo-500/50 transition-all shadow-lg hover:shadow-indigo-500/5">
-              <div className="w-12 h-12 rounded-xl bg-indigo-900/60 border border-indigo-700/60 flex items-center justify-center text-indigo-300 mb-5">
-                <FileCheck className="w-6 h-6" />
-              </div>
-              <div className="flex items-center gap-2">
-                <h4 className="text-xl font-bold text-white">Supervisor</h4>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800 font-semibold">
-                  Zonal Tier
-                </span>
-              </div>
-              <p className="text-xs text-slate-400 mt-1">
-                Assigned to specific Administrative Zones or Sub-Cities.
-              </p>
+            {/* 2. Zonal Supervisor Portal (Indigo Accent) */}
+            <div className="bg-[#F8FAFC] dark:bg-[#111827] rounded-2xl border border-indigo-200 dark:border-[#334155] p-8 flex flex-col justify-between hover:border-indigo-500 dark:hover:border-indigo-400 transition-all shadow-xs hover:shadow-md hover:-translate-y-0.5">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-xs font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/80 px-2.5 py-1 rounded-md border border-indigo-200 dark:border-indigo-800">
+                    Zonal Tier
+                  </span>
+                  <Building2 className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                </div>
 
-              <ul className="mt-6 space-y-3 text-xs sm:text-sm text-slate-300 flex-1">
-                <li className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
-                  <span><strong>Zonal Queue Oversight:</strong> Monitor field officer registrations restricted to the assigned zone.</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
-                  <span><strong>Duplicate Resolution:</strong> Inspect system-flagged phone, ID, and name conflicts and resolve matches.</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
-                  <span><strong>Daily Report Review:</strong> Grade, approve, or request revisions on officer field submissions.</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
-                  <span><strong>Field Team Tracking:</strong> Supervise officer presence, check-in logs, and daily targets.</span>
-                </li>
-              </ul>
+                <h3 className="text-xl font-bold text-[#0F172A] dark:text-[#F8FAFC]">Zonal Supervisor Portal</h3>
+                <p className="text-xs text-[#64748B] dark:text-[#94A3B8] mt-1">Verification, Deduplication & Quality Assurance</p>
 
-              <div className="mt-8 pt-5 border-t border-slate-700/80">
-                <div className="flex items-center justify-between text-xs text-slate-400 mb-3">
-                  <span>Demo Account:</span>
-                  <code className="text-slate-200 bg-slate-900 px-2 py-0.5 rounded">birhan@fieldsync.com</code>
+                <ul className="mt-6 space-y-3 text-xs text-[#0F172A] dark:text-[#CBD5E1]">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-indigo-500 shrink-0" />
+                    <span>Zonal citizen registration queue review</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-indigo-500 shrink-0" />
+                    <span>Duplicate detection & resolution console</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-indigo-500 shrink-0" />
+                    <span>Daily officer report evaluations & ratings</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-indigo-500 shrink-0" />
+                    <span>Team assignment dispatching and oversight</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="mt-8 pt-6 border-t border-[#E2E8F0] dark:border-[#334155]">
+                <div className="text-[11px] text-[#64748B] dark:text-[#94A3B8] mb-2 font-medium">
+                  Operational Scope: Zonal Audit & Deduplication
                 </div>
                 <button
                   onClick={() => onGoToLogin('SUPERVISOR')}
-                  className="w-full py-2.5 px-4 rounded-xl bg-slate-700/80 hover:bg-indigo-600 text-white font-semibold text-xs sm:text-sm transition-all flex items-center justify-center gap-2"
+                  className="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/40 cursor-pointer"
                 >
-                  <span>Launch Supervisor Hub</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <span>Enter Supervisor Portal</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
 
-            {/* 3. Manager */}
-            <div className="flex flex-col bg-slate-800/70 border border-slate-700/80 rounded-2xl p-6 sm:p-8 hover:border-emerald-500/50 transition-all shadow-lg hover:shadow-emerald-500/5">
-              <div className="w-12 h-12 rounded-xl bg-emerald-900/60 border border-emerald-700/60 flex items-center justify-center text-emerald-300 mb-5">
-                <BarChart3 className="w-6 h-6" />
-              </div>
-              <div className="flex items-center gap-2">
-                <h4 className="text-xl font-bold text-white">Manager</h4>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800 font-semibold">
-                  Executive Tier
-                </span>
-              </div>
-              <p className="text-xs text-slate-400 mt-1">
-                National organization-wide authority and compliance oversight.
-              </p>
+            {/* 3. National Executive Command (Teal Accent) */}
+            <div className="bg-[#F8FAFC] dark:bg-[#111827] rounded-2xl border border-teal-200 dark:border-[#334155] p-8 flex flex-col justify-between hover:border-teal-500 dark:hover:border-teal-400 transition-all shadow-xs hover:shadow-md hover:-translate-y-0.5">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#0F766E] dark:text-[#2DD4BF] bg-teal-50 dark:bg-teal-950/80 px-2.5 py-1 rounded-md border border-teal-200 dark:border-teal-800">
+                    Executive Tier
+                  </span>
+                  <BarChart3 className="w-5 h-5 text-[#0F766E] dark:text-[#2DD4BF]" />
+                </div>
 
-              <ul className="mt-6 space-y-3 text-xs sm:text-sm text-slate-300 flex-1">
-                <li className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <span><strong>Organization Analytics:</strong> Real-time charts covering registrations by Region, Zone, and Woreda.</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <span><strong>Immutable Audit Trails:</strong> Cryptographic append-only activity log with before/after state diffs.</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <span><strong>Data Quality & Inactivity:</strong> Automatically flag officers with zero attendance or zero registrations.</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <span><strong>User Provisioning:</strong> Invite, assign, and manage lifecycle credentials across all administrative tiers.</span>
-                </li>
-              </ul>
+                <h3 className="text-xl font-bold text-[#0F172A] dark:text-[#F8FAFC]">National Executive Command</h3>
+                <p className="text-xs text-[#64748B] dark:text-[#94A3B8] mt-1">Cross-Regional Analytics & Audit Governance</p>
 
-              <div className="mt-8 pt-5 border-t border-slate-700/80">
-                <div className="flex items-center justify-between text-xs text-slate-400 mb-3">
-                  <span>Demo Account:</span>
-                  <code className="text-slate-200 bg-slate-900 px-2 py-0.5 rounded">abebe@fieldsync.com</code>
+                <ul className="mt-6 space-y-3 text-xs text-[#0F172A] dark:text-[#CBD5E1]">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" />
+                    <span>Organization-wide registration analytics</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" />
+                    <span>National coverage breakdown by Region & Zone</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" />
+                    <span>Immutable audit log inspection with state diffs</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" />
+                    <span>Zero-activity detection & staff provisioning</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="mt-8 pt-6 border-t border-[#E2E8F0] dark:border-[#334155]">
+                <div className="text-[11px] text-[#64748B] dark:text-[#94A3B8] mb-2 font-medium">
+                  Operational Scope: National Cross-Regional Authority
                 </div>
                 <button
                   onClick={() => onGoToLogin('MANAGER')}
-                  className="w-full py-2.5 px-4 rounded-xl bg-slate-700/80 hover:bg-emerald-600 text-white font-semibold text-xs sm:text-sm transition-all flex items-center justify-center gap-2"
+                  className="w-full py-3 px-4 rounded-xl bg-[#0F766E] hover:bg-teal-700 active:bg-teal-800 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-xs focus:outline-none focus:ring-2 focus:ring-teal-500/40 cursor-pointer"
                 >
-                  <span>Launch Manager Command</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <span>Enter Executive Command</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
@@ -509,266 +636,267 @@ export default function LandingPage({ onGoToLogin, isOnline = true }) {
         </div>
       </section>
 
-      {/* 5. SYSTEM ARCHITECTURE & RESILIENCE */}
-      <section id="architecture" className="py-20 bg-slate-950 border-b border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-blue-400 mb-2">
-              Engineering Deep-Dive
-            </h2>
-            <h3 className="text-2xl sm:text-4xl font-extrabold text-white">
-              Resilient Offline-First Synchronization Architecture
-            </h3>
-            <p className="mt-4 text-sm sm:text-base text-slate-300">
-              How FieldSync maintains strict relational consistency and zero data loss under intermittent and disconnected network conditions.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Layer 1 */}
-            <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800">
-              <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 mb-4">
-                <WifiOff className="w-5 h-5" />
-              </div>
-              <h4 className="text-base font-bold text-white mb-2">1. Offline Client Sandbox</h4>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                IndexedDB powered by Dexie.js caches the full administrative tree, user profiles, and active registrations directly on the field device. Field officers perform unrestricted registrations offline.
-              </p>
-            </div>
-
-            {/* Layer 2 */}
-            <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800">
-              <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 mb-4">
-                <GitBranch className="w-5 h-5" />
-              </div>
-              <h4 className="text-base font-bold text-white mb-2">2. Bi-Directional Queue</h4>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                Mutations are enqueued with local timestamps and client UUIDs. The background sync engine uses exponential backoff and network event listeners to replay batches with full idempotency.
-              </p>
-            </div>
-
-            {/* Layer 3 */}
-            <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800">
-              <div className="w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400 mb-4">
-                <Cpu className="w-5 h-5" />
-              </div>
-              <h4 className="text-base font-bold text-white mb-2">3. Conflict & Deduplication</h4>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                Central Express & Prisma API evaluates registrations for duplicate national IDs, phone numbers, and names, automatically triaging conflicts to the supervisor's resolution dashboard.
-              </p>
-            </div>
-
-            {/* Layer 4 */}
-            <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-4">
-                <Database className="w-5 h-5" />
-              </div>
-              <h4 className="text-base font-bold text-white mb-2">4. PostgreSQL Enterprise Core</h4>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                PostgreSQL guarantees ACID durability, relational hierarchy constraints (Region → Zone → Woreda → Kebele), and append-only cryptographic audit trail tables.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 6. ETHIOPIAN ADMINISTRATIVE COVERAGE (DYNAMIC) */}
-      <section id="coverage" className="py-20 bg-slate-900 border-b border-slate-800">
+      {/* 7. ETHIOPIAN ADMINISTRATIVE DIVISIONS SECTION */}
+      <section id="coverage" className="py-20 bg-[#F8FAFC] dark:bg-[#111827] border-b border-[#E2E8F0] dark:border-[#334155] transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
             <div>
-              <h2 className="text-xs font-bold uppercase tracking-wider text-blue-400 mb-2">
-                Geographic Coverage Hierarchy
-              </h2>
-              <h3 className="text-2xl sm:text-3xl font-extrabold text-white">
+              <span className="text-xs uppercase font-bold tracking-wider text-[#2563EB] dark:text-[#60A5FA] block mb-1">
+                National Geographic Hierarchy
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] dark:text-[#F8FAFC]">
                 All Ethiopian Administrative Divisions
-              </h3>
-              <p className="mt-2 text-sm text-slate-300">
-                Mapped natively to the national administrative structure: Region → Zone → Woreda → Kebele.
+              </h2>
+              <p className="mt-1 text-sm text-[#64748B] dark:text-[#94A3B8]">
+                FieldSync maps directly to Ethiopia's 4-tier structure: Region → Zone → Woreda → Kebele.
               </p>
             </div>
 
-            <div className="text-xs text-slate-400 bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">
+            <div className="text-xs text-[#64748B] dark:text-[#94A3B8] bg-white dark:bg-[#1E293B] px-3.5 py-2 rounded-xl border border-[#E2E8F0] dark:border-[#334155] shadow-xs">
               <span>Dynamic Active Regions Loaded: </span>
-              <strong className="text-white">{regionsList.length || (telemetry.counts.regions ?? '...')}</strong>
+              <strong className="text-[#2563EB] dark:text-[#60A5FA] font-bold">
+                {regionsList.length || (telemetry.counts.regions ?? '...')}
+              </strong>
             </div>
           </div>
 
-          {/* Region Badges Grid */}
+          {/* Region Chips */}
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3">
             {regionsList.length > 0 ? (
               regionsList.map((region) => (
                 <div
                   key={region.id}
-                  className="p-3 rounded-xl bg-slate-800/80 border border-slate-700 hover:border-blue-500 transition-all text-center group"
+                  onClick={() => setSelectedRegion(region)}
+                  className={`p-3.5 rounded-xl border cursor-pointer transition-all text-center ${
+                    selectedRegion?.id === region.id
+                      ? 'bg-[#2563EB] text-white border-[#2563EB] shadow-sm ring-1 ring-[#2563EB]'
+                      : 'bg-white dark:bg-[#1E293B] text-[#0F172A] dark:text-[#F8FAFC] border-[#E2E8F0] dark:border-[#334155] hover:border-blue-400 hover:bg-slate-50 dark:hover:bg-slate-800'
+                  }`}
                 >
-                  <div className="text-[10px] font-bold text-blue-400 tracking-wider uppercase mb-1">
+                  <span className={`text-[10px] font-bold tracking-wider uppercase block mb-0.5 ${
+                    selectedRegion?.id === region.id ? 'text-blue-100' : 'text-[#2563EB] dark:text-[#60A5FA]'
+                  }`}>
                     {region.code || 'REG'}
-                  </div>
-                  <div className="text-xs font-semibold text-slate-200 group-hover:text-white truncate">
+                  </span>
+                  <span className="text-xs font-bold truncate block">
                     {region.name}
-                  </div>
+                  </span>
                 </div>
               ))
             ) : (
-              <div className="col-span-full py-8 text-center text-slate-500 text-xs">
-                Loading administrative division hierarchy...
+              <div className="col-span-full py-8 text-center text-[#64748B] dark:text-[#94A3B8] text-xs">
+                Loading national administrative divisions...
               </div>
             )}
           </div>
+
+          {/* Selected Region Status Card */}
+          {selectedRegion && (
+            <div className="mt-6 p-5 bg-white dark:bg-[#1E293B] rounded-2xl border border-[#E2E8F0] dark:border-[#334155] shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/80 text-[#2563EB] dark:text-[#60A5FA] flex items-center justify-center font-bold">
+                  <MapPin className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-[#0F172A] dark:text-[#F8FAFC]">{selectedRegion.name}</h4>
+                  <p className="text-xs text-[#64748B] dark:text-[#94A3B8]">
+                    Administrative Division Code: <strong className="text-[#0F172A] dark:text-[#F8FAFC]">{selectedRegion.code}</strong> • Status: Operational
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 text-xs">
+                <span className="px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/80 text-[#16A34A] dark:text-emerald-300 font-semibold border border-emerald-200 dark:border-emerald-800">
+                  Ready for Zonal Intake
+                </span>
+                <button
+                  onClick={() => onGoToLogin()}
+                  className="px-4 py-2 rounded-lg bg-[#2563EB] hover:bg-blue-700 text-white font-semibold text-xs transition-colors shadow-xs"
+                >
+                  Access Division
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
-      {/* 7. ENTERPRISE SECURITY & AUDIT TRAILS */}
-      <section id="security" className="py-20 bg-slate-950 border-b border-slate-800">
+      {/* 8. DATA SOVEREIGNTY, PRIVACY, AND TRACEABLE ACCOUNTABILITY (NO BLACK BLOCKS IN LIGHT THEME) */}
+      <section id="security" className="py-20 bg-white dark:bg-[#0F172A] border-b border-[#E2E8F0] dark:border-[#334155] transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-950 text-blue-300 border border-blue-800 text-xs font-semibold mb-4">
-                <ShieldCheck className="w-4 h-4" />
-                <span>Enterprise Security Architecture</span>
-              </div>
-              <h3 className="text-2xl sm:text-4xl font-extrabold text-white leading-tight">
-                Cryptographic Audit Trails & Strict Role Isolation
-              </h3>
-              <p className="mt-4 text-sm sm:text-base text-slate-300 leading-relaxed">
-                FieldSync enforces strict enterprise-grade security at both client and server boundaries. Every administrative mutation, review decision, and credential modification is committed to an immutable append-only audit trail.
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            {/* Left Column */}
+            <div className="lg:col-span-6 space-y-6">
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0F172A] dark:text-[#F8FAFC] tracking-tight leading-tight">
+                Data Sovereignty, Privacy, & Traceable Accountability
+              </h2>
+
+              <p className="text-[#64748B] dark:text-[#94A3B8] text-base leading-relaxed">
+                FieldSync protects citizen records with strict role-based access control, cryptographic verification, and tamper-evident event streaming.
               </p>
 
-              <div className="mt-8 space-y-4">
-                <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-slate-800 text-blue-400 mt-1">
-                    <KeyRound className="w-4 h-4" />
+              <div className="space-y-4 pt-2">
+                <div className="flex items-start gap-3.5">
+                  <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/80 text-[#2563EB] dark:text-[#60A5FA] flex items-center justify-center shrink-0 mt-0.5">
+                    <CheckCircle2 className="w-4 h-4" />
                   </div>
                   <div>
-                    <h5 className="text-sm font-bold text-white">Sanitized Credential Storage</h5>
-                    <p className="text-xs text-slate-400 mt-0.5">
-                      Bcrypt salt hashing (10 rounds). Passwords and session secrets are automatically scrubbed prior to audit logging.
+                    <h4 className="text-sm font-bold text-[#0F172A] dark:text-[#F8FAFC]">Zonal Administrative Scoping</h4>
+                    <p className="text-xs text-[#64748B] dark:text-[#94A3B8] mt-0.5">
+                      Supervisors and officers are strictly partitioned to their assigned geographical zones to ensure data confidentiality.
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-slate-800 text-indigo-400 mt-1">
-                    <FileCheck className="w-4 h-4" />
+                <div className="flex items-start gap-3.5">
+                  <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 mt-0.5">
+                    <CheckCircle2 className="w-4 h-4" />
                   </div>
                   <div>
-                    <h5 className="text-sm font-bold text-white">Full State Diffs on Audit Logs</h5>
-                    <p className="text-xs text-slate-400 mt-0.5">
-                      Inspect before-and-after values for user status changes, duplicate citizen reconciliations, and role promotions.
+                    <h4 className="text-sm font-bold text-[#0F172A] dark:text-[#F8FAFC]">Append-Only Audit Stream</h4>
+                    <p className="text-xs text-[#64748B] dark:text-[#94A3B8] mt-0.5">
+                      Every registration, modification, review decision, and authentication attempt is immutably logged with actor attribution.
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-slate-800 text-emerald-400 mt-1">
-                    <Lock className="w-4 h-4" />
+                <div className="flex items-start gap-3.5">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/80 text-[#16A34A] dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                    <CheckCircle2 className="w-4 h-4" />
                   </div>
                   <div>
-                    <h5 className="text-sm font-bold text-white">Zero-Trust Administrative Scoping</h5>
-                    <p className="text-xs text-slate-400 mt-0.5">
-                      Supervisors cannot query or alter data outside their assigned administrative zone. Managers govern national cross-regional operations.
+                    <h4 className="text-sm font-bold text-[#0F172A] dark:text-[#F8FAFC]">Citizen Data Privacy</h4>
+                    <p className="text-xs text-[#64748B] dark:text-[#94A3B8] mt-0.5">
+                      Sensitive credentials are sanitized, biometric data is stored with cryptographic verification, and all data in transit is encrypted.
                     </p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Audit Log Preview Card */}
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl relative">
-              <div className="flex items-center justify-between pb-4 border-b border-slate-800 text-xs">
+            {/* Right Column: Security Panel (LIGHT in light mode, DARK in dark mode) */}
+            <div className="lg:col-span-6 bg-[#F8FAFC] dark:bg-[#111827] text-[#0F172A] dark:text-white rounded-2xl p-8 border border-[#E2E8F0] dark:border-[#334155] shadow-md space-y-6 transition-colors duration-200">
+              <div className="flex items-center justify-between pb-4 border-b border-[#E2E8F0] dark:border-[#334155]">
                 <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-                  <span className="font-mono text-slate-300">AUDIT_LOG_STREAM: SECURE</span>
+                  <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                  <span className="font-bold text-sm">Security & Compliance Profile</span>
                 </div>
-                <span className="text-[10px] text-slate-400 font-mono">APPEND_ONLY</span>
+                <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-400 font-semibold border border-emerald-300 dark:border-emerald-800">
+                  ACTIVE
+                </span>
               </div>
 
-              <div className="mt-4 space-y-3 font-mono text-xs">
-                <div className="p-3 rounded-lg bg-slate-950 border border-slate-850">
-                  <div className="flex items-center justify-between text-slate-400 text-[11px] mb-1">
-                    <span className="text-emerald-400 font-semibold">CITIZEN_REGISTERED</span>
-                    <span>Just now</span>
-                  </div>
-                  <div className="text-slate-300">Actor: meseret@fieldsync.com (Field Officer)</div>
-                  <div className="text-slate-500 text-[11px] mt-1">
-                    Target: Woreda 01, Kebele 01 • Method: OFFLINE_SYNC
-                  </div>
+              <div className="grid grid-cols-2 gap-4 text-xs">
+                <div className="p-3.5 rounded-xl bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] shadow-xs">
+                  <span className="text-[#64748B] dark:text-[#94A3B8] block text-[11px] mb-1">Access Model</span>
+                  <span className="font-bold text-[#0F172A] dark:text-white">Strict Role-Based (RBAC)</span>
                 </div>
 
-                <div className="p-3 rounded-lg bg-slate-950 border border-slate-850">
-                  <div className="flex items-center justify-between text-slate-400 text-[11px] mb-1">
-                    <span className="text-indigo-400 font-semibold">DUPLICATE_RESOLVED</span>
-                    <span>12m ago</span>
-                  </div>
-                  <div className="text-slate-300">Actor: birhan@fieldsync.com (Supervisor)</div>
-                  <div className="text-slate-500 text-[11px] mt-1">
-                    Resolution: MERGED • Zone: Bole Sub-City
-                  </div>
+                <div className="p-3.5 rounded-xl bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] shadow-xs">
+                  <span className="text-[#64748B] dark:text-[#94A3B8] block text-[11px] mb-1">Audit Trail</span>
+                  <span className="font-bold text-[#0F172A] dark:text-white">Immutable & Append-Only</span>
                 </div>
 
-                <div className="p-3 rounded-lg bg-slate-950 border border-slate-850">
-                  <div className="flex items-center justify-between text-slate-400 text-[11px] mb-1">
-                    <span className="text-amber-400 font-semibold">USER_PASSWORD_CHANGE</span>
-                    <span>1h ago</span>
-                  </div>
-                  <div className="text-slate-300">Actor: abebe@fieldsync.com (Manager)</div>
-                  <div className="text-slate-500 text-[11px] mt-1">
-                    Status: FORCE_CHANGE_EXPIRED • Secret: [REDACTED]
-                  </div>
+                <div className="p-3.5 rounded-xl bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] shadow-xs">
+                  <span className="text-[#64748B] dark:text-[#94A3B8] block text-[11px] mb-1">Offline Security</span>
+                  <span className="font-bold text-[#0F172A] dark:text-white">Encrypted Local Store</span>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] shadow-xs">
+                  <span className="text-[#64748B] dark:text-[#94A3B8] block text-[11px] mb-1">Authentication</span>
+                  <span className="font-bold text-[#0F172A] dark:text-white">Session Guard & Token Auth</span>
                 </div>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-slate-850 flex items-center justify-between text-[11px] text-slate-400">
-                <span>Tamper-evident record hash verification</span>
-                <span className="text-emerald-400 font-semibold">VERIFIED ✓</span>
-              </div>
+              <p className="text-xs text-[#64748B] dark:text-[#94A3B8] leading-relaxed pt-2">
+                Designed to comply with civil registration standards, national administrative frameworks, and data protection mandates.
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 8. CALL TO ACTION & FOOTER */}
-      <section className="py-16 bg-gradient-to-b from-slate-900 to-slate-950 text-center">
+      {/* 9. READY TO BEGIN FIELD OPERATIONS CTA SECTION (LIGHT in light mode, DARK in dark mode) */}
+      <section className="py-16 bg-blue-50/70 dark:bg-[#0F172A] text-[#0F172A] dark:text-white text-center border-t border-blue-100 dark:border-[#334155] transition-colors duration-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl sm:text-4xl font-extrabold text-white">
-            Ready to Access FieldSync Workstation?
+          <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
+            Ready to Begin Field Operations?
           </h2>
-          <p className="mt-3 text-sm sm:text-base text-slate-300">
-            Sign in with your role-assigned credentials to begin offline field registration, supervisor verification, or executive analytics.
+          <p className="mt-3 text-sm sm:text-base text-[#64748B] dark:text-[#CBD5E1] max-w-xl mx-auto leading-relaxed">
+            Sign in to the FieldSync workstation with your assigned government credentials to begin field registration or supervisory reviews.
           </p>
           <div className="mt-8 flex justify-center">
             <button
               onClick={() => onGoToLogin()}
-              className="px-8 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-base shadow-xl shadow-blue-600/30 flex items-center gap-3 transition-all transform hover:-translate-y-0.5"
+              className="px-8 py-4 rounded-xl bg-[#2563EB] hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-base shadow-lg shadow-blue-500/20 flex items-center gap-3 transition-all transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-blue-400 cursor-pointer"
             >
-              <span>Sign In to Workstation Portal</span>
+              <span>Access FieldSync Portal</span>
               <ArrowRight className="w-5 h-5" />
             </button>
           </div>
         </div>
       </section>
 
-      <footer className="border-t border-slate-800 bg-slate-950 py-8 text-xs text-slate-500">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <Radio className="w-4 h-4 text-blue-400" />
-            <span className="font-semibold text-slate-300">FieldSync Enterprise Platform</span>
-            <span>• v{telemetry.version}</span>
-          </div>
-          <div className="flex items-center gap-6">
-            <span className="hover:text-slate-400 cursor-pointer" onClick={() => onGoToLogin('FIELD_OFFICER')}>
-              Officer
-            </span>
-            <span className="hover:text-slate-400 cursor-pointer" onClick={() => onGoToLogin('SUPERVISOR')}>
-              Supervisor
-            </span>
-            <span className="hover:text-slate-400 cursor-pointer" onClick={() => onGoToLogin('MANAGER')}>
-              Manager
-            </span>
-          </div>
+      {/* 10. ENTERPRISE FOOTER (LIGHT in light mode, DARK in dark mode) */}
+      <footer className="bg-white dark:bg-[#0F172A] text-[#64748B] dark:text-[#94A3B8] py-12 text-xs border-t border-[#E2E8F0] dark:border-[#334155] transition-colors duration-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div>
-            Authorized for official field operations & citizen registry administration
+            <div className="flex items-center gap-2 text-[#0F172A] dark:text-white font-bold text-base mb-3">
+              <Radio className="w-4 h-4 text-[#2563EB]" />
+              <span>FieldSync National</span>
+            </div>
+            <p className="text-[#64748B] dark:text-[#94A3B8] leading-relaxed">
+              Official Civil Registration & Frontline Field Operations Platform for Ethiopia.
+            </p>
+          </div>
+
+          <div>
+            <h4 className="text-[#0F172A] dark:text-white font-bold mb-3 uppercase tracking-wider text-[11px]">Access Portals</h4>
+            <ul className="space-y-2">
+              <li>
+                <button onClick={() => onGoToLogin('FIELD_OFFICER')} className="hover:text-[#2563EB] dark:hover:text-white transition-colors cursor-pointer">
+                  Field Officer Workstation
+                </button>
+              </li>
+              <li>
+                <button onClick={() => onGoToLogin('SUPERVISOR')} className="hover:text-[#2563EB] dark:hover:text-white transition-colors cursor-pointer">
+                  Zonal Supervisor Portal
+                </button>
+              </li>
+              <li>
+                <button onClick={() => onGoToLogin('MANAGER')} className="hover:text-[#2563EB] dark:hover:text-white transition-colors cursor-pointer">
+                  National Executive Command
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-[#0F172A] dark:text-white font-bold mb-3 uppercase tracking-wider text-[11px]">System Services</h4>
+            <ul className="space-y-2">
+              <li><span>Citizen Vital Registration</span></li>
+              <li><span>Zonal Duplicate Resolution</span></li>
+              <li><span>Frontline Attendance & Tracking</span></li>
+              <li><span>Administrative Hierarchy Mapping</span></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-[#0F172A] dark:text-white font-bold mb-3 uppercase tracking-wider text-[11px]">Platform Status</h4>
+            <p className="mb-2">Version {telemetry.version} • National Release</p>
+            <div className="flex items-center gap-2 text-[#16A34A] font-semibold">
+              <span className="w-2 h-2 rounded-full bg-[#16A34A]" />
+              <span>{telemetry.healthy ? 'All Systems Operational' : 'Operating in Standby Mode'}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 border-t border-[#E2E8F0] dark:border-[#334155] flex flex-col sm:flex-row items-center justify-between gap-4 text-[#64748B] dark:text-[#94A3B8]">
+          <p>© 2026 FieldSync National Platform. Authorized official government use only.</p>
+          <div className="flex items-center gap-4">
+            <span className="hover:text-[#0F172A] dark:hover:text-white cursor-pointer">Data Protection</span>
+            <span className="hover:text-[#0F172A] dark:hover:text-white cursor-pointer">Security Standards</span>
+            <span className="hover:text-[#0F172A] dark:hover:text-white cursor-pointer">Support</span>
           </div>
         </div>
       </footer>

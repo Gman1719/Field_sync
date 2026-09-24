@@ -42,6 +42,7 @@ export default function UserManagement({
   const [roleFilter, setRoleFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [regionFilter, setRegionFilter] = useState('all');
+  const [specialFilter, setSpecialFilter] = useState('all'); // 'all' | 'unassigned'
 
   // Server Stats state
   const [serverStats, setServerStats] = useState(null);
@@ -129,6 +130,9 @@ export default function UserManagement({
   // 4. Filtered User List
   const filteredUsers = useMemo(() => {
     return users.filter(u => {
+      if (specialFilter === 'unassigned') {
+        if (u.role !== 'field_officer' || (u.supervisorId && u.woredaId)) return false;
+      }
       if (roleFilter !== 'all' && u.role !== roleFilter) return false;
       if (statusFilter !== 'all' && u.status !== statusFilter) return false;
       if (regionFilter !== 'all' && u.region !== regionFilter) return false;
@@ -148,7 +152,7 @@ export default function UserManagement({
       }
       return true;
     });
-  }, [users, roleFilter, statusFilter, regionFilter, searchTerm]);
+  }, [users, roleFilter, statusFilter, regionFilter, specialFilter, searchTerm]);
 
   // 5. Validation for Add User
   const validateNewUser = () => {
@@ -170,7 +174,7 @@ export default function UserManagement({
     }
 
     if (newUser.phone) {
-      const phoneErr = validateEthiopianPhone(newUser.phone, false, 'Phone format: +2519... or 09...');
+      const phoneErr = validateEthiopianPhone(newUser.phone, false);
       if (phoneErr) errs.phone = phoneErr;
     }
 
@@ -245,7 +249,7 @@ export default function UserManagement({
         setUsers(prev => [createdUser, ...prev]);
       }
 
-      toast.success('Staff account provisioned successfully!');
+      toast.success('User account created successfully!');
       setShowAddModal(false);
       setNewUser(initialFormState);
       setFormErrors({});
@@ -260,7 +264,7 @@ export default function UserManagement({
       fetchStats();
     } catch (err) {
       console.error('User creation failed:', err);
-      toast.error(err.message || 'Could not provision staff account');
+      toast.error(err.message || 'Could not create user account');
     } finally {
       setIsSubmitting(false);
     }
@@ -369,11 +373,11 @@ export default function UserManagement({
       {/* 1. Header & Add Action */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-            <ShieldCheck className="w-6 h-6 text-[#1E3A8A]" />
+          <h2 className="text-xl sm:text-2xl font-black text-[#0F172A] dark:text-[#F8FAFC] tracking-tight flex items-center gap-2.5">
+            <ShieldCheck className="w-6 h-6 text-[#2563EB] dark:text-[#60A5FA]" />
             User & Workstation Management
           </h2>
-          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+          <p className="text-xs sm:text-sm text-[#64748B] dark:text-[#94A3B8] mt-1">
             Administer system accounts, assign Ethiopian administrative hierarchies, and oversee role permissions
           </p>
         </div>
@@ -386,280 +390,391 @@ export default function UserManagement({
               setFormErrors({});
               setShowAddModal(true);
             }}
-            className="w-full sm:w-auto"
+            className="w-full sm:w-auto bg-[#2563EB] hover:bg-blue-700 text-white font-bold h-11 px-5 rounded-xl shadow-md shadow-blue-600/20"
           >
             <UserPlus className="w-4 h-4 mr-2" />
-            Provision Staff Account
+            Add Users
           </Button>
         </div>
       </div>
 
-      {/* 2. Summary KPI Metrics (7 Cards) */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+      {/* 2. Summary KPI Metrics (6 Evenly Spaced Cards - Responsive on click, No Icons) */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-3.5">
         <StatCard
-          label="Total Staff"
+          label="Total Personnel"
           value={stats.totalUsers}
-          icon={Users}
-          variant="default"
-        />
-        <StatCard
-          label="Managers"
-          value={stats.managers}
-          icon={ShieldCheck}
           variant="primary"
+          subtitle="All staff records"
+          active={roleFilter === 'all' && statusFilter === 'all' && regionFilter === 'all' && specialFilter === 'all' && !searchTerm}
+          onClick={() => {
+            setRoleFilter('all');
+            setStatusFilter('all');
+            setRegionFilter('all');
+            setSpecialFilter('all');
+            setSearchTerm('');
+          }}
         />
         <StatCard
-          label="Supervisors"
-          value={stats.supervisors}
-          icon={Building}
-          variant="info"
+          label="Active Accounts"
+          value={stats.activeUsers}
+          variant="success"
+          subtitle="Operational"
+          active={statusFilter === 'active' && roleFilter === 'all' && specialFilter === 'all'}
+          onClick={() => {
+            setStatusFilter(prev => prev === 'active' && roleFilter === 'all' ? 'all' : 'active');
+            setRoleFilter('all');
+            setSpecialFilter('all');
+          }}
         />
         <StatCard
           label="Field Officers"
           value={stats.fieldOfficers}
-          icon={User}
           variant="neutral"
+          subtitle="Frontline agents"
+          active={roleFilter === 'field_officer' && specialFilter === 'all'}
+          onClick={() => {
+            setRoleFilter(prev => prev === 'field_officer' && specialFilter === 'all' ? 'all' : 'field_officer');
+            setStatusFilter('all');
+            setSpecialFilter('all');
+          }}
         />
         <StatCard
-          label="Active"
-          value={stats.activeUsers}
-          icon={CheckCircle2}
-          variant="success"
+          label="Supervisors"
+          value={stats.supervisors}
+          variant="info"
+          subtitle="Zonal oversight"
+          active={roleFilter === 'supervisor' && specialFilter === 'all'}
+          onClick={() => {
+            setRoleFilter(prev => prev === 'supervisor' ? 'all' : 'supervisor');
+            setStatusFilter('all');
+            setSpecialFilter('all');
+          }}
         />
         <StatCard
-          label="Inactive"
-          value={stats.inactiveUsers}
-          icon={XCircle}
-          variant="error"
+          label="Managers"
+          value={stats.managers}
+          variant="primary"
+          subtitle="Command tier"
+          active={roleFilter === 'manager' && specialFilter === 'all'}
+          onClick={() => {
+            setRoleFilter(prev => prev === 'manager' ? 'all' : 'manager');
+            setStatusFilter('all');
+            setSpecialFilter('all');
+          }}
         />
         <StatCard
-          label="Unassigned Officers"
-          value={stats.unassignedFieldOfficers}
-          icon={AlertTriangle}
-          variant={stats.unassignedFieldOfficers > 0 ? 'warning' : 'default'}
+          label={stats.unassignedFieldOfficers > 0 ? "Unassigned" : "Inactive"}
+          value={stats.unassignedFieldOfficers > 0 ? stats.unassignedFieldOfficers : stats.inactiveUsers}
+          variant={stats.unassignedFieldOfficers > 0 ? "warning" : "error"}
+          subtitle={stats.unassignedFieldOfficers > 0 ? "Needs assignment" : "Disabled accounts"}
+          active={specialFilter === 'unassigned' || (stats.unassignedFieldOfficers === 0 && statusFilter === 'inactive' && roleFilter === 'all')}
+          onClick={() => {
+            if (stats.unassignedFieldOfficers > 0) {
+              setSpecialFilter(prev => prev === 'unassigned' ? 'all' : 'unassigned');
+              setRoleFilter('field_officer');
+              setStatusFilter('all');
+            } else {
+              setStatusFilter(prev => prev === 'inactive' ? 'all' : 'inactive');
+              setRoleFilter('all');
+              setSpecialFilter('all');
+            }
+          }}
         />
       </div>
 
-      {/* 3. Filter Toolbar */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-            <div className="sm:col-span-1 relative">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search staff, ID, zone, email..."
-                className="w-full h-10 pl-9 pr-3 rounded-lg border border-slate-300 bg-white text-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] transition-all"
-              />
-            </div>
+      {/* 3. Search & Filter Toolbar */}
+      <div className="bg-white dark:bg-[#1E293B] rounded-xl border border-[#E2E8F0] dark:border-[#334155] p-3.5 sm:p-4 shadow-xs transition-colors duration-200">
+        <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-2.5">
+          {/* Search Input */}
+          <div className="flex-1 relative">
+            <Search className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search by staff name, email, employee ID, or location..."
+              className="w-full h-10 pl-9 pr-8 rounded-lg border border-[#E2E8F0] dark:border-[#334155] bg-slate-50/70 dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] text-xs sm:text-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-[#3B82F6] transition-all"
+            />
+            {searchTerm && (
+              <button
+                type="button"
+                onClick={() => setSearchTerm('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs p-1"
+                title="Clear search"
+              >
+                ✕
+              </button>
+            )}
+          </div>
 
-            <Select
+          {/* Filter Dropdowns */}
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2">
+            <select
               value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
-              className="h-10 text-xs"
+              onChange={(e) => {
+                setRoleFilter(e.target.value);
+                setSpecialFilter('all');
+              }}
+              className="h-10 px-3 rounded-lg border border-[#E2E8F0] dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-800 dark:text-[#F8FAFC] text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-[#3B82F6] transition-all cursor-pointer min-w-[130px]"
             >
               <option value="all">All Roles</option>
               <option value="field_officer">Field Officers</option>
               <option value="supervisor">Supervisors</option>
               <option value="manager">Managers</option>
-            </Select>
+            </select>
 
-            <Select
+            <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="h-10 text-xs"
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                setSpecialFilter('all');
+              }}
+              className="h-10 px-3 rounded-lg border border-[#E2E8F0] dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-800 dark:text-[#F8FAFC] text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-[#3B82F6] transition-all cursor-pointer min-w-[130px]"
             >
               <option value="all">All Statuses</option>
               <option value="active">Active Accounts</option>
               <option value="inactive">Inactive Accounts</option>
-            </Select>
+            </select>
 
-            <Select
+            <select
               value={regionFilter}
               onChange={(e) => setRegionFilter(e.target.value)}
-              className="h-10 text-xs"
+              className="h-10 px-3 rounded-lg border border-[#E2E8F0] dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-800 dark:text-[#F8FAFC] text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-[#3B82F6] transition-all cursor-pointer min-w-[140px]"
             >
               <option value="all">All Regions</option>
-              {availableRegions.map(reg => (
+              {availableRegions.map((reg) => (
                 <option key={reg} value={reg}>{reg}</option>
               ))}
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
+            </select>
 
-      {/* 4. Staff Directory Table */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-sm">
-                Staff Directory ({filteredUsers.length} records)
-              </CardTitle>
-              <CardDescription>
-                System users, Ethiopian location hierarchy assignments, and access status
-              </CardDescription>
-            </div>
-            {/* Note: NO Export Users button as per explicit system requirement */}
+            {(searchTerm || roleFilter !== 'all' || statusFilter !== 'all' || regionFilter !== 'all' || specialFilter !== 'all') && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchTerm('');
+                  setRoleFilter('all');
+                  setStatusFilter('all');
+                  setRegionFilter('all');
+                  setSpecialFilter('all');
+                }}
+                className="h-10 px-3 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-[#0F172A] hover:bg-slate-200 dark:hover:bg-slate-800 border border-[#E2E8F0] dark:border-[#334155] transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer"
+                title="Reset all filters"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span>Clear Filters</span>
+              </button>
+            )}
           </div>
+        </div>
+      </div>
+
+      {/* 4. Staff Directory Table (Contained Layout, Separate Location Columns) */}
+      <Card className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-xl shadow-xs overflow-hidden">
+        <CardHeader className="p-4 sm:p-5 border-b border-[#E2E8F0] dark:border-[#334155] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <CardTitle className="text-base font-bold text-slate-900 dark:text-[#F8FAFC]">
+              Staff Directory ({filteredUsers.length} records)
+            </CardTitle>
+            <CardDescription className="text-xs text-slate-500 dark:text-[#94A3B8] mt-0.5">
+              Authorized personnel, Ethiopian location hierarchy assignments, and workstation status
+            </CardDescription>
+          </div>
+          {(searchTerm || roleFilter !== 'all' || statusFilter !== 'all' || regionFilter !== 'all' || specialFilter !== 'all') && (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-950/60 text-[#2563EB] dark:text-blue-300 border border-blue-200 dark:border-blue-900">
+              Filtered Records
+            </span>
+          )}
         </CardHeader>
 
         <CardContent className="p-0">
           {filteredUsers.length === 0 ? (
-            <div className="py-12 text-center text-xs text-slate-400">
-              <User className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-              <span>No user accounts matching the specified filters</span>
+            <div className="py-12 text-center text-slate-400 dark:text-slate-500">
+              <User className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
+              <p className="text-sm font-bold text-slate-700 dark:text-slate-300">No staff accounts found</p>
+              <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                Try adjusting your search criteria or resetting filters
+              </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+              <table className="w-full text-left text-xs sm:text-sm">
                 <thead>
-                  <tr className="border-b border-slate-100 text-slate-400 font-semibold uppercase tracking-wider bg-slate-50/50">
-                    <th className="py-3.5 pl-6">Staff Member</th>
-                    <th className="py-3.5 px-4">Role</th>
-                    <th className="py-3.5 px-4">Contact</th>
-                    <th className="py-3.5 px-4">Assigned Workstation (Region &gt; Zone &gt; Woreda)</th>
-                    <th className="py-3.5 px-4">Supervisor</th>
-                    <th className="py-3.5 px-4">Status</th>
-                    <th className="py-3.5 pr-6 text-right">Actions</th>
+                  <tr className="bg-slate-50/80 dark:bg-[#182234] border-b border-[#E2E8F0] dark:border-[#334155] text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    <th className="py-3.5 pl-4 sm:pl-6 pr-3">Staff Member</th>
+                    <th className="py-3.5 px-3">Role</th>
+                    <th className="py-3.5 px-3">Contact</th>
+                    <th className="py-3.5 px-3">Region</th>
+                    <th className="py-3.5 px-3">Zone</th>
+                    <th className="py-3.5 px-3">Woreda</th>
+                    <th className="py-3.5 px-3">Supervisor</th>
+                    <th className="py-3.5 px-3 text-center">Status</th>
+                    <th className="py-3.5 pr-4 sm:pr-6 pl-3 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {filteredUsers.map(u => {
+                <tbody className="divide-y divide-[#E2E8F0] dark:divide-[#334155]">
+                  {filteredUsers.map((u, idx) => {
                     const isActive = u.status === 'active';
 
-                    // Format hierarchy text
-                    let locationString = 'Organization-wide';
-                    if (u.role === 'supervisor') {
-                      locationString = `${u.region || 'Region'} > ${u.zone || 'Zone'}`;
-                    } else if (u.role === 'field_officer') {
-                      locationString = `${u.region || 'Region'} > ${u.zone || 'Zone'} > ${u.woreda || 'Woreda'}`;
-                    }
-
                     return (
-                      <tr key={u.id} className="hover:bg-slate-50/70 transition-colors">
-                        {/* Name & ID */}
-                        <td className="py-3.5 pl-6">
-                          <p className="font-semibold text-slate-900">{u.name}</p>
-                          <p className="text-[11px] text-slate-400 font-mono">{u.employeeId}</p>
+                      <tr
+                        key={u.id}
+                        className={`transition-colors duration-150 hover:bg-blue-50/20 dark:hover:bg-[#182234]/70 ${
+                          idx % 2 === 1 ? 'bg-slate-50/40 dark:bg-[#182234]/30' : 'bg-white dark:bg-[#1E293B]'
+                        }`}
+                      >
+                        {/* 1. Name & ID */}
+                        <td className="py-3 pl-4 sm:pl-6 pr-3 whitespace-nowrap">
+                          <p className="font-bold text-slate-900 dark:text-[#F8FAFC]">
+                            {u.name}
+                          </p>
+                          <p className="text-[11px] text-slate-400 dark:text-slate-500 font-mono">
+                            {u.employeeId}
+                          </p>
                         </td>
 
-                        {/* Role */}
-                        <td className="py-3.5 px-4">
-                          <Badge variant={u.role === 'manager' ? 'primary' : u.role === 'supervisor' ? 'info' : 'neutral'} className="capitalize">
-                            {u.role?.replace('_', ' ')}
-                          </Badge>
-                        </td>
-
-                        {/* Contact */}
-                        <td className="py-3.5 px-4 text-slate-600">
-                          <p className="font-medium">{u.email}</p>
-                          <p className="text-[11px] text-slate-400">{u.phone || 'No phone'}</p>
-                        </td>
-
-                        {/* Administrative Hierarchy */}
-                        <td className="py-3.5 px-4 text-slate-700">
-                          {u.role === 'manager' ? (
-                            <span className="text-slate-500 italic">Organization-wide</span>
-                          ) : (
-                            <div className="flex items-center gap-1.5 font-medium">
-                              <MapPin className="w-3.5 h-3.5 text-[#1E3A8A] shrink-0" />
-                              <span className="truncate max-w-[200px]" title={locationString}>
-                                {locationString}
-                              </span>
-                            </div>
+                        {/* 2. Role Badge */}
+                        <td className="py-3 px-3 whitespace-nowrap">
+                          {u.role === 'manager' && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                              <ShieldCheck className="w-3 h-3 text-indigo-600 dark:text-indigo-400" />
+                              Manager
+                            </span>
+                          )}
+                          {u.role === 'supervisor' && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 dark:bg-blue-950/80 text-[#2563EB] dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                              <Building className="w-3 h-3 text-[#2563EB] dark:text-blue-400" />
+                              Supervisor
+                            </span>
+                          )}
+                          {u.role === 'field_officer' && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-teal-50 dark:bg-teal-950/80 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800">
+                              <User className="w-3 h-3 text-teal-600 dark:text-teal-400" />
+                              Field Officer
+                            </span>
+                          )}
+                          {u.role !== 'manager' && u.role !== 'supervisor' && u.role !== 'field_officer' && (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 capitalize">
+                              {u.role?.replace('_', ' ')}
+                            </span>
                           )}
                         </td>
 
-                        {/* Direct Supervisor */}
-                        <td className="py-3.5 px-4 text-slate-600">
+                        {/* 3. Contact */}
+                        <td className="py-3 px-3">
+                          <p className="text-xs font-medium text-slate-800 dark:text-slate-200 truncate max-w-[150px]" title={u.email}>
+                            {u.email}
+                          </p>
+                          <p className="text-[11px] text-slate-400 dark:text-slate-500 font-mono mt-0.5">
+                            {u.phone || '—'}
+                          </p>
+                        </td>
+
+                        {/* 4. Region */}
+                        <td className="py-3 px-3 whitespace-nowrap">
+                          <span className="text-xs font-medium text-slate-800 dark:text-slate-200">
+                            {u.role === 'manager' ? 'National' : (u.region || '—')}
+                          </span>
+                        </td>
+
+                        {/* 5. Zone */}
+                        <td className="py-3 px-3 whitespace-nowrap">
+                          <span className="text-xs text-slate-600 dark:text-slate-300">
+                            {u.role === 'manager' ? 'All Zones' : (u.zone || '—')}
+                          </span>
+                        </td>
+
+                        {/* 6. Woreda */}
+                        <td className="py-3 px-3 whitespace-nowrap">
+                          <span className="text-xs text-slate-600 dark:text-slate-300">
+                            {u.role === 'manager' || u.role === 'supervisor' ? 'All Woredas' : (u.woreda || '—')}
+                          </span>
+                        </td>
+
+                        {/* 7. Supervisor */}
+                        <td className="py-3 px-3 whitespace-nowrap">
                           {u.role === 'field_officer' ? (
                             u.supervisorName || u.supervisorId ? (
-                              <span className="font-medium text-slate-800">
+                              <span className="text-xs font-medium text-slate-800 dark:text-slate-200">
                                 {u.supervisorName || u.supervisorId}
                               </span>
                             ) : (
-                              <Badge variant="warning" className="text-[10px]">
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
                                 Unassigned
-                              </Badge>
+                              </span>
                             )
                           ) : (
-                            <span className="text-slate-400">—</span>
+                            <span className="text-xs text-slate-400 dark:text-slate-500">—</span>
                           )}
                         </td>
 
-                        {/* Status */}
-                        <td className="py-3.5 px-4">
-                          <Badge variant={isActive ? 'success' : 'error'} dot>
-                            {isActive ? 'ACTIVE' : 'INACTIVE'}
-                          </Badge>
+                        {/* 8. Status */}
+                        <td className="py-3 px-3 text-center whitespace-nowrap">
+                          {isActive ? (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                              Active
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-50 dark:bg-rose-950/80 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
+                              <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                              Inactive
+                            </span>
+                          )}
                         </td>
 
-                        {/* Actions */}
-                        <td className="py-3.5 pr-6 text-right">
-                          <div className="flex items-center justify-end gap-1.5">
-                            {/* View Details */}
-                            <Button
-                              variant="ghost"
-                              size="sm"
+                        {/* 9. Actions */}
+                        <td className="py-3 pr-4 sm:pr-6 pl-3 text-right whitespace-nowrap">
+                          <div className="flex items-center justify-end gap-1">
+                            <button
+                              type="button"
                               onClick={() => setSelectedUserDetails(u)}
-                              className="h-8 px-2 text-xs text-slate-600 hover:text-slate-900"
+                              className="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#0F172A] border border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-all cursor-pointer"
                               title="View Details"
                             >
-                              <Eye className="w-3.5 h-3.5 mr-1" />
-                              Details
-                            </Button>
+                              <Eye className="w-3.5 h-3.5" />
+                            </button>
 
-                            {/* Edit */}
-                            <Button
-                              variant="ghost"
-                              size="sm"
+                            <button
+                              type="button"
                               onClick={() => setSelectedUserEdit(u)}
-                              className="h-8 px-2 text-xs text-slate-600 hover:text-slate-900"
-                              title="Edit Profile & Role"
+                              className="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#0F172A] border border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-all cursor-pointer"
+                              title="Edit Profile"
                             >
-                              <Edit3 className="w-3.5 h-3.5 mr-1" />
-                              Edit
-                            </Button>
+                              <Edit3 className="w-3.5 h-3.5" />
+                            </button>
 
-                            {/* Reassign Workstation (Supervisor or Field Officer) */}
                             {u.role !== 'manager' && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
+                              <button
+                                type="button"
                                 onClick={() => setSelectedUserReassign(u)}
-                                className="h-8 px-2 text-xs text-blue-700 hover:text-blue-900"
+                                className="p-1.5 rounded-lg text-[#2563EB] dark:text-[#60A5FA] hover:bg-blue-50 dark:hover:bg-blue-950/50 border border-transparent hover:border-blue-200 dark:hover:border-blue-900 transition-all cursor-pointer"
                                 title="Reassign Workstation"
                               >
-                                <MapPin className="w-3.5 h-3.5 mr-1" />
-                                Reassign
-                              </Button>
+                                <MapPin className="w-3.5 h-3.5" />
+                              </button>
                             )}
 
-                            {/* Reset Password */}
-                            <Button
-                              variant="ghost"
-                              size="sm"
+                            <button
+                              type="button"
                               onClick={() => handleResetPassword(u)}
-                              className="h-8 px-2 text-xs text-amber-700 hover:text-amber-900"
+                              className="p-1.5 rounded-lg text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/50 border border-transparent hover:border-amber-200 dark:hover:border-amber-900 transition-all cursor-pointer"
                               title="Reset Password"
                             >
-                              <KeyRound className="w-3.5 h-3.5 mr-1" />
-                              Reset
-                            </Button>
+                              <KeyRound className="w-3.5 h-3.5" />
+                            </button>
 
-                            {/* Status Toggle */}
-                            <Button
-                              variant={isActive ? 'outline' : 'success'}
-                              size="sm"
+                            <button
+                              type="button"
                               onClick={() => handleToggleStatus(u)}
-                              className={`h-8 px-2.5 text-xs ${isActive ? 'text-rose-600 hover:bg-rose-50 border-rose-200' : ''}`}
+                              className={`p-1.5 rounded-lg transition-all cursor-pointer ${
+                                isActive
+                                  ? 'text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50'
+                                  : 'text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/50'
+                              }`}
+                              title={isActive ? 'Deactivate Account' : 'Activate Account'}
                             >
-                              <Power className="w-3.5 h-3.5 mr-1" />
-                              {isActive ? 'Deactivate' : 'Activate'}
-                            </Button>
+                              <Power className="w-3.5 h-3.5" />
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -672,19 +787,19 @@ export default function UserManagement({
         </CardContent>
       </Card>
 
-      {/* 5. Add User Modal (3 Structured Sections) */}
+      {/* 5. Add User Modal */}
       <Modal
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}
-        title="Provision New Staff Account"
+        title="Add New User"
         size="lg"
       >
         <form onSubmit={handleCreateUser} noValidate className="space-y-6">
           {/* Section 1: Personal Information */}
           <div className="space-y-3">
-            <div className="flex items-center gap-2 pb-1 border-b border-slate-100">
-              <User className="w-4 h-4 text-[#1E3A8A]" />
-              <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+            <div className="flex items-center gap-2 pb-2 border-b border-[#E2E8F0] dark:border-[#334155]">
+              <User className="w-4 h-4 text-[#2563EB] dark:text-[#60A5FA]" />
+              <h3 className="text-xs font-bold text-[#0F172A] dark:text-[#F8FAFC] uppercase tracking-wider">
                 1. Personal Information (Ethiopian Naming)
               </h3>
             </div>
@@ -718,7 +833,7 @@ export default function UserManagement({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Input
-                label="Work Email Address"
+                label="Email Address"
                 type="email"
                 value={newUser.email}
                 onChange={(e) => setNewUser(p => ({ ...p, email: e.target.value }))}
@@ -728,25 +843,26 @@ export default function UserManagement({
               />
               <Input
                 label="Phone Number"
+                type="number"
                 value={newUser.phone}
                 onChange={(e) => setNewUser(p => ({ ...p, phone: e.target.value }))}
-                placeholder="+2519XXXXXXXX"
-                helperText="Format: +2519... or 09..."
+                placeholder="09XXXXXXXX or 07XXXXXXXX"
+                helperText="10 digits starting with 09/07 (or +2519/+2517 with 8 digits)"
                 error={formErrors.phone}
               />
             </div>
           </div>
 
-          {/* Section 2: Role & Workstation Details */}
+          {/* Section 2: Role Details (Work Shift & Department Removed as requested) */}
           <div className="space-y-3">
-            <div className="flex items-center gap-2 pb-1 border-b border-slate-100">
-              <ShieldCheck className="w-4 h-4 text-[#1E3A8A]" />
-              <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                2. System Role & Work Details
+            <div className="flex items-center gap-2 pb-2 border-b border-[#E2E8F0] dark:border-[#334155]">
+              <ShieldCheck className="w-4 h-4 text-[#2563EB] dark:text-[#60A5FA]" />
+              <h3 className="text-xs font-bold text-[#0F172A] dark:text-[#F8FAFC] uppercase tracking-wider">
+                2. System Role Assignment
               </h3>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
               <Select
                 label="System Role"
                 value={newUser.role}
@@ -760,35 +876,18 @@ export default function UserManagement({
                 }))}
                 required
               >
-                <option value="field_officer">Field Officer</option>
-                <option value="supervisor">Supervisor</option>
-                <option value="manager">Manager</option>
+                <option value="field_officer">Field Officer (Frontline Intake)</option>
+                <option value="supervisor">Supervisor (Zonal Oversight)</option>
+                <option value="manager">Manager (National Command)</option>
               </Select>
-
-              <Select
-                label="Work Shift"
-                value={newUser.shift}
-                onChange={(e) => setNewUser(p => ({ ...p, shift: e.target.value }))}
-              >
-                <option value="Day">Day</option>
-                <option value="Evening">Evening</option>
-                <option value="Night">Night</option>
-              </Select>
-
-              <Input
-                label="Department"
-                value={newUser.department}
-                onChange={(e) => setNewUser(p => ({ ...p, department: e.target.value }))}
-                placeholder="Field Operations"
-              />
             </div>
           </div>
 
           {/* Section 3: Ethiopian Administrative Location Assignment */}
           <div className="space-y-3">
-            <div className="flex items-center gap-2 pb-1 border-b border-slate-100">
-              <MapPin className="w-4 h-4 text-[#1E3A8A]" />
-              <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+            <div className="flex items-center gap-2 pb-2 border-b border-[#E2E8F0] dark:border-[#334155]">
+              <MapPin className="w-4 h-4 text-[#2563EB] dark:text-[#60A5FA]" />
+              <h3 className="text-xs font-bold text-[#0F172A] dark:text-[#F8FAFC] uppercase tracking-wider">
                 3. Ethiopian Administrative Hierarchy Assignment
               </h3>
             </div>
@@ -814,12 +913,13 @@ export default function UserManagement({
           </div>
 
           {/* Footer Actions */}
-          <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
+          <div className="flex justify-end gap-3 pt-4 border-t border-[#E2E8F0] dark:border-[#334155]">
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
               onClick={() => setShowAddModal(false)}
               disabled={isSubmitting}
+              className="dark:bg-[#1E293B] dark:border-[#334155] dark:text-[#F8FAFC]"
             >
               Cancel
             </Button>
@@ -827,9 +927,10 @@ export default function UserManagement({
               type="submit"
               variant="primary"
               loading={isSubmitting}
+              className="bg-[#2563EB] hover:bg-blue-700 text-white font-bold"
             >
               <UserPlus className="w-4 h-4 mr-2" />
-              Provision Account & Generate Password
+              Create User
             </Button>
           </div>
         </form>
