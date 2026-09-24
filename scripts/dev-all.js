@@ -1,43 +1,45 @@
 // scripts/dev-all.js - Runs frontend and backend API concurrently
-import { spawn } from 'child_process';
+import { spawn, execSync } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
+const serverDir = path.resolve(rootDir, 'server');
 
-console.log('🚀 Starting FieldSync Frontend (Vite) and Backend API (Express)...');
+console.log('🧹 Clearing any stale processes on Ports 5000 & 5173...');
+try {
+  if (process.platform === 'win32') {
+    execSync(
+      `powershell -NoProfile -Command "& { Get-NetTCPConnection -LocalPort 5000, 5173 -State Listen -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue } }"`,
+      { stdio: 'ignore' }
+    );
+  } else {
+    execSync('fuser -k 5000/tcp 5173/tcp 2>/dev/null', { stdio: 'ignore' });
+  }
+} catch {}
 
-// Start Express Backend API
-const apiProcess = spawn('node', ['api/server.js'], {
-  cwd: rootDir,
-  stdio: ['inherit', 'pipe', 'pipe'],
-  shell: true,
+console.log('============================================================');
+console.log('  🚀 Starting FieldSync Enterprise System...');
+console.log('  📡 Backend REST API:  http://localhost:5000');
+console.log('  💻 Frontend Web App:  http://localhost:5173');
+console.log('============================================================');
+
+const tsxCli = path.join(serverDir, 'node_modules', 'tsx', 'dist', 'cli.mjs');
+const viteCli = path.join(rootDir, 'node_modules', 'vite', 'bin', 'vite.js');
+
+// Start Express Backend API in server/ directory
+const apiProcess = spawn(process.execPath, [tsxCli, 'watch', 'src/server.ts'], {
+  cwd: serverDir,
+  stdio: ['ignore', 'inherit', 'inherit'],
   env: { ...process.env, PORT: process.env.PORT || '5000' }
 });
 
-apiProcess.stdout.on('data', (data) => {
-  process.stdout.write(`\x1b[36m[API]\x1b[0m ${data}`);
-});
-
-apiProcess.stderr.on('data', (data) => {
-  process.stderr.write(`\x1b[31m[API ERROR]\x1b[0m ${data}`);
-});
-
-// Start Frontend Vite Dev Server
-const viteProcess = spawn('npx', ['vite'], {
+// Start Frontend Vite Dev Server in root directory
+const viteProcess = spawn(process.execPath, [viteCli, '--host'], {
   cwd: rootDir,
-  stdio: ['inherit', 'pipe', 'pipe'],
-  shell: true
-});
-
-viteProcess.stdout.on('data', (data) => {
-  process.stdout.write(`\x1b[32m[VITE]\x1b[0m ${data}`);
-});
-
-viteProcess.stderr.on('data', (data) => {
-  process.stderr.write(`\x1b[33m[VITE WARN]\x1b[0m ${data}`);
+  stdio: ['ignore', 'inherit', 'inherit']
 });
 
 const cleanup = () => {

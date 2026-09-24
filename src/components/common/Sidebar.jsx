@@ -30,6 +30,7 @@ export default function Sidebar({
   setActiveTab,
   user,
   pendingSync = 0,
+  notificationsCount = 0,
   onLogout,
   isMobileOpen = false,
   setIsMobileOpen
@@ -46,7 +47,14 @@ export default function Sidebar({
     sections.push({
       title: 'Overview',
       items: [
-        { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard }
+        { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+        {
+          id: 'notifications',
+          label: 'Notifications',
+          icon: Bell,
+          badge: notificationsCount > 0 ? (notificationsCount > 9 ? '9+' : notificationsCount) : null,
+          badgeColor: 'bg-red-600',
+        },
       ]
     });
 
@@ -78,6 +86,7 @@ export default function Sidebar({
         title: 'Field Oversight',
         items: [
           { id: 'citizens', label: 'Citizen Registrations', icon: Database },
+          { id: 'duplicates', label: 'Duplicate Reviews', icon: ShieldCheck },
           { id: 'team', label: 'Field Officers', icon: Users },
           { id: 'reports', label: 'Officer Daily Reports', icon: FileText, badge: pendingSync > 0 ? pendingSync : null, badgeColor: 'bg-amber-500' },
           { id: 'supervisor_reports', label: 'Supervisor Evaluations', icon: FileSpreadsheet }
@@ -89,7 +98,9 @@ export default function Sidebar({
         items: [
           { id: 'activity_logs', label: 'Officer Activity Timeline', icon: Activity },
           { id: 'screentime', label: 'Screen Time Telemetry', icon: Smartphone },
+          { id: 'analytics', label: 'Field Analytics & Telemetry', icon: BarChart3 },
           { id: 'sync_center', label: 'Sync Health Monitor', icon: RefreshCw, badge: pendingSync > 0 ? pendingSync : null, badgeColor: 'bg-amber-500' },
+          { id: 'audit', label: 'Zone Audit Trail', icon: History },
         ]
       });
     }
@@ -101,6 +112,7 @@ export default function Sidebar({
         items: [
           { id: 'users', label: 'User Directory', icon: UserCog },
           { id: 'citizens', label: 'National Registry', icon: Database },
+          { id: 'duplicates', label: 'Duplicate Adjudication', icon: ShieldCheck },
           { id: 'team', label: 'Team Overview', icon: Users },
           { id: 'all_reports', label: 'All Daily Reports', icon: FileText },
         ]

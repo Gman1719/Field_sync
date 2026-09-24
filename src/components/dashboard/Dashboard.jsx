@@ -1,16 +1,22 @@
-// src/components/dashboard/Dashboard.jsx – Enterprise Modern SaaS Dashboard
+// src/components/dashboard/Dashboard.jsx
+// Enterprise Real-Time Monitoring & Telemetry Dashboard for FieldSync (Phase 9)
 
-import React, { useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
-  ResponsiveContainer, LineChart, Line, AreaChart, Area, Cell
+  ResponsiveContainer, LineChart, Line, AreaChart, Area, Cell, PieChart, Pie
 } from 'recharts';
 import {
   FileText, Users, UserCheck, CalendarCheck, Calendar, Clock,
   TrendingUp, CheckCircle2, Award, ShieldCheck, AlertCircle,
   UserPlus, FilePlus2, BarChart3, Radio, ArrowRight, ShieldAlert,
-  Percent, Sparkles
+  Percent, Sparkles, RefreshCw, AlertTriangle, ChevronRight,
+  Activity, MapPin, Eye, Phone, Mail, Check
 } from 'lucide-react';
+import toast from 'react-hot-toast';
+
+import { API_BASE } from '../../config/api';
+import { offlineDb } from '../../db/offlineDb';
 import { getToday } from '../../utils/helpers';
 import VerificationPopup from '../verification/VerificationPopup';
 import { useVerification } from '../../hooks/useVerification';
@@ -18,19 +24,11 @@ import StatCard from '../ui/StatCard';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
 import Badge from '../ui/Badge';
 import Button from '../ui/Button';
+import Modal from '../ui/Modal';
 
-// Enterprise Chart Palette
+// Enterprise Palette
 const CHART_COLORS = ['#1E3A8A', '#0D9488', '#6366F1', '#D97706', '#16A34A', '#2563EB'];
-
-const STATUS_COLORS = {
-  'Approved': '#16A34A',
-  'Pending': '#D97706',
-  'Rejected': '#DC2626',
-  'Present': '#16A34A',
-  'Late': '#D97706',
-  'Absent': '#DC2626',
-  'Half Day': '#7C3AED'
-};
+const GENDER_COLORS = { 'MALE': '#1E3A8A', 'FEMALE': '#EC4899', 'OTHER': '#8B5CF6' };
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
@@ -50,21 +48,22 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
-const ChartWrapper = ({ children, title, subtitle }) => (
+const ChartWrapper = ({ children, title, subtitle, rightElement }) => (
   <Card className="h-full flex flex-col">
-    <CardHeader>
+    <CardHeader className="flex flex-row items-center justify-between">
       <div>
         <CardTitle>{title}</CardTitle>
         {subtitle && <CardDescription>{subtitle}</CardDescription>}
       </div>
+      {rightElement}
     </CardHeader>
-    <CardContent className="flex-1 min-h-[280px]">
+    <CardContent className="flex-1 min-h-[260px]">
       {children}
     </CardContent>
   </Card>
 );
 
-function Dashboard({
+export default function Dashboard({
   isManager,
   isSupervisor,
   isOfficer,
@@ -79,7 +78,7 @@ function Dashboard({
   liveStatus,
   setActiveTab
 }) {
-  // ===== VERIFICATION =====
+  // ===== VERIFICATION (Officer Only) =====
   const {
     showPopup,
     verificationScore,
@@ -88,312 +87,293 @@ function Dashboard({
     lastVerified
   } = useVerification(isOfficer ? user?.id : null, isOfficer ? user?.name : null);
 
+  // ===== LIVE TELEMETRY STATE =====
+  const [telemetryData, setTelemetryData] = useState(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastRefreshed, setLastRefreshed] = useState(null);
+  const [isLiveConnected, setIsLiveConnected] = useState(true);
+
+  // ===== OFFICER DRILLDOWN MODAL STATE =====
+  const [selectedOfficerId, setSelectedOfficerId] = useState(null);
+  const [officerDetail, setOfficerDetail] = useState(null);
+  const [isLoadingOfficer, setIsLoadingOfficer] = useState(false);
+
+  // Fetch overview telemetry from backend API with Dexie fallback
+  const fetchTelemetryOverview = useCallback(async (isManual = false) => {
+    if (isManual) setIsRefreshing(true);
+    const token = localStorage.getItem('fieldsync_token');
+
+    try {
+      if (token) {
+        const res = await fetch(`${API_BASE}/analytics/overview`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && json.data) {
+            setTelemetryData(json.data);
+            setIsLiveConnected(true);
+            setLastRefreshed(new Date());
+            if (isManual) toast.success('Telemetry dashboard refreshed');
+            setIsRefreshing(false);
+            return;
+          }
+        }
+      }
+      throw new Error('Server unreachable or unauthorized');
+    } catch (err) {
+      console.warn('Analytics API unreachable, computing offline fallback from IndexedDB:', err.message);
+      setIsLiveConnected(false);
+      setLastRefreshed(new Date());
+
+      // Dexie Offline Fallback
+      try {
+        const localCitizens = await offlineDb.citizens.toArray();
+        const localReports = await offlineDb.dailyWorkReports.toArray();
+        const localSessions = await offlineDb.workSessions.toArray();
+        const localLogs = await offlineDb.activityLogs.reverse().limit(10).toArray();
+
+        const todayStr = getToday();
+        const todayRegs = localCitizens.filter(c => (c.registrationTimestamp || '').slice(0, 10) === todayStr).length;
+        const syncedRegs = localCitizens.filter(c => c.syncStatus === 'SYNCED').length;
+        const pendingRegs = localCitizens.filter(c => c.syncStatus !== 'SYNCED').length;
+
+        const totalScreenSecs = localSessions.reduce((sum, s) => sum + (s.durationSeconds || 0), 0);
+        const todayScreenSecs = localSessions
+          .filter(s => s.reportDate === todayStr)
+          .reduce((sum, s) => sum + (s.durationSeconds || 0), 0);
+
+        const formatSecs = (secs) => {
+          const h = Math.floor(secs / 3600);
+          const m = Math.floor((secs % 3600) / 60);
+          const s = secs % 60;
+          return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        };
+
+        const todayReports = localReports.filter(r => r.reportDate === todayStr);
+
+        setTelemetryData({
+          citizens: {
+            total: localCitizens.length,
+            today: todayRegs,
+            thisWeek: localCitizens.length,
+            synced: syncedRegs,
+            pending: pendingRegs,
+            genderDistribution: [
+              { gender: 'MALE', count: localCitizens.filter(c => c.gender === 'MALE').length },
+              { gender: 'FEMALE', count: localCitizens.filter(c => c.gender === 'FEMALE').length }
+            ],
+            geographicDistribution: []
+          },
+          telemetry: {
+            totalScreenTimeSeconds: totalScreenSecs,
+            totalScreenTimeFormatted: formatSecs(totalScreenSecs),
+            todayScreenTimeSeconds: todayScreenSecs,
+            todayScreenTimeFormatted: formatSecs(todayScreenSecs),
+            todaySessionsCount: localSessions.filter(s => s.reportDate === todayStr).length,
+            totalSessionsCount: localSessions.length,
+          },
+          compliance: {
+            reportsSubmittedToday: todayReports.length,
+            totalAssignedStaff: 1,
+            complianceRatePercentage: todayReports.length > 0 ? 100 : 0,
+            urgentRoadblocksCount: 0,
+            urgentRoadblocks: [],
+          },
+          duplicates: {
+            pending: 0,
+            confirmed: 0,
+            approved: 0,
+            total: 0
+          },
+          recentActivity: localLogs.map(l => ({
+            id: l.id,
+            eventType: l.eventType,
+            description: l.description,
+            officerName: 'Field Officer',
+            deviceTimestamp: l.deviceTimestamp,
+            syncStatus: l.syncStatus
+          })),
+          serverTimestamp: new Date().toISOString()
+        });
+      } catch (dbErr) {
+        console.error('Dexie fallback failed:', dbErr);
+      }
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, []);
+
+  // Polling on mount
+  useEffect(() => {
+    fetchTelemetryOverview(false);
+    const interval = setInterval(() => {
+      fetchTelemetryOverview(false);
+    }, 60000); // refresh every minute
+    return () => clearInterval(interval);
+  }, [fetchTelemetryOverview]);
+
+  // Fetch individual officer drilldown
+  const handleOpenOfficerDrilldown = async (officerId) => {
+    setSelectedOfficerId(officerId);
+    setOfficerDetail(null);
+    setIsLoadingOfficer(true);
+    const token = localStorage.getItem('fieldsync_token');
+
+    try {
+      if (token) {
+        const res = await fetch(`${API_BASE}/analytics/officer/${officerId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && json.data) {
+            setOfficerDetail(json.data);
+            setIsLoadingOfficer(false);
+            return;
+          }
+        }
+      }
+      throw new Error('Unable to fetch officer drilldown');
+    } catch (e) {
+      console.warn('Officer drilldown fallback:', e);
+      // Fallback from passed props
+      const foundUser = (users || []).find(u => u.id === officerId || u.employeeId === officerId);
+      const officerCitizens = (citizens || []).filter(c => c.registeredById === officerId || c.registeredBy === officerId);
+      const officerReports = (reports || []).filter(r => r.officerId === officerId || r.employeeId === officerId);
+
+      setOfficerDetail({
+        officer: {
+          id: officerId,
+          fullName: foundUser?.name || foundUser?.fullName || 'Field Officer',
+          email: foundUser?.email || '',
+          phoneNumber: foundUser?.phone || foundUser?.phoneNumber || '',
+          woredaName: foundUser?.woreda || 'Assigned Territory',
+          kebeleName: foundUser?.kebele || '',
+          supervisorName: 'Supervisor'
+        },
+        metrics: {
+          citizensRegistered: officerCitizens.length,
+          totalSessions: 1,
+          totalScreenTimeSeconds: 0,
+          totalScreenTimeFormatted: '00:00:00',
+          reportsCount: officerReports.length,
+        },
+        recentReports: officerReports.slice(0, 5).map(r => ({
+          id: r.id,
+          reportDate: r.reportDate || getToday(),
+          citizenCountLocal: r.registrationsCount || 0,
+          citizenCountServerConfirmed: r.registrationsCount || 0,
+          screenTimeSeconds: 0,
+          screenTimeFormatted: '00:00:00',
+          syncStatus: r.synced ? 'SYNCED' : 'PENDING'
+        }))
+      });
+    } finally {
+      setIsLoadingOfficer(false);
+    }
+  };
+
   // ============================================================
-  // ALL DATA COMPUTED FROM RAW ARRAYS – SYNCED-ONLY
+  // COMPUTED TELEMETRY & DISPLAY DERIVATIONS
   // ============================================================
 
-  const realTotalReports = useMemo(() => {
-    return (reports || []).filter(r => r.synced === true).length;
-  }, [reports]);
+  // Key metrics
+  const totalCitizens = telemetryData?.citizens?.total ?? citizens.length;
+  const todayCitizens = telemetryData?.citizens?.today ?? 0;
+  const syncedCitizens = telemetryData?.citizens?.synced ?? citizens.filter(c => c.synced).length;
+  const pendingCitizens = telemetryData?.citizens?.pending ?? citizens.filter(c => !c.synced).length;
 
-  const realTotalCitizens = useMemo(() => {
-    return (citizens || []).filter(c => c.synced === true).length;
-  }, [citizens]);
+  const todayScreenTimeFormatted = telemetryData?.telemetry?.todayScreenTimeFormatted || '00:00:00';
+  const totalScreenTimeFormatted = telemetryData?.telemetry?.totalScreenTimeFormatted || '00:00:00';
+  const totalSessionsCount = telemetryData?.telemetry?.totalSessionsCount || 0;
 
-  const realSupervisors = useMemo(() => (users || []).filter(u => u.role === 'supervisor').length, [users]);
-  const realFieldOfficers = useMemo(() => (users || []).filter(u => u.role === 'field_officer').length, [users]);
+  const complianceRate = telemetryData?.compliance?.complianceRatePercentage ?? 100;
+  const reportsToday = telemetryData?.compliance?.reportsSubmittedToday ?? 0;
+  const totalStaff = telemetryData?.compliance?.totalAssignedStaff ?? (teamMembers.length || 1);
 
-  const realAttendanceRate = useMemo(() => {
-    const syncedAttendance = (attendance || []).filter(a => a.synced !== false);
-    if (!syncedAttendance || syncedAttendance.length === 0) return 0;
-    const total = syncedAttendance.length;
-    const present = syncedAttendance.filter(a => a.status === 'present' || a.status === 'late').length;
-    return Math.round((present / total) * 100);
-  }, [attendance]);
+  const urgentRoadblocks = telemetryData?.compliance?.urgentRoadblocks || [];
+  const pendingDuplicates = telemetryData?.duplicates?.pending ?? 0;
 
+  const recentActivityStream = telemetryData?.recentActivity || [];
+
+  // Chart: 7-Day Trend
   const registrationTrendData = useMemo(() => {
-    const syncedCitizens = (citizens || []).filter(c => c.synced === true);
     const today = new Date();
     const data = [];
     for (let i = 6; i >= 0; i--) {
       const d = new Date(today);
       d.setDate(d.getDate() - i);
       const dateStr = d.toISOString().slice(0, 10);
-      const value = syncedCitizens.filter(c => c.registrationDate?.slice(0, 10) === dateStr).length;
-      data.push({ date: dateStr.slice(5), fullDate: dateStr, value });
+      const count = (citizens || []).filter(c => (c.registrationDate || c.registrationTimestamp || '').slice(0, 10) === dateStr).length;
+      data.push({ date: dateStr.slice(5), fullDate: dateStr, value: count });
     }
     return data;
   }, [citizens]);
 
-  const reportStatusData = useMemo(() => {
-    const syncedReports = (reports || []).filter(r => r.synced === true);
-    if (!syncedReports || syncedReports.length === 0) return [];
-    const statuses = { 'Approved': 0, 'Pending': 0, 'Rejected': 0 };
-    syncedReports.forEach(r => {
-      if (r.reviewed && r.status !== 'rejected') statuses['Approved']++;
-      else if (r.status === 'rejected') statuses['Rejected']++;
-      else statuses['Pending']++;
-    });
-    return Object.entries(statuses)
-      .filter(([_, value]) => value > 0)
-      .map(([name, value]) => ({ name, value }));
-  }, [reports]);
-
-  const todayAttendanceData = useMemo(() => {
-    const syncedAttendance = (attendance || []).filter(a => a.synced !== false);
-    if (!syncedAttendance || syncedAttendance.length === 0) return [];
-    const today = getToday();
-    const todayAtt = syncedAttendance.filter(a => a.date === today);
-    if (todayAtt.length === 0) return [];
-    const statuses = { 'Present': 0, 'Late': 0, 'Absent': 0, 'Half Day': 0 };
-    todayAtt.forEach(a => {
-      if (a.status === 'present') statuses['Present']++;
-      else if (a.status === 'late') statuses['Late']++;
-      else if (a.status === 'absent') statuses['Absent']++;
-      else if (a.status === 'half_day') statuses['Half Day']++;
-    });
-    return Object.entries(statuses)
-      .filter(([_, value]) => value > 0)
-      .map(([name, value]) => ({ name, value }));
-  }, [attendance]);
-
-  const officerPerformanceData = useMemo(() => {
-    if (!isOfficer || !user) return [];
-    const syncedCitizens = (citizens || []).filter(c => c.synced === true);
-    const syncedReports = (reports || []).filter(r => r.synced === true);
-    const today = getToday();
-    const last7Days = [];
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date(today);
-      d.setDate(d.getDate() - i);
-      const dateStr = d.toISOString().slice(0, 10);
-      const registrations = syncedCitizens.filter(c =>
-        c.registeredBy === user.employeeId &&
-        c.registrationDate?.slice(0, 10) === dateStr
-      ).length;
-      const reportsCount = syncedReports.filter(r =>
-        r.employeeId === user.employeeId &&
-        r.reportDate === dateStr
-      ).length;
-      last7Days.push({
-        date: dateStr.slice(5),
-        registrations,
-        reports: reportsCount,
-        efficiency: reportsCount > 0 ? Math.round((registrations / reportsCount) * 100) : 0
-      });
+  // Chart: Geographic Distribution (Woredas)
+  const geographicData = useMemo(() => {
+    if (telemetryData?.citizens?.geographicDistribution?.length > 0) {
+      return telemetryData.citizens.geographicDistribution.map(g => ({
+        name: g.woredaName,
+        count: g.count
+      }));
     }
-    return last7Days;
-  }, [citizens, reports, isOfficer, user]);
-
-  const teamCitizenCount = useMemo(() => {
-    if (!isSupervisor || !user || !teamMembers) return 0;
-    const teamIds = (teamMembers || []).map(m => m.employeeId);
-    const syncedCitizens = (citizens || []).filter(c => c.synced === true);
-    return syncedCitizens.filter(c => teamIds.includes(c.registeredBy)).length;
-  }, [citizens, teamMembers, isSupervisor, user]);
-
-  const teamReportsCount = useMemo(() => {
-    if (!isSupervisor || !user || !teamMembers) return 0;
-    const teamIds = (teamMembers || []).map(m => m.employeeId);
-    const syncedReports = (reports || []).filter(r => r.synced === true);
-    return syncedReports.filter(r => teamIds.includes(r.employeeId)).length;
-  }, [reports, teamMembers, isSupervisor, user]);
-
-  const officerReportsCount = useMemo(() => {
-    if (!isOfficer || !user) return 0;
-    const syncedReports = (reports || []).filter(r => r.synced === true);
-    return syncedReports.filter(r => r.employeeId === user.employeeId).length;
-  }, [reports, isOfficer, user]);
-
-  const officerTotalRegistrations = useMemo(() => {
-    if (!isOfficer || !user) return 0;
-    const syncedCitizens = (citizens || []).filter(c => c.synced === true);
-    return syncedCitizens.filter(c => c.registeredBy === user.employeeId).length;
-  }, [citizens, isOfficer, user]);
-
-  const officerTodayRegistrations = useMemo(() => {
-    if (!isOfficer || !user) return 0;
-    const syncedCitizens = (citizens || []).filter(c => c.synced === true);
-    const today = getToday();
-    return syncedCitizens.filter(c =>
-      c.registeredBy === user.employeeId &&
-      c.registrationDate?.slice(0, 10) === today
-    ).length;
-  }, [citizens, isOfficer, user]);
-
-  const todayAttendance = useMemo(() => {
-    if (!isOfficer || !user) return null;
-    const syncedAttendance = (attendance || []).filter(a => a.synced !== false);
-    return syncedAttendance.find(a => a.employeeId === user.employeeId && a.date === getToday());
-  }, [attendance, user, isOfficer]);
-
-  const realTopPerformers = useMemo(() => {
+    // Fallback from citizens prop
     const map = {};
-    reports.forEach(r => {
-      if (!map[r.employeeId]) {
-        map[r.employeeId] = {
-          employeeId: r.employeeId,
-          employeeName: r.employeeName,
-          region: r.region,
-          totalReports: 0,
-          totalRegistrations: 0,
-          avgEfficiency: 0,
-          attendanceRate: 0,
-          trustScore: 0,
-        };
+    (citizens || []).forEach(c => {
+      const w = c.woreda || c.woredaName || 'Bole Sub-City';
+      map[w] = (map[w] || 0) + 1;
+    });
+    return Object.entries(map).map(([name, count]) => ({ name, count }));
+  }, [telemetryData, citizens]);
+
+  // Chart: Gender Breakdown
+  const genderData = useMemo(() => {
+    if (telemetryData?.citizens?.genderDistribution?.length > 0) {
+      return telemetryData.citizens.genderDistribution.map(g => ({
+        name: g.gender,
+        value: g.count
+      }));
+    }
+    const male = (citizens || []).filter(c => (c.gender || '').toUpperCase() === 'MALE').length;
+    const female = (citizens || []).filter(c => (c.gender || '').toUpperCase() === 'FEMALE').length;
+    return [
+      { name: 'MALE', value: male },
+      { name: 'FEMALE', value: female }
+    ].filter(d => d.value > 0);
+  }, [telemetryData, citizens]);
+
+  // Team Leaderboard
+  const teamLeaderboard = useMemo(() => {
+    const map = {};
+    (users || []).filter(u => u.role === 'field_officer' || u.role === 'FIELD_OFFICER').forEach(u => {
+      map[u.id] = {
+        id: u.id,
+        name: u.fullName || u.name || 'Field Officer',
+        region: u.woreda || u.region || 'Territory',
+        registrations: 0,
+        reports: 0
+      };
+    });
+
+    (citizens || []).forEach(c => {
+      const officerId = c.registeredById || c.registeredBy;
+      if (officerId && map[officerId]) {
+        map[officerId].registrations += 1;
       }
-      map[r.employeeId].totalReports += 1;
     });
 
-    citizens.forEach(c => {
-      if (c.registeredBy && map[c.registeredBy] && c.synced === true) {
-        map[c.registeredBy].totalRegistrations += 1;
-      }
-    });
-
-    Object.values(map).forEach(emp => {
-      emp.avgEfficiency = emp.totalReports > 0
-        ? Math.round((emp.totalRegistrations / emp.totalReports) * 100)
-        : 0;
-    });
-
-    attendance.forEach(a => {
-      if (map[a.employeeId] && a.synced !== false) {
-        const totalAtt = attendance.filter(att => att.employeeId === a.employeeId && att.synced !== false).length;
-        const presentAtt = attendance.filter(att => att.employeeId === a.employeeId && (att.status === 'present' || att.status === 'late') && att.synced !== false).length;
-        map[a.employeeId].attendanceRate = totalAtt > 0 ? Math.round((presentAtt / totalAtt) * 100) : 0;
+    (reports || []).forEach(r => {
+      const officerId = r.officerId || r.employeeId;
+      if (officerId && map[officerId]) {
+        map[officerId].reports += 1;
       }
     });
 
     return Object.values(map)
-      .filter(emp => emp.totalRegistrations > 0)
-      .sort((a, b) => b.totalRegistrations - a.totalRegistrations)
-      .slice(0, 5);
-  }, [reports, citizens, attendance]);
-
-  const realTeamPerformance = useMemo(() => {
-    if (!isSupervisor || !user || !teamMembers) return [];
-    const teamIds = teamMembers.map(m => m.employeeId);
-    const map = {};
-    reports.forEach(r => {
-      if (teamIds.includes(r.employeeId) && !map[r.employeeId]) {
-        map[r.employeeId] = {
-          employeeId: r.employeeId,
-          employeeName: r.employeeName,
-          region: r.region,
-          totalReports: 0,
-          totalRegistrations: 0,
-          avgEfficiency: 0,
-          attendanceRate: 0,
-        };
-      }
-      if (map[r.employeeId]) {
-        map[r.employeeId].totalReports += 1;
-      }
-    });
-    citizens.forEach(c => {
-      if (c.registeredBy && map[c.registeredBy] && c.synced === true) {
-        map[c.registeredBy].totalRegistrations += 1;
-      }
-    });
-    Object.values(map).forEach(emp => {
-      emp.avgEfficiency = emp.totalReports > 0
-        ? Math.round((emp.totalRegistrations / emp.totalReports) * 100)
-        : 0;
-    });
-    attendance.forEach(a => {
-      if (map[a.employeeId] && a.synced !== false) {
-        const totalAtt = attendance.filter(att => att.employeeId === a.employeeId && att.synced !== false).length;
-        const presentAtt = attendance.filter(att => att.employeeId === a.employeeId && (att.status === 'present' || att.status === 'late') && att.synced !== false).length;
-        map[a.employeeId].attendanceRate = totalAtt > 0 ? Math.round((presentAtt / totalAtt) * 100) : 0;
-      }
-    });
-    return Object.values(map)
-      .filter(emp => emp.totalRegistrations > 0)
-      .sort((a, b) => b.totalRegistrations - a.totalRegistrations);
-  }, [reports, citizens, attendance, teamMembers, isSupervisor, user]);
-
-  const renderChart = useCallback((type, data, chartColors = CHART_COLORS, xAxisKey = 'name') => {
-    if (!data || data.length === 0) {
-      return (
-        <div className="h-full flex items-center justify-center text-xs text-slate-400">
-          No data records available
-        </div>
-      );
-    }
-
-    const commonProps = {
-      margin: { top: 10, right: 10, left: -20, bottom: 0 },
-    };
-
-    switch (type) {
-      case 'bar':
-        return (
-          <ResponsiveContainer width="100%" height={260}>
-            <BarChart data={data} {...commonProps}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
-              <XAxis dataKey={xAxisKey} tick={{ fontSize: 11, fill: '#64748B' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: '#64748B' }} axisLine={false} tickLine={false} />
-              <Tooltip content={CustomTooltip} />
-              <Bar dataKey="value" radius={[6, 6, 0, 0]}>
-                {data.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={STATUS_COLORS[entry.name] || chartColors[index % chartColors.length]}
-                  />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        );
-      case 'line':
-        return (
-          <ResponsiveContainer width="100%" height={260}>
-            <LineChart data={data} {...commonProps}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
-              <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#64748B' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: '#64748B' }} axisLine={false} tickLine={false} />
-              <Tooltip content={CustomTooltip} />
-              <Line
-                type="monotone"
-                dataKey="value"
-                stroke={chartColors[0]}
-                strokeWidth={2.5}
-                dot={{ r: 3, fill: chartColors[0] }}
-                activeDot={{ r: 5 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        );
-      case 'area':
-        return (
-          <ResponsiveContainer width="100%" height={260}>
-            <AreaChart data={data} {...commonProps}>
-              <defs>
-                <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={chartColors[0]} stopOpacity={0.25} />
-                  <stop offset="95%" stopColor={chartColors[0]} stopOpacity={0.0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
-              <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#64748B' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: '#64748B' }} axisLine={false} tickLine={false} />
-              <Tooltip content={CustomTooltip} />
-              <Area
-                type="monotone"
-                dataKey="value"
-                stroke={chartColors[0]}
-                strokeWidth={2.5}
-                fillOpacity={1}
-                fill="url(#areaGradient)"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        );
-      default:
-        return null;
-    }
-  }, []);
+      .sort((a, b) => b.registrations - a.registrations);
+  }, [users, citizens, reports]);
 
   return (
     <div className="space-y-6">
@@ -401,49 +381,201 @@ function Dashboard({
       {isOfficer && showPopup && (
         <VerificationPopup
           officerId={user?.id}
-          officerName={user?.name}
+          officerName={user?.name || user?.fullName}
           onAnswer={handleAnswer}
           onClose={handleClose}
         />
       )}
 
+      {/* Top Banner: Status & Real-Time Sync Indicator */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs">
+        <div>
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+            {isManager && 'Executive Operations Dashboard'}
+            {isSupervisor && 'Supervisor Real-Time Monitoring'}
+            {isOfficer && 'Field Officer Operations Console'}
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            {isManager && 'Consolidated live telemetry across all regions, zones, and field officers'}
+            {isSupervisor && 'Real-time telemetry and registration velocity for your assigned territory'}
+            {isOfficer && 'Real-time tracking of personal registrations, reports, and screen-time telemetry'}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <Badge variant={isLiveConnected ? 'success' : 'warning'} dot>
+            {isLiveConnected ? 'Live Server Telemetry' : 'Offline Local Cache'}
+          </Badge>
+
+          {lastRefreshed && (
+            <span className="text-xs text-slate-400">
+              Updated {lastRefreshed.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+            </span>
+          )}
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => fetchTelemetryOverview(true)}
+            disabled={isRefreshing}
+            className="flex items-center gap-1.5"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-blue-600' : ''}`} />
+            <span>Refresh</span>
+          </Button>
+        </div>
+      </div>
+
       {/* ============================================================
-          FIELD OFFICER DASHBOARD
+          URGENT ROADBLOCKS ESCALATION BANNER (Supervisor & Manager)
+         ============================================================ */}
+      {(isManager || isSupervisor) && urgentRoadblocks.length > 0 && (
+        <div className="bg-rose-50 border border-rose-200 rounded-2xl p-4 sm:p-5 shadow-xs animate-in fade-in">
+          <div className="flex items-start gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
+              <AlertTriangle className="w-5 h-5" />
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <h4 className="text-sm sm:text-base font-bold text-rose-900 flex items-center gap-2">
+                  Urgent Roadblocks & Escalations Requiring Immediate Action
+                  <span className="px-2 py-0.5 rounded-full text-xs bg-rose-200 text-rose-800 font-bold">
+                    {urgentRoadblocks.length}
+                  </span>
+                </h4>
+              </div>
+              <p className="text-xs text-rose-700 mt-0.5">
+                The following field officers flagged critical impediments in their daily reports today:
+              </p>
+
+              <div className="mt-3 space-y-2">
+                {urgentRoadblocks.map((rb, idx) => (
+                  <div key={idx} className="bg-white/90 rounded-xl p-3 border border-rose-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-slate-900">{rb.officerName}</span>
+                        <span className="text-slate-400">·</span>
+                        <span className="text-slate-600 font-medium">{rb.woredaName}</span>
+                        <span className="text-slate-400">·</span>
+                        <span className="text-slate-400">
+                          {new Date(rb.submittedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                      <p className="text-rose-900 font-medium mt-1">
+                        "{rb.reason}"
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="xs"
+                        variant="outline"
+                        onClick={() => handleOpenOfficerDrilldown(rb.reportId)}
+                        className="bg-white hover:bg-rose-50 border-rose-200 text-rose-700"
+                      >
+                        Inspect Officer
+                      </Button>
+                      {setActiveTab && (
+                        <Button
+                          size="xs"
+                          variant="primary"
+                          onClick={() => setActiveTab(isManager ? 'all_reports' : 'reports')}
+                          className="bg-rose-700 hover:bg-rose-800 text-white"
+                        >
+                          Review Report
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================
+          EXECUTIVE / SUPERVISOR KPI STAT CARDS
+         ============================================================ */}
+      {(isManager || isSupervisor) && (
+        <div className="grid grid-cols-2 lg:grid-cols-6 gap-3.5">
+          <StatCard
+            title="Registered Citizens"
+            value={totalCitizens}
+            subtitle={`${todayCitizens} registered today`}
+            icon={Users}
+            iconColor="text-blue-700"
+            iconBg="bg-blue-50"
+            badge={`${syncedCitizens} Synced`}
+            badgeColor="bg-emerald-50 text-emerald-700 border-emerald-200"
+          />
+
+          <StatCard
+            title="Today's Screen Time"
+            value={todayScreenTimeFormatted}
+            subtitle={`Total: ${totalScreenTimeFormatted}`}
+            icon={Clock}
+            iconColor="text-teal-700"
+            iconBg="bg-teal-50"
+          />
+
+          <StatCard
+            title="Daily Report Compliance"
+            value={`${complianceRate}%`}
+            subtitle={`${reportsToday} of ${totalStaff} submitted today`}
+            icon={FileText}
+            iconColor="text-indigo-700"
+            iconBg="bg-indigo-50"
+            badge={complianceRate === 100 ? '100% Complete' : 'In Progress'}
+            badgeColor={complianceRate === 100 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'}
+          />
+
+          <StatCard
+            title="Urgent Roadblocks"
+            value={urgentRoadblocks.length}
+            subtitle={urgentRoadblocks.length > 0 ? 'Requires attention' : 'All clear'}
+            icon={AlertTriangle}
+            iconColor={urgentRoadblocks.length > 0 ? 'text-rose-700' : 'text-slate-400'}
+            iconBg={urgentRoadblocks.length > 0 ? 'bg-rose-50' : 'bg-slate-50'}
+          />
+
+          <div
+            onClick={() => setActiveTab && setActiveTab('duplicates')}
+            className="cursor-pointer"
+          >
+            <StatCard
+              title="Duplicate Reviews"
+              value={pendingDuplicates}
+              subtitle="Pending adjudication"
+              icon={ShieldCheck}
+              iconColor="text-amber-700"
+              iconBg="bg-amber-50"
+              badge={pendingDuplicates > 0 ? 'Review Needed' : 'Clean'}
+              badgeColor={pendingDuplicates > 0 ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200'}
+            />
+          </div>
+
+          <div
+            onClick={() => setActiveTab && setActiveTab('sync_center')}
+            className="cursor-pointer"
+          >
+            <StatCard
+              title="Sync Status"
+              value={`${pendingCitizens === 0 ? '100%' : Math.round((syncedCitizens / (totalCitizens || 1)) * 100) + '%'}`}
+              subtitle={`${pendingCitizens} pending sync`}
+              icon={RefreshCw}
+              iconColor="text-blue-700"
+              iconBg="bg-blue-50"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================
+          FIELD OFFICER DASHBOARD VIEW
          ============================================================ */}
       {isOfficer && (
         <>
-          {/* Header & Verification Pill */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-                Field Officer Dashboard
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-                Overview of your field registrations, reports, and attendance
-              </p>
-            </div>
-
-            {/* Verification Status Pill */}
-            <div className="flex items-center gap-2 flex-wrap">
-              <div className={`px-3 py-1.5 rounded-xl border flex items-center gap-2 text-xs font-medium shadow-xs ${
-                (verificationScore || 0) >= 80
-                  ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-                  : (verificationScore || 0) >= 60
-                  ? 'bg-amber-50 border-amber-200 text-amber-800'
-                  : 'bg-rose-50 border-rose-200 text-rose-800'
-              }`}>
-                <ShieldCheck className="w-4 h-4 flex-shrink-0" />
-                <span>Verification Score: <strong>{verificationScore || 0}%</strong></span>
-              </div>
-
-              {lastVerified && (
-                <div className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-500 text-xs shadow-xs">
-                  Last verified: {new Date(lastVerified).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </div>
-              )}
-            </div>
-          </div>
-
           {/* Quick Action Shortcuts */}
           {setActiveTab && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -459,7 +591,7 @@ function Dashboard({
                     </div>
                     <div>
                       <h4 className="font-semibold text-base text-white">Register Citizen</h4>
-                      <p className="text-xs text-blue-200 mt-0.5">Record offline beneficiary profile</p>
+                      <p className="text-xs text-blue-200 mt-0.5">Record offline citizen profile</p>
                     </div>
                   </div>
                   <ArrowRight className="w-5 h-5 text-blue-200 group-hover:translate-x-1 transition-transform" />
@@ -478,7 +610,7 @@ function Dashboard({
                     </div>
                     <div>
                       <h4 className="font-semibold text-base text-slate-900">Submit Daily Report</h4>
-                      <p className="text-xs text-slate-500 mt-0.5">Upload work log and milestones</p>
+                      <p className="text-xs text-slate-500 mt-0.5">Finalize screen time & submit work log</p>
                     </div>
                   </div>
                   <ArrowRight className="w-5 h-5 text-slate-400 group-hover:translate-x-1 group-hover:text-[#1E3A8A] transition-all" />
@@ -490,354 +622,430 @@ function Dashboard({
           {/* Officer Key Metrics */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard
-              title="My Reports (synced)"
-              value={officerReportsCount}
-              subtitle="Total verified submissions"
-              icon={FileText}
+              title="My Registrations"
+              value={totalCitizens}
+              subtitle={`${todayCitizens} registered today`}
+              icon={Users}
               iconColor="text-blue-700"
               iconBg="bg-blue-50"
             />
             <StatCard
-              title="Citizens Registered"
-              value={officerTotalRegistrations}
-              subtitle="Total records created"
-              icon={Users}
-              iconColor="text-emerald-700"
-              iconBg="bg-emerald-50"
-            />
-            <StatCard
-              title="Today's Attendance"
-              value={todayAttendance?.status ? todayAttendance.status.toUpperCase() : 'NOT MARKED'}
-              subtitle="Daily presence status"
-              icon={CalendarCheck}
+              title="Today's Screen Time"
+              value={todayScreenTimeFormatted}
+              subtitle="Recorded on current shift"
+              icon={Clock}
               iconColor="text-teal-700"
               iconBg="bg-teal-50"
             />
             <StatCard
-              title="Today's Registrations"
-              value={officerTodayRegistrations}
-              subtitle="Beneficiaries added today"
-              icon={CheckCircle2}
+              title="Today's Report Status"
+              value={reportsToday > 0 ? 'SUBMITTED' : 'PENDING'}
+              subtitle={reportsToday > 0 ? 'Daily report submitted' : 'Submission required by EOD'}
+              icon={FileText}
               iconColor="text-indigo-700"
               iconBg="bg-indigo-50"
             />
+            <StatCard
+              title="Verification Score"
+              value={`${verificationScore || 100}%`}
+              subtitle="Device & security integrity"
+              icon={ShieldCheck}
+              iconColor="text-emerald-700"
+              iconBg="bg-emerald-50"
+            />
           </div>
-
-          {/* Today's Realtime Status Row */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {[
-              { label: "Today's Reports", value: (reports || []).filter(r => r.employeeId === user?.employeeId && r.reportDate === getToday() && r.synced).length },
-              { label: "Today's Registrations", value: officerTodayRegistrations },
-              { label: 'Work Efficiency', value: `${Math.round((officerTotalRegistrations / (officerReportsCount || 1) / 100) * 100)}%` },
-              { label: "Today's Attendance", value: todayAttendance?.status ? todayAttendance.status.toUpperCase() : 'NOT MARKED' }
-            ].map((stat, idx) => (
-              <div key={idx} className="bg-white p-3.5 rounded-xl border border-slate-200/90 shadow-2xs flex items-center justify-between">
-                <span className="text-xs font-medium text-slate-500">{stat.label}</span>
-                <span className="text-sm font-bold text-slate-900">{stat.value}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Officer Charts Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-            <ChartWrapper title="7-Day Registration Trend" subtitle="Daily citizen records saved and synced">
-              {renderChart('area', officerPerformanceData.map(d => ({ date: d.date, value: d.registrations })), ['#1E3A8A'])}
-            </ChartWrapper>
-
-            <ChartWrapper title="Submission Efficiency Trend" subtitle="Registrations per daily report">
-              {renderChart('line', officerPerformanceData.map(d => ({ date: d.date, value: d.efficiency })), ['#0D9488'])}
-            </ChartWrapper>
-          </div>
-
-          {/* Attendance Card */}
-          <Card>
-            <CardHeader>
-              <div>
-                <CardTitle>Today's Shift Attendance</CardTitle>
-                <CardDescription>Daily check-in verification log</CardDescription>
-              </div>
-              <Badge variant={todayAttendance?.status === 'present' ? 'success' : todayAttendance?.status === 'late' ? 'warning' : 'neutral'}>
-                {todayAttendance?.status ? todayAttendance.status.toUpperCase() : 'PENDING'}
-              </Badge>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                  <span className="text-[11px] font-medium text-slate-500 block">Status</span>
-                  <span className="text-sm font-bold text-slate-900 capitalize">{todayAttendance?.status || 'Not Checked In'}</span>
-                </div>
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                  <span className="text-[11px] font-medium text-slate-500 block">Check In Time</span>
-                  <span className="text-sm font-bold text-slate-900 font-mono">{todayAttendance?.checkIn || '--:--'}</span>
-                </div>
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                  <span className="text-[11px] font-medium text-slate-500 block">Check Out Time</span>
-                  <span className="text-sm font-bold text-slate-900 font-mono">{todayAttendance?.checkOut || '--:--'}</span>
-                </div>
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                  <span className="text-[11px] font-medium text-slate-500 block">Total Work Hours</span>
-                  <span className="text-sm font-bold text-slate-900 font-mono">{todayAttendance?.workHours || 0} hrs</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </>
       )}
 
       {/* ============================================================
-          SUPERVISOR DASHBOARD
+          INTERACTIVE CHARTS & VISUAL TELEMETRY
          ============================================================ */}
-      {isSupervisor && (
-        <>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-                Supervisor Dashboard
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-                Monitoring field officer operations and approvals
-              </p>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* 7-Day Velocity Chart */}
+        <ChartWrapper
+          title="7-Day Registration Velocity"
+          subtitle="Daily citizen registrations recorded and synchronized"
+        >
+          {registrationTrendData.length === 0 ? (
+            <div className="h-full flex items-center justify-center text-xs text-slate-400">
+              No registration history recorded yet
             </div>
-            <div className="flex items-center gap-2">
-              <span className="px-3 py-1 rounded-full bg-blue-50 text-[#1E3A8A] text-xs font-semibold border border-blue-100">
-                {teamMembers?.length || 0} Active Officers
-              </span>
+          ) : (
+            <ResponsiveContainer width="100%" height={260}>
+              <AreaChart data={registrationTrendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="areaVelocity" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#1E3A8A" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#1E3A8A" stopOpacity={0.0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#64748B' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: '#64748B' }} axisLine={false} tickLine={false} />
+                <Tooltip content={CustomTooltip} />
+                <Area
+                  type="monotone"
+                  dataKey="value"
+                  name="Citizens"
+                  stroke="#1E3A8A"
+                  strokeWidth={2.5}
+                  fillOpacity={1}
+                  fill="url(#areaVelocity)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
+        </ChartWrapper>
+
+        {/* Geographic Distribution Chart */}
+        <ChartWrapper
+          title="Geographic Distribution by Woreda"
+          subtitle="Citizen registration density across administrative woredas"
+        >
+          {geographicData.length === 0 ? (
+            <div className="h-full flex items-center justify-center text-xs text-slate-400">
+              No geographic distribution data available
             </div>
-          </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={260}>
+              <BarChart data={geographicData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
+                <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#64748B' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: '#64748B' }} axisLine={false} tickLine={false} />
+                <Tooltip content={CustomTooltip} />
+                <Bar dataKey="count" name="Citizens" fill="#0D9488" radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+        </ChartWrapper>
+      </div>
 
-          {/* Supervisor Metric Cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatCard
-              title="Team Members"
-              value={teamMembers?.length || 0}
-              subtitle="Assigned field officers"
-              icon={Users}
-              iconColor="text-indigo-700"
-              iconBg="bg-indigo-50"
-            />
-            <StatCard
-              title="Team Reports (synced)"
-              value={teamReportsCount}
-              subtitle="Synced reports submitted"
-              icon={FileText}
-              iconColor="text-blue-700"
-              iconBg="bg-blue-50"
-            />
-            <StatCard
-              title="Team Registrations"
-              value={teamCitizenCount}
-              subtitle="Citizens registered by team"
-              icon={UserCheck}
-              iconColor="text-emerald-700"
-              iconBg="bg-emerald-50"
-            />
-            <StatCard
-              title="Team Attendance Rate"
-              value={`${realAttendanceRate}%`}
-              subtitle="Active presence rate"
-              icon={CalendarCheck}
-              iconColor="text-teal-700"
-              iconBg="bg-teal-50"
-            />
-          </div>
+      {/* ============================================================
+          DEMOGRAPHICS & LIVE ACTIVITY STREAM
+         ============================================================ */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        {/* Demographics / Gender Card */}
+        <Card className="flex flex-col">
+          <CardHeader>
+            <CardTitle>Demographic Distribution</CardTitle>
+            <CardDescription>Gender breakdown of registered citizens</CardDescription>
+          </CardHeader>
+          <CardContent className="flex-1 flex flex-col justify-center items-center">
+            {genderData.length === 0 ? (
+              <div className="text-xs text-slate-400 py-10">No demographic data recorded</div>
+            ) : (
+              <>
+                <ResponsiveContainer width="100%" height={180}>
+                  <PieChart>
+                    <Pie
+                      data={genderData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={50}
+                      outerRadius={75}
+                      paddingAngle={4}
+                      dataKey="value"
+                    >
+                      {genderData.map((entry, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={GENDER_COLORS[entry.name] || CHART_COLORS[index % CHART_COLORS.length]}
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
 
-          {/* Charts Row */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-            <ChartWrapper title="Team Report Status" subtitle="Approved vs Pending vs Rejected">
-              {renderChart('bar', reportStatusData)}
-            </ChartWrapper>
-
-            <ChartWrapper title="7-Day Team Registrations" subtitle="Cumulative daily citizen registrations">
-              {renderChart('area', registrationTrendData.map(d => ({ date: d.date, value: d.value })), ['#0D9488'])}
-            </ChartWrapper>
-          </div>
-
-          {/* Team Leaderboard */}
-          <Card>
-            <CardHeader>
-              <div>
-                <CardTitle>Team Performance Leaderboard</CardTitle>
-                <CardDescription>Top field officers ranked by registrations</CardDescription>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {(!realTeamPerformance || realTeamPerformance.length === 0) ? (
-                <div className="text-center py-8 text-xs text-slate-400">
-                  No team activity recorded yet
-                </div>
-              ) : (
-                <div className="divide-y divide-slate-100">
-                  {realTeamPerformance.map((emp, i) => (
-                    <div key={emp.employeeId} className="py-3 flex items-center justify-between gap-4">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                          i === 0 ? 'bg-amber-100 text-amber-800' : i === 1 ? 'bg-slate-200 text-slate-700' : 'bg-slate-100 text-slate-500'
-                        }`}>
-                          {i + 1}
-                        </span>
-                        <div className="min-w-0">
-                          <p className="text-xs font-semibold text-slate-900 truncate">{emp.employeeName}</p>
-                          <p className="text-[11px] text-slate-500">{emp.region}</p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-4 text-xs">
-                        <span className="font-semibold text-slate-900">{emp.totalRegistrations} citizens</span>
-                        <span className="text-emerald-700 font-medium">{emp.avgEfficiency}% eff</span>
-                        <span className="text-slate-500">{Math.round(emp.attendanceRate)}% att</span>
-                      </div>
+                <div className="flex items-center justify-center gap-6 mt-2 text-xs">
+                  {genderData.map((g, i) => (
+                    <div key={i} className="flex items-center gap-1.5">
+                      <span
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: GENDER_COLORS[g.name] || CHART_COLORS[i % CHART_COLORS.length] }}
+                      />
+                      <span className="font-medium text-slate-700 capitalize">{g.name.toLowerCase()}:</span>
+                      <span className="font-bold text-slate-900">{g.value}</span>
                     </div>
                   ))}
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        </>
+              </>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Live Operational Activity Stream (2 Columns) */}
+        <Card className="lg:col-span-2 flex flex-col">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="w-4 h-4 text-blue-600" />
+                Live Operational Activity Stream
+              </CardTitle>
+              <CardDescription>Real-time stream of field officer activities & telemetry</CardDescription>
+            </div>
+            {setActiveTab && (
+              <Button
+                variant="ghost"
+                size="xs"
+                onClick={() => setActiveTab('activity_logs')}
+                className="text-blue-700 hover:text-blue-800 text-xs flex items-center gap-1"
+              >
+                View Full Timeline
+                <ChevronRight className="w-3.5 h-3.5" />
+              </Button>
+            )}
+          </CardHeader>
+          <CardContent className="flex-1">
+            {recentActivityStream.length === 0 ? (
+              <div className="text-center py-10 text-xs text-slate-400">
+                No recent activity events logged yet
+              </div>
+            ) : (
+              <div className="divide-y divide-slate-100 max-h-[300px] overflow-y-auto pr-1">
+                {recentActivityStream.map((log) => (
+                  <div key={log.id} className="py-2.5 flex items-center justify-between gap-3 text-xs">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center flex-shrink-0 font-bold text-[10px]">
+                        {log.eventType?.slice(0, 3) || 'LOG'}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-slate-900 truncate">
+                          {log.description}
+                        </p>
+                        <p className="text-[11px] text-slate-500 flex items-center gap-1.5 mt-0.5">
+                          <span className="font-medium text-slate-700">{log.officerName}</span>
+                          <span>·</span>
+                          <span>
+                            {new Date(log.deviceTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <Badge variant={log.syncStatus === 'SYNCED' ? 'success' : 'warning'}>
+                        {log.syncStatus === 'SYNCED' ? 'Synced' : 'Pending'}
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* ============================================================
+          OFFICER PERFORMANCE & LEADERBOARD (Supervisor & Manager)
+         ============================================================ */}
+      {(isManager || isSupervisor) && (
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Field Officer Performance & Telemetry</CardTitle>
+              <CardDescription>Click any field officer to inspect detailed individual telemetry</CardDescription>
+            </div>
+            {setActiveTab && (
+              <Button
+                variant="outline"
+                size="xs"
+                onClick={() => setActiveTab('team')}
+                className="text-xs"
+              >
+                Manage Force
+              </Button>
+            )}
+          </CardHeader>
+          <CardContent>
+            {teamLeaderboard.length === 0 ? (
+              <div className="text-center py-8 text-xs text-slate-400">
+                No officer performance records available
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="border-b border-slate-100 text-slate-400 font-semibold uppercase tracking-wider">
+                      <th className="pb-3 pl-2">Rank</th>
+                      <th className="pb-3">Officer</th>
+                      <th className="pb-3">Woreda / Territory</th>
+                      <th className="pb-3 text-right">Registrations</th>
+                      <th className="pb-3 text-right">Reports</th>
+                      <th className="pb-3 text-right pr-2">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {teamLeaderboard.map((emp, i) => (
+                      <tr
+                        key={emp.id}
+                        onClick={() => handleOpenOfficerDrilldown(emp.id)}
+                        className="hover:bg-slate-50/80 transition-colors cursor-pointer group"
+                      >
+                        <td className="py-3 pl-2">
+                          <span className={`w-5 h-5 rounded-full inline-flex items-center justify-center font-bold text-[11px] ${
+                            i === 0 ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-600'
+                          }`}>
+                            {i + 1}
+                          </span>
+                        </td>
+                        <td className="py-3 font-semibold text-slate-900 group-hover:text-blue-700 transition-colors">
+                          {emp.name}
+                        </td>
+                        <td className="py-3 text-slate-500">{emp.region}</td>
+                        <td className="py-3 text-right font-bold text-slate-900">{emp.registrations}</td>
+                        <td className="py-3 text-right font-medium text-slate-700">{emp.reports}</td>
+                        <td className="py-3 text-right pr-2">
+                          <Button
+                            size="xs"
+                            variant="ghost"
+                            className="text-blue-700 group-hover:bg-blue-50"
+                          >
+                            <Eye className="w-3.5 h-3.5 mr-1" />
+                            Inspect
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       )}
 
       {/* ============================================================
-          MANAGER DASHBOARD
+          OFFICER TELEMETRY DRILLDOWN MODAL
          ============================================================ */}
-      {isManager && (
-        <>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-                Executive Operations Dashboard
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-                Consolidated overview across all regions and field teams
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="primary" dot>
-                {realTotalReports} Synced Reports
+      <Modal
+        isOpen={Boolean(selectedOfficerId)}
+        onClose={() => {
+          setSelectedOfficerId(null);
+          setOfficerDetail(null);
+        }}
+        title="Field Officer Telemetry Drilldown"
+        description="Comprehensive field operational performance and submission history"
+        size="lg"
+      >
+        {isLoadingOfficer ? (
+          <div className="py-12 flex flex-col items-center justify-center text-slate-500">
+            <RefreshCw className="w-8 h-8 animate-spin text-blue-600 mb-2" />
+            <p className="text-xs">Loading officer telemetry data...</p>
+          </div>
+        ) : officerDetail ? (
+          <div className="space-y-5 py-2">
+            {/* Officer Header Card */}
+            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h4 className="text-base font-bold text-slate-900">{officerDetail.officer.fullName}</h4>
+                <div className="flex items-center gap-3 text-xs text-slate-500 mt-1 flex-wrap">
+                  <span className="flex items-center gap-1">
+                    <Mail className="w-3.5 h-3.5" />
+                    {officerDetail.officer.email}
+                  </span>
+                  {officerDetail.officer.phoneNumber && (
+                    <span className="flex items-center gap-1">
+                      <Phone className="w-3.5 h-3.5" />
+                      {officerDetail.officer.phoneNumber}
+                    </span>
+                  )}
+                  <span className="flex items-center gap-1">
+                    <MapPin className="w-3.5 h-3.5" />
+                    {officerDetail.officer.woredaName || 'Territory'}
+                  </span>
+                </div>
+              </div>
+
+              <Badge variant="primary">
+                Field Officer
               </Badge>
             </div>
-          </div>
 
-          {/* Manager Metric Cards Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
-            <StatCard
-              title="Reports"
-              value={realTotalReports}
-              subtitle="Synced"
-              icon={FileText}
-              iconColor="text-blue-700"
-              iconBg="bg-blue-50"
-            />
-            <StatCard
-              title="Citizens"
-              value={realTotalCitizens}
-              subtitle="Total profiles"
-              icon={Users}
-              iconColor="text-emerald-700"
-              iconBg="bg-emerald-50"
-            />
-            <StatCard
-              title="Supervisors"
-              value={realSupervisors}
-              subtitle="Field leads"
-              icon={Award}
-              iconColor="text-indigo-700"
-              iconBg="bg-indigo-50"
-            />
-            <StatCard
-              title="Officers"
-              value={realFieldOfficers}
-              subtitle="Field force"
-              icon={UserCheck}
-              iconColor="text-amber-700"
-              iconBg="bg-amber-50"
-            />
-            <StatCard
-              title="Attendance"
-              value={`${realAttendanceRate}%`}
-              subtitle="Present rate"
-              icon={CalendarCheck}
-              iconColor="text-teal-700"
-              iconBg="bg-teal-50"
-            />
-            <StatCard
-              title="Verified Reports"
-              value={realTotalReports}
-              subtitle="Submitted work logs"
-              icon={FileText}
-              iconColor="text-blue-700"
-              iconBg="bg-blue-50"
-            />
-          </div>
-
-          {/* Charts Row */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-            <ChartWrapper title="7-Day Registration Trend" subtitle="Daily registered beneficiaries across all territories">
-              {renderChart('bar', registrationTrendData.map(d => ({ name: d.date, value: d.value })), ['#1E3A8A'])}
-            </ChartWrapper>
-
-            <ChartWrapper title="Report Status Breakdown" subtitle="Distribution of reviewed field reports">
-              {renderChart('bar', reportStatusData)}
-            </ChartWrapper>
-          </div>
-
-          <div className="grid grid-cols-1 gap-5">
-            <ChartWrapper title="Today's Attendance Status" subtitle="Breakdown of attendance check-ins across staff">
-              {renderChart('bar', todayAttendanceData)}
-            </ChartWrapper>
-          </div>
-
-          {/* Top Performing Officers */}
-          <Card>
-            <CardHeader>
-              <div>
-                <CardTitle>Top Performing Field Officers</CardTitle>
-                <CardDescription>Top contributors sorted by verified registrations</CardDescription>
+            {/* Officer KPI Metrics */}
+            <div className="grid grid-cols-3 gap-3">
+              <div className="p-3 bg-white rounded-xl border border-slate-200 shadow-2xs text-center">
+                <span className="text-[11px] font-medium text-slate-500 block">Citizens Registered</span>
+                <span className="text-lg font-bold text-slate-900 mt-0.5 block">
+                  {officerDetail.metrics.citizensRegistered}
+                </span>
               </div>
-            </CardHeader>
-            <CardContent>
-              {(!realTopPerformers || realTopPerformers.length === 0) ? (
-                <div className="text-center py-8 text-xs text-slate-400">
-                  No officer performance records available
+              <div className="p-3 bg-white rounded-xl border border-slate-200 shadow-2xs text-center">
+                <span className="text-[11px] font-medium text-slate-500 block">Screen Time</span>
+                <span className="text-lg font-bold text-teal-700 mt-0.5 block">
+                  {officerDetail.metrics.totalScreenTimeFormatted}
+                </span>
+              </div>
+              <div className="p-3 bg-white rounded-xl border border-slate-200 shadow-2xs text-center">
+                <span className="text-[11px] font-medium text-slate-500 block">Reports Submitted</span>
+                <span className="text-lg font-bold text-indigo-700 mt-0.5 block">
+                  {officerDetail.metrics.reportsCount}
+                </span>
+              </div>
+            </div>
+
+            {/* Officer Recent Reports Table */}
+            <div>
+              <h5 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-2">
+                Recent Daily Work Reports
+              </h5>
+              {(!officerDetail.recentReports || officerDetail.recentReports.length === 0) ? (
+                <div className="text-center py-6 text-xs text-slate-400 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                  No daily work reports submitted yet
                 </div>
               ) : (
-                <div className="overflow-x-auto">
+                <div className="border border-slate-200 rounded-xl overflow-hidden">
                   <table className="w-full text-left text-xs">
-                    <thead>
-                      <tr className="border-b border-slate-100 text-slate-400 font-semibold uppercase tracking-wider">
-                        <th className="pb-3 pl-2">Rank</th>
-                        <th className="pb-3">Officer</th>
-                        <th className="pb-3">Region</th>
-                        <th className="pb-3 text-right">Registrations</th>
-                        <th className="pb-3 text-right">Efficiency</th>
-                        <th className="pb-3 text-right pr-2">Attendance</th>
+                    <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
+                      <tr>
+                        <th className="py-2.5 px-3">Date</th>
+                        <th className="py-2.5 px-3 text-right">Registrations</th>
+                        <th className="py-2.5 px-3 text-right">Screen Time</th>
+                        <th className="py-2.5 px-3 text-right">Status</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                      {realTopPerformers.map((emp, i) => (
-                        <tr key={emp.employeeId} className="hover:bg-slate-50/70 transition-colors">
-                          <td className="py-3 pl-2">
-                            <span className={`w-5 h-5 rounded-full inline-flex items-center justify-center font-bold text-[11px] ${
-                              i === 0 ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-600'
-                            }`}>
-                              {i + 1}
-                            </span>
+                      {officerDetail.recentReports.map((r) => (
+                        <tr key={r.id} className="hover:bg-slate-50/60">
+                          <td className="py-2.5 px-3 font-medium text-slate-900">{r.reportDate}</td>
+                          <td className="py-2.5 px-3 text-right font-bold text-slate-900">
+                            {r.citizenCountServerConfirmed || r.citizenCountLocal}
                           </td>
-                          <td className="py-3 font-semibold text-slate-900">{emp.employeeName}</td>
-                          <td className="py-3 text-slate-500">{emp.region}</td>
-                          <td className="py-3 text-right font-bold text-slate-900">{emp.totalRegistrations}</td>
-                          <td className="py-3 text-right font-medium text-emerald-700">{emp.avgEfficiency}%</td>
-                          <td className="py-3 text-right pr-2 font-medium text-slate-700">{Math.round(emp.attendanceRate)}%</td>
+                          <td className="py-2.5 px-3 text-right text-slate-600 font-mono">
+                            {r.screenTimeFormatted}
+                          </td>
+                          <td className="py-2.5 px-3 text-right">
+                            <Badge variant={r.syncStatus === 'SYNCED' ? 'success' : 'warning'}>
+                              {r.syncStatus}
+                            </Badge>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
               )}
-            </CardContent>
-          </Card>
-        </>
-      )}
+            </div>
+
+            <div className="pt-2 flex justify-end">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setSelectedOfficerId(null);
+                  setOfficerDetail(null);
+                }}
+              >
+                Close Drilldown
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="text-center py-8 text-xs text-slate-400">
+            Failed to load officer details.
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }
-
-export default Dashboard;

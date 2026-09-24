@@ -1,126 +1,149 @@
 // src/components/audit/AuditLog.jsx – Enterprise System Audit Trail & Compliance
+// Persistent, immutable audit records for Manager (National) and Supervisor (Zone-Scoped)
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
-  ShieldCheck, Search, Download, Trash2, RefreshCw,
-  Clock, User, Activity, AlertTriangle, Filter,
-  FileSpreadsheet, FileCode
+  ShieldCheck, Search, Download, RefreshCw, Clock, User,
+  Activity, AlertTriangle, Filter, FileSpreadsheet, FileCode,
+  Eye, Calendar, ChevronLeft, ChevronRight, X, ArrowRight,
+  Database, UserCog, FileText, CheckCircle2, MapPin
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-import { db } from '../../services/database';
-import { exportCSV, exportJSON } from '../../utils/helpers';
 import { API_BASE } from '../../config/api';
-
+import { exportCSV, exportJSON } from '../../utils/helpers';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
 import Button from '../ui/Button';
 import Badge from '../ui/Badge';
 import Input from '../ui/Input';
-import Select from '../ui/Select';
-import StatCard from '../ui/StatCard';
-import ConfirmDialog from '../ui/ConfirmDialog';
+import Modal from '../ui/Modal';
 
-export default function AuditLog({ auditLog, setAuditLog }) {
-  const [isClearing, setIsClearing] = useState(false);
+export default function AuditLog({ user }) {
+  const [logs, setLogs] = useState([]);
+  const [pagination, setPagination] = useState({ total: 0, page: 1, limit: 15, totalPages: 1 });
+  const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [showClearConfirm, setShowClearConfirm] = useState(false);
-  const [localLogs, setLocalLogs] = useState([]);
+  const [availableActions, setAvailableActions] = useState([]);
+
+  // Filter States
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedRole, setSelectedRole] = useState('ALL');
   const [selectedAction, setSelectedAction] = useState('ALL');
+  const [selectedEntity, setSelectedEntity] = useState('ALL');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [page, setPage] = useState(1);
 
-  // Logs source
-  const logs = auditLog && auditLog.length > 0 ? auditLog : localLogs;
+  // Detail Modal State
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Fallback to IndexedDB on mount
+  const isSupervisor = user?.role === 'supervisor' || user?.role === 'SUPERVISOR';
+  const isManager = user?.role === 'manager' || user?.role === 'MANAGER';
+
+  // 1. Fetch Distinct Actions for Dropdown
   useEffect(() => {
-    const fetchLogs = async () => {
-      if (!auditLog || auditLog.length === 0) {
-        try {
-          const data = await db.audit.toArray();
-          setLocalLogs(data);
-          if (setAuditLog && typeof setAuditLog === 'function') {
-            setAuditLog(data);
+    const fetchActions = async () => {
+      try {
+        const token = localStorage.getItem('fieldsync_token');
+        if (!token) return;
+        const res = await fetch(`${API_BASE}/audit-logs/actions`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && Array.isArray(json.data)) {
+            setAvailableActions(json.data);
           }
-        } catch (err) {
-          console.error('Error reading audit logs:', err);
         }
+      } catch (e) {
+        console.warn('Failed to load audit actions:', e.message);
       }
     };
-    fetchLogs();
-  }, [auditLog, setAuditLog]);
+    fetchActions();
+  }, []);
 
-  // Refresh from server
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
+  // 2. Fetch Audit Logs from Backend
+  const fetchLogs = useCallback(async (isSilent = false) => {
+    if (!isSilent) setIsLoading(true);
+    else setIsRefreshing(true);
+
     try {
-      const response = await fetch(`${API_BASE}/audit`);
-      if (response.ok) {
-        const serverLogs = await response.json();
-        for (const log of serverLogs) {
-          const existing = await db.audit.get(log.id);
-          if (!existing) {
-            await db.audit.add({
-              id: log.id,
-              userId: log.user_id,
-              userName: log.user_name,
-              action: log.action,
-              details: log.details,
-              timestamp: log.timestamp,
-              ip: log.ip
-            });
-          }
-        }
-        const updated = await db.audit.toArray();
-        setLocalLogs(updated);
-        if (setAuditLog && typeof setAuditLog === 'function') {
-          setAuditLog(updated);
-        }
-        toast.success(`Synchronized ${serverLogs.length} audit records from server`);
-      } else {
-        toast.error('Failed to retrieve audit trail from server');
+      const token = localStorage.getItem('fieldsync_token');
+      if (!token) {
+        setIsLoading(false);
+        setIsRefreshing(false);
+        return;
       }
-    } catch (error) {
-      console.error('Refresh error:', error);
-      toast.error('Error connecting to audit service');
+
+      const params = new URLSearchParams();
+      params.append('page', String(page));
+      params.append('limit', '15');
+      if (searchTerm.trim()) params.append('search', searchTerm.trim());
+      if (selectedRole !== 'ALL') params.append('role', selectedRole);
+      if (selectedAction !== 'ALL') params.append('action', selectedAction);
+      if (selectedEntity !== 'ALL') params.append('entityType', selectedEntity);
+      if (startDate) params.append('startDate', startDate);
+      if (endDate) params.append('endDate', endDate);
+
+      const res = await fetch(`${API_BASE}/audit-logs?${params.toString()}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success) {
+          setLogs(json.data || []);
+          setPagination(json.pagination || { total: json.data?.length || 0, page, limit: 15, totalPages: 1 });
+        }
+      } else {
+        const errJson = await res.json().catch(() => ({}));
+        toast.error(errJson.error || 'Failed to fetch audit logs');
+      }
+    } catch (err) {
+      console.error('Audit fetch error:', err);
+      toast.error('Network error loading audit logs');
     } finally {
+      setIsLoading(false);
       setIsRefreshing(false);
     }
+  }, [page, searchTerm, selectedRole, selectedAction, selectedEntity, startDate, endDate]);
+
+  useEffect(() => {
+    fetchLogs();
+  }, [fetchLogs]);
+
+  const handleResetFilters = () => {
+    setSearchTerm('');
+    setSelectedRole('ALL');
+    setSelectedAction('ALL');
+    setSelectedEntity('ALL');
+    setStartDate('');
+    setEndDate('');
+    setPage(1);
   };
 
-  // Clear audit log
-  const handleConfirmClear = async () => {
-    setIsClearing(true);
-    setShowClearConfirm(false);
-    try {
-      await db.audit.clear();
-      setLocalLogs([]);
-      if (setAuditLog && typeof setAuditLog === 'function') {
-        setAuditLog([]);
-      }
-      toast.success('Local audit log records purged');
-    } catch (error) {
-      console.error('Error clearing audit log:', error);
-      toast.error('Failed to clear audit log: ' + error.message);
-    } finally {
-      setIsClearing(false);
-    }
-  };
-
-  // Exports
+  // 3. Export Handlers
   const handleExportCSV = () => {
     if (!logs || logs.length === 0) {
       toast.error('No audit records to export');
       return;
     }
-    const exportData = filteredLogs.map(log => ({
-      'Timestamp': new Date(log.timestamp).toLocaleString(),
-      'User': log.userName || 'System',
-      'Action': log.action,
-      'Details': typeof log.details === 'object' ? JSON.stringify(log.details) : log.details || '',
-      'IP Address': log.ip || 'N/A'
+    const exportData = logs.map(l => ({
+      'Log ID': l.id,
+      'Timestamp': new Date(l.createdAt).toLocaleString(),
+      'Actor Name': l.actorName || 'System',
+      'Actor Role': l.actorRole || 'SYSTEM',
+      'Actor Email': l.actorEmail || 'N/A',
+      'Action': l.action,
+      'Entity Type': l.entityType,
+      'Entity ID': l.entityId,
+      'Zone': l.zoneName || 'N/A',
+      'Summary': l.summary || '',
+      'IP Address': l.ipAddress || 'N/A',
     }));
-    exportCSV(exportData, 'audit_trail');
-    toast.success(`Exported ${exportData.length} audit records to CSV`);
+    exportCSV(exportData, `fieldsync_audit_logs_${new Date().toISOString().split('T')[0]}`);
+    toast.success('Audit trail exported as CSV');
   };
 
   const handleExportJSON = () => {
@@ -128,265 +151,409 @@ export default function AuditLog({ auditLog, setAuditLog }) {
       toast.error('No audit records to export');
       return;
     }
-    exportJSON(filteredLogs, 'audit_trail');
-    toast.success(`Exported ${filteredLogs.length} audit records to JSON`);
+    exportJSON(logs, `fieldsync_audit_logs_${new Date().toISOString().split('T')[0]}`);
+    toast.success('Audit trail exported as JSON');
   };
 
-  // Distinct actions
-  const uniqueActions = useMemo(() => {
-    const set = new Set((logs || []).map(l => l.action).filter(Boolean));
-    return ['ALL', ...Array.from(set)];
-  }, [logs]);
-
-  // Filtered logs
-  const filteredLogs = useMemo(() => {
-    let list = (logs || []).slice().sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-    if (selectedAction !== 'ALL') {
-      list = list.filter(l => l.action === selectedAction);
+  // Color helper for actions
+  const getActionBadgeColor = (action = '') => {
+    const act = action.toUpperCase();
+    if (act.includes('CREATE') || act.includes('PROVISION') || act.includes('APPROVE')) {
+      return 'bg-emerald-50 text-emerald-700 border-emerald-200';
     }
-
-    if (searchTerm) {
-      const q = searchTerm.toLowerCase();
-      list = list.filter(l =>
-        l.userName?.toLowerCase().includes(q) ||
-        l.action?.toLowerCase().includes(q) ||
-        (typeof l.details === 'string' && l.details.toLowerCase().includes(q)) ||
-        (typeof l.details === 'object' && JSON.stringify(l.details).toLowerCase().includes(q))
-      );
+    if (act.includes('DELETE') || act.includes('DEACTIVATE') || act.includes('REJECT')) {
+      return 'bg-rose-50 text-rose-700 border-rose-200';
     }
-
-    return list;
-  }, [logs, selectedAction, searchTerm]);
-
-  // Action badge color helper
-  const getActionBadgeVariant = (action) => {
-    switch (action) {
-      case 'LOGIN': return 'success';
-      case 'LOGOUT': return 'neutral';
-      case 'CREATE_USER': return 'primary';
-      case 'DELETE_USER': return 'error';
-      case 'SUBMIT_REPORT': return 'info';
-      case 'REGISTER_CITIZEN': return 'success';
-      default: return 'neutral';
+    if (act.includes('UPDATE') || act.includes('ASSIGN') || act.includes('RESET')) {
+      return 'bg-blue-50 text-blue-700 border-blue-200';
     }
+    if (act.includes('RESOLV') || act.includes('REVIEW')) {
+      return 'bg-purple-50 text-purple-700 border-purple-200';
+    }
+    return 'bg-slate-100 text-slate-700 border-slate-200';
+  };
+
+  const getEntityIcon = (entity = '') => {
+    const e = entity.toLowerCase();
+    if (e.includes('user')) return <User className="w-4 h-4 text-blue-600" />;
+    if (e.includes('citizen')) return <Database className="w-4 h-4 text-emerald-600" />;
+    if (e.includes('report')) return <FileText className="w-4 h-4 text-amber-600" />;
+    if (e.includes('duplicate')) return <ShieldCheck className="w-4 h-4 text-purple-600" />;
+    return <Activity className="w-4 h-4 text-slate-500" />;
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-6 animate-in fade-in duration-200">
+      {/* Header Banner */}
+      <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-            <ShieldCheck className="w-6 h-6 text-[#1E3A8A]" />
-            System Audit Trail & Compliance Log
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-            Immutable tracking of user authentication, citizen registrations, and database mutations
-          </p>
+          <div className="flex items-center gap-2.5 mb-1.5">
+            <div className="p-2 rounded-xl bg-blue-50 border border-blue-100 text-[#1E3A8A]">
+              <ShieldCheck className="w-6 h-6" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold tracking-tight text-slate-900">
+                {isSupervisor ? 'Zone Audit Trail & Compliance' : 'System-Wide Audit Trail & Security Logs'}
+              </h1>
+              <p className="text-xs text-slate-500">
+                {isSupervisor
+                  ? `Immutable activity log for operations within your assigned Zone (${user?.zoneName || 'Assigned Zone'})`
+                  : 'Immutable, tamper-proof activity records for organization-wide administrative and operational actions'}
+              </p>
+            </div>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
-            onClick={handleRefresh}
+            onClick={() => fetchLogs(true)}
             disabled={isRefreshing}
-            className="text-xs"
+            className="flex items-center gap-1.5"
           >
-            <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${isRefreshing ? 'animate-spin text-[#1E3A8A]' : 'text-slate-600'}`} />
-            {isRefreshing ? 'Syncing...' : 'Sync Server Trail'}
+            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#1E3A8A]' : ''}`} />
+            <span>Refresh</span>
           </Button>
           <Button
-            variant="danger"
+            variant="outline"
             size="sm"
-            onClick={() => setShowClearConfirm(true)}
-            disabled={isClearing || !logs || logs.length === 0}
-            className="text-xs"
+            onClick={handleExportCSV}
+            className="flex items-center gap-1.5 text-slate-700"
           >
-            <Trash2 className="w-3.5 h-3.5 mr-1.5" />
-            Purge Local Logs
+            <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
+            <span>CSV</span>
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExportJSON}
+            className="flex items-center gap-1.5 text-slate-700"
+          >
+            <FileCode className="w-3.5 h-3.5 text-blue-600" />
+            <span>JSON</span>
           </Button>
         </div>
       </div>
 
-      {/* KPI Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-        <StatCard
-          title="Recorded Events"
-          value={logs?.length || 0}
-          subtitle="Lifetime operations"
-          icon={Activity}
-          variant="primary"
-        />
-        <StatCard
-          title="Filtered Events"
-          value={filteredLogs.length}
-          subtitle="Matching criteria"
-          icon={Filter}
-          variant="default"
-        />
-        <StatCard
-          title="Unique Actions"
-          value={Math.max(0, uniqueActions.length - 1)}
-          subtitle="Operation categories"
-          icon={ShieldCheck}
-          variant="info"
-        />
-        <StatCard
-          title="Latest Timestamp"
-          value={filteredLogs.length > 0 ? new Date(filteredLogs[0].timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'None'}
-          subtitle={filteredLogs.length > 0 ? new Date(filteredLogs[0].timestamp).toLocaleDateString() : 'No entries'}
-          icon={Clock}
-          variant="neutral"
-        />
-      </div>
-
-      {/* Table Card */}
-      <Card>
-        <div className="p-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50">
-          <div>
-            <h3 className="text-sm sm:text-base font-semibold text-slate-900">
-              Audit Event Log ({filteredLogs.length})
-            </h3>
-            <p className="text-xs text-slate-500">
-              Filter by user identity, system action, or search payload details
-            </p>
+      {/* Scope Pill Banner for Supervisor */}
+      {isSupervisor && (
+        <div className="p-3.5 bg-blue-50/70 border border-blue-200/80 rounded-xl flex items-center justify-between text-xs text-blue-900">
+          <div className="flex items-center gap-2 font-medium">
+            <MapPin className="w-4 h-4 text-[#1E3A8A]" />
+            <span>Zone Access Boundary: Showing events strictly associated with your supervisory jurisdiction.</span>
           </div>
-
-          <div className="flex items-center gap-2 flex-wrap">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleExportCSV}
-              disabled={!logs || logs.length === 0}
-              className="text-xs"
-            >
-              <Download className="w-3.5 h-3.5 mr-1 text-slate-600" /> Export CSV
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleExportJSON}
-              disabled={!logs || logs.length === 0}
-              className="text-xs"
-            >
-              <Download className="w-3.5 h-3.5 mr-1 text-slate-600" /> Export JSON
-            </Button>
-          </div>
+          <span className="font-semibold px-2 py-0.5 bg-white border border-blue-200 rounded-md text-[#1E3A8A]">
+            Zone ID: {user?.zoneId || 'Assigned'}
+          </span>
         </div>
+      )}
 
-        {/* Filters */}
-        <div className="p-4 border-b border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <Input
-              placeholder="Search user, action, payload details..."
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-              className="w-full text-xs sm:text-sm"
-            />
+      {/* Filter Console */}
+      <Card className="border border-slate-200/90 shadow-xs">
+        <CardContent className="p-4 space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            {/* Search */}
+            <div className="relative">
+              <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }}
+                placeholder="Search user, action, summary..."
+                className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-[#1E3A8A] focus:bg-white"
+              />
+            </div>
+
+            {/* Role Filter */}
+            <div>
+              <select
+                value={selectedRole}
+                onChange={(e) => { setSelectedRole(e.target.value); setPage(1); }}
+                className="w-full px-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-[#1E3A8A] focus:bg-white"
+              >
+                <option value="ALL">All Roles</option>
+                {isManager && <option value="MANAGER">Manager</option>}
+                <option value="SUPERVISOR">Supervisor</option>
+                <option value="FIELD_OFFICER">Field Officer</option>
+              </select>
+            </div>
+
+            {/* Action Filter */}
+            <div>
+              <select
+                value={selectedAction}
+                onChange={(e) => { setSelectedAction(e.target.value); setPage(1); }}
+                className="w-full px-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-[#1E3A8A] focus:bg-white"
+              >
+                <option value="ALL">All Action Types</option>
+                {availableActions.map(act => (
+                  <option key={act} value={act}>{act}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Entity Type Filter */}
+            <div>
+              <select
+                value={selectedEntity}
+                onChange={(e) => { setSelectedEntity(e.target.value); setPage(1); }}
+                className="w-full px-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-[#1E3A8A] focus:bg-white"
+              >
+                <option value="ALL">All Entities</option>
+                <option value="User">User Account</option>
+                <option value="Citizen">Citizen Record</option>
+                <option value="DailyWorkReport">Daily Work Report</option>
+                <option value="DuplicateReview">Duplicate Review</option>
+                <option value="Assignment">Task Assignment</option>
+              </select>
+            </div>
+
+            {/* Date Pickers */}
+            <div className="flex items-center gap-1.5">
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => { setStartDate(e.target.value); setPage(1); }}
+                className="w-1/2 px-2 py-1.5 text-[11px] bg-slate-50 border border-slate-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-[#1E3A8A]"
+                title="From Date"
+              />
+              <span className="text-slate-400 text-xs">-</span>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => { setEndDate(e.target.value); setPage(1); }}
+                className="w-1/2 px-2 py-1.5 text-[11px] bg-slate-50 border border-slate-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-[#1E3A8A]"
+                title="To Date"
+              />
+            </div>
           </div>
 
-          <div>
-            <Select
-              value={selectedAction}
-              onChange={e => setSelectedAction(e.target.value)}
-              className="w-full text-xs sm:text-sm"
-            >
-              {uniqueActions.map(act => (
-                <option key={act} value={act}>
-                  {act === 'ALL' ? 'All System Action Types' : `Action: ${act}`}
-                </option>
-              ))}
-            </Select>
-          </div>
-        </div>
-
-        {/* Table Content */}
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs sm:text-sm text-slate-700">
-              <thead className="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 border-b border-slate-200">
-                <tr>
-                  <th className="py-3 px-4 font-semibold">Timestamp</th>
-                  <th className="py-3 px-4 font-semibold">User Identity</th>
-                  <th className="py-3 px-4 font-semibold">Action Performed</th>
-                  <th className="py-3 px-4 font-semibold">Activity Details / Payload</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {filteredLogs.length === 0 ? (
-                  <tr>
-                    <td colSpan="4" className="py-12 text-center text-slate-400">
-                      <ShieldCheck className="w-10 h-10 mx-auto text-slate-300 mb-2" />
-                      <p className="text-sm font-medium text-slate-600">No audit events match filters</p>
-                      <p className="text-xs text-slate-400 mt-1">Click "Sync Server Trail" to retrieve server logs</p>
-                    </td>
-                  </tr>
-                ) : (
-                  filteredLogs.map(log => {
-                    const detailString = typeof log.details === 'object'
-                      ? JSON.stringify(log.details)
-                      : String(log.details || '');
-
-                    return (
-                      <tr key={log.id} className="hover:bg-slate-50/70 transition-colors">
-                        <td className="py-3 px-4 whitespace-nowrap font-mono text-[11px] text-slate-500">
-                          {new Date(log.timestamp).toLocaleDateString()}
-                          <div className="text-[10px] text-slate-400">
-                            {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                          </div>
-                        </td>
-                        <td className="py-3 px-4 font-semibold text-slate-900">
-                          <div className="flex items-center gap-1.5">
-                            <User className="w-3.5 h-3.5 text-slate-400" />
-                            {log.userName || 'System Service'}
-                          </div>
-                          {log.userId && (
-                            <div className="text-[10px] text-slate-400 font-mono font-normal pl-5">
-                              ID: {log.userId}
-                            </div>
-                          )}
-                        </td>
-                        <td className="py-3 px-4">
-                          <Badge variant={getActionBadgeVariant(log.action)}>
-                            {log.action}
-                          </Badge>
-                        </td>
-                        <td className="py-3 px-4 font-mono text-[11px] text-slate-600 max-w-md truncate">
-                          {detailString || <span className="text-slate-400 italic">No additional payload</span>}
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Table Footer */}
-          <div className="p-3.5 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-500">
-            <span>
-              Showing {filteredLogs.length} of {logs?.length || 0} audit log records
-            </span>
-            <span className="font-mono text-[11px] text-slate-400">
-              Oldest: {logs && logs.length > 0 ? new Date(logs[logs.length - 1]?.timestamp).toLocaleDateString() : 'N/A'}
-            </span>
-          </div>
+          {(searchTerm || selectedRole !== 'ALL' || selectedAction !== 'ALL' || selectedEntity !== 'ALL' || startDate || endDate) && (
+            <div className="flex items-center justify-between pt-1 border-t border-slate-100 text-xs text-slate-500">
+              <span>Active filters applied</span>
+              <button
+                onClick={handleResetFilters}
+                className="text-[#1E3A8A] font-semibold hover:underline flex items-center gap-1"
+              >
+                <X className="w-3.5 h-3.5" />
+                <span>Reset All Filters</span>
+              </button>
+            </div>
+          )}
         </CardContent>
       </Card>
 
-      {/* Clear Confirmation Modal */}
-      <ConfirmDialog
-        isOpen={showClearConfirm}
-        onClose={() => setShowClearConfirm(false)}
-        onConfirm={handleConfirmClear}
-        title="Purge Local Audit Log Records?"
-        description="Are you sure you want to permanently clear all local audit records from this browser? This action cannot be undone."
-        confirmText="Yes, Purge Records"
-        cancelText="Cancel"
-        variant="danger"
-      />
+      {/* Main Audit Records Table */}
+      <Card className="border border-slate-200/90 shadow-xs overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr className="bg-slate-50/80 border-b border-slate-200/80 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
+                <th className="py-3 px-4">Timestamp</th>
+                <th className="py-3 px-4">Actor</th>
+                <th className="py-3 px-4">Action</th>
+                <th className="py-3 px-4">Entity</th>
+                <th className="py-3 px-4">Summary</th>
+                <th className="py-3 px-4 text-right">Details</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 text-slate-700">
+              {isLoading ? (
+                <tr>
+                  <td colSpan={6} className="py-12 text-center text-slate-400">
+                    <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-[#1E3A8A]" />
+                    <span>Loading audit records...</span>
+                  </td>
+                </tr>
+              ) : logs.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-16 text-center">
+                    <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-3 text-slate-400">
+                      <ShieldCheck className="w-6 h-6" />
+                    </div>
+                    <p className="font-semibold text-slate-700 text-sm">No audit records found</p>
+                    <p className="text-slate-400 text-xs mt-1">Try adjusting your filters or search keywords.</p>
+                  </td>
+                </tr>
+              ) : (
+                logs.map((log) => (
+                  <tr key={log.id} className="hover:bg-slate-50/60 transition-colors">
+                    <td className="py-3 px-4 whitespace-nowrap text-slate-500 font-mono text-[11px]">
+                      <div>{new Date(log.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+                      <div className="text-[10px] text-slate-400">{new Date(log.createdAt).toLocaleTimeString()}</div>
+                    </td>
+                    <td className="py-3 px-4 whitespace-nowrap">
+                      <div className="font-medium text-slate-900">{log.actorName}</div>
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <span className="text-[10px] font-semibold px-1.5 py-0.2 rounded bg-slate-100 text-slate-600">
+                          {log.actorRole?.replace('_', ' ')}
+                        </span>
+                        {log.zoneName && (
+                          <span className="text-[10px] text-slate-400">· {log.zoneName}</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="py-3 px-4 whitespace-nowrap">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold border ${getActionBadgeColor(log.action)}`}>
+                        {log.action}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 whitespace-nowrap">
+                      <div className="flex items-center gap-1.5">
+                        {getEntityIcon(log.entityType)}
+                        <span className="font-medium text-slate-800">{log.entityType}</span>
+                      </div>
+                      <span className="text-[10px] font-mono text-slate-400 truncate max-w-[120px] block mt-0.5">
+                        #{log.entityId}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-slate-600 max-w-md">
+                      <p className="line-clamp-2 leading-relaxed">{log.summary}</p>
+                    </td>
+                    <td className="py-3 px-4 text-right whitespace-nowrap">
+                      <button
+                        onClick={() => { setSelectedEvent(log); setIsModalOpen(true); }}
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-[#1E3A8A] hover:bg-blue-50 transition-colors"
+                        title="View Full Action Audit Details"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination Bar */}
+        {!isLoading && pagination.totalPages > 1 && (
+          <div className="px-4 py-3 bg-slate-50/60 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            <div>
+              Showing <span className="font-medium text-slate-800">{(page - 1) * pagination.limit + 1}</span> to{' '}
+              <span className="font-medium text-slate-800">{Math.min(page * pagination.limit, pagination.total)}</span> of{' '}
+              <span className="font-medium text-slate-800">{pagination.total}</span> records
+            </div>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page <= 1}
+                className="px-2 py-1 text-xs"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+              </Button>
+              <span className="px-2 text-xs font-medium">Page {page} of {pagination.totalPages}</span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage(p => Math.min(pagination.totalPages, p + 1))}
+                disabled={page >= pagination.totalPages}
+                className="px-2 py-1 text-xs"
+              >
+                <ChevronRight className="w-3.5 h-3.5" />
+              </Button>
+            </div>
+          </div>
+        )}
+      </Card>
+
+      {/* Action Details Modal */}
+      {isModalOpen && selectedEvent && (
+        <Modal
+          isOpen={isModalOpen}
+          onClose={() => { setIsModalOpen(false); setSelectedEvent(null); }}
+          title="Audit Event Details"
+          maxWidth="max-w-2xl"
+        >
+          <div className="space-y-4 text-xs">
+            {/* Action Banner */}
+            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200/80 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className={`inline-flex items-center px-2.5 py-1 rounded-md font-bold text-xs border ${getActionBadgeColor(selectedEvent.action)}`}>
+                  {selectedEvent.action}
+                </span>
+                <span className="text-[11px] font-mono text-slate-400">
+                  {new Date(selectedEvent.createdAt).toLocaleString()}
+                </span>
+              </div>
+              <p className="text-sm font-semibold text-slate-900 leading-snug">
+                {selectedEvent.summary}
+              </p>
+            </div>
+
+            {/* Event Context Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <div className="p-2.5 bg-white border border-slate-200 rounded-lg">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block">Acting User</span>
+                <span className="font-semibold text-slate-800">{selectedEvent.actorName}</span>
+                <span className="text-[10px] text-slate-500 block">{selectedEvent.actorRole}</span>
+              </div>
+              <div className="p-2.5 bg-white border border-slate-200 rounded-lg">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block">Affected Record</span>
+                <span className="font-semibold text-slate-800">{selectedEvent.entityType}</span>
+                <span className="text-[10px] font-mono text-slate-500 block truncate">#{selectedEvent.entityId}</span>
+              </div>
+              <div className="p-2.5 bg-white border border-slate-200 rounded-lg">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block">IP Address</span>
+                <span className="font-mono text-slate-700">{selectedEvent.ipAddress || 'Internal Loopback'}</span>
+              </div>
+            </div>
+
+            {/* Previous vs New Values (State Change Diff) */}
+            {(selectedEvent.previousValues || selectedEvent.newValues) && (
+              <div className="space-y-2">
+                <span className="font-bold text-slate-700 uppercase tracking-wider text-[11px]">
+                  State Change Comparison
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {selectedEvent.previousValues && (
+                    <div className="p-3 bg-rose-50/60 border border-rose-200/80 rounded-xl space-y-1.5">
+                      <span className="text-[11px] font-semibold text-rose-800 flex items-center gap-1">
+                        <span>Previous State</span>
+                      </span>
+                      <pre className="font-mono text-[11px] text-slate-700 overflow-x-auto whitespace-pre-wrap p-2 bg-white/80 rounded border border-rose-100">
+                        {JSON.stringify(selectedEvent.previousValues, null, 2)}
+                      </pre>
+                    </div>
+                  )}
+
+                  {selectedEvent.newValues && (
+                    <div className="p-3 bg-emerald-50/60 border border-emerald-200/80 rounded-xl space-y-1.5">
+                      <span className="text-[11px] font-semibold text-emerald-800 flex items-center gap-1">
+                        <span>Applied State (New)</span>
+                      </span>
+                      <pre className="font-mono text-[11px] text-slate-700 overflow-x-auto whitespace-pre-wrap p-2 bg-white/80 rounded border border-emerald-100">
+                        {JSON.stringify(selectedEvent.newValues, null, 2)}
+                      </pre>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Additional Metadata */}
+            {selectedEvent.metadata && (
+              <div className="space-y-1.5">
+                <span className="font-bold text-slate-700 uppercase tracking-wider text-[11px]">
+                  Event Metadata & Telemetry
+                </span>
+                <pre className="font-mono text-[11px] text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200 overflow-x-auto whitespace-pre-wrap">
+                  {JSON.stringify(selectedEvent.metadata, null, 2)}
+                </pre>
+              </div>
+            )}
+
+            <div className="flex justify-end pt-2 border-t border-slate-100">
+              <Button variant="outline" size="sm" onClick={() => setIsModalOpen(false)}>
+                Close
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }

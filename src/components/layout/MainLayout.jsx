@@ -1,7 +1,7 @@
 // src/components/layout/MainLayout.jsx
 // Main Application Layout: Sidebar, Header, and Tab Routing
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { X, RefreshCw } from 'lucide-react';
 
@@ -26,11 +26,14 @@ import TeamManagement from '../team/TeamManagement';
 import UserManagement from '../users/UserManagement';
 import Analytics from '../analytics/Analytics';
 import CitizensDatabase from '../citizens/CitizensDatabase';
+import DuplicateReviewConsole from '../duplicates/DuplicateReviewConsole';
 import AuditLog from '../audit/AuditLog';
 import AllReports from '../reports/AllReports';
 import AlertManagement from '../alerts/AlertManagement';
 import VerificationPage from '../verification/VerificationPage';
 import MyProfile from '../profile/MyProfile';
+import NotificationCenter from '../notifications/NotificationCenter';
+import { fetchUnreadCount } from '../../services/notificationApi';
 
 export default function MainLayout({
   user,
@@ -41,6 +44,27 @@ export default function MainLayout({
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showSyncLog, setShowSyncLog] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [unreadNotifCount, setUnreadNotifCount] = useState(0);
+
+  useEffect(() => {
+    const updateCount = async () => {
+      try {
+        const count = await fetchUnreadCount();
+        if (typeof count === 'number') {
+          setUnreadNotifCount(count);
+        }
+      } catch (_err) {
+        // Ignore unread count fetch error
+      }
+    };
+    updateCount();
+    window.addEventListener('notifications-updated', updateCount);
+    const interval = setInterval(updateCount, 20000);
+    return () => {
+      window.removeEventListener('notifications-updated', updateCount);
+      clearInterval(interval);
+    };
+  }, []);
 
   const isManager = user?.role === 'manager';
   const isSupervisor = user?.role === 'supervisor';
@@ -116,6 +140,7 @@ export default function MainLayout({
         reports={reports}
         citizens={citizens}
         attendance={attendance}
+        notificationsCount={unreadNotifCount}
         onLogout={onLogout}
         isMobileOpen={isMobileOpen}
         setIsMobileOpen={setIsMobileOpen}
@@ -277,9 +302,11 @@ export default function MainLayout({
             />
           )}
 
-          {/* Analytics - Manager only */}
-          {activeTab === 'analytics' && isManager && (
+          {/* Analytics - Manager & Supervisor */}
+          {activeTab === 'analytics' && (isManager || isSupervisor) && (
             <Analytics
+              user={user}
+              setActiveTab={setActiveTab}
               reports={reports}
               users={users}
               attendance={attendance}
@@ -300,9 +327,17 @@ export default function MainLayout({
             />
           )}
 
-          {/* Audit - Manager only */}
-          {activeTab === 'audit' && isManager && (
+          {/* Duplicate Citizen Reviews - Supervisor & Manager */}
+          {activeTab === 'duplicates' && (isSupervisor || isManager) && (
+            <DuplicateReviewConsole
+              user={user}
+            />
+          )}
+
+          {/* Audit - Manager & Supervisor (Zone-scoped) */}
+          {activeTab === 'audit' && (isManager || isSupervisor) && (
             <AuditLog
+              user={user}
               auditLog={auditLog}
               setAuditLog={setAuditLog}
             />
@@ -339,6 +374,11 @@ export default function MainLayout({
           {/* User Profile Security / Password Change - All Roles */}
           {activeTab === 'profile_security' && (
             <MyProfile user={user} defaultTab="security" />
+          )}
+
+          {/* Notification Center - All Roles */}
+          {activeTab === 'notifications' && (
+            <NotificationCenter user={user} setActiveTab={setActiveTab} />
           )}
 
           {/* Sync Log Modal */}

@@ -15,6 +15,7 @@ import type {
   User,
   SyncQueueItem,
   SyncErrorRecord,
+  AppNotification,
 } from '../types/index';
 
 export class FieldSyncDatabase extends Dexie {
@@ -30,6 +31,7 @@ export class FieldSyncDatabase extends Dexie {
   users!: EntityTable<User, 'id'>;
   syncQueue!: EntityTable<SyncQueueItem, 'id'>;
   syncErrors!: EntityTable<SyncErrorRecord, 'id'>;
+  notifications!: EntityTable<AppNotification, 'id'>;
 
   constructor() {
     super('FieldSyncOfflineDB');
@@ -51,6 +53,10 @@ export class FieldSyncDatabase extends Dexie {
     this.version(2).stores({
       syncQueue: 'id, entityType, entityId, status, queuedAt',
       syncErrors: 'id, officerId, entityType, entityId, timestamp, resolved',
+    });
+
+    this.version(3).stores({
+      notifications: 'id, recipientId, isRead, priority, type, createdAt',
     });
   }
 }

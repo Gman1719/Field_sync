@@ -14,6 +14,7 @@ import { useScreenTime } from './hooks/useScreenTime';
 import { useVerification } from './hooks/useVerification';
 
 // UI Components
+import LandingPage from './components/landing/LandingPage';
 import Login from './components/auth/Login';
 import LoadingScreen from './components/common/LoadingScreen';
 import ForceChangePassword from './components/auth/ForceChangePassword';
@@ -21,6 +22,9 @@ import VerificationPopup from './components/verification/VerificationPopup';
 import MainLayout from './components/layout/MainLayout';
 
 function AppContent() {
+  const [authView, setAuthView] = React.useState('landing'); // 'landing' | 'login'
+  const [selectedDemoRole, setSelectedDemoRole] = React.useState(null);
+
   const {
     user,
     isLoading,
@@ -60,6 +64,8 @@ function AppContent() {
       }
       appData.addAuditLog('User Logout', { email: user.email });
     }
+    setAuthView('landing');
+    setSelectedDemoRole(null);
     await logout();
   };
 
@@ -68,10 +74,23 @@ function AppContent() {
     if (isLoading) {
       return <LoadingScreen />;
     }
+    if (authView === 'login') {
+      return (
+        <Login
+          onLogin={handleLogin}
+          loginError={loginError}
+          isOnline={appData.isOnline}
+          onBackToHome={() => setAuthView('landing')}
+          initialRole={selectedDemoRole}
+        />
+      );
+    }
     return (
-      <Login
-        onLogin={handleLogin}
-        loginError={loginError}
+      <LandingPage
+        onGoToLogin={(role) => {
+          setSelectedDemoRole(role || null);
+          setAuthView('login');
+        }}
         isOnline={appData.isOnline}
       />
     );

@@ -1,6 +1,4 @@
-// src/components/common/Header.jsx – Enterprise Top Navigation Bar
-
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Menu,
   Bell,
@@ -10,10 +8,20 @@ import {
   User,
   LogOut,
   Check,
-  KeyRound
+  KeyRound,
+  AlertOctagon,
+  AlertTriangle,
+  Info,
+  ArrowRight
 } from 'lucide-react';
 import SyncBadge from '../ui/SyncBadge';
 import { useUserLanguage } from '../../context/UserLanguageContext';
+import {
+  fetchNotifications,
+  fetchUnreadCount,
+  markNotificationRead as apiMarkRead,
+  markAllNotificationsRead as apiMarkAllRead
+} from '../../services/notificationApi';
 
 export default function Header({
   user,
@@ -54,13 +62,73 @@ export default function Header({
     all_reports: 'All Daily Reports',
     alerts: 'Emergency Alerts',
     verification: 'Officer Security Verification',
+    notifications: 'Notifications & Alerts',
     profile: 'My Profile & Workstation',
     profile_security: 'Security & Change Password',
   };
 
   const isOfficer = user?.role === 'field_officer';
-  const userNotifications = notifications.filter(n => n.userId === user?.id || n.targetAll);
-  const unreadCount = userNotifications.filter(n => !n.read).length;
+
+  // Live Role-Based Notifications State
+  const [recentNotifications, setRecentNotifications] = useState([]);
+  const [liveUnreadCount, setLiveUnreadCount] = useState(0);
+
+  const loadNotificationsData = useCallback(async () => {
+    try {
+      const [count, listRes] = await Promise.all([
+        fetchUnreadCount(),
+        fetchNotifications({ page: 1, limit: 6, status: 'all' }),
+      ]);
+      if (typeof count === 'number') {
+        setLiveUnreadCount(count);
+      }
+      if (listRes?.success && Array.isArray(listRes.notifications)) {
+        setRecentNotifications(listRes.notifications);
+      }
+    } catch (err) {
+      console.warn('Failed to load notifications in Header:', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadNotificationsData();
+
+    const handleUpdate = () => {
+      loadNotificationsData();
+    };
+
+    window.addEventListener('notifications-updated', handleUpdate);
+    const interval = setInterval(loadNotificationsData, 20000);
+
+    return () => {
+      window.removeEventListener('notifications-updated', handleUpdate);
+      clearInterval(interval);
+    };
+  }, [loadNotificationsData]);
+
+  const handleItemClick = async (item) => {
+    if (!item.isRead) {
+      await apiMarkRead(item.id);
+      setRecentNotifications((prev) =>
+        prev.map((n) => (n.id === item.id ? { ...n, isRead: true } : n))
+      );
+      setLiveUnreadCount((prev) => Math.max(0, prev - 1));
+      window.dispatchEvent(new CustomEvent('notifications-updated'));
+    }
+    setShowNotifications(false);
+    if (item.actionUrl && setActiveTab) {
+      setActiveTab(item.actionUrl.replace(/^\//, ''));
+    } else if (setActiveTab) {
+      setActiveTab('notifications');
+    }
+  };
+
+  const handleMarkAllHeader = async () => {
+    await apiMarkAllRead();
+    setRecentNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+    setLiveUnreadCount(0);
+    window.dispatchEvent(new CustomEvent('notifications-updated'));
+  };
 
   return (
     <header className="h-16 bg-white border-b border-slate-200 sticky top-0 z-30 px-4 sm:px-6 flex items-center justify-between shadow-xs">
@@ -164,53 +232,97 @@ export default function Header({
             title="Notifications"
           >
             <Bell className="w-4 h-4 text-slate-500" />
-            {unreadCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-600 ring-2 ring-white" />
+            {liveUnreadCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 rounded-full bg-red-600 text-white text-[9px] font-bold ring-2 ring-white flex items-center justify-center">
+                {liveUnreadCount > 9 ? '9+' : liveUnreadCount}
+              </span>
             )}
           </button>
 
           {showNotifications && (
             <div
-              className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-xl shadow-modal border border-slate-200 py-2 z-50 animate-in fade-in zoom-in-95 duration-150"
+              className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-slate-200 py-0 z-50 animate-in fade-in zoom-in-95 duration-150 overflow-hidden"
               onMouseLeave={() => setShowNotifications(false)}
             >
-              <div className="px-4 py-2 border-b border-slate-100 flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-900">Notifications ({unreadCount} new)</span>
-                {unreadCount > 0 && (
+              {/* Header */}
+              <div className="px-4 py-3 bg-slate-50/80 border-b border-slate-100 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-slate-900">Notifications</span>
+                  {liveUnreadCount > 0 && (
+                    <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-red-100 text-red-700 font-bold">
+                      {liveUnreadCount} new
+                    </span>
+                  )}
+                </div>
+                {liveUnreadCount > 0 && (
                   <button
                     type="button"
-                    onClick={() => markAllNotificationsRead && markAllNotificationsRead()}
-                    className="text-[11px] text-[#1E3A8A] hover:underline font-medium"
+                    onClick={handleMarkAllHeader}
+                    className="text-[11px] text-[#1E3A8A] hover:underline font-semibold"
                   >
                     Mark all read
                   </button>
                 )}
               </div>
 
-              <div className="max-h-72 overflow-y-auto divide-y divide-slate-100">
-                {userNotifications.length === 0 ? (
-                  <div className="py-8 text-center text-xs text-slate-400">
-                    No notifications yet
+              {/* Items List */}
+              <div className="max-h-80 overflow-y-auto divide-y divide-slate-100">
+                {recentNotifications.length === 0 ? (
+                  <div className="py-10 text-center space-y-1">
+                    <Bell className="w-6 h-6 text-slate-300 mx-auto" />
+                    <p className="text-xs text-slate-500 font-medium">No notifications yet</p>
+                    <p className="text-[11px] text-slate-400">Updates for your workstation will appear here.</p>
                   </div>
                 ) : (
-                  userNotifications.slice(0, 10).map((n) => (
-                    <div
-                      key={n.id}
-                      onClick={() => markNotificationRead && markNotificationRead(n.id)}
-                      className={`p-3.5 text-left text-xs cursor-pointer hover:bg-slate-50 transition-colors ${
-                        !n.read ? 'bg-blue-50/40 font-medium' : 'text-slate-600'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-semibold text-slate-900">{n.title}</span>
-                        <span className="text-[10px] text-slate-400">
-                          {n.timestamp ? new Date(n.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
-                        </span>
+                  recentNotifications.map((n) => {
+                    const isUnread = !n.isRead;
+                    return (
+                      <div
+                        key={n.id}
+                        onClick={() => handleItemClick(n)}
+                        className={`p-3.5 text-left text-xs cursor-pointer hover:bg-slate-50 transition-colors ${
+                          isUnread ? 'bg-blue-50/40' : 'text-slate-600'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-2 mb-1">
+                          <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                            {n.priority === 'URGENT' ? (
+                              <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-bold bg-rose-100 text-rose-700 shrink-0">
+                                URGENT
+                              </span>
+                            ) : n.priority === 'IMPORTANT' ? (
+                              <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-100 text-amber-800 shrink-0">
+                                IMPORTANT
+                              </span>
+                            ) : null}
+                            <span className={`font-semibold truncate ${isUnread ? 'text-slate-900 font-bold' : 'text-slate-700'}`}>
+                              {n.title}
+                            </span>
+                          </div>
+                          <span className="text-[10px] text-slate-400 shrink-0 font-mono">
+                            {n.createdAt ? new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                          </span>
+                        </div>
+                        <p className="text-slate-600 text-xs line-clamp-2 leading-relaxed">{n.message}</p>
                       </div>
-                      <p className="text-slate-600 text-xs line-clamp-2">{n.message}</p>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
+              </div>
+
+              {/* Footer View All Link */}
+              <div className="p-2.5 border-t border-slate-100 bg-slate-50 flex items-center justify-center">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowNotifications(false);
+                    if (setActiveTab) setActiveTab('notifications');
+                  }}
+                  className="w-full py-1.5 text-center text-xs font-semibold text-[#1E3A8A] hover:text-blue-800 hover:bg-blue-50/60 rounded-lg transition-colors flex items-center justify-center gap-1"
+                >
+                  <span>Open Notification Center</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
               </div>
             </div>
           )}

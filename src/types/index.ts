@@ -211,3 +211,22 @@ export interface SyncErrorRecord {
   resolved: boolean;
 }
 
+// In-App Role-Based Notification Models
+export type NotificationPriority = 'NORMAL' | 'IMPORTANT' | 'URGENT';
+
+export interface AppNotification {
+  id: string;
+  recipientId: string;
+  title: string;
+  message: string;
+  type: string;
+  priority: NotificationPriority;
+  isRead: boolean;
+  readAt?: string | null;
+  relatedRecordId?: string | null;
+  actionUrl?: string | null;
+  metadata?: Record<string, any> | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
