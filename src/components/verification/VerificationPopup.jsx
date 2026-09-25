@@ -168,28 +168,28 @@ function VerificationPopup({ officerId, officerName, onAnswer, onClose }) {
       {/* Verification Modal Dialog */}
       {isVisible && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+          <div className="bg-white dark:bg-[#1E293B] rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 dark:border-[#334155] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div className="p-6 border-b border-slate-100 dark:border-[#334155] flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#1E3A8A] flex items-center justify-center">
-                  <ShieldAlert className="w-5 h-5 text-[#1E3A8A]" />
+                <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-[#1E3A8A] dark:text-blue-400 flex items-center justify-center">
+                  <ShieldAlert className="w-5 h-5 text-[#1E3A8A] dark:text-blue-400" />
                 </div>
                 <div>
-                  <h3 className="text-base font-semibold text-slate-900">Security Check</h3>
-                  <p className="text-xs text-slate-500">Field Activity Verification</p>
+                  <h3 className="text-base font-semibold text-slate-900 dark:text-[#F8FAFC]">Security Check</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Field Activity Verification</p>
                 </div>
               </div>
-              <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-blue-50 text-[#1E3A8A] border border-blue-100">
+              <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-blue-50 dark:bg-blue-950/50 text-[#1E3A8A] dark:text-blue-400 border border-blue-100 dark:border-blue-900/50">
                 Random Audit
               </span>
             </div>
 
             <div className="p-6 space-y-4">
-              <div className="text-xs text-slate-500 font-medium">
-                Officer: <span className="text-slate-800 font-semibold">{officerName}</span>
+              <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                Officer: <span className="text-slate-800 dark:text-slate-200 font-semibold">{officerName}</span>
               </div>
 
-              <div className="text-sm font-semibold text-slate-900">
+              <div className="text-sm font-semibold text-slate-900 dark:text-[#F8FAFC]">
                 {question.question}
               </div>
 
@@ -201,8 +201,8 @@ function VerificationPopup({ officerId, officerName, onAnswer, onClose }) {
                       key={index}
                       className={`flex items-center gap-3 p-3 rounded-xl border text-xs font-medium cursor-pointer transition-all ${
                         isChecked
-                          ? 'border-[#1E3A8A] bg-blue-50/50 text-[#1E3A8A]'
-                          : 'border-slate-200 hover:border-slate-300 text-slate-700'
+                          ? 'border-[#1E3A8A] dark:border-blue-500 bg-blue-50/50 dark:bg-blue-950/40 text-[#1E3A8A] dark:text-blue-300'
+                          : 'border-slate-200 dark:border-[#334155] hover:border-slate-300 dark:hover:border-slate-600 bg-white dark:bg-[#0F172A] text-slate-700 dark:text-slate-200'
                       }`}
                     >
                       <input
@@ -220,12 +220,12 @@ function VerificationPopup({ officerId, officerName, onAnswer, onClose }) {
               </div>
             </div>
 
-            <div className="p-4 px-6 bg-slate-50 border-t border-slate-100 flex items-center justify-between gap-3">
+            <div className="p-4 px-6 bg-slate-50 dark:bg-[#182234] border-t border-slate-100 dark:border-[#334155] flex items-center justify-between gap-3">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleSkip}
-                className="text-slate-500 hover:text-slate-700"
+                className="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
               >
                 <FastForward className="w-4 h-4 mr-1.5" />
                 Skip Check

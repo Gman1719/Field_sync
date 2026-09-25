@@ -324,11 +324,11 @@ export default function AttendanceManagement({
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-            <CalendarCheck className="w-6 h-6 text-[#1E3A8A]" />
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+            <CalendarCheck className="w-6 h-6 text-[#2563EB] dark:text-[#60A5FA]" />
             Attendance Management
           </h2>
-          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             {isOfficer ? 'Review your daily shift attendance and verification log' : 'Log and manage shift attendance for your field team'}
           </p>
         </div>
@@ -406,11 +406,11 @@ export default function AttendanceManagement({
                   <div
                     key={officer.id}
                     onClick={() => handleOpenModal(officer)}
-                    className="p-3.5 bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-slate-200/80 cursor-pointer transition-all flex items-center justify-between"
+                    className="p-3.5 bg-slate-50 dark:bg-[#0F172A] hover:bg-slate-100/80 dark:hover:bg-slate-800/60 rounded-xl border border-slate-200/80 dark:border-[#334155] cursor-pointer transition-all flex items-center justify-between"
                   >
                     <div className="min-w-0">
-                      <p className="text-xs font-semibold text-slate-900 truncate">{officer.name}</p>
-                      <p className="text-[11px] text-slate-400 font-mono">{officer.employeeId}</p>
+                      <p className="text-xs font-semibold text-slate-900 dark:text-white truncate">{officer.name}</p>
+                      <p className="text-[11px] text-slate-400 dark:text-slate-500 font-mono">{officer.employeeId}</p>
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -455,15 +455,15 @@ export default function AttendanceManagement({
 
         <CardContent className="p-0">
           {displayList.length === 0 ? (
-            <div className="py-12 text-center text-xs text-slate-400">
-              <CalendarCheck className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+            <div className="py-12 text-center text-xs text-slate-400 dark:text-slate-500">
+              <CalendarCheck className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
               <span>No attendance logs found for this filter criteria</span>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="border-b border-slate-100 text-slate-400 font-semibold uppercase tracking-wider bg-slate-50/50">
+                  <tr className="border-b border-slate-200 dark:border-[#334155] text-slate-600 dark:text-slate-200 font-bold uppercase tracking-wider bg-slate-50/90 dark:bg-[#0F172A] text-[11px]">
                     <th className="py-3.5 pl-6">Officer</th>
                     <th className="py-3.5 px-4">Date</th>
                     <th className="py-3.5 px-4">Status</th>
@@ -473,14 +473,14 @@ export default function AttendanceManagement({
                     <th className="py-3.5 pr-6 text-right">Notes</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-[#334155]">
                   {displayList.map(rec => (
-                    <tr key={rec.id} className="hover:bg-slate-50/70 transition-colors">
+                    <tr key={rec.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/50 transition-colors">
                       <td className="py-4 pl-6">
-                        <p className="font-semibold text-slate-900">{rec.employeeName || 'Staff'}</p>
-                        <p className="text-[11px] text-slate-400 font-mono">{rec.employeeId}</p>
+                        <p className="font-semibold text-slate-900 dark:text-white">{rec.employeeName || 'Staff'}</p>
+                        <p className="text-[11px] text-slate-400 dark:text-slate-500 font-mono">{rec.employeeId}</p>
                       </td>
-                      <td className="py-4 px-4 font-medium text-slate-700">{rec.date}</td>
+                      <td className="py-4 px-4 font-medium text-slate-700 dark:text-slate-300">{rec.date}</td>
                       <td className="py-4 px-4">
                         <Badge
                           variant={rec.status === 'present' ? 'success' : rec.status === 'late' ? 'warning' : 'error'}
@@ -489,10 +489,10 @@ export default function AttendanceManagement({
                           {rec.status.toUpperCase()}
                         </Badge>
                       </td>
-                      <td className="py-4 px-4 font-mono text-slate-600">{rec.checkIn || '--:--'}</td>
-                      <td className="py-4 px-4 font-mono text-slate-600">{rec.checkOut || '--:--'}</td>
-                      <td className="py-4 px-4 font-mono font-semibold text-slate-900">{rec.workHours || 0} hrs</td>
-                      <td className="py-4 pr-6 text-right text-slate-500 truncate max-w-xs">{rec.notes || '--'}</td>
+                      <td className="py-4 px-4 font-mono text-slate-600 dark:text-slate-300">{rec.checkIn || '--:--'}</td>
+                      <td className="py-4 px-4 font-mono text-slate-600 dark:text-slate-300">{rec.checkOut || '--:--'}</td>
+                      <td className="py-4 px-4 font-mono font-semibold text-slate-900 dark:text-white">{rec.workHours || 0} hrs</td>
+                      <td className="py-4 pr-6 text-right text-slate-500 dark:text-slate-400 truncate max-w-xs">{rec.notes || '--'}</td>
                     </tr>
                   ))}
                 </tbody>

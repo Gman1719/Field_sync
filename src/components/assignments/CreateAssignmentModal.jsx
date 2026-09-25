@@ -222,22 +222,22 @@ export default function CreateAssignmentModal({
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl max-w-xl w-full shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      <div className="bg-white dark:bg-[#1E293B] rounded-2xl max-w-xl w-full shadow-2xl border border-slate-200 dark:border-[#334155] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         {/* Header */}
-        <div className="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+        <div className="px-6 py-4 bg-slate-50 dark:bg-[#0F172A] border-b border-slate-200 dark:border-[#334155] flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-[#1E3A8A] text-white flex items-center justify-center">
               <Briefcase className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-bold text-slate-900 text-sm">Create Fieldwork Assignment</h3>
-              <p className="text-[11px] text-slate-500">Deploy registration target to Field Officer</p>
+              <h3 className="font-bold text-slate-900 dark:text-[#F8FAFC] text-sm">Create Fieldwork Assignment</h3>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">Deploy registration target to Field Officer</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+            className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#1E293B] transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -263,13 +263,13 @@ export default function CreateAssignmentModal({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Assign To Field Officer <span className="text-rose-500">*</span>
               </label>
               <select
                 value={assignedOfficerId}
                 onChange={(e) => handleOfficerChange(e.target.value)}
-                className="w-full h-11 px-3.5 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]"
+                className="w-full h-11 px-3.5 rounded-lg border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] dark:focus:border-blue-500 transition-all cursor-pointer"
                 required
               >
                 <option value="">Select Field Officer</option>
@@ -310,17 +310,17 @@ export default function CreateAssignmentModal({
           </div>
 
           {/* Location Scope */}
-          <div className="p-3.5 bg-slate-50 rounded-xl space-y-3 border border-slate-100">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 block">
+          <div className="p-3.5 bg-slate-50 dark:bg-[#0F172A] rounded-xl space-y-3 border border-slate-100 dark:border-[#334155]">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">
               Fieldwork Location Scope (Optional Override)
             </span>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-[11px] font-medium text-slate-600 mb-1">Region</label>
+                <label className="block text-[11px] font-medium text-slate-600 dark:text-slate-300 mb-1">Region</label>
                 <select
                   value={regionId}
                   onChange={(e) => setRegionId(e.target.value)}
-                  className="w-full h-9 px-2 text-xs rounded-lg border border-slate-300 bg-white"
+                  className="w-full h-9 px-2 text-xs rounded-lg border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#1E293B] text-slate-900 dark:text-[#F8FAFC] focus:outline-none focus:border-blue-500"
                 >
                   <option value="">Select Region</option>
                   {regions.map((r) => (
@@ -330,12 +330,12 @@ export default function CreateAssignmentModal({
               </div>
 
               <div>
-                <label className="block text-[11px] font-medium text-slate-600 mb-1">Zone</label>
+                <label className="block text-[11px] font-medium text-slate-600 dark:text-slate-300 mb-1">Zone</label>
                 <select
                   value={zoneId}
                   onChange={(e) => setZoneId(e.target.value)}
                   disabled={!regionId}
-                  className="w-full h-9 px-2 text-xs rounded-lg border border-slate-300 bg-white disabled:bg-slate-100"
+                  className="w-full h-9 px-2 text-xs rounded-lg border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#1E293B] text-slate-900 dark:text-[#F8FAFC] disabled:bg-slate-100 dark:disabled:bg-slate-800/50 disabled:text-slate-400 dark:disabled:text-slate-600 focus:outline-none focus:border-blue-500"
                 >
                   <option value="">Select Zone</option>
                   {zones.map((z) => (
@@ -345,12 +345,12 @@ export default function CreateAssignmentModal({
               </div>
 
               <div>
-                <label className="block text-[11px] font-medium text-slate-600 mb-1">Woreda</label>
+                <label className="block text-[11px] font-medium text-slate-600 dark:text-slate-300 mb-1">Woreda</label>
                 <select
                   value={woredaId}
                   onChange={(e) => setWoredaId(e.target.value)}
                   disabled={!zoneId}
-                  className="w-full h-9 px-2 text-xs rounded-lg border border-slate-300 bg-white disabled:bg-slate-100"
+                  className="w-full h-9 px-2 text-xs rounded-lg border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#1E293B] text-slate-900 dark:text-[#F8FAFC] disabled:bg-slate-100 dark:disabled:bg-slate-800/50 disabled:text-slate-400 dark:disabled:text-slate-600 focus:outline-none focus:border-blue-500"
                 >
                   <option value="">Select Woreda</option>
                   {woredas.map((w) => (
@@ -360,12 +360,12 @@ export default function CreateAssignmentModal({
               </div>
 
               <div>
-                <label className="block text-[11px] font-medium text-slate-600 mb-1">Kebele</label>
+                <label className="block text-[11px] font-medium text-slate-600 dark:text-slate-300 mb-1">Kebele</label>
                 <select
                   value={kebeleId}
                   onChange={(e) => setKebeleId(e.target.value)}
                   disabled={!woredaId}
-                  className="w-full h-9 px-2 text-xs rounded-lg border border-slate-300 bg-white disabled:bg-slate-100"
+                  className="w-full h-9 px-2 text-xs rounded-lg border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#1E293B] text-slate-900 dark:text-[#F8FAFC] disabled:bg-slate-100 dark:disabled:bg-slate-800/50 disabled:text-slate-400 dark:disabled:text-slate-600 focus:outline-none focus:border-blue-500"
                 >
                   <option value="">Select Kebele</option>
                   {kebeles.map((k) => (
@@ -377,12 +377,13 @@ export default function CreateAssignmentModal({
           </div>
 
           {/* Footer Actions */}
-          <div className="pt-2 flex items-center justify-end gap-3 border-t border-slate-100">
+          <div className="pt-2 flex items-center justify-end gap-3 border-t border-slate-100 dark:border-[#334155]">
             <Button
               type="button"
               variant="outline"
               onClick={onClose}
               disabled={isLoading}
+              className="dark:text-[#F8FAFC] dark:border-[#334155] dark:hover:bg-[#0F172A]"
             >
               Cancel
             </Button>

@@ -51,7 +51,16 @@ export async function detectLocalDuplicates(
 
       let isMatch = false;
 
-      // Level 1: Exact Phone Number Match (normalized)
+      // Level 0: Exact Unique Citizen ID Match
+      if (candidate.clientRecordId && (existing.clientRecordId === candidate.clientRecordId || existing.id === candidate.clientRecordId)) {
+        matchReasons.push(
+          `System Citizen ID (${candidate.clientRecordId}) already registered to: ${existing.firstName} ${existing.lastName}`
+        );
+        duplicatesMap.set(existing.clientRecordId, existing);
+        isMatch = true;
+      }
+
+      // Level 1: Exact Phone Number Match (normalized, if phone provided)
       if (normalizedPhone && existing.phoneNumber) {
         const existNormalized = normalizeEthiopianPhone(existing.phoneNumber);
         if (existNormalized && existNormalized === normalizedPhone) {
@@ -63,19 +72,24 @@ export async function detectLocalDuplicates(
         }
       }
 
-      // Level 2: Personal Information Matching (Name + Gender + Age/DOB)
-      const existFirst = existing.firstName.trim().toLowerCase();
-      const existLast = existing.lastName.trim().toLowerCase();
+      // Level 2: Personal Information Matching (Name + DOB or Name + Gender + Age)
+      const existFirst = (existing.firstName || '').trim().toLowerCase();
+      const existLast = (existing.lastName || '').trim().toLowerCase();
       const isNameMatch = candFirst === existFirst && candLast === existLast;
       const isGenderMatch = existing.gender === candidate.gender;
 
-      const isAgeMatch =
-        (candidate.age && existing.age && candidate.age === existing.age) ||
-        (candidate.dateOfBirth && existing.dateOfBirth && candidate.dateOfBirth === existing.dateOfBirth);
+      const isDobMatch = !!(candidate.dateOfBirth && existing.dateOfBirth && candidate.dateOfBirth === existing.dateOfBirth);
+      const isAgeMatch = !!(candidate.age && existing.age && candidate.age === existing.age);
 
-      if (isNameMatch && isGenderMatch && isAgeMatch) {
+      if (isNameMatch && isDobMatch) {
         matchReasons.push(
-          `Identical name, gender, and age (${candidate.age || ''}) with citizen: ${existing.firstName} ${existing.lastName}`
+          `Identical name and date of birth (${candidate.dateOfBirth}) with existing citizen: ${existing.firstName} ${existing.lastName}`
+        );
+        duplicatesMap.set(existing.clientRecordId, existing);
+        isMatch = true;
+      } else if (isNameMatch && isGenderMatch && isAgeMatch) {
+        matchReasons.push(
+          `Identical name, gender, and age (${candidate.age || ''} yrs) with citizen: ${existing.firstName} ${existing.lastName}`
         );
         duplicatesMap.set(existing.clientRecordId, existing);
         isMatch = true;

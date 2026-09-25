@@ -71,9 +71,9 @@ export default function Sidebar({
       sections.push({
         title: 'Reporting & Logs',
         items: [
-          { id: 'reports', label: 'Daily Work Reports', icon: FileText, badge: pendingSync > 0 ? pendingSync : null, badgeColor: 'bg-amber-500' },
-          { id: 'report_new', label: 'Submit Daily Report', icon: FilePlus2 },
-          { id: 'activity_logs', label: 'Activity Timeline', icon: Activity },
+          { id: 'daily_report', label: 'Daily Work Report', icon: FilePlus2 },
+          { id: 'my_reports', label: 'My Report', icon: FileText, badge: pendingSync > 0 ? pendingSync : null, badgeColor: 'bg-amber-500' },
+          { id: 'activity_logs', label: 'Activity Logs', icon: Activity },
           { id: 'screentime', label: 'Work Sessions & Time', icon: Smartphone },
           { id: 'sync_center', label: 'Sync Center', icon: RefreshCw, badge: pendingSync > 0 ? pendingSync : null, badgeColor: 'bg-amber-500' },
         ]
@@ -85,9 +85,8 @@ export default function Sidebar({
       sections.push({
         title: 'Field Oversight',
         items: [
-          { id: 'citizens', label: 'Citizen Registrations', icon: Database },
-          { id: 'duplicates', label: 'Duplicate Reviews', icon: ShieldCheck },
-          { id: 'team', label: 'Field Officers', icon: Users },
+          { id: 'citizens', label: 'Registered Citizens', icon: Database },
+          { id: 'team', label: 'Team Overview', icon: Users },
           { id: 'reports', label: 'Officer Daily Reports', icon: FileText, badge: pendingSync > 0 ? pendingSync : null, badgeColor: 'bg-amber-500' },
           { id: 'supervisor_reports', label: 'Supervisor Evaluations', icon: FileSpreadsheet }
         ]
@@ -96,7 +95,7 @@ export default function Sidebar({
       sections.push({
         title: 'Activity & Synchronization',
         items: [
-          { id: 'activity_logs', label: 'Officer Activity Timeline', icon: Activity },
+          { id: 'activity_logs', label: 'Activity Logs', icon: Activity },
           { id: 'screentime', label: 'Screen Time Telemetry', icon: Smartphone },
           { id: 'analytics', label: 'Field Analytics & Telemetry', icon: BarChart3 },
           { id: 'sync_center', label: 'Sync Health Monitor', icon: RefreshCw, badge: pendingSync > 0 ? pendingSync : null, badgeColor: 'bg-amber-500' },
@@ -111,8 +110,7 @@ export default function Sidebar({
         title: 'Workforce & Registry',
         items: [
           { id: 'users', label: 'User Directory', icon: UserCog },
-          { id: 'citizens', label: 'National Registry', icon: Database },
-          { id: 'duplicates', label: 'Duplicate Adjudication', icon: ShieldCheck },
+          { id: 'citizens', label: 'Registered Citizens', icon: Database },
           { id: 'team', label: 'Team Overview', icon: Users },
           { id: 'all_reports', label: 'All Daily Reports', icon: FileText },
         ]
@@ -121,7 +119,7 @@ export default function Sidebar({
       sections.push({
         title: 'Telemetry & Analytics',
         items: [
-          { id: 'activity_logs', label: 'Organization Activity Log', icon: Activity },
+          { id: 'activity_logs', label: 'Activity Logs', icon: Activity },
           { id: 'screentime', label: 'Screen Time Tracking', icon: Smartphone },
           { id: 'analytics', label: 'Analytics & Insights', icon: BarChart3 },
           { id: 'sync_center', label: 'System Sync Health', icon: RefreshCw },
@@ -154,7 +152,7 @@ export default function Sidebar({
 
       {/* Sidebar Panel */}
       <aside
-        className={`fixed top-0 left-0 z-40 h-full w-64 bg-white dark:bg-[#111827] border-r border-slate-200/90 dark:border-[#334155] flex flex-col transition-transform duration-200 ease-in-out lg:translate-x-0 ${
+        className={`fixed top-0 left-0 z-40 h-full w-64 bg-white dark:bg-[#0F172A] border-r border-slate-200/90 dark:border-[#334155] flex flex-col transition-transform duration-200 ease-in-out lg:translate-x-0 ${
           isMobileOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >

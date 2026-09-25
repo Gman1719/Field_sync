@@ -117,7 +117,7 @@ export default function ReportList({
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search reports by site name or officer..."
-                className="w-full h-10 pl-9 pr-4 rounded-lg border border-slate-300 bg-white text-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] transition-all"
+                className="w-full h-10 pl-9 pr-4 rounded-lg border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] placeholder:text-slate-400 dark:placeholder:text-slate-500 text-xs focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] transition-all"
               />
             </div>
 
@@ -139,14 +139,14 @@ export default function ReportList({
         <CardContent className="p-0">
           {filteredReports.length === 0 ? (
             <div className="py-12 text-center text-xs text-slate-400">
-              <FileText className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+              <FileText className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
               <span>No reports found matching your filter criteria</span>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="border-b border-slate-100 text-slate-400 font-semibold uppercase tracking-wider bg-slate-50/50">
+                  <tr className="border-b border-slate-200 dark:border-[#334155] text-slate-600 dark:text-slate-200 font-bold uppercase tracking-wider bg-slate-50/90 dark:bg-[#0F172A] text-[11px]">
                     <th className="py-3.5 pl-6">Report ID & Date</th>
                     <th className="py-3.5 px-4">Site Name</th>
                     <th className="py-3.5 px-4">Officer</th>
@@ -156,29 +156,29 @@ export default function ReportList({
                     <th className="py-3.5 pr-6 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-[#334155]">
                   {filteredReports.map(report => (
-                    <tr key={report.id} className="hover:bg-slate-50/70 transition-colors">
+                    <tr key={report.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/60 transition-colors">
                       <td className="py-4 pl-6">
-                        <p className="font-semibold text-slate-900">{report.reportDate}</p>
+                        <p className="font-semibold text-slate-900 dark:text-[#F8FAFC]">{report.reportDate}</p>
                         <p className="text-[11px] text-slate-400 font-mono">{report.reportId || report.id.slice(0, 8)}</p>
                       </td>
 
-                      <td className="py-4 px-4 font-semibold text-slate-800">
+                      <td className="py-4 px-4 font-semibold text-slate-800 dark:text-slate-200">
                         {report.siteName}
                         <span className="text-[11px] text-slate-400 block font-normal">{report.region}</span>
                       </td>
 
-                      <td className="py-4 px-4 text-slate-700">
+                      <td className="py-4 px-4 text-slate-700 dark:text-slate-300">
                         <p className="font-medium">{report.employeeName}</p>
                         <p className="text-[11px] text-slate-400 font-mono">{report.employeeId}</p>
                       </td>
 
-                      <td className="py-4 px-4 text-right font-bold text-slate-900 font-mono">
+                      <td className="py-4 px-4 text-right font-bold text-slate-900 dark:text-[#F8FAFC] font-mono">
                         {report.registrations || 0}
                       </td>
 
-                      <td className="py-4 px-4 font-mono text-slate-600">
+                      <td className="py-4 px-4 font-mono text-slate-600 dark:text-slate-300">
                         {report.workHours || 0} hrs
                       </td>
 
@@ -196,7 +196,7 @@ export default function ReportList({
                           variant="ghost"
                           size="sm"
                           onClick={() => setSelectedReport(report)}
-                          className="h-8 text-xs text-[#1E3A8A]"
+                          className="h-8 text-xs text-[#1E3A8A] dark:text-blue-400 dark:hover:bg-blue-950/40 font-semibold"
                         >
                           View Details
                         </Button>
@@ -220,51 +220,51 @@ export default function ReportList({
         {selectedReport && (
           <div className="space-y-4 text-xs">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
+              <div className="p-3 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155]">
                 <span className="text-slate-400 block text-[11px]">Report Date</span>
-                <span className="font-semibold text-slate-900">{selectedReport.reportDate}</span>
+                <span className="font-semibold text-slate-900 dark:text-[#F8FAFC]">{selectedReport.reportDate}</span>
               </div>
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
+              <div className="p-3 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155]">
                 <span className="text-slate-400 block text-[11px]">Officer</span>
-                <span className="font-semibold text-slate-900">{selectedReport.employeeName}</span>
+                <span className="font-semibold text-slate-900 dark:text-[#F8FAFC]">{selectedReport.employeeName}</span>
               </div>
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
+              <div className="p-3 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155]">
                 <span className="text-slate-400 block text-[11px]">Registrations</span>
-                <span className="font-bold text-slate-900 font-mono">{selectedReport.registrations}</span>
+                <span className="font-bold text-slate-900 dark:text-[#F8FAFC] font-mono">{selectedReport.registrations}</span>
               </div>
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
+              <div className="p-3 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155]">
                 <span className="text-slate-400 block text-[11px]">Work Hours</span>
-                <span className="font-bold text-slate-900 font-mono">{selectedReport.workHours} hrs</span>
+                <span className="font-bold text-slate-900 dark:text-[#F8FAFC] font-mono">{selectedReport.workHours} hrs</span>
               </div>
             </div>
 
             <div className="space-y-3 pt-2">
               <div>
-                <span className="font-semibold text-slate-700 block mb-1">Activities Performed</span>
-                <p className="p-3 bg-slate-50 rounded-lg text-slate-700 leading-relaxed">{selectedReport.activities || 'None specified'}</p>
+                <span className="font-semibold text-slate-700 dark:text-slate-300 block mb-1">Activities Performed</span>
+                <p className="p-3 bg-slate-50 dark:bg-[#0F172A] rounded-lg text-slate-700 dark:text-slate-300 border border-transparent dark:border-[#334155] leading-relaxed">{selectedReport.activities || 'None specified'}</p>
               </div>
 
               <div>
-                <span className="font-semibold text-slate-700 block mb-1">Materials Used</span>
-                <p className="p-3 bg-slate-50 rounded-lg text-slate-700 leading-relaxed">{selectedReport.materialsUsed || 'None'}</p>
+                <span className="font-semibold text-slate-700 dark:text-slate-300 block mb-1">Materials Used</span>
+                <p className="p-3 bg-slate-50 dark:bg-[#0F172A] rounded-lg text-slate-700 dark:text-slate-300 border border-transparent dark:border-[#334155] leading-relaxed">{selectedReport.materialsUsed || 'None'}</p>
               </div>
 
               {selectedReport.challenges && (
                 <div>
-                  <span className="font-semibold text-slate-700 block mb-1">Challenges & Constraints</span>
-                  <p className="p-3 bg-slate-50 rounded-lg text-slate-700 leading-relaxed">{selectedReport.challenges}</p>
+                  <span className="font-semibold text-slate-700 dark:text-slate-300 block mb-1">Challenges & Constraints</span>
+                  <p className="p-3 bg-slate-50 dark:bg-[#0F172A] rounded-lg text-slate-700 dark:text-slate-300 border border-transparent dark:border-[#334155] leading-relaxed">{selectedReport.challenges}</p>
                 </div>
               )}
 
               {selectedReport.communityFeedback && (
                 <div>
-                  <span className="font-semibold text-slate-700 block mb-1">Community Feedback</span>
-                  <p className="p-3 bg-slate-50 rounded-lg text-slate-700 leading-relaxed">{selectedReport.communityFeedback}</p>
+                  <span className="font-semibold text-slate-700 dark:text-slate-300 block mb-1">Community Feedback</span>
+                  <p className="p-3 bg-slate-50 dark:bg-[#0F172A] rounded-lg text-slate-700 dark:text-slate-300 border border-transparent dark:border-[#334155] leading-relaxed">{selectedReport.communityFeedback}</p>
                 </div>
               )}
             </div>
 
-            <div className="flex justify-end pt-3 border-t border-slate-100">
+            <div className="flex justify-end pt-3 border-t border-slate-100 dark:border-[#334155]">
               <Button
                 variant="outline"
                 onClick={() => setSelectedReport(null)}

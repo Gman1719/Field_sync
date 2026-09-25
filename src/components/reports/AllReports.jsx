@@ -259,16 +259,16 @@ export default function AllReports({ reports = [], users = [], supervisorReports
       </div>
 
       {/* Tabs & Search / Filter Controls */}
-      <Card>
-        <div className="p-4 border-b border-slate-200 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <Card className="border border-slate-200/90 dark:border-slate-700 bg-white dark:bg-[#1E293B]">
+        <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           {/* Tab Switcher */}
-          <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl w-fit">
+          <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-[#0F172A] rounded-xl w-fit">
             <button
               onClick={() => setActiveTab('daily')}
               className={`px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
                 activeTab === 'daily'
-                  ? 'bg-white text-slate-900 shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-white dark:bg-[#1E293B] text-slate-900 dark:text-[#F8FAFC] shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               Daily Field Reports ({filteredReports.length})
@@ -277,8 +277,8 @@ export default function AllReports({ reports = [], users = [], supervisorReports
               onClick={() => setActiveTab('supervisor')}
               className={`px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
                 activeTab === 'supervisor'
-                  ? 'bg-white text-slate-900 shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-white dark:bg-[#1E293B] text-slate-900 dark:text-[#F8FAFC] shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               Supervisor Evaluations ({filteredSupervisorReports.length})
@@ -294,9 +294,9 @@ export default function AllReports({ reports = [], users = [], supervisorReports
                 activeTab === 'daily' ? filteredReports : filteredSupervisorReports,
                 activeTab === 'daily' ? 'daily_field_reports' : 'supervisor_evaluations'
               )}
-              className="text-xs"
+              className="text-xs dark:border-slate-700 dark:text-slate-300 dark:hover:bg-[#0F172A]"
             >
-              <Download className="w-3.5 h-3.5 mr-1 text-slate-600" /> Export CSV
+              <Download className="w-3.5 h-3.5 mr-1 text-slate-600 dark:text-slate-400" /> Export CSV
             </Button>
             <Button
               variant="outline"
@@ -305,15 +305,15 @@ export default function AllReports({ reports = [], users = [], supervisorReports
                 activeTab === 'daily' ? filteredReports : filteredSupervisorReports,
                 activeTab === 'daily' ? 'daily_field_reports' : 'supervisor_evaluations'
               )}
-              className="text-xs"
+              className="text-xs dark:border-slate-700 dark:text-slate-300 dark:hover:bg-[#0F172A]"
             >
-              <Download className="w-3.5 h-3.5 mr-1 text-slate-600" /> Export JSON
+              <Download className="w-3.5 h-3.5 mr-1 text-slate-600 dark:text-slate-400" /> Export JSON
             </Button>
           </div>
         </div>
 
         {/* Filter Toolbar */}
-        <div className="p-4 bg-slate-50/50 border-b border-slate-200 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="p-4 bg-slate-50/50 dark:bg-[#182234]/50 border-b border-slate-200 dark:border-slate-700 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <div>
             <Input
               placeholder="Search site, officer, region..."
@@ -359,7 +359,7 @@ export default function AllReports({ reports = [], users = [], supervisorReports
               </div>
             </>
           ) : (
-            <div className="lg:col-span-2 flex items-center justify-end text-xs text-slate-500">
+            <div className="lg:col-span-2 flex items-center justify-end text-xs text-slate-500 dark:text-slate-400">
               Showing evaluated performance scores and operational field ratings
             </div>
           )}
@@ -370,8 +370,8 @@ export default function AllReports({ reports = [], users = [], supervisorReports
           {activeTab === 'daily' ? (
             /* DAILY FIELD REPORTS TABLE */
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs sm:text-sm text-slate-700">
-                <thead className="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 border-b border-slate-200">
+              <table className="w-full text-left text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+                <thead className="bg-slate-50/90 dark:bg-[#0F172A] text-[11px] uppercase tracking-wider text-slate-600 dark:text-slate-200 font-bold border-b border-slate-200 dark:border-[#334155]">
                   <tr>
                     <th className="py-3 px-4 font-semibold">Submitted</th>
                     <th className="py-3 px-4 font-semibold">Field Officer</th>
@@ -383,44 +383,44 @@ export default function AllReports({ reports = [], users = [], supervisorReports
                     <th className="py-3 px-4 font-semibold text-center">Sync</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60">
                   {filteredReports.length === 0 ? (
                     <tr>
-                      <td colSpan="8" className="py-12 text-center text-slate-400">
-                        <FileText className="w-10 h-10 mx-auto text-slate-300 mb-2" />
-                        <p className="text-sm font-medium text-slate-600">No daily reports match criteria</p>
-                        <p className="text-xs text-slate-400 mt-1">Adjust search parameters or region filters</p>
+                      <td colSpan="8" className="py-12 text-center text-slate-400 dark:text-slate-500">
+                        <FileText className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600 mb-2" />
+                        <p className="text-sm font-medium text-slate-600 dark:text-slate-300">No daily reports match criteria</p>
+                        <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Adjust search parameters or region filters</p>
                       </td>
                     </tr>
                   ) : (
                     filteredReports.map(r => {
                       const isNew = isNewReport(r);
                       return (
-                        <tr key={r.id} className="hover:bg-slate-50/70 transition-colors">
-                          <td className="py-3 px-4 whitespace-nowrap text-slate-500 font-mono text-[11px]">
+                        <tr key={r.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors">
+                          <td className="py-3 px-4 whitespace-nowrap text-slate-500 dark:text-slate-400 font-mono text-[11px]">
                             {formatDateTime(r.submittedAt || r.createdAt || r.reportDate)}
                             {isNew && (
-                              <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-100 text-rose-700 uppercase">
+                              <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-100 dark:bg-rose-950/80 text-rose-700 dark:text-rose-300 uppercase">
                                 New
                               </span>
                             )}
                           </td>
-                          <td className="py-3 px-4 font-semibold text-slate-900">
+                          <td className="py-3 px-4 font-semibold text-slate-900 dark:text-[#F8FAFC]">
                             {r.employeeName || 'Unknown Officer'}
                             <div className="text-[11px] text-slate-400 font-normal">
                               ID: {r.employeeId || 'N/A'}
                             </div>
                           </td>
-                          <td className="py-3 px-4 font-medium text-slate-800">
+                          <td className="py-3 px-4 font-medium text-slate-800 dark:text-slate-200">
                             {r.siteName || 'N/A'}
                           </td>
                           <td className="py-3 px-4">
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/50 dark:border-slate-700">
                               <MapPin className="w-3 h-3 mr-1 text-slate-400" />
                               {r.region || 'N/A'}
                             </span>
                           </td>
-                          <td className="py-3 px-4 text-center font-bold text-slate-900 font-mono">
+                          <td className="py-3 px-4 text-center font-bold text-slate-900 dark:text-[#F8FAFC] font-mono">
                             {r.registrations ?? 0}
                           </td>
                           <td className="py-3 px-4">
@@ -458,8 +458,8 @@ export default function AllReports({ reports = [], users = [], supervisorReports
           ) : (
             /* SUPERVISOR REPORTS TABLE */
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs sm:text-sm text-slate-700">
-                <thead className="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 border-b border-slate-200">
+              <table className="w-full text-left text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+                <thead className="bg-slate-50/90 dark:bg-[#0F172A] text-[11px] uppercase tracking-wider text-slate-600 dark:text-slate-200 font-bold border-b border-slate-200 dark:border-[#334155]">
                   <tr>
                     <th className="py-3 px-4 font-semibold">Submitted</th>
                     <th className="py-3 px-4 font-semibold">Evaluation Type</th>
@@ -470,13 +470,13 @@ export default function AllReports({ reports = [], users = [], supervisorReports
                     <th className="py-3 px-4 font-semibold text-center">Sync</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60">
                   {filteredSupervisorReports.length === 0 ? (
                     <tr>
-                      <td colSpan="7" className="py-12 text-center text-slate-400">
-                        <ShieldCheck className="w-10 h-10 mx-auto text-slate-300 mb-2" />
-                        <p className="text-sm font-medium text-slate-600">No supervisor evaluations found</p>
-                        <p className="text-xs text-slate-400 mt-1">Evaluations submitted by supervisors will appear here</p>
+                      <td colSpan="7" className="py-12 text-center text-slate-400 dark:text-slate-500">
+                        <ShieldCheck className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600 mb-2" />
+                        <p className="text-sm font-medium text-slate-600 dark:text-slate-300">No supervisor evaluations found</p>
+                        <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Evaluations submitted by supervisors will appear here</p>
                       </td>
                     </tr>
                   ) : (
@@ -486,11 +486,11 @@ export default function AllReports({ reports = [], users = [], supervisorReports
                       const displayName = isSelfReport ? r.supervisorName : r.officerName;
 
                       return (
-                        <tr key={r.id} className="hover:bg-slate-50/70 transition-colors">
-                          <td className="py-3 px-4 whitespace-nowrap text-slate-500 font-mono text-[11px]">
+                        <tr key={r.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors">
+                          <td className="py-3 px-4 whitespace-nowrap text-slate-500 dark:text-slate-400 font-mono text-[11px]">
                             {formatDateTime(r.submittedAt || r.createdAt || r.reportDate)}
                             {isNew && (
-                              <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-100 text-rose-700 uppercase">
+                              <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-100 dark:bg-rose-950/80 text-rose-700 dark:text-rose-300 uppercase">
                                 New
                               </span>
                             )}
@@ -498,16 +498,16 @@ export default function AllReports({ reports = [], users = [], supervisorReports
                           <td className="py-3 px-4">
                             <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${
                               isSelfReport
-                                ? 'bg-blue-50 text-blue-800 border border-blue-200'
-                                : 'bg-purple-50 text-purple-800 border border-purple-200'
+                                ? 'bg-blue-50 dark:bg-blue-950/80 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800'
+                                : 'bg-purple-50 dark:bg-purple-950/80 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
                             }`}>
                               {isSelfReport ? 'Supervisor Operations' : 'Officer Evaluation'}
                             </span>
                           </td>
-                          <td className="py-3 px-4 font-semibold text-slate-900">
+                          <td className="py-3 px-4 font-semibold text-slate-900 dark:text-[#F8FAFC]">
                             {r.supervisorName || 'Supervisor'}
                           </td>
-                          <td className="py-3 px-4 font-medium text-slate-800">
+                          <td className="py-3 px-4 font-medium text-slate-800 dark:text-slate-200">
                             {displayName || 'N/A'}
                           </td>
                           <td className="py-3 px-4">
@@ -521,9 +521,9 @@ export default function AllReports({ reports = [], users = [], supervisorReports
                           </td>
                           <td className="py-3 px-4 text-center">
                             {isSelfReport ? (
-                              <span className="text-slate-400 text-xs">Self Log</span>
+                              <span className="text-slate-400 dark:text-slate-500 text-xs">Self Log</span>
                             ) : (
-                              <span className="inline-flex items-center gap-1 font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 text-xs">
+                              <span className="inline-flex items-center gap-1 font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-800/60 text-xs">
                                 <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
                                 {r.overallRating ?? 5}/5
                               </span>

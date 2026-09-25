@@ -178,11 +178,11 @@ export default function ManagerAttendance({
       {/* Header and Filter Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-            <ClipboardCheck className="w-6 h-6 text-[#1E3A8A]" />
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-[#F8FAFC] tracking-tight flex items-center gap-2">
+            <ClipboardCheck className="w-6 h-6 text-[#1E3A8A] dark:text-blue-400" />
             Manager Attendance Review
           </h2>
-          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             Consolidated staff attendance verification across all supervisors and regions
           </p>
         </div>
@@ -198,7 +198,7 @@ export default function ManagerAttendance({
             variant="outline"
             size="sm"
             onClick={() => setSelectedDate(getToday())}
-            className="h-9"
+            className="h-9 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-[#0F172A]"
           >
             Today
           </Button>
@@ -212,40 +212,40 @@ export default function ManagerAttendance({
           value={stats.total}
           subtitle={`On ${selectedDate}`}
           icon={Users}
-          iconColor="text-blue-700"
-          iconBg="bg-blue-50"
+          iconColor="text-blue-700 dark:text-blue-400"
+          iconBg="bg-blue-50 dark:bg-blue-950/60"
         />
         <StatCard
           title="Present"
           value={stats.present}
           subtitle="On-time arrivals"
           icon={CheckCircle2}
-          iconColor="text-emerald-700"
-          iconBg="bg-emerald-50"
+          iconColor="text-emerald-700 dark:text-emerald-400"
+          iconBg="bg-emerald-50 dark:bg-emerald-950/60"
         />
         <StatCard
           title="Late"
           value={stats.late}
           subtitle="Tardy arrivals"
           icon={Clock}
-          iconColor="text-amber-700"
-          iconBg="bg-amber-50"
+          iconColor="text-amber-700 dark:text-amber-400"
+          iconBg="bg-amber-50 dark:bg-amber-950/60"
         />
         <StatCard
           title="Absent"
           value={stats.absent}
           subtitle="Missed shifts"
           icon={XCircle}
-          iconColor="text-rose-700"
-          iconBg="bg-rose-50"
+          iconColor="text-rose-700 dark:text-rose-400"
+          iconBg="bg-rose-50 dark:bg-rose-950/60"
         />
         <StatCard
           title="Attendance Rate"
           value={`${stats.rate}%`}
           subtitle="Present + Late ratio"
           icon={ClipboardCheck}
-          iconColor="text-teal-700"
-          iconBg="bg-teal-50"
+          iconColor="text-teal-700 dark:text-teal-400"
+          iconBg="bg-teal-50 dark:bg-teal-950/60"
         />
       </div>
 
@@ -297,15 +297,15 @@ export default function ManagerAttendance({
 
         <CardContent className="p-0">
           {filteredAttendance.length === 0 ? (
-            <div className="py-12 text-center text-xs text-slate-400">
-              <ClipboardCheck className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+            <div className="py-12 text-center text-xs text-slate-400 dark:text-slate-500">
+              <ClipboardCheck className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
               <span>No attendance records matching the current filters</span>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="border-b border-slate-100 text-slate-400 font-semibold uppercase tracking-wider bg-slate-50/50">
+                  <tr className="border-b border-slate-200 dark:border-[#334155] text-slate-600 dark:text-slate-200 font-bold uppercase tracking-wider bg-slate-50/90 dark:bg-[#0F172A] text-[11px]">
                     <th className="py-3.5 pl-6">Officer</th>
                     <th className="py-3.5 px-4">Region</th>
                     <th className="py-3.5 px-4">Supervisor</th>
@@ -315,17 +315,17 @@ export default function ManagerAttendance({
                     <th className="py-3.5 pr-6 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-[#334155]">
                   {filteredAttendance.map(rec => (
-                    <tr key={rec.id} className="hover:bg-slate-50/70 transition-colors">
+                    <tr key={rec.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/50 transition-colors">
                       <td className="py-4 pl-6">
-                        <p className="font-semibold text-slate-900">{rec.employeeName}</p>
-                        <p className="text-[11px] text-slate-400 font-mono">{rec.employeeId}</p>
+                        <p className="font-semibold text-slate-900 dark:text-white">{rec.employeeName}</p>
+                        <p className="text-[11px] text-slate-400 dark:text-slate-500 font-mono">{rec.employeeId}</p>
                       </td>
 
-                      <td className="py-4 px-4 text-slate-600">{rec.region || '--'}</td>
+                      <td className="py-4 px-4 text-slate-600 dark:text-slate-300">{rec.region || '--'}</td>
 
-                      <td className="py-4 px-4 text-slate-600">{rec.supervisorName || '--'}</td>
+                      <td className="py-4 px-4 text-slate-600 dark:text-slate-300">{rec.supervisorName || '--'}</td>
 
                       <td className="py-4 px-4">
                         <Badge
@@ -336,7 +336,7 @@ export default function ManagerAttendance({
                         </Badge>
                       </td>
 
-                      <td className="py-4 px-4 font-mono font-medium text-slate-900">
+                      <td className="py-4 px-4 font-mono font-medium text-slate-900 dark:text-white">
                         {rec.workHours || 0} hrs
                       </td>
 
@@ -357,7 +357,7 @@ export default function ManagerAttendance({
                               variant="ghost"
                               size="sm"
                               onClick={() => markAsSeen(rec.id)}
-                              className="h-8 px-2 text-xs text-slate-500"
+                              className="h-8 px-2 text-xs text-slate-500 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800"
                               title="Mark as seen"
                             >
                               <Eye className="w-3.5 h-3.5 mr-1" />

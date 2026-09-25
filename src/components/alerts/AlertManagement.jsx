@@ -292,15 +292,15 @@ export default function AlertManagement({ alerts = [], setAlerts, users = [], us
 
       {/* Offline Callout */}
       {!isOnline && (
-        <div className="p-3.5 rounded-xl border border-amber-200 bg-amber-50/80 text-amber-900 flex items-center justify-between text-xs sm:text-sm">
+        <div className="p-3.5 rounded-xl border border-amber-200 dark:border-amber-900/60 bg-amber-50/80 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 flex items-center justify-between text-xs sm:text-sm">
           <div className="flex items-center gap-2">
-            <Radio className="w-4 h-4 text-amber-600 shrink-0 animate-pulse" />
+            <Radio className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 animate-pulse" />
             <span>
               <strong>Offline Mode:</strong> Broadcast alerts will trigger immediate local client notifications and store into the sync queue.
             </span>
           </div>
           {pendingSyncAlerts > 0 && (
-            <span className="text-xs font-semibold text-amber-800 bg-amber-100 px-2.5 py-1 rounded-md">
+            <span className="text-xs font-semibold text-amber-800 dark:text-amber-200 bg-amber-100 dark:bg-amber-900/60 px-2.5 py-1 rounded-md">
               {pendingSyncAlerts} queued
             </span>
           )}
@@ -340,7 +340,7 @@ export default function AlertManagement({ alerts = [], setAlerts, users = [], us
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-200 pb-3 flex-wrap">
+      <div className="flex items-center gap-2 border-b border-slate-200 dark:border-[#334155] pb-3 flex-wrap">
         {[
           { key: 'all', label: `All Alerts (${alerts.length})` },
           { key: 'unread', label: `Unacknowledged (${unreadCount})` },
@@ -354,8 +354,8 @@ export default function AlertManagement({ alerts = [], setAlerts, users = [], us
             onClick={() => setFilterPriority(tab.key)}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               filterPriority === tab.key
-                ? 'bg-[#1E3A8A] text-white shadow-sm'
-                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                ? 'bg-[#2563EB] text-white shadow-sm'
+                : 'bg-white dark:bg-[#1E293B] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-[#334155] hover:bg-slate-50 dark:hover:bg-slate-800'
             }`}
           >
             {tab.label}
@@ -366,10 +366,10 @@ export default function AlertManagement({ alerts = [], setAlerts, users = [], us
       {/* Alerts Feed */}
       <div className="space-y-3">
         {filteredAlerts.length === 0 ? (
-          <Card className="py-16 text-center text-slate-400">
-            <Bell className="w-12 h-12 mx-auto text-slate-300 mb-2" />
-            <p className="text-base font-semibold text-slate-700">No emergency alerts matching filters</p>
-            <p className="text-xs text-slate-400 mt-1">Operational communications will appear here</p>
+          <Card className="py-16 text-center text-slate-400 dark:text-slate-500">
+            <Bell className="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600 mb-2" />
+            <p className="text-base font-semibold text-slate-700 dark:text-slate-300">No emergency alerts matching filters</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Operational communications will appear here</p>
           </Card>
         ) : (
           filteredAlerts.map(a => {
@@ -384,9 +384,9 @@ export default function AlertManagement({ alerts = [], setAlerts, users = [], us
                 className={`p-4 rounded-xl border transition-all cursor-pointer ${
                   !a.read
                     ? isCritical || isHigh
-                      ? 'bg-rose-50/70 border-rose-300 shadow-sm'
-                      : 'bg-amber-50/60 border-amber-300 shadow-sm'
-                    : 'bg-white border-slate-200 hover:border-slate-300'
+                      ? 'bg-rose-50/70 dark:bg-rose-950/40 border-rose-300 dark:border-rose-900/60 shadow-sm'
+                      : 'bg-amber-50/60 dark:bg-amber-950/40 border-amber-300 dark:border-amber-900/60 shadow-sm'
+                    : 'bg-white dark:bg-[#1E293B] border-slate-200 dark:border-[#334155] hover:border-slate-300 dark:hover:border-slate-500'
                 }`}
               >
                 <div className="flex items-start justify-between gap-3">
@@ -402,7 +402,7 @@ export default function AlertManagement({ alerts = [], setAlerts, users = [], us
 
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <h4 className="font-bold text-slate-900 text-sm sm:text-base">
+                        <h4 className="font-bold text-slate-900 dark:text-white text-sm sm:text-base">
                           {a.title}
                         </h4>
                         {!a.read && (
@@ -424,21 +424,21 @@ export default function AlertManagement({ alerts = [], setAlerts, users = [], us
                         )}
                       </div>
 
-                      <p className="text-xs sm:text-sm text-slate-700 mt-1.5 leading-relaxed">
+                      <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 mt-1.5 leading-relaxed">
                         {a.message}
                       </p>
 
-                      <div className="flex items-center gap-4 text-[11px] text-slate-400 mt-2.5 flex-wrap">
+                      <div className="flex items-center gap-4 text-[11px] text-slate-400 dark:text-slate-500 mt-2.5 flex-wrap">
                         <span className="flex items-center gap-1">
-                          <User className="w-3 h-3 text-slate-400" />
-                          Dispatcher: <strong className="text-slate-600 font-medium">{a.sentByName || 'System'}</strong>
+                          <User className="w-3 h-3 text-slate-400 dark:text-slate-500" />
+                          Dispatcher: <strong className="text-slate-600 dark:text-slate-300 font-medium">{a.sentByName || 'System'}</strong>
                         </span>
                         <span className="flex items-center gap-1 font-mono">
-                          <Clock className="w-3 h-3 text-slate-400" />
+                          <Clock className="w-3 h-3 text-slate-400 dark:text-slate-500" />
                           {new Date(a.timestamp).toLocaleString()}
                         </span>
                         <span>
-                          Target: <strong>{a.targetAll ? 'All Field Personnel' : `Officer (${a.targetEmployeeId})`}</strong>
+                          Target: <strong className="text-slate-700 dark:text-slate-300">{a.targetAll ? 'All Field Personnel' : `Officer (${a.targetEmployeeId})`}</strong>
                         </span>
                       </div>
                     </div>
@@ -446,8 +446,8 @@ export default function AlertManagement({ alerts = [], setAlerts, users = [], us
 
                   <div className="shrink-0">
                     {a.read ? (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-200">
-                        <Check className="w-3 h-3 text-emerald-600" /> Acknowledged
+                      <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-1 rounded-md border border-emerald-200 dark:border-emerald-800">
+                        <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" /> Acknowledged
                       </span>
                     ) : (
                       <Button size="sm" variant="outline" className="text-xs">
@@ -473,14 +473,14 @@ export default function AlertManagement({ alerts = [], setAlerts, users = [], us
         >
           <form onSubmit={handleSendAlert} className="space-y-4">
             {!isOnline && (
-              <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-900 flex items-center gap-2">
-                <Radio className="w-4 h-4 text-amber-600 shrink-0" />
+              <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 rounded-lg text-xs text-amber-900 dark:text-amber-200 flex items-center gap-2">
+                <Radio className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
                 <span>Offline: Will queue locally and dispatch immediately to all local users.</span>
               </div>
             )}
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Bulletin Headline *
               </label>
               <Input
@@ -493,7 +493,7 @@ export default function AlertManagement({ alerts = [], setAlerts, users = [], us
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Detailed Message & Instructions *
               </label>
               <Textarea
@@ -508,7 +508,7 @@ export default function AlertManagement({ alerts = [], setAlerts, users = [], us
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                   Urgency Level
                 </label>
                 <Select
@@ -524,7 +524,7 @@ export default function AlertManagement({ alerts = [], setAlerts, users = [], us
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                   Recipient Audience
                 </label>
                 <Select
@@ -540,7 +540,7 @@ export default function AlertManagement({ alerts = [], setAlerts, users = [], us
 
             {!newAlert.targetAll && (
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                   Select Target Field Officer
                 </label>
                 <Select
@@ -558,7 +558,7 @@ export default function AlertManagement({ alerts = [], setAlerts, users = [], us
               </div>
             )}
 
-            <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
+            <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-[#334155]">
               <Button
                 type="button"
                 variant="ghost"

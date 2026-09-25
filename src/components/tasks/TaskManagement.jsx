@@ -199,17 +199,17 @@ export default function TaskManagement({ user, addNotification }) {
   return (
     <div className="space-y-6">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-card">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-[#1E293B] p-6 rounded-2xl border border-slate-200 dark:border-[#334155] shadow-card">
         <div>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-[#1E3A8A] text-white flex items-center justify-center shadow-xs">
               <Briefcase className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+              <h1 className="text-xl font-bold text-slate-900 dark:text-[#F8FAFC] tracking-tight">
                 {isOfficer ? 'My Fieldwork Assignments' : 'Fieldwork Missions & Assignments'}
               </h1>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 {isOfficer
                   ? 'Track citizen registration targets, update mission status, and monitor completion progress'
                   : 'Deploy registration quotas, monitor officer fieldwork progress, and manage assignments'}
@@ -278,7 +278,7 @@ export default function TaskManagement({ user, addNotification }) {
       </div>
 
       {/* Status Filter Tabs */}
-      <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl max-w-fit text-xs font-semibold">
+      <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-[#0F172A] rounded-xl max-w-fit text-xs font-semibold border border-transparent dark:border-[#334155]">
         {[
           { key: 'ALL', label: 'All Tasks' },
           { key: 'ASSIGNED', label: 'Assigned' },
@@ -292,8 +292,8 @@ export default function TaskManagement({ user, addNotification }) {
             onClick={() => setFilterStatus(tab.key)}
             className={`py-1.5 px-3 rounded-lg transition-all ${
               filterStatus === tab.key
-                ? 'bg-white text-[#1E3A8A] shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-white dark:bg-[#1E293B] text-[#1E3A8A] dark:text-blue-400 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             {tab.label}
@@ -304,17 +304,17 @@ export default function TaskManagement({ user, addNotification }) {
       {/* Content Area */}
       {isLoading ? (
         <Card>
-          <CardContent className="p-12 text-center text-xs text-slate-500">
-            <RefreshCw className="w-6 h-6 text-[#1E3A8A] animate-spin mx-auto mb-2" />
+          <CardContent className="p-12 text-center text-xs text-slate-500 dark:text-slate-400">
+            <RefreshCw className="w-6 h-6 text-[#1E3A8A] dark:text-blue-400 animate-spin mx-auto mb-2" />
             Loading fieldwork assignments...
           </CardContent>
         </Card>
       ) : filteredAssignments.length === 0 ? (
         <Card>
-          <CardContent className="p-12 text-center text-xs text-slate-500 space-y-2">
-            <Briefcase className="w-8 h-8 text-slate-300 mx-auto" />
-            <p className="font-semibold text-slate-700 text-sm">No Assignments Found</p>
-            <p className="text-slate-400">
+          <CardContent className="p-12 text-center text-xs text-slate-500 dark:text-slate-400 space-y-2">
+            <Briefcase className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto" />
+            <p className="font-semibold text-slate-700 dark:text-slate-200 text-sm">No Assignments Found</p>
+            <p className="text-slate-400 dark:text-slate-500">
               {filterStatus !== 'ALL'
                 ? `No assignments currently in ${filterStatus} status.`
                 : isOfficer
@@ -336,18 +336,18 @@ export default function TaskManagement({ user, addNotification }) {
             const target = assignment.targetCount ?? 0;
 
             return (
-              <Card key={assignment.id} className="border border-slate-200/90 shadow-card hover:border-slate-300 transition-all">
+              <Card key={assignment.id} className="border border-slate-200/90 dark:border-[#334155] shadow-card hover:border-slate-300 dark:hover:border-slate-600 transition-all">
                 <CardContent className="p-5 space-y-4">
                   {/* Top Bar: Title & Status Badge */}
                   <div className="flex items-start justify-between gap-3">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-slate-900 text-sm">
+                        <span className="font-bold text-slate-900 dark:text-[#F8FAFC] text-sm">
                           {assignment.title}
                         </span>
                       </div>
                       {assignment.description && (
-                        <p className="text-xs text-slate-500 line-clamp-2">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
                           {assignment.description}
                         </p>
                       )}
@@ -370,18 +370,18 @@ export default function TaskManagement({ user, addNotification }) {
                   </div>
 
                   {/* Progress Bar & Target Count */}
-                  <div className="space-y-1.5 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                  <div className="space-y-1.5 p-3 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-100 dark:border-[#334155]">
                     <div className="flex items-center justify-between text-xs font-semibold">
-                      <span className="text-slate-600 flex items-center gap-1.5">
-                        <Target className="w-3.5 h-3.5 text-[#1E3A8A]" />
+                      <span className="text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
+                        <Target className="w-3.5 h-3.5 text-[#1E3A8A] dark:text-blue-400" />
                         Target Progress
                       </span>
-                      <span className="text-[#1E3A8A]">
+                      <span className="text-[#1E3A8A] dark:text-blue-400">
                         {regCount} / {target} Citizens ({progress}%)
                       </span>
                     </div>
 
-                    <div className="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden">
+                    <div className="w-full h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                       <div
                         className={`h-full transition-all duration-500 rounded-full ${
                           isCompleted
@@ -398,7 +398,7 @@ export default function TaskManagement({ user, addNotification }) {
                   </div>
 
                   {/* Meta Details */}
-                  <div className="grid grid-cols-2 gap-2 text-xs text-slate-600">
+                  <div className="grid grid-cols-2 gap-2 text-xs text-slate-600 dark:text-slate-300">
                     <div className="flex items-center gap-1.5 truncate">
                       <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                       <span className="truncate">
@@ -412,8 +412,8 @@ export default function TaskManagement({ user, addNotification }) {
                     </div>
 
                     {!isOfficer && (
-                      <div className="col-span-2 flex items-center gap-1.5 text-slate-700 font-medium pt-1 border-t border-slate-100">
-                        <User className="w-3.5 h-3.5 text-[#1E3A8A] shrink-0" />
+                      <div className="col-span-2 flex items-center gap-1.5 text-slate-700 dark:text-slate-300 font-medium pt-1 border-t border-slate-100 dark:border-[#334155]">
+                        <User className="w-3.5 h-3.5 text-[#1E3A8A] dark:text-blue-400 shrink-0" />
                         <span>Officer: {assignment.officerName || 'Field Officer'}</span>
                       </div>
                     )}
@@ -421,7 +421,7 @@ export default function TaskManagement({ user, addNotification }) {
 
                   {/* Field Officer Interactive Action Controls */}
                   {isOfficer && !isCompleted && (
-                    <div className="pt-2 border-t border-slate-100 flex items-center justify-end gap-2">
+                    <div className="pt-2 border-t border-slate-100 dark:border-[#334155] flex items-center justify-end gap-2">
                       {isAssigned && (
                         <Button
                           type="button"
@@ -481,8 +481,8 @@ export default function TaskManagement({ user, addNotification }) {
                   )}
 
                   {isCompleted && (
-                    <div className="pt-2 border-t border-slate-100 flex items-center justify-center text-xs font-semibold text-emerald-700 gap-1.5">
-                      <Award className="w-4 h-4 text-emerald-600" />
+                    <div className="pt-2 border-t border-slate-100 dark:border-[#334155] flex items-center justify-center text-xs font-semibold text-emerald-700 dark:text-emerald-400 gap-1.5">
+                      <Award className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                       <span>Mission Successfully Completed & Reported</span>
                     </div>
                   )}

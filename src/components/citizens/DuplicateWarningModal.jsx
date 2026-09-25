@@ -1,8 +1,8 @@
 // src/components/citizens/DuplicateWarningModal.jsx
-// Enterprise Warning & Confirmation Modal for Suspected Duplicate Citizen Registrations
+// Enterprise Duplicate Prevention Modal: Blocks Saving of Duplicate Citizen Records
 
 import React from 'react';
-import { AlertTriangle, UserCheck, Edit3, ShieldAlert, Phone, MapPin, Calendar, User } from 'lucide-react';
+import { AlertTriangle, Edit3, ShieldAlert, Phone, MapPin, User, XCircle, AlertOctagon } from 'lucide-react';
 import Button from '../ui/Button';
 import Badge from '../ui/Badge';
 import { formatEthiopianPhone } from '../../utils/phoneUtils';
@@ -10,90 +10,88 @@ import { formatEthiopianPhone } from '../../utils/phoneUtils';
 export default function DuplicateWarningModal({
   isOpen,
   onClose,
-  onConfirmProceed,
   candidate,
   matchReasons = [],
   duplicates = [],
-  isSubmitting = false,
 }) {
-  if (!isOpen) return null;
+  if (!isOpen || !candidate) return null;
 
   const primaryMatch = duplicates[0];
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl max-w-2xl w-full shadow-2xl border border-amber-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      <div className="bg-white dark:bg-[#1E293B] rounded-2xl max-w-2xl w-full shadow-2xl border border-rose-200 dark:border-rose-900/60 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         {/* Header */}
-        <div className="px-6 py-5 bg-amber-50 border-b border-amber-100 flex items-start gap-4">
-          <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs">
-            <AlertTriangle className="w-5 h-5" />
+        <div className="px-6 py-5 bg-rose-50 dark:bg-rose-950/40 border-b border-rose-100 dark:border-rose-900/50 flex items-start gap-4">
+          <div className="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+            <AlertOctagon className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-slate-900">
-              Potential Duplicate Citizen Detected
+            <h3 className="text-base font-bold text-rose-950 dark:text-rose-200">
+              Duplicate Citizen Detected — Registration Blocked
             </h3>
-            <p className="text-xs text-amber-800 mt-0.5">
-              The system found existing citizen records that closely match the information entered.
+            <p className="text-xs text-rose-800 dark:text-rose-300 mt-0.5">
+              This citizen is already registered in the database. Duplicate records are strictly prohibited and cannot be saved.
             </p>
           </div>
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
+        <div className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
           {/* Policy Guidance Alert */}
-          <div className="p-3.5 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-900 space-y-1">
-            <span className="font-semibold block flex items-center gap-1.5 text-blue-800">
-              <ShieldAlert className="w-4 h-4 text-blue-600" />
-              Field Registration Guidance:
+          <div className="p-3.5 bg-slate-50 dark:bg-[#0F172A] border border-[#E2E8F0] dark:border-[#334155] rounded-xl text-xs space-y-1">
+            <span className="font-bold flex items-center gap-1.5 text-slate-800 dark:text-[#F8FAFC]">
+              <ShieldAlert className="w-4 h-4 text-rose-600 dark:text-rose-400" />
+              National Identity Anti-Duplication Rule:
             </span>
-            <p className="text-blue-700">
-              In Ethiopia, family members frequently share a single mobile device. Do not turn away a citizen solely due to a shared phone number. If this is a different family member, confirm to proceed.
+            <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+              To prevent fraudulent identity cards and protect national registry integrity, the system validates all demographic and biometric attributes prior to persistence. Saving this duplicate record has been blocked.
             </p>
           </div>
 
           {/* Match Reasons */}
           <div className="space-y-1.5">
-            <span className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
-              Detection Triggers:
+            <span className="text-xs font-bold text-slate-700 dark:text-[#CBD5E1] uppercase tracking-wider">
+              Duplicate Detection Triggers:
             </span>
             <ul className="space-y-1">
               {matchReasons.map((reason, idx) => (
                 <li
                   key={idx}
-                  className="text-xs font-medium text-amber-900 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-200 flex items-center gap-2"
+                  className="text-xs font-semibold text-rose-900 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/50 px-3 py-1.5 rounded-lg border border-rose-200 dark:border-rose-900/60 flex items-center gap-2"
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                  {reason}
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
+                  <span>{reason}</span>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Comparison Cards */}
+          {/* Side-by-Side Comparison */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-            {/* New Candidate */}
-            <div className="p-4 rounded-xl border-2 border-indigo-200 bg-indigo-50/40 space-y-2.5">
+            {/* New Rejected Entry */}
+            <div className="p-4 rounded-xl border border-rose-200 dark:border-rose-900/50 bg-rose-50/30 dark:bg-rose-950/20 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="font-bold text-indigo-900 uppercase tracking-wider text-[11px]">
-                  New Registration
+                <span className="font-bold text-rose-900 dark:text-rose-300 uppercase tracking-wider text-[11px]">
+                  Rejected Entry
                 </span>
-                <Badge variant="blue">Current Entry</Badge>
+                <Badge variant="error">Duplicate Blocked</Badge>
               </div>
 
-              <div className="space-y-1 text-slate-700">
-                <div className="font-semibold text-sm text-slate-900">
+              <div className="space-y-1 text-slate-700 dark:text-slate-300">
+                <div className="font-bold text-sm text-slate-900 dark:text-[#F8FAFC]">
                   {[candidate.firstName, candidate.middleName, candidate.lastName].filter(Boolean).join(' ')}
                 </div>
-                <div className="flex items-center gap-1.5 text-slate-600">
-                  <User className="w-3.5 h-3.5" />
-                  <span>{candidate.gender} • {candidate.age ? `${candidate.age} yrs` : candidate.dateOfBirth}</span>
+                <div className="flex items-center gap-1.5">
+                  <User className="w-3.5 h-3.5 text-slate-400" />
+                  <span>{candidate.gender} • {candidate.age ? `${candidate.age} yrs` : (candidate.dateOfBirth || 'Age unrecorded')}</span>
                 </div>
-                <div className="flex items-center gap-1.5 text-slate-600">
-                  <Phone className="w-3.5 h-3.5" />
+                <div className="flex items-center gap-1.5 font-mono">
+                  <Phone className="w-3.5 h-3.5 text-slate-400" />
                   <span>{formatEthiopianPhone(candidate.phoneNumber)}</span>
                 </div>
-                <div className="flex items-start gap-1.5 text-slate-600 pt-1">
-                  <MapPin className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                <div className="flex items-start gap-1.5 pt-1">
+                  <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
                   <span>
                     {[candidate.regionName, candidate.zoneName, candidate.woredaName, candidate.kebeleName, candidate.village].filter(Boolean).join(' > ')}
                   </span>
@@ -101,36 +99,36 @@ export default function DuplicateWarningModal({
               </div>
             </div>
 
-            {/* Existing Matching Record */}
+            {/* Existing Matching Record in Database */}
             {primaryMatch && (
-              <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-2.5">
+              <div className="p-4 rounded-xl border border-slate-200 dark:border-[#334155] bg-slate-50 dark:bg-[#0F172A] space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-600 uppercase tracking-wider text-[11px]">
-                    Existing Record in System
+                  <span className="font-bold text-slate-600 dark:text-[#94A3B8] uppercase tracking-wider text-[11px]">
+                    Already In Database
                   </span>
-                  <Badge variant="warning">Potential Match</Badge>
+                  <Badge variant="primary">Canonical Record</Badge>
                 </div>
 
-                <div className="space-y-1 text-slate-700">
-                  <div className="font-semibold text-sm text-slate-900">
+                <div className="space-y-1 text-slate-700 dark:text-slate-300">
+                  <div className="font-bold text-sm text-slate-900 dark:text-[#F8FAFC]">
                     {[primaryMatch.firstName, primaryMatch.middleName, primaryMatch.lastName].filter(Boolean).join(' ')}
                   </div>
-                  <div className="flex items-center gap-1.5 text-slate-600">
-                    <User className="w-3.5 h-3.5" />
+                  <div className="flex items-center gap-1.5">
+                    <User className="w-3.5 h-3.5 text-slate-400" />
                     <span>{primaryMatch.gender} • {primaryMatch.age ? `${primaryMatch.age} yrs` : (primaryMatch.dateOfBirth || 'Age unrecorded')}</span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-slate-600">
-                    <Phone className="w-3.5 h-3.5" />
+                  <div className="flex items-center gap-1.5 font-mono">
+                    <Phone className="w-3.5 h-3.5 text-slate-400" />
                     <span>{formatEthiopianPhone(primaryMatch.phoneNumber)}</span>
                   </div>
-                  <div className="flex items-start gap-1.5 text-slate-600 pt-1">
-                    <MapPin className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                  <div className="flex items-start gap-1.5 pt-1">
+                    <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
                     <span>
                       {[primaryMatch.regionName || primaryMatch.region, primaryMatch.zoneName || primaryMatch.zone, primaryMatch.woredaName || primaryMatch.woreda, primaryMatch.kebeleName || primaryMatch.kebele, primaryMatch.village].filter(Boolean).join(' > ') || 'Address recorded'}
                     </span>
                   </div>
-                  <div className="text-[11px] text-slate-400 pt-1">
-                    ID: {primaryMatch.clientRecordId?.slice(0, 16)}...
+                  <div className="text-[11px] text-slate-400 dark:text-slate-500 font-mono pt-1 truncate">
+                    ID: {primaryMatch.clientRecordId || primaryMatch.id}
                   </div>
                 </div>
               </div>
@@ -139,27 +137,15 @@ export default function DuplicateWarningModal({
         </div>
 
         {/* Footer Actions */}
-        <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex flex-col-reverse sm:flex-row items-center justify-end gap-3">
+        <div className="px-6 py-4 bg-slate-50 dark:bg-[#0F172A] border-t border-[#E2E8F0] dark:border-[#334155] flex justify-end">
           <Button
             type="button"
-            variant="outline"
+            variant="primary"
             onClick={onClose}
-            disabled={isSubmitting}
-            className="w-full sm:w-auto"
+            className="w-full sm:w-auto bg-[#2563EB] hover:bg-blue-700 text-white font-bold"
           >
             <Edit3 className="w-4 h-4 mr-2" />
-            Review & Edit Form
-          </Button>
-
-          <Button
-            type="button"
-            variant="warning"
-            onClick={onConfirmProceed}
-            loading={isSubmitting}
-            className="w-full sm:w-auto bg-amber-600 hover:bg-amber-700 text-white"
-          >
-            <UserCheck className="w-4 h-4 mr-2" />
-            Confirm as Different Citizen & Save
+            Return & Correct Registration Form
           </Button>
         </div>
       </div>

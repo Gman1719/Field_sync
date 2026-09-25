@@ -23,7 +23,7 @@ import Textarea from '../ui/Textarea';
 import StatCard from '../ui/StatCard';
 import Modal from '../ui/Modal';
 
-export default function DailyWorkReportView({ user, addNotification }) {
+export default function DailyWorkReportView({ user, addNotification, setActiveTab }) {
   const role = (user?.role || '').toLowerCase();
   const isOfficer = role === 'field_officer';
   const isSupervisor = role === 'supervisor';
@@ -409,16 +409,16 @@ export default function DailyWorkReportView({ user, addNotification }) {
     return (
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-[#1E293B] p-6 rounded-2xl border border-slate-200 dark:border-[#334155] shadow-xs">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-[#1E3A8A] text-white flex items-center justify-center shadow-xs">
               <FileText className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+              <h1 className="text-xl font-bold text-slate-900 dark:text-[#F8FAFC] tracking-tight">
                 {isManager ? 'Organization Daily Work Reports' : 'Team Daily Work Reports & Review'}
               </h1>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 {isManager
                   ? 'Central oversight of all field officer submissions, screen-time telemetry & operational roadblocks'
                   : 'Review submitted daily field deliverables, verify screen-time, and monitor team roadblocks'}
@@ -469,7 +469,7 @@ export default function DailyWorkReportView({ user, addNotification }) {
         </div>
 
         {/* Filter Controls */}
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 text-xs">
+        <div className="bg-white dark:bg-[#1E293B] p-4 rounded-2xl border border-slate-200 dark:border-[#334155] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 text-xs">
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-slate-400" />
@@ -477,7 +477,7 @@ export default function DailyWorkReportView({ user, addNotification }) {
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                className="px-3 py-1.5 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]"
+                className="px-3 py-1.5 border border-slate-200 dark:border-[#334155] bg-white dark:bg-[#0F172A] rounded-lg text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]"
               />
             </div>
 
@@ -485,20 +485,20 @@ export default function DailyWorkReportView({ user, addNotification }) {
               type="button"
               onClick={() => setSelectedDate('')}
               className={`px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-colors ${
-                !selectedDate ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                !selectedDate ? 'bg-[#1E3A8A] text-white border-[#1E3A8A]' : 'bg-white dark:bg-[#0F172A] text-slate-600 dark:text-slate-300 border-slate-200 dark:border-[#334155] hover:bg-slate-50 dark:hover:bg-slate-800'
               }`}
             >
               All Dates
             </button>
 
-            <label className="flex items-center gap-2 cursor-pointer bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 transition-colors">
+            <label className="flex items-center gap-2 cursor-pointer bg-slate-50 dark:bg-[#0F172A] px-3 py-1.5 rounded-lg border border-slate-200 dark:border-[#334155] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
               <input
                 type="checkbox"
                 checked={filterUrgentOnly}
                 onChange={(e) => setFilterUrgentOnly(e.target.checked)}
-                className="rounded border-slate-300 text-red-600 focus:ring-red-500 w-3.5 h-3.5"
+                className="rounded border-slate-300 dark:border-slate-600 text-red-600 focus:ring-red-500 w-3.5 h-3.5 bg-white dark:bg-slate-800"
               />
-              <span className="font-semibold text-red-700 flex items-center gap-1">
+              <span className="font-semibold text-red-700 dark:text-red-400 flex items-center gap-1">
                 <AlertTriangle className="w-3.5 h-3.5" />
                 Urgent Roadblocks Only
               </span>
@@ -512,7 +512,7 @@ export default function DailyWorkReportView({ user, addNotification }) {
               placeholder="Search officer, woreda, notes..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]"
+              className="w-full pl-9 pr-3 py-1.5 border border-slate-200 dark:border-[#334155] bg-white dark:bg-[#0F172A] rounded-lg text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]"
             />
           </div>
         </div>
@@ -537,26 +537,26 @@ export default function DailyWorkReportView({ user, addNotification }) {
                 No daily reports match the current filters.
               </div>
             ) : (
-              <div className="divide-y divide-slate-100">
+              <div className="divide-y divide-slate-100 dark:divide-[#334155]">
                 {filteredTeamReports.map((report) => {
                   const details = getStructuredDetails(report);
                   return (
                     <div
                       key={report.id}
-                      className="p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-slate-50/80 transition-colors"
+                      className="p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-slate-50/80 dark:hover:bg-[#0F172A]/50 transition-colors"
                     >
                       <div className="space-y-1.5 max-w-2xl">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="font-bold text-slate-900 text-sm">
+                          <span className="font-bold text-slate-900 dark:text-[#F8FAFC] text-sm">
                             {report.officerName || 'Field Officer'}
                           </span>
                           <span className="text-slate-400 text-xs">•</span>
-                          <span className="text-slate-600 text-xs flex items-center gap-1">
+                          <span className="text-slate-600 dark:text-slate-300 text-xs flex items-center gap-1">
                             <MapPin className="w-3 h-3 text-slate-400" />
                             {report.officerWoreda || 'Assigned Woreda'}
                           </span>
                           <span className="text-slate-400 text-xs">•</span>
-                          <span className="text-slate-500 font-mono text-xs">{report.reportDate}</span>
+                          <span className="text-slate-500 dark:text-slate-400 font-mono text-xs">{report.reportDate}</span>
 
                           {details.isUrgent && (
                             <Badge variant="danger" className="animate-pulse">
@@ -570,31 +570,31 @@ export default function DailyWorkReportView({ user, addNotification }) {
                           </Badge>
                         </div>
 
-                        <p className="text-xs text-slate-700 line-clamp-2">
-                          <strong className="text-slate-900">Summary: </strong>
+                        <p className="text-xs text-slate-700 dark:text-slate-300 line-clamp-2">
+                          <strong className="text-slate-900 dark:text-[#F8FAFC]">Summary: </strong>
                           {details.summary}
                         </p>
 
-                        <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 pt-1">
+                        <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400 pt-1">
                           <span>
                             Citizens:{' '}
-                            <strong className="text-slate-800">{report.citizenCountLocal}</strong>{' '}
-                            <span className="text-[10px] text-emerald-600">({report.citizenCountServerConfirmed} confirmed)</span>
+                            <strong className="text-slate-800 dark:text-slate-200">{report.citizenCountLocal}</strong>{' '}
+                            <span className="text-[10px] text-emerald-600 dark:text-emerald-400">({report.citizenCountServerConfirmed} confirmed)</span>
                           </span>
                           <span>•</span>
                           <span>
                             Screen-Time:{' '}
-                            <strong className="text-slate-800">
+                            <strong className="text-slate-800 dark:text-slate-200">
                               {report.screenTimeFormatted || formatTime(report.screenTimeSeconds)}
                             </strong>
                           </span>
                           <span>•</span>
                           <span>
-                            Sessions: <strong className="text-slate-800">{report.sessionCount}</strong>
+                            Sessions: <strong className="text-slate-800 dark:text-slate-200">{report.sessionCount}</strong>
                           </span>
                           <span>•</span>
                           <span>
-                            Activities: <strong className="text-slate-800">{report.activityCount}</strong>
+                            Activities: <strong className="text-slate-800 dark:text-slate-200">{report.activityCount}</strong>
                           </span>
                         </div>
                       </div>
@@ -607,7 +607,7 @@ export default function DailyWorkReportView({ user, addNotification }) {
                           onClick={() => setInspectModalReport(report)}
                           className="text-xs font-semibold"
                         >
-                          <Eye className="w-3.5 h-3.5 mr-1.5 text-[#1E3A8A]" />
+                          <Eye className="w-3.5 h-3.5 mr-1.5 text-[#1E3A8A] dark:text-blue-400" />
                           Inspect Report
                         </Button>
                       </div>
@@ -641,37 +641,37 @@ export default function DailyWorkReportView({ user, addNotification }) {
             {(() => {
               const details = getStructuredDetails(inspectModalReport);
               return (
-                <div className="space-y-4 text-xs text-slate-700">
+                <div className="space-y-4 text-xs text-slate-700 dark:text-slate-300">
                   {/* Urgent Alert Banner if flagged */}
                   {details.isUrgent && (
-                    <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-900 space-y-1">
-                      <div className="flex items-center gap-2 font-bold text-sm text-red-700">
-                        <AlertTriangle className="w-4 h-4 text-red-600" />
+                    <div className="p-4 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 rounded-xl text-red-900 dark:text-red-200 space-y-1">
+                      <div className="flex items-center gap-2 font-bold text-sm text-red-700 dark:text-red-400">
+                        <AlertTriangle className="w-4 h-4 text-red-600 dark:text-red-400" />
                         Officer Flagged Urgent Roadblock
                       </div>
-                      <p className="text-xs font-medium text-red-800">
+                      <p className="text-xs font-medium text-red-800 dark:text-red-200">
                         {details.urgentReason || 'Immediate supervisor attention required for field operations.'}
                       </p>
                     </div>
                   )}
 
                   {/* Telemetry & Verified Verification Grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3.5 bg-slate-50 rounded-xl border border-slate-200">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3.5 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155]">
                     <div className="space-y-0.5">
                       <span className="text-[10px] text-slate-400 uppercase font-semibold block">Citizens Registered</span>
-                      <span className="text-sm font-bold text-slate-800">{inspectModalReport.citizenCountLocal} Citizens</span>
-                      <span className="text-[10px] text-emerald-600 block">({inspectModalReport.citizenCountServerConfirmed} Server Confirmed)</span>
+                      <span className="text-sm font-bold text-slate-800 dark:text-slate-200">{inspectModalReport.citizenCountLocal} Citizens</span>
+                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400 block">({inspectModalReport.citizenCountServerConfirmed} Server Confirmed)</span>
                     </div>
                     <div className="space-y-0.5">
                       <span className="text-[10px] text-slate-400 uppercase font-semibold block">Screen-Time Finalized</span>
-                      <span className="text-sm font-bold text-indigo-700">
+                      <span className="text-sm font-bold text-indigo-700 dark:text-indigo-400">
                         {inspectModalReport.screenTimeFormatted || formatTime(inspectModalReport.screenTimeSeconds)}
                       </span>
                       <span className="text-[10px] text-slate-400 block">{inspectModalReport.sessionCount} Work Sessions</span>
                     </div>
                     <div className="space-y-0.5">
                       <span className="text-[10px] text-slate-400 uppercase font-semibold block">Activity Events</span>
-                      <span className="text-sm font-bold text-amber-700">{inspectModalReport.activityCount} Logged</span>
+                      <span className="text-sm font-bold text-amber-700 dark:text-amber-400">{inspectModalReport.activityCount} Logged</span>
                       <span className="text-[10px] text-slate-400 block">Verified Telemetry</span>
                     </div>
                     <div className="space-y-0.5">
@@ -683,48 +683,48 @@ export default function DailyWorkReportView({ user, addNotification }) {
                   </div>
 
                   {/* Section 1: Executive Work Narrative */}
-                  <div className="p-3.5 bg-white rounded-xl border border-slate-200 space-y-1">
-                    <div className="flex items-center gap-1.5 font-bold text-slate-900 text-xs">
-                      <FileText className="w-3.5 h-3.5 text-[#1E3A8A]" />
+                  <div className="p-3.5 bg-white dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155] space-y-1">
+                    <div className="flex items-center gap-1.5 font-bold text-slate-900 dark:text-[#F8FAFC] text-xs">
+                      <FileText className="w-3.5 h-3.5 text-[#1E3A8A] dark:text-blue-400" />
                       Work Summary & Narrative
                     </div>
-                    <p className="text-slate-700 leading-relaxed whitespace-pre-wrap">{details.summary}</p>
+                    <p className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">{details.summary}</p>
                   </div>
 
                   {/* Section 2: Key Achievements */}
-                  <div className="p-3.5 bg-white rounded-xl border border-slate-200 space-y-1">
-                    <div className="flex items-center gap-1.5 font-bold text-slate-900 text-xs">
-                      <Award className="w-3.5 h-3.5 text-emerald-600" />
+                  <div className="p-3.5 bg-white dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155] space-y-1">
+                    <div className="flex items-center gap-1.5 font-bold text-slate-900 dark:text-[#F8FAFC] text-xs">
+                      <Award className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                       Key Achievements & Milestones
                     </div>
-                    <p className="text-slate-700 leading-relaxed whitespace-pre-wrap">{details.achievements}</p>
+                    <p className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">{details.achievements}</p>
                   </div>
 
                   {/* Section 3: Roadblocks & Challenges */}
-                  <div className="p-3.5 bg-white rounded-xl border border-slate-200 space-y-1">
-                    <div className="flex items-center gap-1.5 font-bold text-slate-900 text-xs">
-                      <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
+                  <div className="p-3.5 bg-white dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155] space-y-1">
+                    <div className="flex items-center gap-1.5 font-bold text-slate-900 dark:text-[#F8FAFC] text-xs">
+                      <AlertCircle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                       Roadblocks & Field Challenges
                     </div>
-                    <p className="text-slate-700 leading-relaxed whitespace-pre-wrap">{details.challenges}</p>
+                    <p className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">{details.challenges}</p>
                   </div>
 
                   {/* Section 4: Resources Used & Needed */}
-                  <div className="p-3.5 bg-white rounded-xl border border-slate-200 space-y-1">
-                    <div className="flex items-center gap-1.5 font-bold text-slate-900 text-xs">
-                      <Wrench className="w-3.5 h-3.5 text-blue-600" />
+                  <div className="p-3.5 bg-white dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155] space-y-1">
+                    <div className="flex items-center gap-1.5 font-bold text-slate-900 dark:text-[#F8FAFC] text-xs">
+                      <Wrench className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                       Resources Used & Needed for Next Shift
                     </div>
-                    <p className="text-slate-700 leading-relaxed whitespace-pre-wrap">{details.resources}</p>
+                    <p className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">{details.resources}</p>
                   </div>
 
                   {/* Section 5: Tomorrow's Priorities */}
-                  <div className="p-3.5 bg-white rounded-xl border border-slate-200 space-y-1">
-                    <div className="flex items-center gap-1.5 font-bold text-slate-900 text-xs">
-                      <ArrowRight className="w-3.5 h-3.5 text-indigo-600" />
+                  <div className="p-3.5 bg-white dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155] space-y-1">
+                    <div className="flex items-center gap-1.5 font-bold text-slate-900 dark:text-[#F8FAFC] text-xs">
+                      <ArrowRight className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                       Tomorrow's Strategy & Target Kebeles
                     </div>
-                    <p className="text-slate-700 leading-relaxed whitespace-pre-wrap">{details.nextDayPlan}</p>
+                    <p className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">{details.nextDayPlan}</p>
                   </div>
                 </div>
               );
@@ -739,431 +739,275 @@ export default function DailyWorkReportView({ user, addNotification }) {
   // RENDER: FIELD OFFICER SUBMISSION CONSOLE
   // ==========================================
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#1E3A8A] text-white flex items-center justify-center shadow-xs">
-            <FileText className="w-5 h-5" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-              Daily Work Reports & Aggregation
+    <div className="space-y-5">
+      {/* 1. Consolidated Header & Action Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-[#1E293B] p-5 rounded-2xl border border-[#E2E8F0] dark:border-[#334155] shadow-xs">
+        <div>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-[#F8FAFC] tracking-tight">
+              Today's Report — {todayStr}
             </h1>
-            <p className="text-xs text-slate-500">
-              Official daily operational summary, citizen totals, and screen-time telemetry submission
-            </p>
+            {todayReport && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                Finalized Submission
+              </span>
+            )}
           </div>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-[#94A3B8] mt-1">
+            Official daily operational summary, citizen totals, and screen-time telemetry submission
+          </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <Button
             type="button"
             variant="outline"
             size="sm"
             onClick={computeDailyMetrics}
-            className="text-xs"
+            className="text-xs h-9 px-3.5 rounded-xl border-[#E2E8F0] dark:border-[#334155] text-slate-700 dark:text-[#F8FAFC] dark:hover:bg-[#0F172A]"
           >
             <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
             Recalculate Today
           </Button>
+
+          {setActiveTab && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setActiveTab('my_reports')}
+              className="text-xs h-9 px-3.5 rounded-xl border-[#E2E8F0] dark:border-[#334155] text-[#2563EB] dark:text-[#60A5FA] dark:hover:bg-[#0F172A]"
+            >
+              <FileText className="w-3.5 h-3.5 mr-1.5" />
+              View My Reports
+            </Button>
+          )}
         </div>
       </div>
 
-      {/* Locked / Submitted Status Alert Banner */}
-      {todayReport && (
-        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-emerald-900">
-          <div className="flex items-center gap-3">
-            <ShieldCheck className="w-6 h-6 text-emerald-600 shrink-0" />
-            <div>
-              <span className="font-bold text-sm block text-emerald-900">
-                Daily Work Report Finalized for Today ({todayStr})
-              </span>
-              <span className="text-emerald-700">
-                This report is locked in read-only mode and queued for supervisor review. Work sessions and screen time are finalized.
-              </span>
-            </div>
+      {/* 2. Compact Overview & Metadata Bar (Top Deck Ribbon: 4-Column Unified Block) */}
+      <div className="bg-white dark:bg-[#1E293B] rounded-2xl border border-[#E2E8F0] dark:border-[#334155] shadow-xs overflow-hidden grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-100 dark:divide-slate-800">
+        {/* Metric 1: Citizens Registered */}
+        <div className="p-3.5 sm:p-4">
+          <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-1">
+            Citizens Registered
+          </span>
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-xl sm:text-2xl font-black text-[#2563EB] dark:text-[#60A5FA] font-mono leading-none">
+              {localCitizenCount}
+            </span>
+            <span className="text-xs text-slate-500 font-semibold">Today</span>
           </div>
-          <Badge variant={todayReport.syncStatus === 'SYNCED' ? 'success' : 'warning'} className="self-start sm:self-auto">
-            {todayReport.syncStatus === 'SYNCED' ? 'Synced with Central DB' : 'Saved Locally — Pending Sync'}
-          </Badge>
         </div>
-      )}
 
-      {/* Today's Aggregated Metrics */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          title="Citizens Registered Today"
-          value={localCitizenCount}
-          icon={Users}
-          color="blue"
-        />
-        <StatCard
-          title="Server Confirmed"
-          value={serverCitizenCount}
-          icon={CheckCircle2}
-          color="emerald"
-        />
-        <StatCard
-          title={todayReport ? "Finalized Screen Time" : "Recorded Screen Time"}
-          value={formatTime(todayScreenTimeSecs)}
-          icon={Smartphone}
-          color="indigo"
-        />
-        <StatCard
-          title="Logged Field Activities"
-          value={todayActivityCount}
-          icon={Activity}
-          color="amber"
-        />
+        {/* Metric 2: Screen Time Telemetry */}
+        <div className="p-3.5 sm:p-4">
+          <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-1">
+            {todayReport ? 'Finalized Screen Time' : 'Recorded Screen Time'}
+          </span>
+          <span className="text-xl sm:text-2xl font-black text-indigo-600 dark:text-indigo-400 font-mono leading-none block">
+            {formatTime(todayScreenTimeSecs)}
+          </span>
+        </div>
+
+        {/* Metric 3: Reporting Officer */}
+        <div className="p-3.5 sm:p-4">
+          <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-1">
+            Reporting Officer
+          </span>
+          <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-[#F8FAFC] truncate block leading-snug">
+            {user?.fullName || user?.name || 'Field Officer'}
+          </span>
+          {user?.employeeId && (
+            <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500">
+              {user.employeeId}
+            </span>
+          )}
+        </div>
+
+        {/* Metric 4: Report Date */}
+        <div className="p-3.5 sm:p-4">
+          <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-1">
+            Report Date
+          </span>
+          <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-[#F8FAFC] block leading-snug font-mono">
+            {todayStr}
+          </span>
+        </div>
       </div>
 
-      {/* Submission Form (or Read-Only View if Locked) */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-[#1E3A8A]" />
-              <CardTitle className="text-base">
-                Operational Summary for {todayStr}
-              </CardTitle>
-            </div>
-            {todayReport ? (
-              <Badge variant="secondary" className="flex items-center gap-1">
-                <Lock className="w-3 h-3 text-slate-500" />
-                Read-Only Record
-              </Badge>
-            ) : (
-              <Badge variant="outline" className="text-indigo-700 bg-indigo-50 border-indigo-200">
-                Active Draft
-              </Badge>
-            )}
-          </div>
-          <CardDescription className="text-xs">
-            {todayReport
-              ? 'Official verified submission archived on local storage and synchronized with regional servers.'
-              : 'Review automatically aggregated metrics and enter comprehensive field observations for supervisor & manager review.'}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmitReport} className="space-y-5">
-            {/* Context Officer Header Pill */}
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+      {/* 3. Balanced Two-Column Form Grid (Main Content Area) */}
+      <form onSubmit={handleSubmitReport} className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+        {/* Primary Column (Left, 6 Columns) */}
+        <div className="lg:col-span-6 space-y-5">
+          {/* Card 1: Core Daily Deliverables & Roadblocks */}
+          <Card className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl shadow-xs overflow-hidden">
+            <CardHeader className="p-5 border-b border-[#E2E8F0] dark:border-[#334155] bg-slate-50/50 dark:bg-[#182234]">
               <div>
-                <span className="text-slate-400 block text-[10px] uppercase font-semibold">Report Date</span>
-                <span className="font-bold text-slate-800">{todayStr}</span>
+                <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-[#F8FAFC] tracking-tight">
+                  Daily Work & Field Observations
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-[#94A3B8] mt-0.5">
+                  Core shift deliverables and operational roadblocks
+                </p>
               </div>
+            </CardHeader>
+            <CardContent className="p-5 space-y-4">
               <div>
-                <span className="text-slate-400 block text-[10px] uppercase font-semibold">Reporting Officer</span>
-                <span className="font-bold text-slate-800">{user?.fullName || user?.name || 'Field Officer'}</span>
-              </div>
-              <div>
-                <span className="text-slate-400 block text-[10px] uppercase font-semibold">Jurisdiction</span>
-                <span className="font-bold text-slate-800">{user?.woreda || user?.woredaName || 'Assigned Woreda'}</span>
-              </div>
-              <div>
-                <span className="text-slate-400 block text-[10px] uppercase font-semibold">Sessions Run</span>
-                <span className="font-bold text-slate-800">{todaySessionCount} Sessions</span>
-              </div>
-            </div>
-
-            {/* Field 1: Work Summary & Narrative */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-800 mb-1.5 flex items-center gap-1.5">
-                <FileText className="w-3.5 h-3.5 text-[#1E3A8A]" />
-                Daily Work Narrative & Completed Deliverables <span className="text-red-500">*</span>
-              </label>
-              <Textarea
-                value={form.summary}
-                onChange={(e) => setForm({ ...form, summary: e.target.value })}
-                placeholder="Detail today's operations: specific kebeles/villages covered, community leadership meetings, outreach activities, and completed registrations..."
-                disabled={!!todayReport}
-                rows={3}
-                required
-              />
-            </div>
-
-            {/* Two-Column Grid for Achievements & Challenges */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Field 2: Key Achievements */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-800 mb-1.5 flex items-center gap-1.5">
-                  <Award className="w-3.5 h-3.5 text-emerald-600" />
-                  Key Achievements & Targets Met
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label
+                    htmlFor="dailyWorkNarrative"
+                    className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 block"
+                  >
+                    Daily Work Narrative & Completed Deliverables <span className="text-rose-500">*</span>
+                  </label>
+                  <span className="text-[10px] font-bold text-[#2563EB] dark:text-[#60A5FA] bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded border border-blue-200/60 dark:border-blue-900/50 whitespace-nowrap">
+                    Primary Deliverable
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500 dark:text-[#94A3B8] mb-1.5">
+                  Comprehensive log of today's field operations, community intake, and kebele coverage
+                </p>
                 <Textarea
-                  value={form.achievements}
-                  onChange={(e) => setForm({ ...form, achievements: e.target.value })}
-                  placeholder="e.g. Registered 25 households in Village 3; successfully enrolled elderly citizens requiring home visits; met weekly registration quota..."
+                  id="dailyWorkNarrative"
+                  value={form.summary}
+                  onChange={(e) => setForm({ ...form, summary: e.target.value })}
                   disabled={!!todayReport}
                   rows={3}
+                  required
+                  className="w-full text-sm leading-relaxed"
                 />
               </div>
 
-              {/* Field 3: Roadblocks & Challenges */}
               <div>
-                <label className="block text-xs font-semibold text-slate-800 mb-1.5 flex items-center gap-1.5">
-                  <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
+                <label
+                  htmlFor="roadblocksInput"
+                  className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 block mb-1.5"
+                >
                   Roadblocks & Operational Challenges
                 </label>
+                <p className="text-xs text-slate-500 dark:text-[#94A3B8] mb-1.5">
+                  Field obstacles, weather disruptions, connectivity gaps, or community access issues
+                </p>
                 <Textarea
+                  id="roadblocksInput"
                   value={form.challenges}
                   onChange={(e) => setForm({ ...form, challenges: e.target.value })}
-                  placeholder="e.g. Heavy afternoon rain flooded kebele access road; temporary power outage; some residents away at market; device low-battery..."
                   disabled={!!todayReport}
                   rows={3}
+                  className="w-full text-sm leading-relaxed"
                 />
               </div>
-            </div>
+            </CardContent>
+          </Card>
+        </div>
 
-            {/* Two-Column Grid for Resources & Next Day Plan */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Field 4: Resources Used & Needed */}
+        {/* Secondary Column (Right, 6 Columns) */}
+        <div className="lg:col-span-6 space-y-5">
+          {/* Card 3: Shift Logistics & Planning Stack */}
+          <Card className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl shadow-xs overflow-hidden">
+            <CardHeader className="p-5 border-b border-[#E2E8F0] dark:border-[#334155] bg-slate-50/50 dark:bg-[#182234]">
               <div>
-                <label className="block text-xs font-semibold text-slate-800 mb-1.5 flex items-center gap-1.5">
-                  <Wrench className="w-3.5 h-3.5 text-blue-600" />
-                  Resources Used & Logistics Needed for Next Shift
+                <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-[#F8FAFC] tracking-tight">
+                  Shift Logistics & Next Steps
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-[#94A3B8] mt-0.5">
+                  Operational prerequisites and target scheduling
+                </p>
+              </div>
+            </CardHeader>
+            <CardContent className="p-5 space-y-4">
+              <div>
+                <label
+                  htmlFor="resourcesInput"
+                  className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 block mb-1.5"
+                >
+                  Resources Used & Logistics Needed
                 </label>
                 <Textarea
+                  id="resourcesInput"
                   value={form.resources}
                   onChange={(e) => setForm({ ...form, resources: e.target.value })}
-                  placeholder="e.g. Power bank depleted to 15%; need 50 additional paper registration forms; transport fuel reimbursement needed for remote sub-village..."
                   disabled={!!todayReport}
                   rows={3}
+                  className="w-full text-sm leading-relaxed"
                 />
               </div>
 
-              {/* Field 5: Tomorrow's Priorities */}
               <div>
-                <label className="block text-xs font-semibold text-slate-800 mb-1.5 flex items-center gap-1.5">
-                  <ArrowRight className="w-3.5 h-3.5 text-indigo-600" />
+                <label
+                  htmlFor="nextDayPlanInput"
+                  className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 block mb-1.5"
+                >
                   Tomorrow's Priorities & Target Kebeles
                 </label>
                 <Textarea
+                  id="nextDayPlanInput"
                   value={form.nextDayPlan}
                   onChange={(e) => setForm({ ...form, nextDayPlan: e.target.value })}
-                  placeholder="e.g. Moving to Kebele 04 starting at 08:30 AM; coordinating with local Kebele Administrator; target 30 citizen registrations..."
                   disabled={!!todayReport}
                   rows={3}
+                  className="w-full text-sm leading-relaxed"
                 />
               </div>
-            </div>
+            </CardContent>
+          </Card>
 
-            {/* Field 6: Urgent Supervisor Attention Flag */}
-            <div className={`p-4 rounded-xl border transition-all ${
-              form.isUrgent
-                ? 'bg-red-50/70 border-red-200'
-                : 'bg-slate-50 border-slate-200'
-            }`}>
+          {/* Card 4: Inline Submission & Finalization Action Panel */}
+          <Card className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl shadow-xs p-5 space-y-4">
+            <div>
+              <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-1">
+                Submission Status
+              </span>
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="urgentFlag"
-                    checked={form.isUrgent}
-                    onChange={(e) => setForm({ ...form, isUrgent: e.target.checked })}
-                    disabled={!!todayReport}
-                    className="w-4 h-4 text-red-600 rounded border-slate-300 focus:ring-red-500"
-                  />
-                  <label htmlFor="urgentFlag" className="text-xs font-bold text-slate-800 cursor-pointer flex items-center gap-1.5">
-                    <AlertTriangle className={`w-3.5 h-3.5 ${form.isUrgent ? 'text-red-600' : 'text-slate-400'}`} />
-                    Requires Urgent Supervisor Attention / Roadblock Intervention
-                  </label>
-                </div>
-                {form.isUrgent && (
-                  <Badge variant="danger" className="text-[10px]">
-                    Supervisor Alert
-                  </Badge>
-                )}
+                <span className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC]">
+                  {todayReport ? 'Locked & Finalized' : 'Ready for Submission'}
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  Auto-Save Active
+                </span>
               </div>
-
-              {form.isUrgent && (
-                <div className="mt-3">
-                  <label className="block text-[11px] font-semibold text-red-800 mb-1">
-                    Explain Urgent Roadblock / Escalation Reason <span className="text-red-600">*</span>
-                  </label>
-                  <Textarea
-                    value={form.urgentReason}
-                    onChange={(e) => setForm({ ...form, urgentReason: e.target.value })}
-                    placeholder="Specify the urgent situation requiring immediate supervisor action (e.g. washed-out bridge, security concern, severe equipment malfunction)..."
-                    disabled={!!todayReport}
-                    rows={2}
-                    className="border-red-300 focus:border-red-500 focus:ring-red-500"
-                  />
-                </div>
-              )}
             </div>
 
-            {/* Submission Action Button */}
-            {!todayReport && (
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100">
-                <span className="text-xs text-slate-500 flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5 text-slate-400" />
-                  Submitting will close open work sessions & finalize today's screen time.
-                </span>
+            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+              Submitting closes open work sessions and finalizes today's screen-time telemetry for supervisor and manager review.
+            </p>
 
-                <Button
-                  type="submit"
-                  variant="primary"
-                  size="lg"
-                  loading={isSubmitting}
-                  className="w-full sm:w-auto text-xs font-semibold px-6 shadow-sm"
-                >
-                  <Send className="w-4 h-4 mr-2" />
-                  Finalize & Submit Daily Work Report
-                </Button>
+            {!todayReport ? (
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                loading={isSubmitting}
+                className="w-full text-xs font-bold py-3.5 rounded-xl shadow-md shadow-blue-600/20"
+              >
+                <Send className="w-4 h-4 mr-2" />
+                Submit Daily Report
+              </Button>
+            ) : (
+              <div className="space-y-2 pt-1">
+                <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs text-emerald-800 dark:text-emerald-200 font-semibold flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>Report finalized for {todayStr}</span>
+                </div>
+                {setActiveTab && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setActiveTab('my_reports')}
+                    className="w-full text-xs font-bold h-10 rounded-xl border-[#E2E8F0] dark:border-[#334155] text-[#2563EB] dark:text-[#60A5FA]"
+                  >
+                    View All in My Reports
+                  </Button>
+                )}
               </div>
             )}
-          </form>
-        </CardContent>
-      </Card>
-
-      {/* Historical Reports Directory */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Clock className="w-4 h-4 text-[#1E3A8A]" />
-            <CardTitle className="text-base">Submitted Reports History</CardTitle>
-          </div>
-          <CardDescription className="text-xs">
-            Previous daily work submissions and synchronization records
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-0">
-          {pastReports.length === 0 ? (
-            <div className="p-8 text-center text-xs text-slate-400">
-              No historical daily reports found.
-            </div>
-          ) : (
-            <div className="divide-y divide-slate-100">
-              {pastReports.map((report) => {
-                const details = getStructuredDetails(report);
-                return (
-                  <div
-                    key={report.id}
-                    className="p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 hover:bg-slate-50 text-xs"
-                  >
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-slate-900 text-sm">{report.reportDate}</span>
-                        <Badge variant={report.syncStatus === 'SYNCED' ? 'success' : 'warning'}>
-                          {report.syncStatus === 'SYNCED' ? 'Synced' : 'Pending Sync'}
-                        </Badge>
-                        {details.isUrgent && (
-                          <Badge variant="danger">
-                            <AlertTriangle className="w-3 h-3 mr-1" />
-                            Urgent Flagged
-                          </Badge>
-                        )}
-                      </div>
-                      <p className="text-slate-500">
-                        Citizens: <strong className="text-slate-800">{report.citizenCountLocal}</strong>
-                        {' • '}Screen-time: <strong className="text-slate-800">{formatTime(report.screenTimeSeconds)}</strong>
-                        {' • '}Activities: <strong className="text-slate-800">{report.activityCount}</strong>
-                      </p>
-                      {details.summary && (
-                        <p className="text-[11px] text-slate-600 line-clamp-1 italic">"{details.summary}"</p>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setInspectModalReport(report)}
-                        className="text-xs"
-                      >
-                        <Eye className="w-3.5 h-3.5 mr-1" />
-                        View
-                      </Button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Modal Inspector for Officer History */}
-      {inspectModalReport && (
-        <Modal
-          isOpen={!!inspectModalReport}
-          onClose={() => setInspectModalReport(null)}
-          title={`Daily Work Report — ${inspectModalReport.reportDate}`}
-          description={`Finalized on ${new Date(inspectModalReport.submittedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
-          size="lg"
-          footer={
-            <Button variant="primary" size="sm" onClick={() => setInspectModalReport(null)}>
-              Close
-            </Button>
-          }
-        >
-          {(() => {
-            const details = getStructuredDetails(inspectModalReport);
-            return (
-              <div className="space-y-4 text-xs text-slate-700">
-                {details.isUrgent && (
-                  <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-900 space-y-1">
-                    <div className="flex items-center gap-1.5 font-bold text-red-700">
-                      <AlertTriangle className="w-3.5 h-3.5 text-red-600" />
-                      Urgent Supervisor Escalation
-                    </div>
-                    <p className="text-xs text-red-800">{details.urgentReason}</p>
-                  </div>
-                )}
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3.5 bg-slate-50 rounded-xl border border-slate-200">
-                  <div>
-                    <span className="text-[10px] text-slate-400 uppercase font-semibold block">Citizens Registered</span>
-                    <span className="text-sm font-bold text-slate-800">{inspectModalReport.citizenCountLocal} Citizens</span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-slate-400 uppercase font-semibold block">Screen-Time</span>
-                    <span className="text-sm font-bold text-indigo-700">{formatTime(inspectModalReport.screenTimeSeconds)}</span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-slate-400 uppercase font-semibold block">Sessions</span>
-                    <span className="text-sm font-bold text-slate-800">{inspectModalReport.sessionCount} Sessions</span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-slate-400 uppercase font-semibold block">Sync Status</span>
-                    <Badge variant={inspectModalReport.syncStatus === 'SYNCED' ? 'success' : 'warning'} className="mt-1">
-                      {inspectModalReport.syncStatus === 'SYNCED' ? 'Synced' : 'Pending Sync'}
-                    </Badge>
-                  </div>
-                </div>
-
-                <div className="p-3 bg-white rounded-xl border border-slate-200 space-y-1">
-                  <span className="font-bold text-slate-900 block text-xs">Work Summary & Narrative</span>
-                  <p className="text-slate-700 whitespace-pre-wrap">{details.summary}</p>
-                </div>
-
-                <div className="p-3 bg-white rounded-xl border border-slate-200 space-y-1">
-                  <span className="font-bold text-slate-900 block text-xs">Key Achievements</span>
-                  <p className="text-slate-700 whitespace-pre-wrap">{details.achievements}</p>
-                </div>
-
-                <div className="p-3 bg-white rounded-xl border border-slate-200 space-y-1">
-                  <span className="font-bold text-slate-900 block text-xs">Roadblocks & Challenges</span>
-                  <p className="text-slate-700 whitespace-pre-wrap">{details.challenges}</p>
-                </div>
-
-                <div className="p-3 bg-white rounded-xl border border-slate-200 space-y-1">
-                  <span className="font-bold text-slate-900 block text-xs">Resources Needed</span>
-                  <p className="text-slate-700 whitespace-pre-wrap">{details.resources}</p>
-                </div>
-
-                <div className="p-3 bg-white rounded-xl border border-slate-200 space-y-1">
-                  <span className="font-bold text-slate-900 block text-xs">Tomorrow's Priorities</span>
-                  <p className="text-slate-700 whitespace-pre-wrap">{details.nextDayPlan}</p>
-                </div>
-              </div>
-            );
-          })()}
-        </Modal>
-      )}
+          </Card>
+        </div>
+      </form>
     </div>
   );
 }

@@ -22,10 +22,10 @@ export default function ConfirmDialog({
   };
 
   const iconBgs = {
-    danger: 'bg-red-50',
-    warning: 'bg-amber-50',
-    info: 'bg-blue-50',
-    success: 'bg-green-50'
+    danger: 'bg-red-50 dark:bg-red-950/50',
+    warning: 'bg-amber-50 dark:bg-amber-950/50',
+    info: 'bg-blue-50 dark:bg-blue-950/50',
+    success: 'bg-green-50 dark:bg-green-950/50'
   };
 
   return (
@@ -49,12 +49,12 @@ export default function ConfirmDialog({
       }
     >
       <div className="flex items-start gap-4">
-        <div className={`p-2.5 rounded-full flex-shrink-0 ${iconBgs[variant] || 'bg-slate-100'}`}>
+        <div className={`p-2.5 rounded-full flex-shrink-0 ${iconBgs[variant] || 'bg-slate-100 dark:bg-slate-800'}`}>
           {icons[variant] || icons.danger}
         </div>
         <div>
-          <h4 className="text-base font-semibold text-slate-900">{title}</h4>
-          <p className="text-sm text-slate-500 mt-1">{message}</p>
+          <h4 className="text-base font-semibold text-slate-900 dark:text-[#F8FAFC]">{title}</h4>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{message}</p>
         </div>
       </div>
     </Modal>

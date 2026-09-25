@@ -348,11 +348,11 @@ export default function LeaveManagement({
       {/* Header and Action */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-            <Calendar className="w-6 h-6 text-[#1E3A8A]" />
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-[#F8FAFC] tracking-tight flex items-center gap-2">
+            <Calendar className="w-6 h-6 text-[#1E3A8A] dark:text-blue-400" />
             Leave Management
           </h2>
-          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             {isOfficer ? 'Submit and track your annual and sick leave requests' : 'Review and manage staff leave applications'}
           </p>
         </div>
@@ -381,15 +381,15 @@ export default function LeaveManagement({
             onClick={() => setSelectedTab(tab.id)}
             className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 whitespace-nowrap transition-all ${
               selectedTab === tab.id
-                ? 'bg-[#1E3A8A] text-white shadow-xs'
-                : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+                ? 'bg-[#1E3A8A] text-white shadow-xs dark:bg-blue-600'
+                : 'bg-white dark:bg-[#1E293B] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800/80'
             }`}
           >
             <span>{tab.label}</span>
             <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${
               selectedTab === tab.id
                 ? 'bg-white/20 text-white'
-                : 'bg-slate-100 text-slate-600'
+                : 'bg-slate-100 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300'
             }`}>
               {tab.count}
             </span>
@@ -401,15 +401,15 @@ export default function LeaveManagement({
       <Card>
         <CardContent className="p-0">
           {currentList.length === 0 ? (
-            <div className="py-12 text-center text-xs text-slate-400">
-              <Calendar className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+            <div className="py-12 text-center text-xs text-slate-400 dark:text-slate-500">
+              <Calendar className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
               <span>No leave requests found in this view</span>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="border-b border-slate-100 text-slate-400 font-semibold uppercase tracking-wider bg-slate-50/50">
+                  <tr className="border-b border-slate-200 dark:border-[#334155] text-slate-600 dark:text-slate-200 font-bold uppercase tracking-wider bg-slate-50/90 dark:bg-[#0F172A] text-[11px]">
                     <th className="py-3.5 pl-6">Employee</th>
                     <th className="py-3.5 px-4">Leave Type</th>
                     <th className="py-3.5 px-4">Date Range</th>
@@ -418,15 +418,15 @@ export default function LeaveManagement({
                     {(isManager || isSupervisor) && <th className="py-3.5 pr-6 text-right">Actions</th>}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60">
                   {currentList.map(item => {
                     const isPending = item.status === 'pending';
                     const canApprove = (isManager || isSupervisor) && isPending && (item.employeeId !== user?.employeeId);
 
                     return (
-                      <tr key={item.id} className="hover:bg-slate-50/70 transition-colors">
+                      <tr key={item.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors">
                         <td className="py-4 pl-6">
-                          <p className="font-semibold text-slate-900">{item.employeeName || 'Staff Member'}</p>
+                          <p className="font-semibold text-slate-900 dark:text-[#F8FAFC]">{item.employeeName || 'Staff Member'}</p>
                           <p className="text-[11px] text-slate-400 font-mono">{item.employeeId}</p>
                         </td>
 
@@ -437,13 +437,13 @@ export default function LeaveManagement({
                         </td>
 
                         <td className="py-4 px-4">
-                          <div className="font-medium text-slate-700">
+                          <div className="font-medium text-slate-700 dark:text-slate-300">
                             {item.startDate} → {item.endDate}
                           </div>
                         </td>
 
                         <td className="py-4 px-4 max-w-xs">
-                          <p className="text-slate-600 truncate" title={item.reason}>{item.reason}</p>
+                          <p className="text-slate-600 dark:text-slate-300 truncate" title={item.reason}>{item.reason}</p>
                         </td>
 
                         <td className="py-4 px-4">
@@ -573,7 +573,7 @@ export default function LeaveManagement({
             error={errors.reason}
           />
 
-          <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
+          <div className="flex justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-700">
             <Button
               type="button"
               variant="outline"

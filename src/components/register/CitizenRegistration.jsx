@@ -1,38 +1,58 @@
 // src/components/register/CitizenRegistration.jsx
-// Enterprise Offline-First Citizen Registration Form with Ethiopian Address Hierarchy & Duplicate Detection
+// Enterprise Offline-First Citizen Registration Form with 12-Digit Numeric ID, Automatic Age Calculation, Strict Duplicate Validation, and Modern UI
 
-import React, { useState, useEffect, useId } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import toast from 'react-hot-toast';
 import {
   UserPlus, User, Phone, MapPin, Calendar, Heart,
   ShieldCheck, AlertCircle, CheckCircle2, RotateCcw,
-  Wifi, WifiOff, FileCheck
+  Wifi, WifiOff, FileCheck, Mail, ArrowRight, Copy, Check,
+  Sparkles, ExternalLink
 } from 'lucide-react';
 import { offlineDb } from '../../db/offlineDb';
 import { API_BASE } from '../../config/api';
-import { validateEthiopianPhone, normalizeEthiopianPhone, formatEthiopianPhone } from '../../utils/phoneUtils';
+import { normalizeEthiopianPhone, formatEthiopianPhone } from '../../utils/phoneUtils';
 import { detectLocalDuplicates } from '../../utils/duplicateDetector';
 import DuplicateWarningModal from '../citizens/DuplicateWarningModal';
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
 import Input from '../ui/Input';
-import Select from '../ui/Select';
 import Button from '../ui/Button';
 import Badge from '../ui/Badge';
 
-export default function CitizenRegistration({ user, addNotification, onRegistrationSuccess }) {
+// Helper to generate a 12-digit numeric unique ID upon registration
+const generate12DigitId = () => {
+  const part1 = Math.floor(100000 + Math.random() * 900000).toString();
+  const part2 = Math.floor(100000 + Math.random() * 900000).toString();
+  return `${part1}${part2}`;
+};
+
+// Helper to calculate age from Date of Birth
+const calculateAge = (dobString) => {
+  if (!dobString) return null;
+  const birthDate = new Date(dobString);
+  if (isNaN(birthDate.getTime())) return null;
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age >= 0 ? age : null;
+};
+
+export default function CitizenRegistration({ user, addNotification, onRegistrationSuccess, setActiveTab }) {
   // --- Form State ---
   const [firstName, setFirstName] = useState('');
   const [middleName, setMiddleName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [ageMode, setAgeMode] = useState('age'); // 'age' | 'dob'
-  const [age, setAge] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [gender, setGender] = useState('MALE');
   const [maritalStatus, setMaritalStatus] = useState('');
 
+  // Optional Contact State (Phone optional, no strict validation, Alternative Phone removed, Email added)
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [alternativePhone, setAlternativePhone] = useState('');
+  const [email, setEmail] = useState('');
 
   // --- Address Hierarchy State ---
   const [regionId, setRegionId] = useState('');
@@ -57,8 +77,14 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
   // --- Submission & Status State ---
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [registeredCitizen, setRegisteredCitizen] = useState(null);
-  const [phoneValidationError, setPhoneValidationError] = useState('');
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [copiedId, setCopiedId] = useState(false);
+
+  // Compute live calculated age from Date of Birth
+  const calculatedAge = useMemo(() => calculateAge(dateOfBirth), [dateOfBirth]);
+
+  // Max selectable date of birth (cannot be born in future)
+  const todayStr = useMemo(() => new Date().toISOString().slice(0, 10), []);
 
   // 1. Listen for network changes
   useEffect(() => {
@@ -125,13 +151,16 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
         setZoneId('');
         return;
       }
-      const loadedZones = await offlineDb.zones.where('regionId').equals(regionId).sortBy('name');
-      setZones(loadedZones);
-
-      if (user?.zoneId && loadedZones.some(z => z.id === user.zoneId)) {
-        setZoneId(user.zoneId);
-      } else {
-        setZoneId('');
+      try {
+        const foundZones = await offlineDb.zones.where('regionId').equals(regionId).sortBy('name');
+        setZones(foundZones);
+        if (user?.zoneId && foundZones.some((z) => z.id === user.zoneId)) {
+          setZoneId(user.zoneId);
+        } else {
+          setZoneId('');
+        }
+      } catch (e) {
+        console.error('Error loading zones:', e);
       }
     };
     loadZones();
@@ -144,13 +173,16 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
         setWoredaId('');
         return;
       }
-      const loadedWoredas = await offlineDb.woredas.where('zoneId').equals(zoneId).sortBy('name');
-      setWoredas(loadedWoredas);
-
-      if (user?.woredaId && loadedWoredas.some(w => w.id === user.woredaId)) {
-        setWoredaId(user.woredaId);
-      } else {
-        setWoredaId('');
+      try {
+        const foundWoredas = await offlineDb.woredas.where('zoneId').equals(zoneId).sortBy('name');
+        setWoredas(foundWoredas);
+        if (user?.woredaId && foundWoredas.some((w) => w.id === user.woredaId)) {
+          setWoredaId(user.woredaId);
+        } else {
+          setWoredaId('');
+        }
+      } catch (e) {
+        console.error('Error loading woredas:', e);
       }
     };
     loadWoredas();
@@ -163,96 +195,81 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
         setKebeleId('');
         return;
       }
-      const loadedKebeles = await offlineDb.kebeles.where('woredaId').equals(woredaId).sortBy('name');
-      setKebeles(loadedKebeles);
-
-      if (user?.kebeleId && loadedKebeles.some(k => k.id === user.kebeleId)) {
-        setKebeleId(user.kebeleId);
-      } else {
-        setKebeleId('');
+      try {
+        const foundKebeles = await offlineDb.kebeles.where('woredaId').equals(woredaId).sortBy('name');
+        setKebeles(foundKebeles);
+        if (user?.kebeleId && foundKebeles.some((k) => k.id === user.kebeleId)) {
+          setKebeleId(user.kebeleId);
+        } else {
+          setKebeleId('');
+        }
+      } catch (e) {
+        console.error('Error loading kebeles:', e);
       }
     };
     loadKebeles();
   }, [woredaId, user]);
 
-  // 4. Validate Phone Real-time
-  const handlePhoneChange = (val) => {
-    setPhoneNumber(val);
-    if (!val || val.trim() === '') {
-      setPhoneValidationError('');
-    } else if (!validateEthiopianPhone(val)) {
-      setPhoneValidationError('Enter a valid Ethiopian phone number (e.g. 0912345678 or +251912345678)');
-    } else {
-      setPhoneValidationError('');
-    }
-  };
-
-  // 5. Clear Form
+  // 4. Form Reset
   const handleClear = () => {
     setFirstName('');
     setMiddleName('');
     setLastName('');
-    setAge('');
     setDateOfBirth('');
-    setGender('MALE');
-    setMaritalStatus('');
     setPhoneNumber('');
-    setAlternativePhone('');
+    setEmail('');
     setVillage('');
-    setPhoneValidationError('');
+    setMaritalStatus('');
     setRegisteredCitizen(null);
+    toast.success('Registration form reset');
   };
 
-  // 6. Form Submission Workflow
+  const handleCopyId = (id) => {
+    if (!id) return;
+    navigator.clipboard.writeText(id);
+    setCopiedId(true);
+    toast.success('12-Digit Citizen ID copied');
+    setTimeout(() => setCopiedId(false), 2000);
+  };
+
+  // 5. Submit Handler with 12-Digit Numeric ID Generation & Duplicate Prevention
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Required Field Validations
+    // Basic required field validations
     if (!firstName.trim() || !lastName.trim()) {
       toast.error('First name and last name are required');
       return;
     }
-
-    if (ageMode === 'age' && (!age || parseInt(age, 10) < 0)) {
-      toast.error('Please enter a valid age');
+    if (!dateOfBirth) {
+      toast.error('Date of birth is required');
+      return;
+    }
+    if (!regionId || !zoneId || !woredaId || !kebeleId || !village.trim()) {
+      toast.error('All administrative address levels (Region, Zone, Woreda, Kebele, Village) are required');
       return;
     }
 
-    if (ageMode === 'dob' && !dateOfBirth) {
-      toast.error('Please enter a valid date of birth');
-      return;
-    }
+    // Phone is optional: if provided, normalize it; if empty, store null
+    const normalizedPhone = phoneNumber.trim() ? normalizeEthiopianPhone(phoneNumber.trim()) : null;
 
-    if (phoneNumber && !validateEthiopianPhone(phoneNumber)) {
-      toast.error('Invalid Ethiopian phone number');
-      return;
-    }
-
-    if (!regionId || !zoneId || !woredaId || !kebeleId) {
-      toast.error('Please select the complete address hierarchy: Region, Zone, Woreda, and Kebele');
-      return;
-    }
-
-    if (!village.trim()) {
-      toast.error('Village or Community is required');
-      return;
-    }
-
-    const clientRecordId = crypto.randomUUID();
-    const normalizedPhone = normalizeEthiopianPhone(phoneNumber);
-    const normalizedAltPhone = normalizeEthiopianPhone(alternativePhone);
+    // Generate 12-digit numeric unique ID upon clicking Register Citizen
+    const generatedCitizenId = generate12DigitId();
 
     const candidateData = {
-      clientRecordId,
+      id: crypto.randomUUID(),
+      clientRecordId: generatedCitizenId,
+      nationalId: generatedCitizenId,
+      idNumber: generatedCitizenId,
       firstName: firstName.trim(),
       middleName: middleName.trim() || '',
       lastName: lastName.trim(),
-      dateOfBirth: ageMode === 'dob' ? dateOfBirth : null,
-      age: ageMode === 'age' ? parseInt(age, 10) : null,
+      dateOfBirth,
+      age: calculatedAge,
       gender,
       maritalStatus: maritalStatus || null,
       phoneNumber: normalizedPhone,
-      alternativePhone: normalizedAltPhone,
+      email: email.trim() || null,
       regionId,
       zoneId,
       woredaId,
@@ -263,6 +280,8 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
       woredaName: woredas.find((w) => w.id === woredaId)?.name || '',
       kebeleName: kebeles.find((k) => k.id === kebeleId)?.name || '',
       registeredById: user?.id || 'offline_officer',
+      registeredByName: user?.name || user?.fullName || 'Field Officer',
+      registeredByEmployeeId: user?.employeeId || null,
       assignmentId: user?.assignmentId || null,
       registrationTimestamp: new Date().toISOString(),
       createdAt: new Date().toISOString(),
@@ -270,27 +289,27 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
       duplicateReviewStatus: 'NO_DUPLICATE_DETECTED',
     };
 
-    // Pre-save local duplicate check in Dexie
+    // Pre-save strict duplicate check in local Dexie database
     const duplicateCheck = await detectLocalDuplicates(candidateData);
     if (duplicateCheck.hasDuplicate) {
       setPendingCandidate(candidateData);
       setDuplicateMatchReasons(duplicateCheck.matchReasons);
       setDuplicateRecords(duplicateCheck.duplicates);
       setDuplicateModalOpen(true);
-      return;
+      return; // STRICTLY PREVENT STORING TO DATABASE
     }
 
-    // No duplicate detected; proceed to save directly
-    await executeSaveCitizen(candidateData, false);
+    // No duplicate detected in local store; proceed to persist
+    await executeSaveCitizen(candidateData);
   };
 
-  // 7. Execute Citizen Save (Offline-First to Dexie, then Background Sync)
-  const executeSaveCitizen = async (citizenData, isConfirmedDuplicate = false) => {
+  // 6. Execute Citizen Save (Offline-First to Dexie, then Background Sync)
+  const executeSaveCitizen = async (citizenData) => {
     setIsSubmitting(true);
     try {
       const finalRecord = {
         ...citizenData,
-        duplicateReviewStatus: isConfirmedDuplicate ? 'NEEDS_REVIEW' : 'NO_DUPLICATE_DETECTED',
+        duplicateReviewStatus: 'NO_DUPLICATE_DETECTED',
       };
 
       // Step A: Save locally to Dexie IndexedDB
@@ -302,7 +321,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
         officerId: user?.id || 'officer',
         assignmentId: user?.assignmentId || null,
         eventType: 'CITIZEN_REGISTERED',
-        description: `Registered citizen ${finalRecord.firstName} ${finalRecord.lastName} (${finalRecord.village})`,
+        description: `Registered citizen ${finalRecord.firstName} ${finalRecord.lastName} (12-Digit ID: ${finalRecord.clientRecordId})`,
         deviceTimestamp: new Date().toISOString(),
         relatedRecordId: finalRecord.clientRecordId,
         metadata: {
@@ -314,7 +333,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
         syncStatus: 'PENDING',
       });
 
-      // Step C: If online, attempt background sync with backend REST API
+      // Step C: If online, attempt central server persistence
       const authToken = localStorage.getItem('fieldsync_token');
       let isSyncedServer = false;
 
@@ -329,11 +348,23 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
             body: JSON.stringify(finalRecord),
           });
 
+          if (syncRes.status === 409) {
+            // Server detected duplicate! Roll back local Dexie save and block
+            const errData = await syncRes.json();
+            await offlineDb.citizens.delete(finalRecord.clientRecordId);
+
+            setPendingCandidate(finalRecord);
+            setDuplicateMatchReasons(errData.matchReasons || ['Citizen already exists in the central national registry']);
+            setDuplicateRecords(errData.duplicates || []);
+            setDuplicateModalOpen(true);
+            toast.error('Registration blocked: Duplicate record exists in central database');
+            return;
+          }
+
           if (syncRes.ok) {
             const syncData = await syncRes.json();
             if (syncData.success && syncData.data) {
               isSyncedServer = true;
-              // Mark as SYNCED in local Dexie
               await offlineDb.citizens.update(finalRecord.clientRecordId, {
                 id: syncData.data.id,
                 syncStatus: 'SYNCED',
@@ -344,22 +375,22 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
             }
           }
         } catch (apiErr) {
-          console.warn('Online sync failed, preserved locally in Dexie:', apiErr.message);
+          console.warn('Online sync failed, safely preserved locally in Dexie:', apiErr.message);
         }
       }
 
       setRegisteredCitizen(finalRecord);
 
       if (isSyncedServer) {
-        toast.success('Citizen registered & synchronized with central database!');
+        toast.success(`Citizen registered & synced! ID: ${finalRecord.clientRecordId}`);
       } else {
-        toast.success('Saved Locally — Pending Sync');
+        toast.success(`Citizen saved locally! ID: ${finalRecord.clientRecordId}`);
       }
 
       if (addNotification) {
         addNotification({
           title: 'Citizen Registered',
-          message: `${finalRecord.firstName} ${finalRecord.lastName} saved successfully (${finalRecord.syncStatus})`,
+          message: `${finalRecord.firstName} ${finalRecord.lastName} registered successfully (12-Digit ID: ${finalRecord.clientRecordId})`,
           type: 'success',
         });
       }
@@ -368,14 +399,13 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
         onRegistrationSuccess(finalRecord);
       }
 
-      // Reset input fields
+      // Reset input fields for next registration
       setFirstName('');
       setMiddleName('');
       setLastName('');
-      setAge('');
       setDateOfBirth('');
       setPhoneNumber('');
-      setAlternativePhone('');
+      setEmail('');
       setVillage('');
       setDuplicateModalOpen(false);
     } catch (saveErr) {
@@ -388,88 +418,131 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
 
   return (
     <div className="space-y-6">
-      {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-card">
+      {/* 1. Header Banner with Ethiopian Federal Accent & Connectivity Badge */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-[#1E293B] p-5 sm:p-6 rounded-2xl border border-[#E2E8F0] dark:border-[#334155] shadow-xs">
         <div>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#1E3A8A] text-white flex items-center justify-center shadow-xs">
-              <UserPlus className="w-5 h-5" />
+            <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-[#1E3A8A] to-[#2563EB] text-white flex items-center justify-center shadow-xs shrink-0">
+              <UserPlus className="w-6 h-6" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-                Citizen Registration
-              </h1>
-              <p className="text-xs text-slate-500">
-                Register citizens in Ethiopian administrative jurisdictions (Region &gt; Zone &gt; Woreda &gt; Kebele)
+              <h2 className="text-xl sm:text-2xl font-black text-[#0F172A] dark:text-[#F8FAFC] tracking-tight">
+                Citizen Registration Console
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-[#94A3B8] mt-0.5">
+                Frontline citizen intake with automatic age calculation and 12-digit unique national ID issuance
               </p>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        {/* Connectivity Status & Officer Badge */}
+        <div className="flex flex-wrap items-center gap-2">
+          {user?.name && (
+            <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-[#0F172A] border border-[#E2E8F0] dark:border-[#334155] text-xs font-semibold text-slate-700 dark:text-slate-300">
+              <User className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#60A5FA]" />
+              <span>Officer: {user.name}</span>
+              {user.employeeId && <span className="font-mono text-slate-400">({user.employeeId})</span>}
+            </div>
+          )}
+
           {isOnline ? (
-            <Badge variant="success" className="gap-1.5 py-1 px-3">
-              <Wifi className="w-3.5 h-3.5" />
-              <span>Online Mode</span>
-            </Badge>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              Cloud Sync Active
+            </span>
           ) : (
-            <Badge variant="warning" className="gap-1.5 py-1 px-3">
-              <WifiOff className="w-3.5 h-3.5" />
-              <span>Offline Mode Active</span>
-            </Badge>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 shadow-2xs">
+              <WifiOff className="w-3.5 h-3.5 text-amber-500" />
+              Offline Mode • Stored Locally
+            </span>
           )}
         </div>
       </div>
 
-      {/* Success Confirmation Card */}
+      {/* 2. Success Celebration Card */}
       {registeredCitizen && (
-        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-start justify-between gap-4 animate-in fade-in">
-          <div className="flex items-start gap-3">
-            <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
-            <div className="text-xs space-y-1">
-              <span className="font-bold text-emerald-900 text-sm block">
-                Citizen Successfully Registered!
-              </span>
-              <p className="text-emerald-800">
-                Beneficiary: <strong className="font-semibold">{registeredCitizen.firstName} {registeredCitizen.lastName}</strong>
-                {' • '}Location: <span className="font-medium">{registeredCitizen.woredaName}, {registeredCitizen.kebeleName} ({registeredCitizen.village})</span>
-              </p>
-              <div className="flex items-center gap-2 pt-1">
-                <span className="font-mono text-[11px] text-emerald-700 bg-emerald-100/70 px-2 py-0.5 rounded-md">
-                  UUID: {registeredCitizen.clientRecordId}
+        <div className="p-5 sm:p-6 bg-gradient-to-r from-emerald-50/90 via-teal-50/50 to-emerald-50/90 dark:from-emerald-950/40 dark:via-teal-950/30 dark:to-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 rounded-2xl shadow-xs space-y-4 animate-in fade-in duration-200">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-start sm:items-center gap-3.5">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <CheckCircle2 className="w-6 h-6" />
+              </div>
+              <div>
+                <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider block">
+                  Intake Enrolled Successfully
                 </span>
-                <Badge variant={registeredCitizen.syncStatus === 'SYNCED' ? 'success' : 'warning'}>
-                  {registeredCitizen.syncStatus === 'SYNCED' ? 'Synced with Central DB' : 'Saved Locally — Pending Sync'}
-                </Badge>
+                <h3 className="text-base sm:text-lg font-extrabold text-emerald-950 dark:text-emerald-100">
+                  {registeredCitizen.firstName} {registeredCitizen.middleName} {registeredCitizen.lastName}
+                </h3>
+                <div className="flex flex-wrap items-center gap-2 mt-1">
+                  <span className="text-xs font-semibold text-emerald-800 dark:text-emerald-300">
+                    12-Digit Citizen ID:
+                  </span>
+                  <span className="font-mono font-bold text-sm bg-white dark:bg-[#0F172A] px-2.5 py-0.5 rounded-lg border border-emerald-300 dark:border-emerald-700 text-emerald-900 dark:text-emerald-200 tracking-wider">
+                    {registeredCitizen.clientRecordId}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleCopyId(registeredCitizen.clientRecordId)}
+                    className="p-1 rounded-md bg-white dark:bg-[#0F172A] border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 transition-colors"
+                    title="Copy 12-Digit ID"
+                  >
+                    {copiedId ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                  </button>
+                  <span className="text-xs text-emerald-700 dark:text-emerald-400">
+                    • {registeredCitizen.syncStatus === 'SYNCED' ? 'Synced to Cloud' : 'Buffered locally in Dexie'}
+                  </span>
+                </div>
               </div>
             </div>
+
+            <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+              {setActiveTab && (
+                <Button
+                  size="sm"
+                  variant="primary"
+                  onClick={() => setActiveTab('citizens')}
+                  className="text-xs font-bold px-4 rounded-xl shadow-xs"
+                >
+                  View in Registered Citizens
+                  <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+                </Button>
+              )}
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setRegisteredCitizen(null)}
+                className="text-xs font-semibold px-3.5 rounded-xl border-emerald-300 dark:border-emerald-700 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/40"
+              >
+                Dismiss
+              </Button>
+            </div>
           </div>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setRegisteredCitizen(null)}
-            className="text-xs"
-          >
-            Dismiss
-          </Button>
         </div>
       )}
 
-      {/* Main Registration Form */}
-      <form onSubmit={handleSubmit} noValidate className="space-y-6">
-        {/* Section 1: Personal Information */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <User className="w-4 h-4 text-[#1E3A8A]" />
-              <CardTitle className="text-base">1. Personal Information</CardTitle>
+      {/* 3. Registration Form */}
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Section 1: Citizen Identity & Demographics */}
+        <Card className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl shadow-xs overflow-hidden">
+          <CardHeader className="p-5 border-b border-[#E2E8F0] dark:border-[#334155] bg-slate-50/50 dark:bg-[#182234]">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-950/60 text-[#2563EB] dark:text-[#60A5FA] flex items-center justify-center">
+                <User className="w-4 h-4" />
+              </div>
+              <div>
+                <CardTitle className="text-base font-bold text-slate-900 dark:text-[#F8FAFC]">
+                  1. Citizen Identity & Demographics
+                </CardTitle>
+                <CardDescription className="text-xs text-slate-500 dark:text-[#94A3B8]">
+                  Legal full name and date of birth required for biographic enrollment
+                </CardDescription>
+              </div>
             </div>
-            <CardDescription className="text-xs">
-              Primary identification details of the beneficiary citizen
-            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="p-5 space-y-5">
+            {/* Name Fields */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <Input
                 label="First Name"
@@ -479,10 +552,10 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
                 required
               />
               <Input
-                label="Middle Name"
+                label="Middle Name (Optional)"
                 value={middleName}
                 onChange={(e) => setMiddleName(e.target.value)}
-                placeholder="e.g. Kebede (Optional)"
+                placeholder="e.g. Kebede"
               />
               <Input
                 label="Last Name"
@@ -493,67 +566,47 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
-              {/* DOB / Age Toggle */}
+            {/* Date of Birth, Gender, Marital Status */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start">
+              {/* Date of Birth (Only Date Picker - Age automatically calculated) */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Age Specification <span className="text-rose-500">*</span>
+                <label className="block text-xs font-bold text-slate-700 dark:text-[#CBD5E1] uppercase tracking-wider mb-1.5">
+                  Date of Birth <span className="text-rose-500">*</span>
                 </label>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setAgeMode('age')}
-                    className={`flex-1 py-2 px-3 text-xs font-semibold rounded-lg border transition-all ${
-                      ageMode === 'age'
-                        ? 'bg-[#1E3A8A] text-white border-[#1E3A8A]'
-                        : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
-                    }`}
-                  >
-                    Exact Age
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setAgeMode('dob')}
-                    className={`flex-1 py-2 px-3 text-xs font-semibold rounded-lg border transition-all ${
-                      ageMode === 'dob'
-                        ? 'bg-[#1E3A8A] text-white border-[#1E3A8A]'
-                        : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
-                    }`}
-                  >
-                    Date of Birth
-                  </button>
+                <div className="relative">
+                  <input
+                    type="date"
+                    value={dateOfBirth}
+                    max={todayStr}
+                    onChange={(e) => setDateOfBirth(e.target.value)}
+                    required
+                    className="w-full h-11 px-3.5 rounded-xl border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-[#3B82F6] transition-all cursor-pointer font-medium"
+                  />
+                </div>
+                {/* Live calculated age display */}
+                <div className="mt-2 text-xs">
+                  {calculatedAge !== null ? (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-50 dark:bg-blue-950/60 border border-blue-200/70 dark:border-blue-900/60 font-bold text-[#2563EB] dark:text-[#60A5FA]">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      Calculated Age: {calculatedAge} {calculatedAge === 1 ? 'year' : 'years'} old
+                    </span>
+                  ) : (
+                    <span className="text-slate-400 dark:text-slate-500 text-[11px]">
+                      Age is automatically computed from date of birth
+                    </span>
+                  )}
                 </div>
               </div>
 
-              {ageMode === 'age' ? (
-                <Input
-                  label="Age (in years)"
-                  type="number"
-                  min="0"
-                  max="125"
-                  value={age}
-                  onChange={(e) => setAge(e.target.value)}
-                  placeholder="e.g. 32"
-                  required
-                />
-              ) : (
-                <Input
-                  label="Date of Birth"
-                  type="date"
-                  value={dateOfBirth}
-                  onChange={(e) => setDateOfBirth(e.target.value)}
-                  required
-                />
-              )}
-
+              {/* Gender */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-slate-700 dark:text-[#CBD5E1] uppercase tracking-wider mb-1.5">
                   Gender <span className="text-rose-500">*</span>
                 </label>
                 <select
                   value={gender}
                   onChange={(e) => setGender(e.target.value)}
-                  className="w-full h-11 px-3.5 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] transition-all"
+                  className="w-full h-11 px-3.5 rounded-xl border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-[#3B82F6] transition-all cursor-pointer font-medium"
                   required
                 >
                   <option value="MALE">Male</option>
@@ -561,17 +614,16 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
                   <option value="OTHER">Other</option>
                 </select>
               </div>
-            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* Marital Status */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-slate-700 dark:text-[#CBD5E1] uppercase tracking-wider mb-1.5">
                   Marital Status (Optional)
                 </label>
                 <select
                   value={maritalStatus}
                   onChange={(e) => setMaritalStatus(e.target.value)}
-                  className="w-full h-11 px-3.5 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] transition-all"
+                  className="w-full h-11 px-3.5 rounded-xl border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-[#3B82F6] transition-all cursor-pointer font-medium"
                 >
                   <option value="">Not Specified</option>
                   <option value="Single">Single</option>
@@ -584,69 +636,79 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
           </CardContent>
         </Card>
 
-        {/* Section 2: Contact Information */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Phone className="w-4 h-4 text-[#1E3A8A]" />
-              <CardTitle className="text-base">2. Contact Information</CardTitle>
+        {/* Section 2: Contact Information (Optional) */}
+        <Card className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl shadow-xs overflow-hidden">
+          <CardHeader className="p-5 border-b border-[#E2E8F0] dark:border-[#334155] bg-slate-50/50 dark:bg-[#182234]">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                <Phone className="w-4 h-4" />
+              </div>
+              <div>
+                <CardTitle className="text-base font-bold text-slate-900 dark:text-[#F8FAFC]">
+                  2. Contact Channels (Optional)
+                </CardTitle>
+                <CardDescription className="text-xs text-slate-500 dark:text-[#94A3B8]">
+                  Phone and email are optional — citizens without phone or email can be registered freely
+                </CardDescription>
+              </div>
             </div>
-            <CardDescription className="text-xs">
-              Ethiopian phone number validation (Optional — citizen can register without a phone)
-            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="p-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Optional Phone Number */}
               <div>
                 <Input
-                  label="Primary Phone Number (Optional)"
+                  label="Phone Number (Optional)"
                   type="tel"
                   value={phoneNumber}
-                  onChange={(e) => handlePhoneChange(e.target.value)}
-                  placeholder="09XXXXXXXX or +2519XXXXXXXX"
-                  error={phoneValidationError}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  placeholder="e.g. 0912345678 or +251912345678 (Optional)"
                 />
-                <span className="text-[11px] text-slate-500 mt-1 block">
-                  Accepted formats: <code>09...</code>, <code>07...</code>, <code>+2519...</code>, <code>+2517...</code>
-                </span>
               </div>
 
+              {/* Optional Email Address */}
               <div>
                 <Input
-                  label="Alternative Phone (Optional)"
-                  type="tel"
-                  value={alternativePhone}
-                  onChange={(e) => setAlternativePhone(e.target.value)}
-                  placeholder="e.g. Household contact number"
+                  label="Email Address (Optional)"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="e.g. citizen@example.com (Optional)"
                 />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Section 3: Address & Location (Cascading Hierarchy) */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-[#1E3A8A]" />
-              <CardTitle className="text-base">3. Full Administrative Address & Location</CardTitle>
+        {/* Section 3: Address & Location (Cascading Ethiopian Hierarchy) */}
+        <Card className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl shadow-xs overflow-hidden">
+          <CardHeader className="p-5 border-b border-[#E2E8F0] dark:border-[#334155] bg-slate-50/50 dark:bg-[#182234]">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                <MapPin className="w-4 h-4" />
+              </div>
+              <div>
+                <CardTitle className="text-base font-bold text-slate-900 dark:text-[#F8FAFC]">
+                  3. Administrative Address & Location
+                </CardTitle>
+                <CardDescription className="text-xs text-slate-500 dark:text-[#94A3B8]">
+                  Region &rarr; Zone &rarr; Woreda &rarr; Kebele cascading administrative hierarchy
+                </CardDescription>
+              </div>
             </div>
-            <CardDescription className="text-xs">
-              Region &rarr; Zone &rarr; Woreda &rarr; Kebele cascading division hierarchy (Cached for offline availability)
-            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="p-5 space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Region */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Region / City <span className="text-rose-500">*</span>
+                <label className="block text-xs font-bold text-slate-700 dark:text-[#CBD5E1] uppercase tracking-wider mb-1.5">
+                  Region / Chartered City <span className="text-rose-500">*</span>
                 </label>
                 <select
                   value={regionId}
                   onChange={(e) => setRegionId(e.target.value)}
                   disabled={isLoadingLocations}
-                  className="w-full h-11 px-3.5 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] transition-all disabled:bg-slate-100"
+                  className="w-full h-11 px-3.5 rounded-xl border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-[#3B82F6] transition-all disabled:bg-slate-100 font-medium cursor-pointer"
                   required
                 >
                   <option value="">Select Region</option>
@@ -660,14 +722,14 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
 
               {/* Zone */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Administrative Zone <span className="text-rose-500">*</span>
+                <label className="block text-xs font-bold text-slate-700 dark:text-[#CBD5E1] uppercase tracking-wider mb-1.5">
+                  Administrative Zone / Sub-City <span className="text-rose-500">*</span>
                 </label>
                 <select
                   value={zoneId}
                   onChange={(e) => setZoneId(e.target.value)}
                   disabled={!regionId || zones.length === 0}
-                  className="w-full h-11 px-3.5 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] transition-all disabled:bg-slate-100"
+                  className="w-full h-11 px-3.5 rounded-xl border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-[#3B82F6] transition-all disabled:bg-slate-100 font-medium cursor-pointer"
                   required
                 >
                   <option value="">{regionId ? 'Select Zone' : 'Choose Region First'}</option>
@@ -681,14 +743,14 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
 
               {/* Woreda */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Woreda / District <span className="text-rose-500">*</span>
+                <label className="block text-xs font-bold text-slate-700 dark:text-[#CBD5E1] uppercase tracking-wider mb-1.5">
+                  Woreda Station <span className="text-rose-500">*</span>
                 </label>
                 <select
                   value={woredaId}
                   onChange={(e) => setWoredaId(e.target.value)}
                   disabled={!zoneId || woredas.length === 0}
-                  className="w-full h-11 px-3.5 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] transition-all disabled:bg-slate-100"
+                  className="w-full h-11 px-3.5 rounded-xl border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-[#3B82F6] transition-all disabled:bg-slate-100 font-medium cursor-pointer"
                   required
                 >
                   <option value="">{zoneId ? 'Select Woreda' : 'Choose Zone First'}</option>
@@ -702,14 +764,14 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
 
               {/* Kebele */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Kebele <span className="text-rose-500">*</span>
+                <label className="block text-xs font-bold text-slate-700 dark:text-[#CBD5E1] uppercase tracking-wider mb-1.5">
+                  Kebele Unit <span className="text-rose-500">*</span>
                 </label>
                 <select
                   value={kebeleId}
                   onChange={(e) => setKebeleId(e.target.value)}
                   disabled={!woredaId || kebeles.length === 0}
-                  className="w-full h-11 px-3.5 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] transition-all disabled:bg-slate-100"
+                  className="w-full h-11 px-3.5 rounded-xl border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-[#3B82F6] transition-all disabled:bg-slate-100 font-medium cursor-pointer"
                   required
                 >
                   <option value="">{woredaId ? 'Select Kebele' : 'Choose Woreda First'}</option>
@@ -735,42 +797,42 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
           </CardContent>
         </Card>
 
-        {/* Action Controls */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-white rounded-2xl border border-slate-200">
+        {/* 4. Action Controls & Provenance Footer */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-white dark:bg-[#1E293B] rounded-2xl border border-[#E2E8F0] dark:border-[#334155] shadow-xs">
           <Button
             type="button"
             variant="outline"
             onClick={handleClear}
             disabled={isSubmitting}
-            className="w-full sm:w-auto"
+            className="w-full sm:w-auto rounded-xl border-[#E2E8F0] dark:border-[#334155] text-slate-700 dark:text-[#F8FAFC] dark:hover:bg-[#0F172A]"
           >
             <RotateCcw className="w-4 h-4 mr-2" />
             Clear Form
           </Button>
 
-          <Button
-            type="submit"
-            variant="primary"
-            size="lg"
-            loading={isSubmitting}
-            className="w-full sm:w-auto"
-          >
-            <ShieldCheck className="w-4 h-4 mr-2" />
-            Submit Citizen Registration
-          </Button>
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <Button
+              type="submit"
+              variant="primary"
+              size="lg"
+              loading={isSubmitting}
+              className="w-full sm:w-auto px-8 rounded-xl font-bold shadow-md shadow-blue-600/20"
+            >
+              <ShieldCheck className="w-4 h-4 mr-2" />
+              Register Citizen
+            </Button>
+          </div>
         </div>
       </form>
 
-      {/* Multi-Level Duplicate Warning Modal */}
+      {/* Multi-Level Duplicate Prevention Modal (Strictly Blocks Saving) */}
       {pendingCandidate && (
         <DuplicateWarningModal
           isOpen={duplicateModalOpen}
           onClose={() => setDuplicateModalOpen(false)}
-          onConfirmProceed={() => executeSaveCitizen(pendingCandidate, true)}
           candidate={pendingCandidate}
           matchReasons={duplicateMatchReasons}
           duplicates={duplicateRecords}
-          isSubmitting={isSubmitting}
         />
       )}
     </div>

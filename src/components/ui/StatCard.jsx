@@ -61,8 +61,12 @@ export default function StatCard({
   };
 
   const currentVariant = variantStyles[variant] || variantStyles.default;
-  const finalIconColor = iconColor || currentVariant.iconColor;
-  const finalIconBg = iconBg || currentVariant.iconBg;
+  const finalIconColor = iconColor
+    ? (iconColor.includes('dark:') ? iconColor : `${iconColor} dark:text-blue-300`)
+    : currentVariant.iconColor;
+  const finalIconBg = iconBg
+    ? (iconBg.includes('dark:') ? iconBg : `${iconBg} dark:bg-slate-800`)
+    : currentVariant.iconBg;
 
   return (
     <div

@@ -599,7 +599,7 @@ export default function UserManagement({
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs sm:text-sm">
                 <thead>
-                  <tr className="bg-slate-50/80 dark:bg-[#182234] border-b border-[#E2E8F0] dark:border-[#334155] text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  <tr className="bg-slate-50/90 dark:bg-[#0F172A] border-b border-[#E2E8F0] dark:border-[#334155] text-xs font-bold text-slate-600 dark:text-slate-200 uppercase tracking-wider">
                     <th className="py-3.5 pl-4 sm:pl-6 pr-3">Staff Member</th>
                     <th className="py-3.5 px-3">Role</th>
                     <th className="py-3.5 px-3">Contact</th>

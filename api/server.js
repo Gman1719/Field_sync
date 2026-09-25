@@ -21,6 +21,8 @@ const verificationRouter = require('./routes/verification');
 const supervisorReportsRouter = require('./routes/supervisorReports');
 const syncRouter = require('./routes/sync');
 const locationsRouter = require('./routes/locations');
+const workSessionsRouter = require('./routes/workSessions');
+
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -68,6 +70,7 @@ app.use('/api/verification', verificationRouter);
 app.use('/api/supervisor-reports', supervisorReportsRouter);
 app.use('/api/sync', syncRouter);
 app.use('/api/locations', locationsRouter);
+app.use('/api/work-sessions', workSessionsRouter);
 
 // Start server
 app.listen(PORT, () => {

@@ -118,7 +118,7 @@ export default function MyProfile({ user: propUser, defaultTab = 'personal' }) {
   return (
     <div className="space-y-6 pb-12 animate-in fade-in duration-200">
       {/* 1. Profile Header Card */}
-      <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs relative overflow-hidden">
+      <div className="bg-white dark:bg-[#1E293B] rounded-2xl border border-slate-200/90 dark:border-[#334155] p-6 shadow-xs relative overflow-hidden">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
             {/* Avatar */}
@@ -126,10 +126,10 @@ export default function MyProfile({ user: propUser, defaultTab = 'personal' }) {
               <img
                 src={user.profilePhotoUrl}
                 alt={user.fullName || user.name}
-                className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-slate-100 shadow-xs"
+                className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-slate-100 dark:border-[#334155] shadow-xs"
               />
             ) : (
-              <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl bg-[#1E3A8A] text-white flex items-center justify-center text-2xl font-bold tracking-tight shadow-xs">
+              <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl bg-[#2563EB] text-white flex items-center justify-center text-2xl font-bold tracking-tight shadow-xs">
                 {initials}
               </div>
             )}
@@ -137,7 +137,7 @@ export default function MyProfile({ user: propUser, defaultTab = 'personal' }) {
             {/* User Meta */}
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2 mb-1">
-                <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight truncate">
+                <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight truncate">
                   {user?.fullName || user?.name || 'FieldSync User'}
                 </h2>
                 <Badge
@@ -151,19 +151,19 @@ export default function MyProfile({ user: propUser, defaultTab = 'personal' }) {
                 </Badge>
               </div>
 
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
                 <span className="flex items-center gap-1.5 truncate">
-                  <Mail className="w-3.5 h-3.5 text-slate-400" />
+                  <Mail className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
                   {user?.email}
                 </span>
                 {user?.phoneNumber && (
                   <span className="flex items-center gap-1.5">
-                    <Phone className="w-3.5 h-3.5 text-slate-400" />
+                    <Phone className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
                     {user?.phoneNumber}
                   </span>
                 )}
                 <span className="flex items-center gap-1.5">
-                  <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                  <MapPin className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
                   {user?.region || 'National Coverage'}
                 </span>
               </div>
@@ -195,7 +195,7 @@ export default function MyProfile({ user: propUser, defaultTab = 'personal' }) {
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex items-center gap-2 mt-6 pt-4 border-t border-slate-100 overflow-x-auto">
+        <div className="flex items-center gap-2 mt-6 pt-4 border-t border-slate-100 dark:border-[#334155] overflow-x-auto">
           {[
             { id: 'personal', label: 'Personal Information', icon: User },
             { id: 'work', label: 'Work Information', icon: Building },
@@ -210,8 +210,8 @@ export default function MyProfile({ user: propUser, defaultTab = 'personal' }) {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-lg transition-colors shrink-0 ${
                   isActive
-                    ? 'bg-[#1E3A8A] text-white shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    ? 'bg-[#2563EB] text-white shadow-xs'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />
@@ -248,29 +248,29 @@ export default function MyProfile({ user: propUser, defaultTab = 'personal' }) {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className="p-3.5 bg-slate-50/70 border border-slate-200/80 rounded-xl">
-                  <span className="text-[11px] font-medium text-slate-400 block mb-1">First Name</span>
-                  <span className="text-sm font-semibold text-slate-900">{user?.firstName || 'Not provided'}</span>
+                <div className="p-3.5 bg-slate-50/70 dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#334155] rounded-xl">
+                  <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mb-1">First Name</span>
+                  <span className="text-sm font-semibold text-slate-900 dark:text-white">{user?.firstName || 'Not provided'}</span>
                 </div>
-                <div className="p-3.5 bg-slate-50/70 border border-slate-200/80 rounded-xl">
-                  <span className="text-[11px] font-medium text-slate-400 block mb-1">Middle Name (Father)</span>
-                  <span className="text-sm font-semibold text-slate-900">{user?.middleName || '—'}</span>
+                <div className="p-3.5 bg-slate-50/70 dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#334155] rounded-xl">
+                  <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mb-1">Middle Name (Father)</span>
+                  <span className="text-sm font-semibold text-slate-900 dark:text-white">{user?.middleName || '—'}</span>
                 </div>
-                <div className="p-3.5 bg-slate-50/70 border border-slate-200/80 rounded-xl">
-                  <span className="text-[11px] font-medium text-slate-400 block mb-1">Last Name (Grandfather)</span>
-                  <span className="text-sm font-semibold text-slate-900">{user?.lastName || 'Not provided'}</span>
+                <div className="p-3.5 bg-slate-50/70 dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#334155] rounded-xl">
+                  <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mb-1">Last Name (Grandfather)</span>
+                  <span className="text-sm font-semibold text-slate-900 dark:text-white">{user?.lastName || 'Not provided'}</span>
                 </div>
-                <div className="p-3.5 bg-slate-50/70 border border-slate-200/80 rounded-xl">
-                  <span className="text-[11px] font-medium text-slate-400 block mb-1">Email Address</span>
-                  <span className="text-sm font-semibold text-slate-900 break-all">{user?.email}</span>
+                <div className="p-3.5 bg-slate-50/70 dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#334155] rounded-xl">
+                  <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mb-1">Email Address</span>
+                  <span className="text-sm font-semibold text-slate-900 dark:text-white break-all">{user?.email}</span>
                 </div>
-                <div className="p-3.5 bg-slate-50/70 border border-slate-200/80 rounded-xl">
-                  <span className="text-[11px] font-medium text-slate-400 block mb-1">Phone Number</span>
-                  <span className="text-sm font-semibold text-slate-900">{user?.phoneNumber || user?.phone || 'Not provided'}</span>
+                <div className="p-3.5 bg-slate-50/70 dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#334155] rounded-xl">
+                  <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mb-1">Phone Number</span>
+                  <span className="text-sm font-semibold text-slate-900 dark:text-white">{user?.phoneNumber || user?.phone || 'Not provided'}</span>
                 </div>
-                <div className="p-3.5 bg-slate-50/70 border border-slate-200/80 rounded-xl">
-                  <span className="text-[11px] font-medium text-slate-400 block mb-1">Profile Photo</span>
-                  <span className="text-sm font-semibold text-slate-900">
+                <div className="p-3.5 bg-slate-50/70 dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#334155] rounded-xl">
+                  <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mb-1">Profile Photo</span>
+                  <span className="text-sm font-semibold text-slate-900 dark:text-white">
                     {user?.profilePhotoUrl ? 'Custom Photo Active' : 'Default Avatar (Initials)'}
                   </span>
                 </div>
@@ -361,11 +361,11 @@ export default function MyProfile({ user: propUser, defaultTab = 'personal' }) {
                     />
                   </div>
 
-                  <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 flex items-start gap-3">
-                    <Info className="w-4 h-4 text-[#1E3A8A] shrink-0 mt-0.5" />
+                  <div className="p-4 bg-slate-50 dark:bg-[#0F172A] border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-700 dark:text-slate-300 flex items-start gap-3">
+                    <Info className="w-4 h-4 text-[#1E3A8A] dark:text-blue-400 shrink-0 mt-0.5" />
                     <div>
-                      <p className="font-semibold text-slate-900 mb-0.5">Location Assignment Policy</p>
-                      <p className="text-slate-600">
+                      <p className="font-semibold text-slate-900 dark:text-[#F8FAFC] mb-0.5">Location Assignment Policy</p>
+                      <p className="text-slate-600 dark:text-slate-400">
                         Supervisory jurisdictions are determined by central organization leadership. If your assigned Region or Zone needs modification, please contact an Organization Manager.
                       </p>
                     </div>
@@ -378,7 +378,7 @@ export default function MyProfile({ user: propUser, defaultTab = 'personal' }) {
           {/* Field Officer Work View */}
           {isOfficer && (
             <div className="space-y-6">
-              <Card className="border border-slate-200">
+              <Card className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#1E293B]">
                 <CardHeader>
                   <CardTitle>Fieldwork Assignment & Work Location</CardTitle>
                   <CardDescription>
@@ -387,30 +387,30 @@ export default function MyProfile({ user: propUser, defaultTab = 'personal' }) {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                    <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
-                      <span className="text-[11px] font-medium text-slate-400 block mb-1">Region</span>
-                      <span className="text-sm font-semibold text-slate-900">{user?.region || 'Addis Ababa'}</span>
+                    <div className="p-3.5 bg-slate-50 dark:bg-[#0F172A] border border-slate-200 dark:border-[#334155] rounded-xl">
+                      <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mb-1">Region</span>
+                      <span className="text-sm font-semibold text-slate-900 dark:text-white">{user?.region || 'Addis Ababa'}</span>
                     </div>
-                    <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
-                      <span className="text-[11px] font-medium text-slate-400 block mb-1">Zone / Sub-City</span>
-                      <span className="text-sm font-semibold text-slate-900">{user?.zone || 'Bole Sub-City'}</span>
+                    <div className="p-3.5 bg-slate-50 dark:bg-[#0F172A] border border-slate-200 dark:border-[#334155] rounded-xl">
+                      <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mb-1">Zone / Sub-City</span>
+                      <span className="text-sm font-semibold text-slate-900 dark:text-white">{user?.zone || 'Bole Sub-City'}</span>
                     </div>
-                    <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
-                      <span className="text-[11px] font-medium text-slate-400 block mb-1">Woreda</span>
-                      <span className="text-sm font-semibold text-slate-900">{user?.woreda || 'Bole Woreda 01'}</span>
+                    <div className="p-3.5 bg-slate-50 dark:bg-[#0F172A] border border-slate-200 dark:border-[#334155] rounded-xl">
+                      <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mb-1">Woreda</span>
+                      <span className="text-sm font-semibold text-slate-900 dark:text-white">{user?.woreda || 'Bole Woreda 01'}</span>
                     </div>
-                    <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
-                      <span className="text-[11px] font-medium text-slate-400 block mb-1">Assigned Supervisor</span>
-                      <span className="text-sm font-semibold text-slate-900">
+                    <div className="p-3.5 bg-slate-50 dark:bg-[#0F172A] border border-slate-200 dark:border-[#334155] rounded-xl">
+                      <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mb-1">Assigned Supervisor</span>
+                      <span className="text-sm font-semibold text-slate-900 dark:text-white">
                         {user?.supervisorName || 'Regional Supervisor'}
                       </span>
                       {user?.supervisorPhone && (
-                        <span className="text-[11px] text-slate-500 block mt-0.5">{user.supervisorPhone}</span>
+                        <span className="text-[11px] text-slate-500 dark:text-slate-400 block mt-0.5">{user.supervisorPhone}</span>
                       )}
                     </div>
                   </div>
 
-                  <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
+                  <h4 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">
                     Field Performance Statistics (Live Database Data)
                   </h4>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
@@ -434,11 +434,11 @@ export default function MyProfile({ user: propUser, defaultTab = 'personal' }) {
                     />
                   </div>
 
-                  <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 flex items-start gap-3">
-                    <Info className="w-4 h-4 text-[#1E3A8A] shrink-0 mt-0.5" />
+                  <div className="p-4 bg-slate-50 dark:bg-[#0F172A] border border-slate-200 dark:border-[#334155] rounded-xl text-xs text-slate-700 dark:text-slate-300 flex items-start gap-3">
+                    <Info className="w-4 h-4 text-[#2563EB] dark:text-[#60A5FA] shrink-0 mt-0.5" />
                     <div>
-                      <p className="font-semibold text-slate-900 mb-0.5">Read-Only Administrative Scope</p>
-                      <p className="text-slate-600">
+                      <p className="font-semibold text-slate-900 dark:text-white mb-0.5">Read-Only Administrative Scope</p>
+                      <p className="text-slate-600 dark:text-slate-400">
                         Your work location is bound to your assigned Woreda. All registrations and daily reports automatically associate with this hierarchy. For location transfer requests, please notify your supervisor.
                       </p>
                     </div>
@@ -453,7 +453,7 @@ export default function MyProfile({ user: propUser, defaultTab = 'personal' }) {
       {/* Tab C: Account Information */}
       {activeTab === 'account' && (
         <div className="space-y-6 animate-in fade-in duration-150">
-          <Card className="border border-slate-200">
+          <Card className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#1E293B]">
             <CardHeader>
               <CardTitle>Account & System Information</CardTitle>
               <CardDescription>
@@ -462,47 +462,47 @@ export default function MyProfile({ user: propUser, defaultTab = 'personal' }) {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
-                  <span className="text-[11px] font-medium text-slate-400 block mb-1">User UUID</span>
-                  <span className="font-mono text-xs font-semibold text-slate-800 break-all select-all">
+                <div className="p-3.5 bg-slate-50 dark:bg-[#0F172A] border border-slate-200 dark:border-slate-700 rounded-xl">
+                  <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mb-1">User UUID</span>
+                  <span className="font-mono text-xs font-semibold text-slate-800 dark:text-[#F8FAFC] break-all select-all">
                     {user?.id}
                   </span>
                 </div>
-                <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
-                  <span className="text-[11px] font-medium text-slate-400 block mb-1">System Role</span>
+                <div className="p-3.5 bg-slate-50 dark:bg-[#0F172A] border border-slate-200 dark:border-slate-700 rounded-xl">
+                  <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mb-1">System Role</span>
                   <Badge variant="primary" className="capitalize text-xs font-semibold">
                     {user?.systemRole || user?.role?.toUpperCase()}
                   </Badge>
                 </div>
-                <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
-                  <span className="text-[11px] font-medium text-slate-400 block mb-1">Account Status</span>
+                <div className="p-3.5 bg-slate-50 dark:bg-[#0F172A] border border-slate-200 dark:border-slate-700 rounded-xl">
+                  <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mb-1">Account Status</span>
                   <Badge variant={user?.isActive !== false ? 'success' : 'error'} dot className="text-xs">
                     {user?.isActive !== false ? 'ACTIVE ACCOUNT' : 'DEACTIVATED'}
                   </Badge>
                 </div>
-                <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
-                  <span className="text-[11px] font-medium text-slate-400 block mb-1">Account Creation Date</span>
-                  <span className="text-xs font-semibold text-slate-800">
+                <div className="p-3.5 bg-slate-50 dark:bg-[#0F172A] border border-slate-200 dark:border-slate-700 rounded-xl">
+                  <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mb-1">Account Creation Date</span>
+                  <span className="text-xs font-semibold text-slate-800 dark:text-[#F8FAFC]">
                     {formatDate(user?.createdAt)}
                   </span>
                 </div>
-                <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
-                  <span className="text-[11px] font-medium text-slate-400 block mb-1">Last Updated</span>
-                  <span className="text-xs font-semibold text-slate-800">
+                <div className="p-3.5 bg-slate-50 dark:bg-[#0F172A] border border-slate-200 dark:border-slate-700 rounded-xl">
+                  <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mb-1">Last Updated</span>
+                  <span className="text-xs font-semibold text-slate-800 dark:text-[#F8FAFC]">
                     {formatDateTime(user?.updatedAt)}
                   </span>
                 </div>
-                <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
-                  <span className="text-[11px] font-medium text-slate-400 block mb-1">Last Successful Login</span>
-                  <span className="text-xs font-semibold text-slate-800">
+                <div className="p-3.5 bg-slate-50 dark:bg-[#0F172A] border border-slate-200 dark:border-slate-700 rounded-xl">
+                  <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mb-1">Last Successful Login</span>
+                  <span className="text-xs font-semibold text-slate-800 dark:text-[#F8FAFC]">
                     {formatDateTime(user?.lastLogin)}
                   </span>
                 </div>
-                <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl sm:col-span-2 lg:col-span-3">
-                  <span className="text-[11px] font-medium text-slate-400 block mb-1">Password Setup Status</span>
+                <div className="p-3.5 bg-slate-50 dark:bg-[#0F172A] border border-slate-200 dark:border-slate-700 rounded-xl sm:col-span-2 lg:col-span-3">
+                  <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mb-1">Password Setup Status</span>
                   <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    <span className="text-xs font-semibold text-emerald-800">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                    <span className="text-xs font-semibold text-emerald-800 dark:text-emerald-300">
                       Permanent password active & verified (Bcrypt cryptographic hashing)
                     </span>
                   </div>

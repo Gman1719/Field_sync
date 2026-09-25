@@ -135,7 +135,7 @@ export default function Header({
   };
 
   return (
-    <header className="h-16 bg-white dark:bg-[#111827] border-b border-slate-200 dark:border-[#334155] sticky top-0 z-30 px-4 sm:px-6 flex items-center justify-between shadow-xs transition-colors duration-200">
+    <header className="h-16 bg-white dark:bg-[#0F172A] border-b border-slate-200 dark:border-[#334155] sticky top-0 z-30 px-4 sm:px-6 flex items-center justify-between shadow-xs transition-colors duration-200">
       {/* Left: Mobile Toggle & Breadcrumbs */}
       <div className="flex items-center gap-3 min-w-0">
         <button
@@ -174,12 +174,12 @@ export default function Header({
           <div
             className={`hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono font-medium border ${
               isScreenTimeRunning
-                ? 'bg-blue-50 text-[#1E3A8A] border-blue-200'
-                : 'bg-slate-50 text-slate-500 border-slate-200'
+                ? 'bg-blue-50 text-[#2563EB] border-blue-200 dark:bg-blue-950/60 dark:text-[#60A5FA] dark:border-blue-900/60'
+                : 'bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'
             }`}
             title="Active Field Session Timer"
           >
-            <Clock className={`w-3.5 h-3.5 ${isScreenTimeRunning ? 'text-[#1E3A8A] animate-pulse' : 'text-slate-400'}`} />
+            <Clock className={`w-3.5 h-3.5 ${isScreenTimeRunning ? 'text-[#2563EB] dark:text-[#60A5FA] animate-pulse' : 'text-slate-400 dark:text-slate-500'}`} />
             <span>{screenTimeDisplay}</span>
           </div>
         )}
@@ -213,7 +213,7 @@ export default function Header({
 
           {showLangMenu && (
             <div
-              className="absolute right-0 mt-2 w-44 bg-white dark:bg-[#111827] rounded-xl shadow-modal border border-slate-200 dark:border-[#334155] py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150"
+              className="absolute right-0 mt-2 w-44 bg-white dark:bg-[#1E293B] rounded-xl shadow-modal border border-slate-200 dark:border-[#334155] py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150"
               onMouseLeave={() => setShowLangMenu(false)}
             >
               <div className="px-3 py-1.5 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider border-b border-slate-100 dark:border-[#334155]">
@@ -260,7 +260,7 @@ export default function Header({
 
           {showNotifications && (
             <div
-              className="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-[#111827] rounded-2xl shadow-2xl border border-slate-200 dark:border-[#334155] py-0 z-50 animate-in fade-in zoom-in-95 duration-150 overflow-hidden"
+              className="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-[#1E293B] rounded-2xl shadow-2xl border border-slate-200 dark:border-[#334155] py-0 z-50 animate-in fade-in zoom-in-95 duration-150 overflow-hidden"
               onMouseLeave={() => setShowNotifications(false)}
             >
               {/* Header */}
@@ -366,7 +366,7 @@ export default function Header({
 
           {showUserMenu && (
             <div
-              className="absolute right-0 mt-2 w-52 bg-white dark:bg-[#111827] rounded-xl shadow-modal border border-slate-200 dark:border-[#334155] py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150"
+              className="absolute right-0 mt-2 w-52 bg-white dark:bg-[#1E293B] rounded-xl shadow-modal border border-slate-200 dark:border-[#334155] py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150"
               onMouseLeave={() => setShowUserMenu(false)}
             >
               <div className="px-4 py-2 border-b border-slate-100 dark:border-[#334155]">

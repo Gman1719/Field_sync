@@ -128,23 +128,23 @@ export default function Analytics({ user, setActiveTab }) {
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
       {/* 1. Header Banner & Scope Indicator */}
-      <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-[#1E293B] border border-slate-200/90 dark:border-[#334155] rounded-2xl p-6 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2.5 mb-1.5">
-            <div className="p-2 rounded-xl bg-blue-50 border border-blue-100 text-[#1E3A8A]">
+            <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-950/50 border border-blue-100 dark:border-blue-900/50 text-[#1E3A8A] dark:text-blue-400">
               <BarChart3 className="w-6 h-6" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl font-bold tracking-tight text-slate-900">
+                <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-[#F8FAFC]">
                   {isSupervisor ? 'Zone Operations Intelligence' : 'Enterprise Field Operations Analytics'}
                 </h1>
-                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
+                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                   <span>PostgreSQL Live</span>
                 </span>
               </div>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 {isSupervisor
                   ? `Telemetry & registration activity strictly scoped to your assigned Zone (${d?.scope?.effectiveZoneName || 'Zone'})`
                   : 'Real-time organization-wide operational statistics, registration telemetry, and sync monitoring'}
@@ -162,17 +162,17 @@ export default function Analytics({ user, setActiveTab }) {
             disabled={isRefreshing}
             className="flex items-center gap-1.5"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#1E3A8A]' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#1E3A8A] dark:text-blue-400' : ''}`} />
             <span>Refresh Data</span>
           </Button>
         </div>
       </div>
 
       {/* 2. Date Filtering Bar */}
-      <Card className="border border-slate-200/90 shadow-xs">
+      <Card className="border border-slate-200/90 dark:border-[#334155] shadow-xs">
         <CardContent className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider mr-1 flex items-center gap-1">
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mr-1 flex items-center gap-1">
               <Calendar className="w-3.5 h-3.5 text-slate-400" />
               <span>Timeframe:</span>
             </span>
@@ -189,7 +189,7 @@ export default function Analytics({ user, setActiveTab }) {
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                   period === p.id
                     ? 'bg-[#1E3A8A] text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    : 'bg-slate-100 dark:bg-[#0F172A] text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800'
                 }`}
               >
                 {p.label}
@@ -204,7 +204,7 @@ export default function Analytics({ user, setActiveTab }) {
                 type="date"
                 value={customStart}
                 onChange={(e) => setCustomStart(e.target.value)}
-                className="px-2.5 py-1 text-xs border border-slate-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-[#1E3A8A]"
+                className="px-2.5 py-1 text-xs border border-slate-200 dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] rounded-lg focus:outline-hidden focus:ring-1 focus:ring-[#1E3A8A]"
                 required
               />
               <span className="text-slate-400 font-semibold">to</span>
@@ -212,7 +212,7 @@ export default function Analytics({ user, setActiveTab }) {
                 type="date"
                 value={customEnd}
                 onChange={(e) => setCustomEnd(e.target.value)}
-                className="px-2.5 py-1 text-xs border border-slate-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-[#1E3A8A]"
+                className="px-2.5 py-1 text-xs border border-slate-200 dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] rounded-lg focus:outline-hidden focus:ring-1 focus:ring-[#1E3A8A]"
                 required
               />
               <Button type="submit" size="sm" className="px-3 py-1 text-xs bg-[#1E3A8A] text-white">
@@ -223,7 +223,7 @@ export default function Analytics({ user, setActiveTab }) {
 
           {/* Active Period Label */}
           {d?.dateRange && (
-            <div className="text-xs font-mono text-slate-500 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-100">
+            <div className="text-xs font-mono text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-[#0F172A] px-2.5 py-1 rounded-md border border-slate-100 dark:border-[#334155]">
               {d.dateRange.startDate} → {d.dateRange.endDate} ({d.dateRange.days} days)
             </div>
           )}
@@ -231,7 +231,7 @@ export default function Analytics({ user, setActiveTab }) {
       </Card>
 
       {/* 3. Section Navigation Tabs */}
-      <div className="flex border-b border-slate-200 overflow-x-auto space-x-1">
+      <div className="flex border-b border-slate-200 dark:border-[#334155] overflow-x-auto space-x-1">
         {[
           { id: 'overview', label: 'Overview & KPIs', icon: BarChart3 },
           { id: 'registrations', label: 'Citizen Registrations', icon: Database },
@@ -248,8 +248,8 @@ export default function Analytics({ user, setActiveTab }) {
               onClick={() => setActiveTabNav(tab.id)}
               className={`flex items-center gap-2 py-3 px-4 text-xs font-semibold border-b-2 whitespace-nowrap transition-colors ${
                 isActive
-                  ? 'border-[#1E3A8A] text-[#1E3A8A] bg-blue-50/40 rounded-t-lg'
-                  : 'border-transparent text-slate-500 hover:text-slate-900 hover:border-slate-300'
+                  ? 'border-[#1E3A8A] text-[#1E3A8A] dark:text-blue-400 dark:border-blue-400 bg-blue-50/40 dark:bg-blue-950/40 rounded-t-lg'
+                  : 'border-transparent text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-[#F8FAFC] hover:border-slate-300 dark:hover:border-slate-600'
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -278,94 +278,94 @@ export default function Analytics({ user, setActiveTab }) {
             <div className="space-y-6">
               {/* Primary KPI Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Card className="border border-slate-200/90 shadow-xs">
+                <Card className="border border-slate-200/90 dark:border-[#334155] shadow-xs">
                   <CardContent className="p-5">
-                    <div className="flex items-center justify-between text-slate-500 text-xs font-medium">
+                    <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-medium">
                       <span>Registrations (Period)</span>
-                      <div className="p-2 rounded-lg bg-blue-50 text-[#1E3A8A]">
+                      <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-[#1E3A8A] dark:text-blue-400">
                         <Database className="w-4 h-4" />
                       </div>
                     </div>
                     <div className="mt-2 flex items-baseline gap-2">
-                      <span className="text-2xl font-bold tracking-tight text-slate-900">
+                      <span className="text-2xl font-bold tracking-tight text-slate-900 dark:text-[#F8FAFC]">
                         {d.citizens.periodTotal.toLocaleString()}
                       </span>
                       <span className={`text-[11px] font-semibold flex items-center ${
-                        d.citizens.percentChange >= 0 ? 'text-emerald-600' : 'text-rose-600'
+                        d.citizens.percentChange >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
                       }`}>
                         {d.citizens.percentChange >= 0 ? '+' : ''}{d.citizens.percentChange}%
                       </span>
                     </div>
-                    <div className="mt-2 pt-2 border-t border-slate-100 text-[11px] text-slate-500 flex justify-between">
+                    <div className="mt-2 pt-2 border-t border-slate-100 dark:border-[#334155] text-[11px] text-slate-500 dark:text-slate-400 flex justify-between">
                       <span>All-time total:</span>
-                      <span className="font-semibold text-slate-700">{d.citizens.allTimeTotal.toLocaleString()}</span>
+                      <span className="font-semibold text-slate-700 dark:text-slate-300">{d.citizens.allTimeTotal.toLocaleString()}</span>
                     </div>
                   </CardContent>
                 </Card>
 
-                <Card className="border border-slate-200/90 shadow-xs">
+                <Card className="border border-slate-200/90 dark:border-[#334155] shadow-xs">
                   <CardContent className="p-5">
-                    <div className="flex items-center justify-between text-slate-500 text-xs font-medium">
+                    <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-medium">
                       <span>Sync Success Rate</span>
-                      <div className="p-2 rounded-lg bg-emerald-50 text-emerald-600">
+                      <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400">
                         <CheckCheck className="w-4 h-4" />
                       </div>
                     </div>
                     <div className="mt-2 flex items-baseline gap-2">
-                      <span className="text-2xl font-bold tracking-tight text-slate-900">
+                      <span className="text-2xl font-bold tracking-tight text-slate-900 dark:text-[#F8FAFC]">
                         {d.syncAnalytics.successRatePercentage}%
                       </span>
                       <span className="text-[11px] text-slate-400">
                         ({d.syncAnalytics.serverConfirmedRecords} confirmed)
                       </span>
                     </div>
-                    <div className="mt-2 pt-2 border-t border-slate-100 text-[11px] text-slate-500 flex justify-between">
+                    <div className="mt-2 pt-2 border-t border-slate-100 dark:border-[#334155] text-[11px] text-slate-500 dark:text-slate-400 flex justify-between">
                       <span>Pending offline:</span>
-                      <span className="font-semibold text-amber-600">{d.syncAnalytics.pendingOfflineRecords}</span>
+                      <span className="font-semibold text-amber-600 dark:text-amber-400">{d.syncAnalytics.pendingOfflineRecords}</span>
                     </div>
                   </CardContent>
                 </Card>
 
-                <Card className="border border-slate-200/90 shadow-xs">
+                <Card className="border border-slate-200/90 dark:border-[#334155] shadow-xs">
                   <CardContent className="p-5">
-                    <div className="flex items-center justify-between text-slate-500 text-xs font-medium">
+                    <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-medium">
                       <span>Daily Report Submission</span>
-                      <div className="p-2 rounded-lg bg-amber-50 text-amber-600">
+                      <div className="p-2 rounded-lg bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400">
                         <FileText className="w-4 h-4" />
                       </div>
                     </div>
                     <div className="mt-2 flex items-baseline gap-2">
-                      <span className="text-2xl font-bold tracking-tight text-slate-900">
+                      <span className="text-2xl font-bold tracking-tight text-slate-900 dark:text-[#F8FAFC]">
                         {d.dailyReports.totalSubmitted}
                       </span>
-                      <span className="text-[11px] text-slate-500">
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400">
                         / {d.dailyReports.expectedReports} expected
                       </span>
                     </div>
-                    <div className="mt-2 pt-2 border-t border-slate-100 text-[11px] text-slate-500 flex justify-between">
+                    <div className="mt-2 pt-2 border-t border-slate-100 dark:border-[#334155] text-[11px] text-slate-500 dark:text-slate-400 flex justify-between">
                       <span>Awaiting review:</span>
-                      <span className="font-semibold text-amber-600">{d.dailyReports.awaitingReview}</span>
+                      <span className="font-semibold text-amber-600 dark:text-amber-400">{d.dailyReports.awaitingReview}</span>
                     </div>
                   </CardContent>
                 </Card>
 
-                <Card className="border border-slate-200/90 shadow-xs">
+                <Card className="border border-slate-200/90 dark:border-[#334155] shadow-xs">
                   <CardContent className="p-5">
-                    <div className="flex items-center justify-between text-slate-500 text-xs font-medium">
+                    <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-medium">
                       <span>Data Quality Rate</span>
-                      <div className="p-2 rounded-lg bg-purple-50 text-purple-600">
+                      <div className="p-2 rounded-lg bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400">
                         <ShieldCheck className="w-4 h-4" />
                       </div>
                     </div>
                     <div className="mt-2 flex items-baseline gap-2">
-                      <span className="text-2xl font-bold tracking-tight text-slate-900">
+                      <span className="text-2xl font-bold tracking-tight text-slate-900 dark:text-[#F8FAFC]">
                         {d.dataQuality.validationRatePercentage}%
                       </span>
                       <span className="text-[11px] text-slate-400">valid</span>
                     </div>
-                    <div className="mt-2 pt-2 border-t border-slate-100 text-[11px] text-slate-500 flex justify-between">
+                    <div className="mt-2 pt-2 border-t border-slate-100 dark:border-[#334155] text-[11px] text-slate-500 dark:text-slate-400 flex justify-between">
                       <span>Duplicate reviews:</span>
-                      <span className="font-semibold text-purple-600">{d.dataQuality.possibleDuplicatesCount}</span>
+                      <span className="font-semibold text-purple-600 dark:text-purple-400">{d.dataQuality.possibleDuplicatesCount}</span>
                     </div>
                   </CardContent>
                 </Card>
@@ -373,11 +373,11 @@ export default function Analytics({ user, setActiveTab }) {
 
               {/* Registration Trend Chart & Geographic Breakdown */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <Card className="lg:col-span-2 border border-slate-200/90 shadow-xs">
+                <Card className="lg:col-span-2 border border-slate-200/90 dark:border-[#334155] shadow-xs">
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-bold text-slate-900 flex items-center justify-between">
+                    <CardTitle className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] flex items-center justify-between">
                       <span>Registration Activity Trend</span>
-                      <span className="text-xs font-normal text-slate-500">Daily Timeline</span>
+                      <span className="text-xs font-normal text-slate-500 dark:text-slate-400">Daily Timeline</span>
                     </CardTitle>
                     <CardDescription className="text-xs">
                       Daily citizen registration distribution across the selected timeframe
@@ -398,14 +398,14 @@ export default function Analytics({ user, setActiveTab }) {
                                 <stop offset="95%" stopColor="#1E3A8A" stopOpacity={0.0} />
                               </linearGradient>
                             </defs>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" opacity={0.3} />
                             <XAxis dataKey="label" tick={{ fontSize: 10, fill: '#64748B' }} tickLine={false} />
                             <YAxis tick={{ fontSize: 10, fill: '#64748B' }} allowDecimals={false} tickLine={false} />
                             <Tooltip
-                              contentStyle={{ backgroundColor: '#0F172A', borderRadius: '8px', border: 'none', color: '#FFF', fontSize: '11px' }}
+                              contentStyle={{ backgroundColor: '#0F172A', borderRadius: '8px', border: '1px solid #334155', color: '#FFF', fontSize: '11px' }}
                               labelStyle={{ fontWeight: 'bold' }}
                             />
-                            <Area type="monotone" dataKey="count" name="Registrations" stroke="#1E3A8A" strokeWidth={2.5} fillOpacity={1} fill="url(#regGrad)" />
+                            <Area type="monotone" dataKey="count" name="Registrations" stroke="#3B82F6" strokeWidth={2.5} fillOpacity={1} fill="url(#regGrad)" />
                           </AreaChart>
                         </ResponsiveContainer>
                       )}
@@ -414,9 +414,9 @@ export default function Analytics({ user, setActiveTab }) {
                 </Card>
 
                 {/* Top Administrative Locations Comparison */}
-                <Card className="border border-slate-200/90 shadow-xs">
+                <Card className="border border-slate-200/90 dark:border-[#334155] shadow-xs">
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-bold text-slate-900">
+                    <CardTitle className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC]">
                       {isSupervisor ? 'Top Woredas in Zone' : 'Top Zones by Registrations'}
                     </CardTitle>
                     <CardDescription className="text-xs">
@@ -428,14 +428,14 @@ export default function Analytics({ user, setActiveTab }) {
                       {(isSupervisor ? d.citizens.byWoreda : d.citizens.byZone).slice(0, 5).map((loc, idx) => (
                         <div key={idx} className="space-y-1">
                           <div className="flex justify-between text-xs">
-                            <span className="font-medium text-slate-800 truncate max-w-[140px]">
+                            <span className="font-medium text-slate-800 dark:text-slate-200 truncate max-w-[140px]">
                               {loc.woredaName || loc.zoneName}
                             </span>
-                            <span className="font-semibold text-slate-900">{loc.count} ({loc.percentage}%)</span>
+                            <span className="font-semibold text-slate-900 dark:text-[#F8FAFC]">{loc.count} ({loc.percentage}%)</span>
                           </div>
-                          <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                          <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
                             <div
-                              className="bg-[#1E3A8A] h-1.5 rounded-full"
+                              className="bg-[#1E3A8A] dark:bg-blue-500 h-1.5 rounded-full"
                               style={{ width: `${Math.min(100, loc.percentage)}%` }}
                             />
                           </div>
@@ -453,13 +453,13 @@ export default function Analytics({ user, setActiveTab }) {
 
               {/* Prolonged Delay & Sync Alert Callout */}
               {d.officers.prolongedSyncDelaysCount > 0 && (
-                <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
-                  <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                <div className="p-4 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 rounded-xl flex items-start gap-3">
+                  <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                   <div>
-                    <h3 className="text-xs font-bold text-amber-900">
+                    <h3 className="text-xs font-bold text-amber-900 dark:text-amber-200">
                       Synchronization Delays Detected ({d.officers.prolongedSyncDelaysCount} Field Officers)
                     </h3>
-                    <p className="text-xs text-amber-700 mt-0.5">
+                    <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
                       The following field officers have not synchronized local fieldwork records for over 24 hours:{' '}
                       <span className="font-semibold">
                         {d.officers.prolongedSyncDelays.map(o => o.fullName).join(', ')}
@@ -501,9 +501,9 @@ export default function Analytics({ user, setActiveTab }) {
               {/* Geographic Breakdown Cards */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Woreda Breakdown */}
-                <Card className="border border-slate-200/90 shadow-xs">
+                <Card className="border border-slate-200/90 dark:border-[#334155] shadow-xs">
                   <CardHeader>
-                    <CardTitle className="text-sm font-bold text-slate-900">
+                    <CardTitle className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC]">
                       Woreda Registration Distribution
                     </CardTitle>
                     <CardDescription className="text-xs">
@@ -514,23 +514,23 @@ export default function Analytics({ user, setActiveTab }) {
                     <div className="overflow-x-auto">
                       <table className="w-full text-left text-xs">
                         <thead>
-                          <tr className="border-b border-slate-100 text-slate-400 font-semibold text-[11px]">
-                            <th className="py-2">Woreda</th>
-                            <th className="py-2">Zone</th>
-                            <th className="py-2 text-right">Registrations</th>
-                            <th className="py-2 text-right">Share</th>
+                          <tr className="border-b border-slate-200 dark:border-[#334155] text-slate-600 dark:text-slate-200 font-bold text-[11px] uppercase tracking-wider bg-slate-50/90 dark:bg-[#0F172A]">
+                            <th className="py-2 px-2">Woreda</th>
+                            <th className="py-2 px-2">Zone</th>
+                            <th className="py-2 px-2 text-right">Registrations</th>
+                            <th className="py-2 px-2 text-right">Share</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100">
+                        <tbody className="divide-y divide-slate-100 dark:divide-[#334155]">
                           {d.citizens.byWoreda.length === 0 ? (
-                            <tr><td colSpan={4} className="py-8 text-center text-slate-400">No records found</td></tr>
+                            <tr><td colSpan={4} className="py-8 text-center text-slate-400 dark:text-slate-500">No records found</td></tr>
                           ) : (
                             d.citizens.byWoreda.map((w, idx) => (
-                              <tr key={idx} className="hover:bg-slate-50/60">
-                                <td className="py-2 font-medium text-slate-800">{w.woredaName}</td>
-                                <td className="py-2 text-slate-500">{w.zoneName}</td>
-                                <td className="py-2 text-right font-semibold text-slate-900">{w.count}</td>
-                                <td className="py-2 text-right text-slate-500">{w.percentage}%</td>
+                              <tr key={idx} className="hover:bg-slate-50/60 dark:hover:bg-[#0F172A]/50">
+                                <td className="py-2 px-2 font-medium text-slate-800 dark:text-slate-200">{w.woredaName}</td>
+                                <td className="py-2 px-2 text-slate-500 dark:text-slate-400">{w.zoneName}</td>
+                                <td className="py-2 px-2 text-right font-semibold text-slate-900 dark:text-[#F8FAFC]">{w.count}</td>
+                                <td className="py-2 px-2 text-right text-slate-500 dark:text-slate-400">{w.percentage}%</td>
                               </tr>
                             ))
                           )}
@@ -542,9 +542,9 @@ export default function Analytics({ user, setActiveTab }) {
 
                 {/* Region / Zone Breakdown for Manager */}
                 {isManager && (
-                  <Card className="border border-slate-200/90 shadow-xs">
+                  <Card className="border border-slate-200/90 dark:border-[#334155] shadow-xs">
                     <CardHeader>
-                      <CardTitle className="text-sm font-bold text-slate-900">
+                      <CardTitle className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC]">
                         Regional Distribution (National Scope)
                       </CardTitle>
                       <CardDescription className="text-xs">
@@ -555,21 +555,21 @@ export default function Analytics({ user, setActiveTab }) {
                       <div className="overflow-x-auto">
                         <table className="w-full text-left text-xs">
                           <thead>
-                            <tr className="border-b border-slate-100 text-slate-400 font-semibold text-[11px]">
-                              <th className="py-2">Region</th>
-                              <th className="py-2 text-right">Registrations</th>
-                              <th className="py-2 text-right">Share</th>
+                            <tr className="border-b border-slate-200 dark:border-[#334155] text-slate-600 dark:text-slate-200 font-bold text-[11px] uppercase tracking-wider bg-slate-50/90 dark:bg-[#0F172A]">
+                              <th className="py-2 px-2">Region</th>
+                              <th className="py-2 px-2 text-right">Registrations</th>
+                              <th className="py-2 px-2 text-right">Share</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-slate-100">
+                          <tbody className="divide-y divide-slate-100 dark:divide-[#334155]">
                             {d.citizens.byRegion.length === 0 ? (
-                              <tr><td colSpan={3} className="py-8 text-center text-slate-400">No records found</td></tr>
+                              <tr><td colSpan={3} className="py-8 text-center text-slate-400 dark:text-slate-500">No records found</td></tr>
                             ) : (
                               d.citizens.byRegion.map((r, idx) => (
-                                <tr key={idx} className="hover:bg-slate-50/60">
-                                  <td className="py-2 font-medium text-slate-800">{r.regionName}</td>
-                                  <td className="py-2 text-right font-semibold text-slate-900">{r.count}</td>
-                                  <td className="py-2 text-right text-slate-500">{r.percentage}%</td>
+                                <tr key={idx} className="hover:bg-slate-50/60 dark:hover:bg-[#0F172A]/50">
+                                  <td className="py-2 px-2 font-medium text-slate-800 dark:text-slate-200">{r.regionName}</td>
+                                  <td className="py-2 px-2 text-right font-semibold text-slate-900 dark:text-[#F8FAFC]">{r.count}</td>
+                                  <td className="py-2 px-2 text-right text-slate-500 dark:text-slate-400">{r.percentage}%</td>
                                 </tr>
                               ))
                             )}
@@ -588,37 +588,37 @@ export default function Analytics({ user, setActiveTab }) {
             <div className="space-y-6">
               {/* Assignment Coverage Summary Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Card className="border border-slate-200/90 shadow-xs p-4">
+                <Card className="border border-slate-200/90 dark:border-[#334155] shadow-xs p-4">
                   <span className="text-xs text-slate-400 uppercase font-bold block">Active Officers</span>
-                  <span className="text-2xl font-bold text-slate-900 mt-1 block">
+                  <span className="text-2xl font-bold text-slate-900 dark:text-[#F8FAFC] mt-1 block">
                     {d.assignmentCoverage.totalActiveOfficers}
                   </span>
-                  <span className="text-xs text-slate-500">Currently active in fieldwork</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">Currently active in fieldwork</span>
                 </Card>
-                <Card className="border border-slate-200/90 shadow-xs p-4">
+                <Card className="border border-slate-200/90 dark:border-[#334155] shadow-xs p-4">
                   <span className="text-xs text-slate-400 uppercase font-bold block">Woreda Coverage</span>
-                  <span className="text-2xl font-bold text-slate-900 mt-1 block">
+                  <span className="text-2xl font-bold text-slate-900 dark:text-[#F8FAFC] mt-1 block">
                     {d.assignmentCoverage.woredaCoveragePercentage}%
                   </span>
-                  <span className="text-xs text-slate-500">
+                  <span className="text-xs text-slate-500 dark:text-slate-400">
                     {d.assignmentCoverage.coveredWoredas} of {d.assignmentCoverage.totalWoredas} woredas assigned
                   </span>
                 </Card>
-                <Card className="border border-slate-200/90 shadow-xs p-4">
+                <Card className="border border-slate-200/90 dark:border-[#334155] shadow-xs p-4">
                   <span className="text-xs text-slate-400 uppercase font-bold block">Supervisor Coverage</span>
-                  <span className="text-2xl font-bold text-slate-900 mt-1 block">
+                  <span className="text-2xl font-bold text-slate-900 dark:text-[#F8FAFC] mt-1 block">
                     {d.assignmentCoverage.zoneCoveragePercentage}%
                   </span>
-                  <span className="text-xs text-slate-500">
+                  <span className="text-xs text-slate-500 dark:text-slate-400">
                     {d.assignmentCoverage.coveredZones} of {d.assignmentCoverage.totalZones} zones covered
                   </span>
                 </Card>
-                <Card className="border border-slate-200/90 shadow-xs p-4">
+                <Card className="border border-slate-200/90 dark:border-[#334155] shadow-xs p-4">
                   <span className="text-xs text-slate-400 uppercase font-bold block">Assigned vs Unassigned</span>
                   <div className="flex items-baseline gap-2 mt-1">
-                    <span className="text-2xl font-bold text-emerald-600">{d.assignmentCoverage.assignedOfficersCount}</span>
+                    <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{d.assignmentCoverage.assignedOfficersCount}</span>
                     <span className="text-xs text-slate-400">assigned /</span>
-                    <span className="text-lg font-semibold text-rose-500">{d.assignmentCoverage.unassignedOfficersCount}</span>
+                    <span className="text-lg font-semibold text-rose-500 dark:text-rose-400">{d.assignmentCoverage.unassignedOfficersCount}</span>
                     <span className="text-xs text-slate-400">unassigned</span>
                   </div>
                 </Card>
@@ -626,22 +626,22 @@ export default function Analytics({ user, setActiveTab }) {
 
               {/* Zones without Active Supervisor (Manager View) */}
               {isManager && d.assignmentCoverage.zonesWithoutSupervisor?.length > 0 && (
-                <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl space-y-1">
-                  <div className="flex items-center gap-2 text-rose-900 font-bold text-xs">
-                    <AlertTriangle className="w-4 h-4 text-rose-600" />
+                <div className="p-4 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 rounded-xl space-y-1">
+                  <div className="flex items-center gap-2 text-rose-900 dark:text-rose-200 font-bold text-xs">
+                    <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400" />
                     <span>Administrative Coverage Gap: {d.assignmentCoverage.zonesWithoutSupervisor.length} Zones Without Active Supervisor</span>
                   </div>
-                  <p className="text-xs text-rose-700">
+                  <p className="text-xs text-rose-700 dark:text-rose-300">
                     The following administrative zones have no supervisor assigned: {d.assignmentCoverage.zonesWithoutSupervisor.slice(0, 10).map(z => z.name).join(', ')}.
                   </p>
                 </div>
               )}
 
               {/* Field Officers Detailed Activity Table */}
-              <Card className="border border-slate-200/90 shadow-xs overflow-hidden">
+              <Card className="border border-slate-200/90 dark:border-[#334155] shadow-xs overflow-hidden">
                 <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3">
                   <div>
-                    <CardTitle className="text-sm font-bold text-slate-900">
+                    <CardTitle className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC]">
                       Field Officer Telemetry & Activity Roster
                     </CardTitle>
                     <CardDescription className="text-xs">
@@ -655,14 +655,14 @@ export default function Analytics({ user, setActiveTab }) {
                       value={officerSearch}
                       onChange={(e) => setOfficerSearch(e.target.value)}
                       placeholder="Search officer name or woreda..."
-                      className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-[#1E3A8A]"
+                      className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 dark:bg-[#0F172A] border border-slate-200 dark:border-[#334155] text-slate-900 dark:text-[#F8FAFC] rounded-lg focus:outline-hidden focus:ring-1 focus:ring-[#1E3A8A]"
                     />
                   </div>
                 </CardHeader>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse text-xs">
                     <thead>
-                      <tr className="bg-slate-50 border-b border-slate-200/80 text-slate-500 font-semibold text-[11px] uppercase tracking-wider">
+                      <tr className="bg-slate-50/90 dark:bg-[#0F172A] border-b border-slate-200 dark:border-[#334155] text-slate-600 dark:text-slate-200 font-bold text-[11px] uppercase tracking-wider">
                         <th className="py-2.5 px-4">Field Officer</th>
                         <th className="py-2.5 px-4">Woreda</th>
                         <th className="py-2.5 px-4 text-right">Registrations</th>
@@ -672,33 +672,33 @@ export default function Analytics({ user, setActiveTab }) {
                         <th className="py-2.5 px-4 text-center">Status</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 text-slate-700">
+                    <tbody className="divide-y divide-slate-100 dark:divide-[#334155] text-slate-700 dark:text-slate-300">
                       {filteredOfficers.length === 0 ? (
-                        <tr><td colSpan={7} className="py-12 text-center text-slate-400">No matching officers found</td></tr>
+                        <tr><td colSpan={7} className="py-12 text-center text-slate-400 dark:text-slate-500">No matching officers found</td></tr>
                       ) : (
                         filteredOfficers.map((o) => (
-                          <tr key={o.id} className="hover:bg-slate-50/60">
-                            <td className="py-2.5 px-4 font-medium text-slate-900">
+                          <tr key={o.id} className="hover:bg-slate-50/60 dark:hover:bg-[#0F172A]/50">
+                            <td className="py-2.5 px-4 font-medium text-slate-900 dark:text-[#F8FAFC]">
                               <div>{o.fullName}</div>
                               <div className="text-[10px] text-slate-400">{o.email}</div>
                             </td>
-                            <td className="py-2.5 px-4 text-slate-600">{o.woredaName}</td>
-                            <td className="py-2.5 px-4 text-right font-semibold text-slate-900">
+                            <td className="py-2.5 px-4 text-slate-600 dark:text-slate-300">{o.woredaName}</td>
+                            <td className="py-2.5 px-4 text-right font-semibold text-slate-900 dark:text-[#F8FAFC]">
                               {o.registrationsInPeriod}
                               <span className="text-[10px] text-slate-400 font-normal ml-1">({o.lastSyncTime ? 'synced' : '0'})</span>
                             </td>
-                            <td className="py-2.5 px-4 text-right text-slate-800">{o.reportsSubmitted}</td>
-                            <td className="py-2.5 px-4 text-right text-slate-600">{o.formattedScreenTime}</td>
-                            <td className="py-2.5 px-4 text-right text-slate-500 font-mono text-[11px]">
+                            <td className="py-2.5 px-4 text-right text-slate-800 dark:text-slate-200">{o.reportsSubmitted}</td>
+                            <td className="py-2.5 px-4 text-right text-slate-600 dark:text-slate-300">{o.formattedScreenTime}</td>
+                            <td className="py-2.5 px-4 text-right text-slate-500 dark:text-slate-400 font-mono text-[11px]">
                               {o.hoursSinceSync === 0 ? 'Just now' : `${o.hoursSinceSync}h ago`}
                             </td>
                             <td className="py-2.5 px-4 text-center">
                               <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold ${
                                 o.syncStatus === 'HEALTHY'
-                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                  ? 'bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
                                   : o.syncStatus === 'DELAYED'
-                                  ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                                  : 'bg-rose-50 text-rose-700 border border-rose-200'
+                                  ? 'bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
+                                  : 'bg-rose-50 dark:bg-rose-950/80 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
                               }`}>
                                 {o.syncStatus === 'PROLONGED_DELAY' ? '>24h Delay' : o.syncStatus}
                               </span>
@@ -718,41 +718,41 @@ export default function Analytics({ user, setActiveTab }) {
             <div className="space-y-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Synchronization Health */}
-                <Card className="border border-slate-200/90 shadow-xs">
+                <Card className="border border-slate-200/90 dark:border-slate-700 bg-white dark:bg-[#1E293B] shadow-xs">
                   <CardHeader>
-                    <CardTitle className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                      <RefreshCw className="w-4 h-4 text-[#1E3A8A]" />
+                    <CardTitle className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] flex items-center gap-2">
+                      <RefreshCw className="w-4 h-4 text-[#1E3A8A] dark:text-blue-400" />
                       <span>Synchronization Health & Pipeline</span>
                     </CardTitle>
-                    <CardDescription className="text-xs">
+                    <CardDescription className="text-xs text-slate-500 dark:text-slate-400">
                       Server-confirmed records versus local offline pending status
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-3 gap-3 text-center">
-                      <div className="p-3 bg-emerald-50/60 border border-emerald-100 rounded-xl">
-                        <span className="text-[10px] uppercase font-bold text-emerald-700">Confirmed Synced</span>
-                        <span className="text-xl font-bold text-emerald-900 block mt-1">
+                      <div className="p-3 bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-800/50 rounded-xl">
+                        <span className="text-[10px] uppercase font-bold text-emerald-700 dark:text-emerald-400">Confirmed Synced</span>
+                        <span className="text-xl font-bold text-emerald-900 dark:text-emerald-300 block mt-1">
                           {d.syncAnalytics.serverConfirmedRecords}
                         </span>
                       </div>
-                      <div className="p-3 bg-amber-50/60 border border-amber-100 rounded-xl">
-                        <span className="text-[10px] uppercase font-bold text-amber-700">Pending Sync</span>
-                        <span className="text-xl font-bold text-amber-900 block mt-1">
+                      <div className="p-3 bg-amber-50/60 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-800/50 rounded-xl">
+                        <span className="text-[10px] uppercase font-bold text-amber-700 dark:text-amber-400">Pending Sync</span>
+                        <span className="text-xl font-bold text-amber-900 dark:text-amber-300 block mt-1">
                           {d.syncAnalytics.pendingOfflineRecords}
                         </span>
                       </div>
-                      <div className="p-3 bg-rose-50/60 border border-rose-100 rounded-xl">
-                        <span className="text-[10px] uppercase font-bold text-rose-700">Sync Failures</span>
-                        <span className="text-xl font-bold text-rose-900 block mt-1">
+                      <div className="p-3 bg-rose-50/60 dark:bg-rose-950/30 border border-rose-100 dark:border-rose-800/50 rounded-xl">
+                        <span className="text-[10px] uppercase font-bold text-rose-700 dark:text-rose-400">Sync Failures</span>
+                        <span className="text-xl font-bold text-rose-900 dark:text-rose-300 block mt-1">
                           {d.syncAnalytics.failedSyncRecords}
                         </span>
                       </div>
                     </div>
 
-                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-1 text-slate-700">
-                      <div className="font-semibold text-slate-900">Device-Reported vs Server-Confirmed:</div>
-                      <p className="text-[11px] text-slate-600">
+                    <div className="p-3 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-slate-700 text-xs space-y-1 text-slate-700 dark:text-slate-300">
+                      <div className="font-semibold text-slate-900 dark:text-[#F8FAFC]">Device-Reported vs Server-Confirmed:</div>
+                      <p className="text-[11px] text-slate-600 dark:text-slate-400">
                         {d.syncAnalytics.deviceReportedPendingCount > 0
                           ? `Field tablets reported ${d.syncAnalytics.deviceReportedPendingCount} pending records queued in local device storage awaiting connection.`
                           : 'All device-reported local records are currently synchronized with PostgreSQL.'}
@@ -762,43 +762,43 @@ export default function Analytics({ user, setActiveTab }) {
                 </Card>
 
                 {/* Data Quality & Conflict Console */}
-                <Card className="border border-slate-200/90 shadow-xs">
+                <Card className="border border-slate-200/90 dark:border-slate-700 bg-white dark:bg-[#1E293B] shadow-xs">
                   <CardHeader>
-                    <CardTitle className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                      <ShieldCheck className="w-4 h-4 text-purple-600" />
+                    <CardTitle className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] flex items-center gap-2">
+                      <ShieldCheck className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                       <span>Data Quality & Duplicate Adjudication</span>
                     </CardTitle>
-                    <CardDescription className="text-xs">
+                    <CardDescription className="text-xs text-slate-500 dark:text-slate-400">
                       Record completeness and potential duplicate conflict reviews
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between p-3.5 bg-purple-50/50 border border-purple-100 rounded-xl">
+                    <div className="flex items-center justify-between p-3.5 bg-purple-50/50 dark:bg-purple-950/30 border border-purple-100 dark:border-purple-800/50 rounded-xl">
                       <div>
-                        <div className="text-xs font-bold text-purple-950">Record Validation Pass Rate</div>
-                        <div className="text-[11px] text-purple-700 mt-0.5">Complete address, community & demographics</div>
+                        <div className="text-xs font-bold text-purple-950 dark:text-purple-200">Record Validation Pass Rate</div>
+                        <div className="text-[11px] text-purple-700 dark:text-purple-400 mt-0.5">Complete address, community & demographics</div>
                       </div>
-                      <span className="text-2xl font-bold text-purple-900">
+                      <span className="text-2xl font-bold text-purple-900 dark:text-purple-300">
                         {d.dataQuality.validationRatePercentage}%
                       </span>
                     </div>
 
                     <div className="space-y-2 text-xs">
-                      <div className="flex justify-between py-1.5 border-b border-slate-100">
-                        <span className="text-slate-600">Possible Duplicate Reviews Pending:</span>
-                        <span className="font-bold text-amber-600">{d.dataQuality.possibleDuplicatesCount}</span>
+                      <div className="flex justify-between py-1.5 border-b border-slate-100 dark:border-slate-700/60">
+                        <span className="text-slate-600 dark:text-slate-400">Possible Duplicate Reviews Pending:</span>
+                        <span className="font-bold text-amber-600 dark:text-amber-400">{d.dataQuality.possibleDuplicatesCount}</span>
                       </div>
-                      <div className="flex justify-between py-1.5 border-b border-slate-100">
-                        <span className="text-slate-600">Confirmed Duplicates Identified:</span>
-                        <span className="font-bold text-slate-800">{d.dataQuality.confirmedDuplicatesCount}</span>
+                      <div className="flex justify-between py-1.5 border-b border-slate-100 dark:border-slate-700/60">
+                        <span className="text-slate-600 dark:text-slate-400">Confirmed Duplicates Identified:</span>
+                        <span className="font-bold text-slate-800 dark:text-slate-200">{d.dataQuality.confirmedDuplicatesCount}</span>
                       </div>
-                      <div className="flex justify-between py-1.5 border-b border-slate-100">
-                        <span className="text-slate-600">Records Missing Phone Number:</span>
-                        <span className="font-semibold text-slate-700">{d.dataQuality.missingDataBreakdown.missingPhoneNumber}</span>
+                      <div className="flex justify-between py-1.5 border-b border-slate-100 dark:border-slate-700/60">
+                        <span className="text-slate-600 dark:text-slate-400">Records Missing Phone Number:</span>
+                        <span className="font-semibold text-slate-700 dark:text-slate-300">{d.dataQuality.missingDataBreakdown.missingPhoneNumber}</span>
                       </div>
                       <div className="flex justify-between py-1.5">
-                        <span className="text-slate-600">Records Missing Date of Birth:</span>
-                        <span className="font-semibold text-slate-700">{d.dataQuality.missingDataBreakdown.missingDobOrAge}</span>
+                        <span className="text-slate-600 dark:text-slate-400">Records Missing Date of Birth:</span>
+                        <span className="font-semibold text-slate-700 dark:text-slate-300">{d.dataQuality.missingDataBreakdown.missingDobOrAge}</span>
                       </div>
                     </div>
                   </CardContent>
@@ -811,45 +811,45 @@ export default function Analytics({ user, setActiveTab }) {
           {activeTabNav === 'reports' && (
             <div className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Card className="border border-slate-200/90 shadow-xs p-4">
-                  <span className="text-xs text-slate-400 uppercase font-bold block">Submitted Reports</span>
-                  <span className="text-2xl font-bold text-slate-900 mt-1 block">
+                <Card className="border border-slate-200/90 dark:border-slate-700 bg-white dark:bg-[#1E293B] shadow-xs p-4">
+                  <span className="text-xs text-slate-400 dark:text-slate-400 uppercase font-bold block">Submitted Reports</span>
+                  <span className="text-2xl font-bold text-slate-900 dark:text-[#F8FAFC] mt-1 block">
                     {d.dailyReports.totalSubmitted}
                   </span>
-                  <span className="text-xs text-slate-500">In selected timeframe</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">In selected timeframe</span>
                 </Card>
-                <Card className="border border-slate-200/90 shadow-xs p-4">
-                  <span className="text-xs text-slate-400 uppercase font-bold block">Expected Reports</span>
-                  <span className="text-2xl font-bold text-slate-900 mt-1 block">
+                <Card className="border border-slate-200/90 dark:border-slate-700 bg-white dark:bg-[#1E293B] shadow-xs p-4">
+                  <span className="text-xs text-slate-400 dark:text-slate-400 uppercase font-bold block">Expected Reports</span>
+                  <span className="text-2xl font-bold text-slate-900 dark:text-[#F8FAFC] mt-1 block">
                     {d.dailyReports.expectedReports}
                   </span>
-                  <span className="text-xs text-slate-500">Based on working roster</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">Based on working roster</span>
                 </Card>
-                <Card className="border border-slate-200/90 shadow-xs p-4">
-                  <span className="text-xs text-slate-400 uppercase font-bold block">Submission Rate</span>
-                  <span className="text-2xl font-bold text-slate-900 mt-1 block">
+                <Card className="border border-slate-200/90 dark:border-slate-700 bg-white dark:bg-[#1E293B] shadow-xs p-4">
+                  <span className="text-xs text-slate-400 dark:text-slate-400 uppercase font-bold block">Submission Rate</span>
+                  <span className="text-2xl font-bold text-slate-900 dark:text-[#F8FAFC] mt-1 block">
                     {d.dailyReports.submissionRatePercentage}%
                   </span>
-                  <span className="text-xs text-slate-500">Fulfillment compliance</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">Fulfillment compliance</span>
                 </Card>
-                <Card className="border border-slate-200/90 shadow-xs p-4">
-                  <span className="text-xs text-slate-400 uppercase font-bold block">Review Pipeline</span>
+                <Card className="border border-slate-200/90 dark:border-slate-700 bg-white dark:bg-[#1E293B] shadow-xs p-4">
+                  <span className="text-xs text-slate-400 dark:text-slate-400 uppercase font-bold block">Review Pipeline</span>
                   <div className="flex items-baseline gap-1 mt-1 text-xs">
-                    <span className="text-lg font-bold text-amber-600">{d.dailyReports.awaitingReview}</span>
+                    <span className="text-lg font-bold text-amber-600 dark:text-amber-400">{d.dailyReports.awaitingReview}</span>
                     <span className="text-slate-400">pending ·</span>
-                    <span className="text-lg font-bold text-emerald-600">{d.dailyReports.reviewed}</span>
+                    <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">{d.dailyReports.reviewed}</span>
                     <span className="text-slate-400">done</span>
                   </div>
-                  <span className="text-xs text-slate-500 block mt-1">
+                  <span className="text-xs text-slate-500 dark:text-slate-400 block mt-1">
                     {d.dailyReports.returnedForCorrection} returned for correction
                   </span>
                 </Card>
               </div>
 
               {/* Report Trend Chart */}
-              <Card className="border border-slate-200/90 shadow-xs">
+              <Card className="border border-slate-200/90 dark:border-slate-700 bg-white dark:bg-[#1E293B] shadow-xs">
                 <CardHeader>
-                  <CardTitle className="text-sm font-bold text-slate-900">
+                  <CardTitle className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC]">
                     Daily Report Submissions Over Time
                   </CardTitle>
                 </CardHeader>
@@ -862,11 +862,11 @@ export default function Analytics({ user, setActiveTab }) {
                     ) : (
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={d.dailyReports.dailyTrends} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-                          <XAxis dataKey="label" tick={{ fontSize: 10, fill: '#64748B' }} />
-                          <YAxis tick={{ fontSize: 10, fill: '#64748B' }} allowDecimals={false} />
-                          <Tooltip contentStyle={{ backgroundColor: '#0F172A', borderRadius: '8px', color: '#FFF', fontSize: '11px' }} />
-                          <Bar dataKey="count" name="Reports Submitted" fill="#1E3A8A" radius={[4, 4, 0, 0]} />
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" strokeOpacity={0.3} />
+                          <XAxis dataKey="label" tick={{ fontSize: 10, fill: '#94A3B8' }} />
+                          <YAxis tick={{ fontSize: 10, fill: '#94A3B8' }} allowDecimals={false} />
+                          <Tooltip contentStyle={{ backgroundColor: '#0F172A', borderColor: '#334155', borderRadius: '8px', color: '#F8FAFC', fontSize: '11px' }} />
+                          <Bar dataKey="count" name="Reports Submitted" fill="#2563EB" radius={[4, 4, 0, 0]} />
                         </BarChart>
                       </ResponsiveContainer>
                     )}
@@ -880,48 +880,48 @@ export default function Analytics({ user, setActiveTab }) {
           {activeTabNav === 'sessions' && (
             <div className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <Card className="border border-slate-200/90 shadow-xs p-4">
-                  <span className="text-xs text-slate-400 uppercase font-bold block">Work Sessions</span>
-                  <span className="text-2xl font-bold text-slate-900 mt-1 block">
+                <Card className="border border-slate-200/90 dark:border-slate-700 bg-white dark:bg-[#1E293B] shadow-xs p-4">
+                  <span className="text-xs text-slate-400 dark:text-slate-400 uppercase font-bold block">Work Sessions</span>
+                  <span className="text-2xl font-bold text-slate-900 dark:text-[#F8FAFC] mt-1 block">
                     {d.workSessions.totalSessions}
                   </span>
-                  <span className="text-xs text-slate-500">Recorded fieldwork app sessions</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">Recorded fieldwork app sessions</span>
                 </Card>
-                <Card className="border border-slate-200/90 shadow-xs p-4">
-                  <span className="text-xs text-slate-400 uppercase font-bold block">Total Fieldwork Time</span>
-                  <span className="text-2xl font-bold text-slate-900 mt-1 block">
+                <Card className="border border-slate-200/90 dark:border-slate-700 bg-white dark:bg-[#1E293B] shadow-xs p-4">
+                  <span className="text-xs text-slate-400 dark:text-slate-400 uppercase font-bold block">Total Fieldwork Time</span>
+                  <span className="text-2xl font-bold text-slate-900 dark:text-[#F8FAFC] mt-1 block">
                     {d.workSessions.formattedDuration}
                   </span>
-                  <span className="text-xs text-slate-500">Cumulative active operational duration</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">Cumulative active operational duration</span>
                 </Card>
-                <Card className="border border-slate-200/90 shadow-xs p-4">
-                  <span className="text-xs text-slate-400 uppercase font-bold block">Average Session Length</span>
-                  <span className="text-2xl font-bold text-slate-900 mt-1 block">
+                <Card className="border border-slate-200/90 dark:border-slate-700 bg-white dark:bg-[#1E293B] shadow-xs p-4">
+                  <span className="text-xs text-slate-400 dark:text-slate-400 uppercase font-bold block">Average Session Length</span>
+                  <span className="text-2xl font-bold text-slate-900 dark:text-[#F8FAFC] mt-1 block">
                     {d.workSessions.formattedAverageSession}
                   </span>
-                  <span className="text-xs text-slate-500">Per work session recorded</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">Per work session recorded</span>
                 </Card>
               </div>
 
               {/* Recent Activity Timeline Stream */}
-              <Card className="border border-slate-200/90 shadow-xs">
+              <Card className="border border-slate-200/90 dark:border-slate-700 bg-white dark:bg-[#1E293B] shadow-xs">
                 <CardHeader>
-                  <CardTitle className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                    <Activity className="w-4 h-4 text-[#1E3A8A]" />
+                  <CardTitle className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] flex items-center gap-2">
+                    <Activity className="w-4 h-4 text-[#1E3A8A] dark:text-blue-400" />
                     <span>Real-Time Field Activity Timeline</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-0">
-                  <div className="divide-y divide-slate-100">
+                  <div className="divide-y divide-slate-100 dark:divide-slate-700/60">
                     {d.workSessions.recentActivity?.length === 0 ? (
                       <div className="py-12 text-center text-slate-400 text-xs">No recent activity logs recorded</div>
                     ) : (
                       d.workSessions.recentActivity.map((log) => (
                         <div key={log.id} className="py-3 flex items-center justify-between text-xs">
                           <div>
-                            <span className="font-semibold text-slate-800">{log.officerName}</span>
+                            <span className="font-semibold text-slate-800 dark:text-slate-200">{log.officerName}</span>
                             {log.woredaName && <span className="text-slate-400 ml-1.5">({log.woredaName})</span>}
-                            <p className="text-slate-600 mt-0.5">{log.description}</p>
+                            <p className="text-slate-600 dark:text-slate-300 mt-0.5">{log.description}</p>
                           </div>
                           <span className="text-slate-400 font-mono text-[11px] shrink-0">
                             {new Date(log.deviceTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

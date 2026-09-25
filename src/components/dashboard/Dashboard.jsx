@@ -33,13 +33,13 @@ const GENDER_COLORS = { 'MALE': '#1E3A8A', 'FEMALE': '#EC4899', 'OTHER': '#8B5CF
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-modal text-xs font-sans text-slate-800">
-        <p className="font-semibold text-slate-900 mb-1">{label}</p>
+      <div className="bg-white dark:bg-[#1E293B] p-3 rounded-xl border border-slate-200 dark:border-[#334155] shadow-modal text-xs font-sans text-slate-800 dark:text-[#F8FAFC]">
+        <p className="font-semibold text-slate-900 dark:text-white mb-1">{label}</p>
         {payload.map((entry, index) => (
           <p key={index} className="flex items-center gap-1.5 py-0.5" style={{ color: entry.color }}>
             <span className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
-            <span className="font-medium text-slate-600">{entry.name}:</span>
-            <span className="font-bold text-slate-900">{entry.value}</span>
+            <span className="font-medium text-slate-600 dark:text-slate-300">{entry.name}:</span>
+            <span className="font-bold text-slate-900 dark:text-white">{entry.value}</span>
           </p>
         ))}
       </div>
@@ -388,14 +388,14 @@ export default function Dashboard({
       )}
 
       {/* Top Banner: Status & Real-Time Sync Indicator */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-[#1E293B] p-4 rounded-2xl border border-slate-200/90 dark:border-[#334155] shadow-2xs">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
             {isManager && 'Executive Operations Dashboard'}
             {isSupervisor && 'Supervisor Real-Time Monitoring'}
             {isOfficer && 'Field Officer Operations Console'}
           </h2>
-          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             {isManager && 'Consolidated live telemetry across all regions, zones, and field officers'}
             {isSupervisor && 'Real-time telemetry and registration velocity for your assigned territory'}
             {isOfficer && 'Real-time tracking of personal registrations, reports, and screen-time telemetry'}
@@ -430,38 +430,38 @@ export default function Dashboard({
           URGENT ROADBLOCKS ESCALATION BANNER (Supervisor & Manager)
          ============================================================ */}
       {(isManager || isSupervisor) && urgentRoadblocks.length > 0 && (
-        <div className="bg-rose-50 border border-rose-200 rounded-2xl p-4 sm:p-5 shadow-xs animate-in fade-in">
+        <div className="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 rounded-2xl p-4 sm:p-5 shadow-xs animate-in fade-in">
           <div className="flex items-start gap-3.5">
             <div className="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
               <AlertTriangle className="w-5 h-5" />
             </div>
             <div className="flex-1">
               <div className="flex items-center justify-between gap-2 flex-wrap">
-                <h4 className="text-sm sm:text-base font-bold text-rose-900 flex items-center gap-2">
+                <h4 className="text-sm sm:text-base font-bold text-rose-900 dark:text-rose-200 flex items-center gap-2">
                   Urgent Roadblocks & Escalations Requiring Immediate Action
-                  <span className="px-2 py-0.5 rounded-full text-xs bg-rose-200 text-rose-800 font-bold">
+                  <span className="px-2 py-0.5 rounded-full text-xs bg-rose-200 dark:bg-rose-900/80 text-rose-800 dark:text-rose-200 font-bold">
                     {urgentRoadblocks.length}
                   </span>
                 </h4>
               </div>
-              <p className="text-xs text-rose-700 mt-0.5">
+              <p className="text-xs text-rose-700 dark:text-rose-300 mt-0.5">
                 The following field officers flagged critical impediments in their daily reports today:
               </p>
 
               <div className="mt-3 space-y-2">
                 {urgentRoadblocks.map((rb, idx) => (
-                  <div key={idx} className="bg-white/90 rounded-xl p-3 border border-rose-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                  <div key={idx} className="bg-white/90 dark:bg-[#1E293B] rounded-xl p-3 border border-rose-200/80 dark:border-rose-900/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-slate-900">{rb.officerName}</span>
+                        <span className="font-bold text-slate-900 dark:text-white">{rb.officerName}</span>
                         <span className="text-slate-400">·</span>
-                        <span className="text-slate-600 font-medium">{rb.woredaName}</span>
+                        <span className="text-slate-600 dark:text-slate-300 font-medium">{rb.woredaName}</span>
                         <span className="text-slate-400">·</span>
                         <span className="text-slate-400">
                           {new Date(rb.submittedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
-                      <p className="text-rose-900 font-medium mt-1">
+                      <p className="text-rose-900 dark:text-rose-300 font-medium mt-1">
                         "{rb.reason}"
                       </p>
                     </div>
@@ -471,7 +471,7 @@ export default function Dashboard({
                         size="xs"
                         variant="outline"
                         onClick={() => handleOpenOfficerDrilldown(rb.reportId)}
-                        className="bg-white hover:bg-rose-50 border-rose-200 text-rose-700"
+                        className="bg-white dark:bg-[#1E293B] hover:bg-rose-50 dark:hover:bg-rose-950/50 border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300"
                       >
                         Inspect Officer
                       </Button>
@@ -536,7 +536,7 @@ export default function Dashboard({
             subtitle={urgentRoadblocks.length > 0 ? 'Requires attention' : 'All clear'}
             icon={AlertTriangle}
             iconColor={urgentRoadblocks.length > 0 ? 'text-rose-700' : 'text-slate-400'}
-            iconBg={urgentRoadblocks.length > 0 ? 'bg-rose-50' : 'bg-slate-50'}
+            iconBg={urgentRoadblocks.length > 0 ? 'bg-rose-50 dark:bg-rose-950/60' : 'bg-slate-50 dark:bg-slate-800'}
           />
 
           <div
@@ -601,19 +601,19 @@ export default function Dashboard({
               <Card
                 hover
                 onClick={() => setActiveTab('report_new')}
-                className="p-5 cursor-pointer bg-white border border-slate-200 shadow-subtle group hover:border-blue-300"
+                className="p-5 cursor-pointer bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-[#334155] shadow-subtle group hover:border-blue-300 dark:hover:border-blue-500"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3.5">
-                    <div className="w-12 h-12 rounded-xl bg-blue-50 text-[#1E3A8A] flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-[#1E3A8A] dark:text-[#60A5FA] flex items-center justify-center">
                       <FilePlus2 className="w-6 h-6" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-base text-slate-900">Submit Daily Report</h4>
-                      <p className="text-xs text-slate-500 mt-0.5">Finalize screen time & submit work log</p>
+                      <h4 className="font-semibold text-base text-slate-900 dark:text-white">Submit Daily Report</h4>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Finalize screen time & submit work log</p>
                     </div>
                   </div>
-                  <ArrowRight className="w-5 h-5 text-slate-400 group-hover:translate-x-1 group-hover:text-[#1E3A8A] transition-all" />
+                  <ArrowRight className="w-5 h-5 text-slate-400 group-hover:translate-x-1 group-hover:text-[#1E3A8A] dark:group-hover:text-[#60A5FA] transition-all" />
                 </div>
               </Card>
             </div>
@@ -798,23 +798,23 @@ export default function Dashboard({
           </CardHeader>
           <CardContent className="flex-1">
             {recentActivityStream.length === 0 ? (
-              <div className="text-center py-10 text-xs text-slate-400">
+              <div className="text-center py-10 text-xs text-slate-400 dark:text-slate-500">
                 No recent activity events logged yet
               </div>
             ) : (
-              <div className="divide-y divide-slate-100 max-h-[300px] overflow-y-auto pr-1">
+              <div className="divide-y divide-slate-100 dark:divide-[#334155] max-h-[300px] overflow-y-auto pr-1">
                 {recentActivityStream.map((log) => (
                   <div key={log.id} className="py-2.5 flex items-center justify-between gap-3 text-xs">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center flex-shrink-0 font-bold text-[10px]">
+                      <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 border border-blue-200/60 dark:border-blue-900/50 flex items-center justify-center flex-shrink-0 font-bold text-[10px]">
                         {log.eventType?.slice(0, 3) || 'LOG'}
                       </div>
                       <div className="min-w-0">
-                        <p className="font-semibold text-slate-900 truncate">
+                        <p className="font-semibold text-slate-900 dark:text-[#F8FAFC] truncate">
                           {log.description}
                         </p>
-                        <p className="text-[11px] text-slate-500 flex items-center gap-1.5 mt-0.5">
-                          <span className="font-medium text-slate-700">{log.officerName}</span>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-0.5">
+                          <span className="font-medium text-slate-700 dark:text-slate-300">{log.officerName}</span>
                           <span>·</span>
                           <span>
                             {new Date(log.deviceTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -857,49 +857,49 @@ export default function Dashboard({
               </Button>
             )}
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0">
             {teamLeaderboard.length === 0 ? (
-              <div className="text-center py-8 text-xs text-slate-400">
+              <div className="text-center py-12 text-xs text-slate-400 dark:text-slate-500">
                 No officer performance records available
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead>
-                    <tr className="border-b border-slate-100 text-slate-400 font-semibold uppercase tracking-wider">
-                      <th className="pb-3 pl-2">Rank</th>
-                      <th className="pb-3">Officer</th>
-                      <th className="pb-3">Woreda / Territory</th>
-                      <th className="pb-3 text-right">Registrations</th>
-                      <th className="pb-3 text-right">Reports</th>
-                      <th className="pb-3 text-right pr-2">Action</th>
+                  <thead className="bg-slate-50 dark:bg-[#0F172A] border-b border-slate-200 dark:border-[#334155]">
+                    <tr className="border-b border-slate-200 dark:border-[#334155] text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-200">
+                      <th className="py-3.5 pl-6 pr-3">Rank</th>
+                      <th className="py-3.5 px-4">Officer</th>
+                      <th className="py-3.5 px-4">Woreda / Territory</th>
+                      <th className="py-3.5 px-4 text-right">Registrations</th>
+                      <th className="py-3.5 px-4 text-right">Reports</th>
+                      <th className="py-3.5 pr-6 text-right">Action</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
+                  <tbody className="divide-y divide-slate-100 dark:divide-[#334155]">
                     {teamLeaderboard.map((emp, i) => (
                       <tr
                         key={emp.id}
                         onClick={() => handleOpenOfficerDrilldown(emp.id)}
-                        className="hover:bg-slate-50/80 transition-colors cursor-pointer group"
+                        className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors cursor-pointer group"
                       >
-                        <td className="py-3 pl-2">
-                          <span className={`w-5 h-5 rounded-full inline-flex items-center justify-center font-bold text-[11px] ${
-                            i === 0 ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-600'
+                        <td className="py-3.5 pl-6 pr-3">
+                          <span className={`w-6 h-6 rounded-full inline-flex items-center justify-center font-bold text-xs ${
+                            i === 0 ? 'bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
                           }`}>
                             {i + 1}
                           </span>
                         </td>
-                        <td className="py-3 font-semibold text-slate-900 group-hover:text-blue-700 transition-colors">
+                        <td className="py-3.5 px-4 font-semibold text-slate-900 dark:text-[#F8FAFC] group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors">
                           {emp.name}
                         </td>
-                        <td className="py-3 text-slate-500">{emp.region}</td>
-                        <td className="py-3 text-right font-bold text-slate-900">{emp.registrations}</td>
-                        <td className="py-3 text-right font-medium text-slate-700">{emp.reports}</td>
-                        <td className="py-3 text-right pr-2">
+                        <td className="py-3.5 px-4 text-slate-500 dark:text-slate-400">{emp.region}</td>
+                        <td className="py-3.5 px-4 text-right font-bold text-slate-900 dark:text-[#F8FAFC] font-mono">{emp.registrations}</td>
+                        <td className="py-3.5 px-4 text-right font-medium text-slate-700 dark:text-slate-300 font-mono">{emp.reports}</td>
+                        <td className="py-3.5 pr-6 text-right">
                           <Button
                             size="xs"
                             variant="ghost"
-                            className="text-blue-700 group-hover:bg-blue-50"
+                            className="text-blue-700 dark:text-blue-400 group-hover:bg-blue-50 dark:group-hover:bg-blue-950/40 font-semibold"
                           >
                             <Eye className="w-3.5 h-3.5 mr-1" />
                             Inspect
@@ -936,10 +936,10 @@ export default function Dashboard({
         ) : officerDetail ? (
           <div className="space-y-5 py-2">
             {/* Officer Header Card */}
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="p-4 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-200/80 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h4 className="text-base font-bold text-slate-900">{officerDetail.officer.fullName}</h4>
-                <div className="flex items-center gap-3 text-xs text-slate-500 mt-1 flex-wrap">
+                <h4 className="text-base font-bold text-slate-900 dark:text-[#F8FAFC]">{officerDetail.officer.fullName}</h4>
+                <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400 mt-1 flex-wrap">
                   <span className="flex items-center gap-1">
                     <Mail className="w-3.5 h-3.5" />
                     {officerDetail.officer.email}
@@ -964,21 +964,21 @@ export default function Dashboard({
 
             {/* Officer KPI Metrics */}
             <div className="grid grid-cols-3 gap-3">
-              <div className="p-3 bg-white rounded-xl border border-slate-200 shadow-2xs text-center">
-                <span className="text-[11px] font-medium text-slate-500 block">Citizens Registered</span>
-                <span className="text-lg font-bold text-slate-900 mt-0.5 block">
+              <div className="p-3 bg-white dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155] shadow-2xs text-center">
+                <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 block">Citizens Registered</span>
+                <span className="text-lg font-bold text-slate-900 dark:text-white mt-0.5 block">
                   {officerDetail.metrics.citizensRegistered}
                 </span>
               </div>
-              <div className="p-3 bg-white rounded-xl border border-slate-200 shadow-2xs text-center">
-                <span className="text-[11px] font-medium text-slate-500 block">Screen Time</span>
-                <span className="text-lg font-bold text-teal-700 mt-0.5 block">
+              <div className="p-3 bg-white dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155] shadow-2xs text-center">
+                <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 block">Screen Time</span>
+                <span className="text-lg font-bold text-teal-700 dark:text-teal-400 mt-0.5 block">
                   {officerDetail.metrics.totalScreenTimeFormatted}
                 </span>
               </div>
-              <div className="p-3 bg-white rounded-xl border border-slate-200 shadow-2xs text-center">
-                <span className="text-[11px] font-medium text-slate-500 block">Reports Submitted</span>
-                <span className="text-lg font-bold text-indigo-700 mt-0.5 block">
+              <div className="p-3 bg-white dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155] shadow-2xs text-center">
+                <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 block">Reports Submitted</span>
+                <span className="text-lg font-bold text-indigo-700 dark:text-indigo-400 mt-0.5 block">
                   {officerDetail.metrics.reportsCount}
                 </span>
               </div>
@@ -986,17 +986,17 @@ export default function Dashboard({
 
             {/* Officer Recent Reports Table */}
             <div>
-              <h5 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-2">
+              <h5 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-2">
                 Recent Daily Work Reports
               </h5>
               {(!officerDetail.recentReports || officerDetail.recentReports.length === 0) ? (
-                <div className="text-center py-6 text-xs text-slate-400 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                <div className="text-center py-6 text-xs text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-dashed border-slate-200 dark:border-[#334155]">
                   No daily work reports submitted yet
                 </div>
               ) : (
-                <div className="border border-slate-200 rounded-xl overflow-hidden">
+                <div className="border border-slate-200 dark:border-[#334155] rounded-xl overflow-hidden">
                   <table className="w-full text-left text-xs">
-                    <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
+                    <thead className="bg-slate-50/90 dark:bg-[#0F172A] border-b border-slate-200 dark:border-[#334155] text-slate-600 dark:text-slate-200 font-bold uppercase tracking-wider text-[11px]">
                       <tr>
                         <th className="py-2.5 px-3">Date</th>
                         <th className="py-2.5 px-3 text-right">Registrations</th>
@@ -1004,14 +1004,14 @@ export default function Dashboard({
                         <th className="py-2.5 px-3 text-right">Status</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100">
+                    <tbody className="divide-y divide-slate-100 dark:divide-[#334155]">
                       {officerDetail.recentReports.map((r) => (
-                        <tr key={r.id} className="hover:bg-slate-50/60">
-                          <td className="py-2.5 px-3 font-medium text-slate-900">{r.reportDate}</td>
-                          <td className="py-2.5 px-3 text-right font-bold text-slate-900">
+                        <tr key={r.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/50">
+                          <td className="py-2.5 px-3 font-medium text-slate-900 dark:text-slate-200">{r.reportDate}</td>
+                          <td className="py-2.5 px-3 text-right font-bold text-slate-900 dark:text-white">
                             {r.citizenCountServerConfirmed || r.citizenCountLocal}
                           </td>
-                          <td className="py-2.5 px-3 text-right text-slate-600 font-mono">
+                          <td className="py-2.5 px-3 text-right text-slate-600 dark:text-slate-300 font-mono">
                             {r.screenTimeFormatted}
                           </td>
                           <td className="py-2.5 px-3 text-right">

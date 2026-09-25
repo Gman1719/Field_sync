@@ -124,16 +124,16 @@ export default function DuplicateReviewConsole({ user }) {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-[#1E293B] p-6 rounded-2xl border border-slate-200 dark:border-[#334155] shadow-xs">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-[#1E3A8A] text-white flex items-center justify-center shadow-xs">
             <Users className="w-5 h-5" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+            <h1 className="text-xl font-bold text-slate-900 dark:text-[#F8FAFC] tracking-tight">
               Citizen Duplicate Detection & Adjudication
             </h1>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               Multi-level identity duplicate review, side-by-side comparison, and official registry adjudication
             </p>
           </div>
@@ -182,7 +182,7 @@ export default function DuplicateReviewConsole({ user }) {
       </div>
 
       {/* Controls & Filter Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 text-xs">
+      <div className="bg-white dark:bg-[#1E293B] p-4 rounded-2xl border border-slate-200 dark:border-[#334155] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 text-xs">
         {/* Status Filter Buttons */}
         <div className="flex flex-wrap items-center gap-1.5">
           {[
@@ -197,13 +197,13 @@ export default function DuplicateReviewConsole({ user }) {
               onClick={() => setStatusFilter(tab.id)}
               className={`px-3 py-1.5 rounded-xl font-semibold transition-colors flex items-center gap-1.5 ${
                 statusFilter === tab.id
-                  ? 'bg-slate-900 text-white shadow-xs'
-                  : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                  ? 'bg-[#1E3A8A] text-white shadow-xs'
+                  : 'bg-slate-50 dark:bg-[#0F172A] text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-transparent dark:border-[#334155]'
               }`}
             >
               {tab.label}
               <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${
-                statusFilter === tab.id ? 'bg-slate-800 text-white' : 'bg-slate-200 text-slate-700'
+                statusFilter === tab.id ? 'bg-blue-900 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
               }`}>
                 {tab.count}
               </span>
@@ -219,13 +219,13 @@ export default function DuplicateReviewConsole({ user }) {
             placeholder="Search citizen name or phone..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-8 py-1.5 border border-slate-200 rounded-xl text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]"
+            className="w-full pl-9 pr-8 py-1.5 border border-slate-200 dark:border-[#334155] bg-white dark:bg-[#0F172A] rounded-xl text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]"
           />
           {searchQuery && (
             <button
               type="button"
               onClick={() => { setSearchQuery(''); fetchReviews(); }}
-              className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 text-xs"
+              className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs"
             >
               ×
             </button>
@@ -254,11 +254,11 @@ export default function DuplicateReviewConsole({ user }) {
           ) : reviews.length === 0 ? (
             <div className="p-12 text-center text-xs text-slate-400 space-y-2">
               <ShieldCheck className="w-8 h-8 text-emerald-500 mx-auto" />
-              <p className="font-semibold text-slate-700">No duplicate reviews pending in queue.</p>
-              <p className="text-[11px] text-slate-400">All registered citizen identities have been verified.</p>
+              <p className="font-semibold text-slate-700 dark:text-slate-200">No duplicate reviews pending in queue.</p>
+              <p className="text-[11px] text-slate-400 dark:text-slate-500">All registered citizen identities have been verified.</p>
             </div>
           ) : (
-            <div className="divide-y divide-slate-100 text-xs">
+            <div className="divide-y divide-slate-100 dark:divide-[#334155] text-xs">
               {reviews.map((r) => {
                 const candidate = r.candidateCitizen;
                 const suspected = r.suspectedDuplicate;
@@ -266,11 +266,11 @@ export default function DuplicateReviewConsole({ user }) {
                 return (
                   <div
                     key={r.id}
-                    className="p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-slate-50/80 transition-colors"
+                    className="p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-slate-50/80 dark:hover:bg-[#0F172A]/50 transition-colors"
                   >
                     <div className="space-y-1.5 max-w-3xl">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-bold text-slate-900 text-sm">
+                        <span className="font-bold text-slate-900 dark:text-[#F8FAFC] text-sm">
                           {candidate ? candidate.fullName : 'Citizen'}
                         </span>
 
@@ -296,15 +296,15 @@ export default function DuplicateReviewConsole({ user }) {
                       </div>
 
                       {/* Match Reason Callout */}
-                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 text-[11px] font-medium">
-                        <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60 text-[11px] font-medium">
+                        <AlertTriangle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
                         <span>{r.matchReason}</span>
                       </div>
 
                       {/* Side-by-side snippet */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-600 pt-1">
-                        <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-100">
-                          <strong className="block text-slate-800 font-semibold mb-0.5">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-600 dark:text-slate-300 pt-1">
+                        <div className="p-2.5 bg-slate-50 dark:bg-[#0F172A] rounded-lg border border-slate-100 dark:border-[#334155]">
+                          <strong className="block text-slate-800 dark:text-slate-200 font-semibold mb-0.5">
                             Candidate (New Registration):
                           </strong>
                           <div>Phone: {candidate?.phoneNumber || 'N/A'}</div>
@@ -316,8 +316,8 @@ export default function DuplicateReviewConsole({ user }) {
                           </div>
                         </div>
 
-                        <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-100">
-                          <strong className="block text-slate-800 font-semibold mb-0.5">
+                        <div className="p-2.5 bg-slate-50 dark:bg-[#0F172A] rounded-lg border border-slate-100 dark:border-[#334155]">
+                          <strong className="block text-slate-800 dark:text-slate-200 font-semibold mb-0.5">
                             Suspected Match (Existing Record):
                           </strong>
                           {suspected ? (
@@ -337,7 +337,7 @@ export default function DuplicateReviewConsole({ user }) {
                       </div>
 
                       {r.notes && (
-                        <p className="text-[11px] text-slate-500 italic mt-1">
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 italic mt-1">
                           Reviewer Note: "{r.notes}" {r.reviewerName && `— ${r.reviewerName}`}
                         </p>
                       )}
@@ -401,9 +401,9 @@ export default function DuplicateReviewConsole({ user }) {
                       size="sm"
                       onClick={() => handleResolveDecision('CONFIRMED_DUPLICATE')}
                       loading={isSubmittingDecision}
-                      className="text-red-700 border-red-300 hover:bg-red-50 text-xs font-semibold"
+                      className="text-red-700 dark:text-red-400 border-red-300 dark:border-red-800/80 hover:bg-red-50 dark:hover:bg-red-950/30 text-xs font-semibold"
                     >
-                      <XCircle className="w-3.5 h-3.5 mr-1.5 text-red-600" />
+                      <XCircle className="w-3.5 h-3.5 mr-1.5 text-red-600 dark:text-red-400" />
                       Confirm as Duplicate
                     </Button>
 
@@ -436,14 +436,14 @@ export default function DuplicateReviewConsole({ user }) {
             const susp = selectedReview.suspectedDuplicate;
 
             return (
-              <div className="space-y-4 text-xs text-slate-700">
+              <div className="space-y-4 text-xs text-slate-700 dark:text-slate-300">
                 {/* Match Reason Banner */}
-                <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 space-y-1">
-                  <div className="flex items-center gap-2 font-bold text-sm text-amber-800">
-                    <AlertTriangle className="w-4 h-4 text-amber-600" />
+                <div className="p-3.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 rounded-xl text-amber-900 dark:text-amber-200 space-y-1">
+                  <div className="flex items-center gap-2 font-bold text-sm text-amber-800 dark:text-amber-300">
+                    <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                     Automated Detection Match Reason
                   </div>
-                  <p className="text-xs font-medium text-amber-900">
+                  <p className="text-xs font-medium text-amber-900 dark:text-amber-200">
                     {selectedReview.matchReason}
                   </p>
                 </div>
@@ -451,11 +451,11 @@ export default function DuplicateReviewConsole({ user }) {
                 {/* Two-Column Side-by-Side Comparison Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Column 1: Candidate Record (New) */}
-                  <div className="p-4 bg-blue-50/50 rounded-2xl border border-blue-200 space-y-3">
-                    <div className="flex items-center justify-between pb-2 border-b border-blue-200/80">
+                  <div className="p-4 bg-blue-50/50 dark:bg-blue-950/20 rounded-2xl border border-blue-200 dark:border-blue-900/40 space-y-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-blue-200/80 dark:border-blue-900/60">
                       <div>
-                        <span className="text-[10px] uppercase font-bold text-blue-700 block">Candidate Record</span>
-                        <h4 className="font-bold text-slate-900 text-sm">
+                        <span className="text-[10px] uppercase font-bold text-blue-700 dark:text-blue-400 block">Candidate Record</span>
+                        <h4 className="font-bold text-slate-900 dark:text-[#F8FAFC] text-sm">
                           {cand ? cand.fullName : 'Citizen'}
                         </h4>
                       </div>
@@ -467,45 +467,45 @@ export default function DuplicateReviewConsole({ user }) {
                     <div className="space-y-2 text-xs">
                       <div>
                         <span className="text-slate-400 block text-[10px] uppercase">Gender & Age</span>
-                        <span className="font-semibold text-slate-800">
+                        <span className="font-semibold text-slate-800 dark:text-slate-200">
                           {cand?.gender || 'N/A'} • {cand?.age ? `${cand.age} years` : 'Age N/A'}
                         </span>
                       </div>
 
                       <div>
                         <span className="text-slate-400 block text-[10px] uppercase">Phone Number</span>
-                        <span className="font-semibold text-slate-800">
+                        <span className="font-semibold text-slate-800 dark:text-slate-200">
                           {cand?.phoneNumber || 'None provided'}
                         </span>
                       </div>
 
                       <div>
                         <span className="text-slate-400 block text-[10px] uppercase">Ethiopian Administrative Location</span>
-                        <span className="font-semibold text-slate-800 block">
+                        <span className="font-semibold text-slate-800 dark:text-slate-200 block">
                           {cand?.regionName} → {cand?.zoneName}
                         </span>
-                        <span className="text-slate-600 text-[11px]">
+                        <span className="text-slate-600 dark:text-slate-300 text-[11px]">
                           {cand?.woredaName}, {cand?.kebeleName} ({cand?.village || 'Village'})
                         </span>
                       </div>
 
                       <div>
                         <span className="text-slate-400 block text-[10px] uppercase">Registering Field Officer</span>
-                        <span className="font-semibold text-slate-800">
+                        <span className="font-semibold text-slate-800 dark:text-slate-200">
                           {cand?.registeredByName || 'Field Officer'}
                         </span>
                       </div>
 
                       <div>
                         <span className="text-slate-400 block text-[10px] uppercase">Registration Timestamp</span>
-                        <span className="font-mono text-slate-600 text-[11px]">
+                        <span className="font-mono text-slate-600 dark:text-slate-300 text-[11px]">
                           {cand?.registrationTimestamp ? new Date(cand.registrationTimestamp).toLocaleString() : 'N/A'}
                         </span>
                       </div>
 
                       <div>
                         <span className="text-slate-400 block text-[10px] uppercase">Client Record UUID</span>
-                        <span className="font-mono text-[10px] text-slate-500 break-all">
+                        <span className="font-mono text-[10px] text-slate-500 dark:text-slate-400 break-all">
                           {cand?.clientRecordId}
                         </span>
                       </div>
@@ -513,11 +513,11 @@ export default function DuplicateReviewConsole({ user }) {
                   </div>
 
                   {/* Column 2: Suspected Record (Existing) */}
-                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
-                    <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+                  <div className="p-4 bg-slate-50 dark:bg-[#0F172A] rounded-2xl border border-slate-200 dark:border-[#334155] space-y-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-[#334155]">
                       <div>
-                        <span className="text-[10px] uppercase font-bold text-slate-500 block">Suspected Match</span>
-                        <h4 className="font-bold text-slate-900 text-sm">
+                        <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 block">Suspected Match</span>
+                        <h4 className="font-bold text-slate-900 dark:text-[#F8FAFC] text-sm">
                           {susp ? susp.fullName : 'Existing Citizen'}
                         </h4>
                       </div>
@@ -530,45 +530,45 @@ export default function DuplicateReviewConsole({ user }) {
                       <div className="space-y-2 text-xs">
                         <div>
                           <span className="text-slate-400 block text-[10px] uppercase">Gender & Age</span>
-                          <span className="font-semibold text-slate-800">
+                          <span className="font-semibold text-slate-800 dark:text-slate-200">
                             {susp.gender || 'N/A'} • {susp.age ? `${susp.age} years` : 'Age N/A'}
                           </span>
                         </div>
 
                         <div>
                           <span className="text-slate-400 block text-[10px] uppercase">Phone Number</span>
-                          <span className="font-semibold text-slate-800">
+                          <span className="font-semibold text-slate-800 dark:text-slate-200">
                             {susp.phoneNumber || 'None provided'}
                           </span>
                         </div>
 
                         <div>
                           <span className="text-slate-400 block text-[10px] uppercase">Ethiopian Administrative Location</span>
-                          <span className="font-semibold text-slate-800 block">
+                          <span className="font-semibold text-slate-800 dark:text-slate-200 block">
                             {susp.regionName} → {susp.zoneName}
                           </span>
-                          <span className="text-slate-600 text-[11px]">
+                          <span className="text-slate-600 dark:text-slate-300 text-[11px]">
                             {susp.woredaName}, {susp.kebeleName} ({susp.village || 'Village'})
                           </span>
                         </div>
 
                         <div>
                           <span className="text-slate-400 block text-[10px] uppercase">Registering Field Officer</span>
-                          <span className="font-semibold text-slate-800">
+                          <span className="font-semibold text-slate-800 dark:text-slate-200">
                             {susp.registeredByName || 'Field Officer'}
                           </span>
                         </div>
 
                         <div>
                           <span className="text-slate-400 block text-[10px] uppercase">Registration Timestamp</span>
-                          <span className="font-mono text-slate-600 text-[11px]">
+                          <span className="font-mono text-slate-600 dark:text-slate-300 text-[11px]">
                             {susp.registrationTimestamp ? new Date(susp.registrationTimestamp).toLocaleString() : 'N/A'}
                           </span>
                         </div>
 
                         <div>
                           <span className="text-slate-400 block text-[10px] uppercase">Database Record ID</span>
-                          <span className="font-mono text-[10px] text-slate-500 break-all">
+                          <span className="font-mono text-[10px] text-slate-500 dark:text-slate-400 break-all">
                             {susp.id}
                           </span>
                         </div>
@@ -583,8 +583,8 @@ export default function DuplicateReviewConsole({ user }) {
 
                 {/* Review Justification Notes */}
                 <div className="space-y-1.5 pt-2">
-                  <label className="block text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                    <FileText className="w-3.5 h-3.5 text-[#1E3A8A]" />
+                  <label className="block text-xs font-bold text-slate-900 dark:text-[#F8FAFC] flex items-center gap-1.5">
+                    <FileText className="w-3.5 h-3.5 text-[#1E3A8A] dark:text-blue-400" />
                     Supervisor Justification Notes <span className="text-red-500">*</span>
                   </label>
                   <Textarea

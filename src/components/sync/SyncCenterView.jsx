@@ -187,16 +187,16 @@ export default function SyncCenterView({ user }) {
   return (
     <div className="space-y-6">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-[#1E293B] p-6 rounded-2xl border border-slate-200 dark:border-[#334155] shadow-xs">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-[#1E3A8A] text-white flex items-center justify-center shadow-xs">
             <RefreshCw className="w-5 h-5" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+            <h1 className="text-xl font-bold text-slate-900 dark:text-[#F8FAFC] tracking-tight">
               Central Synchronization Center
             </h1>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               Bidirectional sync pipeline, offline queue diagnostics, and conflict resolution engine
             </p>
           </div>
@@ -224,7 +224,7 @@ export default function SyncCenterView({ user }) {
             disabled={!isOnline}
             className="text-xs"
           >
-            <ArrowDownToLine className="w-3.5 h-3.5 mr-1.5 text-[#1E3A8A]" />
+            <ArrowDownToLine className="w-3.5 h-3.5 mr-1.5 text-[#1E3A8A] dark:text-blue-400" />
             Pull Server Updates
           </Button>
 
@@ -247,15 +247,15 @@ export default function SyncCenterView({ user }) {
       <div
         className={`p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs ${
           summary.totalPending === 0
-            ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
-            : 'bg-amber-50 border-amber-200 text-amber-900'
+            ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/60 text-emerald-900 dark:text-emerald-200'
+            : 'bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-200'
         }`}
       >
         <div className="flex items-center gap-3">
           {summary.totalPending === 0 ? (
-            <CheckCircle2 className="w-6 h-6 text-emerald-600 shrink-0" />
+            <CheckCircle2 className="w-6 h-6 text-emerald-600 dark:text-emerald-400 shrink-0" />
           ) : (
-            <Clock className="w-6 h-6 text-amber-600 shrink-0" />
+            <Clock className="w-6 h-6 text-amber-600 dark:text-amber-400 shrink-0" />
           )}
           <div>
             <span className="font-bold text-sm block">
@@ -272,11 +272,11 @@ export default function SyncCenterView({ user }) {
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-auto font-mono text-xs">
-          <span className="px-3 py-1 rounded-lg bg-white/80 font-bold border border-current">
+          <span className="px-3 py-1 rounded-lg bg-white/80 dark:bg-slate-800/80 font-bold border border-current">
             Pending: {summary.totalPending}
           </span>
           {summary.unresolvedErrorsCount > 0 && (
-            <span className="px-3 py-1 rounded-lg bg-red-100 text-red-800 font-bold border border-red-200 flex items-center gap-1">
+            <span className="px-3 py-1 rounded-lg bg-red-100 dark:bg-red-950/60 text-red-800 dark:text-red-300 font-bold border border-red-200 dark:border-red-800 flex items-center gap-1">
               <AlertTriangle className="w-3.5 h-3.5" />
               {summary.unresolvedErrorsCount} Errors
             </span>
@@ -313,14 +313,14 @@ export default function SyncCenterView({ user }) {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex border-b border-slate-200 text-xs font-semibold gap-6">
+      <div className="flex border-b border-slate-200 dark:border-[#334155] text-xs font-semibold gap-6">
         <button
           type="button"
           onClick={() => setActiveTab('overview')}
           className={`pb-3 transition-colors border-b-2 ${
             activeTab === 'overview'
-              ? 'border-[#1E3A8A] text-[#1E3A8A]'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
+              ? 'border-[#1E3A8A] text-[#1E3A8A] dark:text-blue-400 dark:border-blue-400'
+              : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
           }`}
         >
           Pipeline Overview & Telemetry
@@ -331,13 +331,13 @@ export default function SyncCenterView({ user }) {
           onClick={() => setActiveTab('queue')}
           className={`pb-3 transition-colors border-b-2 flex items-center gap-1.5 ${
             activeTab === 'queue'
-              ? 'border-[#1E3A8A] text-[#1E3A8A]'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
+              ? 'border-[#1E3A8A] text-[#1E3A8A] dark:text-blue-400 dark:border-blue-400'
+              : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
           }`}
         >
           Sync Queue Inspector
           {queueItems.length > 0 && (
-            <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-slate-100 text-slate-700">
+            <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
               {queueItems.length}
             </span>
           )}
@@ -348,13 +348,13 @@ export default function SyncCenterView({ user }) {
           onClick={() => setActiveTab('errors')}
           className={`pb-3 transition-colors border-b-2 flex items-center gap-1.5 ${
             activeTab === 'errors'
-              ? 'border-red-600 text-red-600'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
+              ? 'border-red-600 text-red-600 dark:border-red-400 dark:text-red-400'
+              : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
           }`}
         >
           Failure Diagnostics & Logs
           {summary.unresolvedErrorsCount > 0 && (
-            <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-red-100 text-red-700 font-bold">
+            <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-300 font-bold">
               {summary.unresolvedErrorsCount}
             </span>
           )}
@@ -365,8 +365,8 @@ export default function SyncCenterView({ user }) {
           onClick={() => setActiveTab('conflicts')}
           className={`pb-3 transition-colors border-b-2 ${
             activeTab === 'conflicts'
-              ? 'border-[#1E3A8A] text-[#1E3A8A]'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
+              ? 'border-[#1E3A8A] text-[#1E3A8A] dark:text-blue-400 dark:border-blue-400'
+              : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
           }`}
         >
           Conflict Resolution Rules
@@ -381,7 +381,7 @@ export default function SyncCenterView({ user }) {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
-                <Database className="w-4 h-4 text-[#1E3A8A]" />
+                <Database className="w-4 h-4 text-[#1E3A8A] dark:text-blue-400" />
                 <CardTitle className="text-base">Offline-First Guarantees</CardTitle>
               </div>
               <CardDescription className="text-xs">
@@ -389,32 +389,32 @@ export default function SyncCenterView({ user }) {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
-                <span className="font-semibold text-slate-900 block flex items-center gap-1.5">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <div className="p-3.5 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-100 dark:border-[#334155] space-y-1">
+                <span className="font-semibold text-slate-900 dark:text-[#F8FAFC] block flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   1. Idempotent UUID Preservation
                 </span>
-                <p className="text-slate-600 leading-relaxed">
+                <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
                   Every citizen registration, activity log, and work session is generated with a cryptographic UUID on the device. Re-syncing or retrying uploads updates existing records rather than creating duplicate entries.
                 </p>
               </div>
 
-              <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
-                <span className="font-semibold text-slate-900 block flex items-center gap-1.5">
-                  <CheckCheck className="w-4 h-4 text-blue-600" />
+              <div className="p-3.5 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-100 dark:border-[#334155] space-y-1">
+                <span className="font-semibold text-slate-900 dark:text-[#F8FAFC] block flex items-center gap-1.5">
+                  <CheckCheck className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                   2. Non-Destructive Offline Persistence
                 </span>
-                <p className="text-slate-600 leading-relaxed">
+                <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
                   Local records remain securely stored in IndexedDB and are never discarded until explicit confirmation is returned from the central PostgreSQL database.
                 </p>
               </div>
 
-              <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
-                <span className="font-semibold text-slate-900 block flex items-center gap-1.5">
-                  <AlertTriangle className="w-4 h-4 text-amber-600" />
+              <div className="p-3.5 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-100 dark:border-[#334155] space-y-1">
+                <span className="font-semibold text-slate-900 dark:text-[#F8FAFC] block flex items-center gap-1.5">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                   3. Multi-Level Duplicate Auditing
                 </span>
-                <p className="text-slate-600 leading-relaxed">
+                <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
                   Duplicate detection occurs locally on the device (Level 1) and is re-verified centrally (Level 2 & 3) upon synchronization to catch cross-device registrations.
                 </p>
               </div>
@@ -424,7 +424,7 @@ export default function SyncCenterView({ user }) {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-[#1E3A8A]" />
+                <Clock className="w-4 h-4 text-[#1E3A8A] dark:text-blue-400" />
                 <CardTitle className="text-base">System Synchronization Telemetry</CardTitle>
               </div>
               <CardDescription className="text-xs">
@@ -432,47 +432,47 @@ export default function SyncCenterView({ user }) {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
-                <span className="text-slate-600 font-medium">Internet Connectivity:</span>
+              <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-100 dark:border-[#334155]">
+                <span className="text-slate-600 dark:text-slate-300 font-medium">Internet Connectivity:</span>
                 <Badge variant={isOnline ? 'success' : 'warning'}>
                   {isOnline ? 'Active Online' : 'No Connection'}
                 </Badge>
               </div>
 
-              <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
-                <span className="text-slate-600 font-medium">Sync Engine Status:</span>
-                <span className="font-semibold text-slate-800">
+              <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-100 dark:border-[#334155]">
+                <span className="text-slate-600 dark:text-slate-300 font-medium">Sync Engine Status:</span>
+                <span className="font-semibold text-slate-800 dark:text-slate-200">
                   {summary.isSyncing || isSyncingNow ? 'Pipeline In Progress...' : 'Standby / Idle'}
                 </span>
               </div>
 
-              <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
-                <span className="text-slate-600 font-medium">Central Database Status:</span>
-                <span className="font-bold text-emerald-600 flex items-center gap-1">
+              <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-100 dark:border-[#334155]">
+                <span className="text-slate-600 dark:text-slate-300 font-medium">Central Database Status:</span>
+                <span className="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   {serverHealth ? serverHealth.databaseStatus : 'Connected'}
                 </span>
               </div>
 
               {serverHealth && (
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-1 font-mono text-[11px] text-slate-600">
+                <div className="p-3 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-100 dark:border-[#334155] space-y-1 font-mono text-[11px] text-slate-600 dark:text-slate-300">
                   <div className="flex justify-between">
                     <span>Central Citizens:</span>
-                    <strong className="text-slate-800">{serverHealth.citizens?.total || 0}</strong>
+                    <strong className="text-slate-800 dark:text-slate-200">{serverHealth.citizens?.total || 0}</strong>
                   </div>
                   <div className="flex justify-between">
                     <span>Central Reports:</span>
-                    <strong className="text-slate-800">{serverHealth.dailyReportsTotal || 0}</strong>
+                    <strong className="text-slate-800 dark:text-slate-200">{serverHealth.dailyReportsTotal || 0}</strong>
                   </div>
                   <div className="flex justify-between">
                     <span>Server Uptime:</span>
-                    <strong className="text-slate-800">{serverHealth.uptimeSeconds}s</strong>
+                    <strong className="text-slate-800 dark:text-slate-200">{serverHealth.uptimeSeconds}s</strong>
                   </div>
                 </div>
               )}
 
               {summary.lastError && (
-                <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-[11px]">
+                <div className="p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 text-rose-800 dark:text-rose-300 rounded-xl text-[11px]">
                   <strong className="block font-semibold">Latest Diagnostic Error:</strong>
                   <span>{summary.lastError}</span>
                 </div>
@@ -497,14 +497,16 @@ export default function SyncCenterView({ user }) {
               </div>
 
               {/* Status Filters */}
-              <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs">
+              <div className="flex items-center gap-1 bg-slate-100 dark:bg-[#0F172A] p-1 rounded-xl text-xs border border-transparent dark:border-[#334155]">
                 {['ALL', 'PENDING', 'SYNCING', 'FAILED', 'RESOLVED'].map((filter) => (
                   <button
                     key={filter}
                     type="button"
                     onClick={() => setQueueFilter(filter)}
                     className={`px-2.5 py-1 rounded-lg font-medium transition-colors ${
-                      queueFilter === filter ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-900'
+                      queueFilter === filter
+                        ? 'bg-white dark:bg-[#1E293B] text-slate-900 dark:text-[#F8FAFC] shadow-xs'
+                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
                     {filter}
@@ -519,11 +521,11 @@ export default function SyncCenterView({ user }) {
                 No queue items found matching filter "{queueFilter}".
               </div>
             ) : (
-              <div className="divide-y divide-slate-100 text-xs">
+              <div className="divide-y divide-slate-100 dark:divide-[#334155] text-xs">
                 {filteredQueueItems.map((item) => (
                   <div
                     key={item.id}
-                    className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-3 hover:bg-slate-50"
+                    className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-3 hover:bg-slate-50 dark:hover:bg-[#0F172A]/50 transition-colors"
                   >
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
@@ -539,7 +541,7 @@ export default function SyncCenterView({ user }) {
                         >
                           {item.entityType.replace('_', ' ')}
                         </Badge>
-                        <span className="font-mono text-slate-700 font-bold">
+                        <span className="font-mono text-slate-700 dark:text-slate-200 font-bold">
                           {item.entityId?.slice(0, 16)}...
                         </span>
                         <Badge
@@ -555,18 +557,18 @@ export default function SyncCenterView({ user }) {
                         </Badge>
                       </div>
 
-                      <div className="text-[11px] text-slate-500 flex items-center gap-3">
+                      <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-3">
                         <span>
-                          Queued: <strong className="text-slate-700">{new Date(item.queuedAt).toLocaleTimeString()}</strong>
+                          Queued: <strong className="text-slate-700 dark:text-slate-200">{new Date(item.queuedAt).toLocaleTimeString()}</strong>
                         </span>
                         <span>•</span>
                         <span>
-                          Attempts: <strong className="text-slate-700">{item.attempts} / {item.maxRetries}</strong>
+                          Attempts: <strong className="text-slate-700 dark:text-slate-200">{item.attempts} / {item.maxRetries}</strong>
                         </span>
                       </div>
 
                       {item.lastError && (
-                        <p className="text-[11px] text-red-600 font-mono mt-1">Error: {item.lastError}</p>
+                        <p className="text-[11px] text-red-600 dark:text-red-400 font-mono mt-1">Error: {item.lastError}</p>
                       )}
                     </div>
 
@@ -588,7 +590,7 @@ export default function SyncCenterView({ user }) {
                       <button
                         type="button"
                         onClick={() => handleRemoveQueueItem(item.id)}
-                        className="p-1.5 text-slate-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+                        className="p-1.5 text-slate-400 hover:text-red-600 dark:hover:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
                         title="Remove from Queue"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -636,12 +638,12 @@ export default function SyncCenterView({ user }) {
                 No synchronization errors recorded. The pipeline is operating normally.
               </div>
             ) : (
-              <div className="divide-y divide-slate-100 text-xs">
+              <div className="divide-y divide-slate-100 dark:divide-[#334155] text-xs">
                 {errorRecords.map((err) => (
                   <div
                     key={err.id}
                     className={`p-4 flex flex-col md:flex-row md:items-center justify-between gap-3 ${
-                      err.resolved ? 'opacity-60 bg-slate-50' : 'hover:bg-red-50/40'
+                      err.resolved ? 'opacity-60 bg-slate-50 dark:bg-[#0F172A]/40' : 'hover:bg-red-50/40 dark:hover:bg-red-950/20'
                     }`}
                   >
                     <div className="space-y-1">
@@ -649,12 +651,12 @@ export default function SyncCenterView({ user }) {
                         <Badge variant={err.resolved ? 'secondary' : 'danger'}>
                           {err.errorCode || 'ERR'}
                         </Badge>
-                        <span className="font-bold text-slate-900">{err.entityType}</span>
+                        <span className="font-bold text-slate-900 dark:text-[#F8FAFC]">{err.entityType}</span>
                         <span className="text-[11px] text-slate-400 font-mono">
                           {new Date(err.timestamp).toLocaleTimeString()}
                         </span>
                       </div>
-                      <p className="text-red-700 font-mono text-[11px]">{err.errorMessage}</p>
+                      <p className="text-red-700 dark:text-red-400 font-mono text-[11px]">{err.errorMessage}</p>
                     </div>
 
                     <div className="flex items-center gap-2 shrink-0">
@@ -689,7 +691,7 @@ export default function SyncCenterView({ user }) {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-[#1E3A8A]" />
+              <ShieldCheck className="w-4 h-4 text-[#1E3A8A] dark:text-blue-400" />
               <CardTitle className="text-base">Conflict Resolution Architecture</CardTitle>
             </div>
             <CardDescription className="text-xs">
@@ -698,42 +700,42 @@ export default function SyncCenterView({ user }) {
           </CardHeader>
           <CardContent className="space-y-4 text-xs">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-                <div className="flex items-center gap-2 font-bold text-slate-900 text-sm">
-                  <span className="w-6 h-6 rounded-full bg-blue-100 text-[#1E3A8A] flex items-center justify-center text-xs">1</span>
+              <div className="p-4 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155] space-y-2">
+                <div className="flex items-center gap-2 font-bold text-slate-900 dark:text-[#F8FAFC] text-sm">
+                  <span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/60 text-[#1E3A8A] dark:text-blue-300 flex items-center justify-center text-xs">1</span>
                   Idempotent Stable UUIDs
                 </div>
-                <p className="text-slate-600 leading-relaxed">
-                  Every entity created while offline is assigned a cryptographic UUID (<code className="bg-slate-200 px-1 py-0.5 rounded text-[11px]">clientRecordId</code>). The backend executes upsert logic based on this key, guaranteeing that duplicate network transmissions will never create duplicate database rows.
+                <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+                  Every entity created while offline is assigned a cryptographic UUID (<code className="bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1 py-0.5 rounded text-[11px]">clientRecordId</code>). The backend executes upsert logic based on this key, guaranteeing that duplicate network transmissions will never create duplicate database rows.
                 </p>
               </div>
 
-              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-                <div className="flex items-center gap-2 font-bold text-slate-900 text-sm">
-                  <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs">2</span>
+              <div className="p-4 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155] space-y-2">
+                <div className="flex items-center gap-2 font-bold text-slate-900 dark:text-[#F8FAFC] text-sm">
+                  <span className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 flex items-center justify-center text-xs">2</span>
                   Server-Wins on Official Status
                 </div>
-                <p className="text-slate-600 leading-relaxed">
-                  When a supervisor or manager reviews duplicates and updates status to <code className="bg-slate-200 px-1 py-0.5 rounded text-[11px]">APPROVED_AS_DIFFERENT</code> or <code className="bg-slate-200 px-1 py-0.5 rounded text-[11px]">CONFIRMED_DUPLICATE</code>, the server's authoritative decision overrides any local unverified status.
+                <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+                  When a supervisor or manager reviews duplicates and updates status to <code className="bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1 py-0.5 rounded text-[11px]">APPROVED_AS_DIFFERENT</code> or <code className="bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1 py-0.5 rounded text-[11px]">CONFIRMED_DUPLICATE</code>, the server's authoritative decision overrides any local unverified status.
                 </p>
               </div>
 
-              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-                <div className="flex items-center gap-2 font-bold text-slate-900 text-sm">
-                  <span className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs">3</span>
+              <div className="p-4 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155] space-y-2">
+                <div className="flex items-center gap-2 font-bold text-slate-900 dark:text-[#F8FAFC] text-sm">
+                  <span className="w-6 h-6 rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 flex items-center justify-center text-xs">3</span>
                   Client-Wins on Draft Officer Inputs
                 </div>
-                <p className="text-slate-600 leading-relaxed">
+                <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
                   If an officer edits an unconfirmed draft citizen or notes while offline, the local timestamp determines the active version and updates the server upon reconnection without data loss.
                 </p>
               </div>
 
-              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-                <div className="flex items-center gap-2 font-bold text-slate-900 text-sm">
-                  <span className="w-6 h-6 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-xs">4</span>
+              <div className="p-4 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155] space-y-2">
+                <div className="flex items-center gap-2 font-bold text-slate-900 dark:text-[#F8FAFC] text-sm">
+                  <span className="w-6 h-6 rounded-full bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300 flex items-center justify-center text-xs">4</span>
                   Immutable Finalized Reports
                 </div>
-                <p className="text-slate-600 leading-relaxed">
+                <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
                   Once a Daily Work Report is submitted and screen time is finalized, it enters read-only lock. Subsequent sync calls cannot alter the finalized screen time or historical metrics.
                 </p>
               </div>

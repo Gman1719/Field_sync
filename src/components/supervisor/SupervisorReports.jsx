@@ -304,11 +304,11 @@ export default function SupervisorReports({
       {/* Header and Action Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-            <FileSpreadsheet className="w-6 h-6 text-[#1E3A8A]" />
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-[#F8FAFC] tracking-tight flex items-center gap-2">
+            <FileSpreadsheet className="w-6 h-6 text-[#1E3A8A] dark:text-blue-400" />
             Supervisor Evaluations & Reports
           </h2>
-          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             Submit performance evaluations for field officers and operational self-assessments
           </p>
         </div>
@@ -358,11 +358,11 @@ export default function SupervisorReports({
             className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all ${
               activeTab === tab.id
                 ? 'bg-[#1E3A8A] text-white shadow-xs'
-                : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300'
+                : 'bg-white dark:bg-[#1E293B] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-[#334155] hover:border-slate-300 dark:hover:border-slate-500'
             }`}
           >
             <span>{tab.label}</span>
-            <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${activeTab === tab.id ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'}`}>
+            <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${activeTab === tab.id ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}`}>
               {tab.count}
             </span>
           </button>
@@ -374,14 +374,14 @@ export default function SupervisorReports({
         <CardContent className="p-0">
           {filteredReportsList.length === 0 ? (
             <div className="py-12 text-center text-xs text-slate-400">
-              <FileSpreadsheet className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+              <FileSpreadsheet className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
               <span>No supervisor reports recorded yet</span>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="border-b border-slate-100 text-slate-400 font-semibold uppercase tracking-wider bg-slate-50/50">
+                  <tr className="border-b border-slate-200 dark:border-[#334155] text-slate-600 dark:text-slate-200 font-bold uppercase tracking-wider bg-slate-50/90 dark:bg-[#0F172A] text-[11px]">
                     <th className="py-3.5 pl-6">Report Type</th>
                     <th className="py-3.5 px-4">Subject / Region</th>
                     <th className="py-3.5 px-4">Report Date</th>
@@ -390,20 +390,20 @@ export default function SupervisorReports({
                     <th className="py-3.5 pr-6 text-right">Sync Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-[#334155]">
                   {filteredReportsList.map(item => (
-                    <tr key={item.id} className="hover:bg-slate-50/70 transition-colors">
+                    <tr key={item.id} className="hover:bg-slate-50/70 dark:hover:bg-[#0F172A]/50 transition-colors">
                       <td className="py-4 pl-6">
                         <Badge variant={item.type === 'officer_report' ? 'primary' : 'info'}>
                           {item.type === 'officer_report' ? 'Officer Assessment' : 'Supervisor Self-Report'}
                         </Badge>
                       </td>
 
-                      <td className="py-4 px-4 font-semibold text-slate-900">
+                      <td className="py-4 px-4 font-semibold text-slate-900 dark:text-[#F8FAFC]">
                         {item.officerName || item.region || 'General'}
                       </td>
 
-                      <td className="py-4 px-4 text-slate-600 font-medium">
+                      <td className="py-4 px-4 text-slate-600 dark:text-slate-300 font-medium">
                         {item.reportDate}
                       </td>
 
@@ -420,7 +420,7 @@ export default function SupervisorReports({
                         )}
                       </td>
 
-                      <td className="py-4 px-4 max-w-xs text-slate-600 truncate">
+                      <td className="py-4 px-4 max-w-xs text-slate-600 dark:text-slate-300 truncate">
                         {item.comments || item.achievements || item.challenges || '--'}
                       </td>
 
@@ -504,7 +504,7 @@ export default function SupervisorReports({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
               Overall Rating (1 - 5)
             </label>
             <div className="flex items-center gap-2">
@@ -516,7 +516,7 @@ export default function SupervisorReports({
                   className={`w-9 h-9 rounded-lg font-bold text-xs flex items-center justify-center transition-all ${
                     form.overallRating === val
                       ? 'bg-[#1E3A8A] text-white shadow-xs'
-                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                      : 'bg-slate-100 dark:bg-[#0F172A] text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800'
                   }`}
                 >
                   {val}
@@ -541,7 +541,7 @@ export default function SupervisorReports({
             rows={2}
           />
 
-          <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
+          <div className="flex justify-end gap-3 pt-3 border-t border-slate-100 dark:border-[#334155]">
             <Button
               type="button"
               variant="outline"
@@ -613,7 +613,7 @@ export default function SupervisorReports({
             />
           </div>
 
-          <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
+          <div className="flex justify-end gap-3 pt-3 border-t border-slate-100 dark:border-[#334155]">
             <Button
               type="button"
               variant="outline"

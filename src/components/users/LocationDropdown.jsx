@@ -172,12 +172,12 @@ export default function LocationDropdown({
 
   if (role === 'manager') {
     return (
-      <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 text-xs">
-        <div className="flex items-center gap-2 font-semibold text-slate-900 mb-1">
-          <Building className="w-4 h-4 text-[#1E3A8A]" />
+      <div className="p-4 bg-slate-50 dark:bg-[#0F172A] border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-300 text-xs">
+        <div className="flex items-center gap-2 font-semibold text-slate-900 dark:text-[#F8FAFC] mb-1">
+          <Building className="w-4 h-4 text-[#1E3A8A] dark:text-blue-400" />
           Organization-Wide Scope
         </div>
-        <p className="text-slate-500">
+        <p className="text-slate-500 dark:text-slate-400">
           Managers hold system-wide administrative oversight. No Zone or Woreda assignment is required.
         </p>
       </div>
@@ -188,12 +188,12 @@ export default function LocationDropdown({
     <div className="space-y-4">
       {/* 1. Region Dropdown */}
       <div>
-        <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+        <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center justify-between">
           <span className="flex items-center gap-1.5">
-            <MapPin className="w-3.5 h-3.5 text-[#1E3A8A]" />
+            <MapPin className="w-3.5 h-3.5 text-[#1E3A8A] dark:text-blue-400" />
             Region / Chartered City <span className="text-rose-500">*</span>
           </span>
-          {loadingRegions && <Loader2 className="w-3 h-3 text-[#1E3A8A] animate-spin" />}
+          {loadingRegions && <Loader2 className="w-3 h-3 text-[#1E3A8A] dark:text-blue-400 animate-spin" />}
         </label>
         <Select
           value={regionId}
@@ -213,12 +213,12 @@ export default function LocationDropdown({
       {/* 2. Zone Dropdown (Supervisor & Field Officer) */}
       {(role === 'supervisor' || role === 'field_officer') && (
         <div>
-          <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center justify-between">
             <span className="flex items-center gap-1.5">
-              <Building className="w-3.5 h-3.5 text-[#1E3A8A]" />
+              <Building className="w-3.5 h-3.5 text-[#1E3A8A] dark:text-blue-400" />
               Zone / Sub-City <span className="text-rose-500">*</span>
             </span>
-            {loadingZones && <Loader2 className="w-3 h-3 text-[#1E3A8A] animate-spin" />}
+            {loadingZones && <Loader2 className="w-3 h-3 text-[#1E3A8A] dark:text-blue-400 animate-spin" />}
           </label>
           <Select
             value={zoneId}
@@ -239,12 +239,12 @@ export default function LocationDropdown({
       {/* 3. Woreda Dropdown (Field Officer Only) */}
       {role === 'field_officer' && (
         <div>
-          <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center justify-between">
             <span className="flex items-center gap-1.5">
-              <Home className="w-3.5 h-3.5 text-[#1E3A8A]" />
+              <Home className="w-3.5 h-3.5 text-[#1E3A8A] dark:text-blue-400" />
               Woreda / Kebele <span className="text-rose-500">*</span>
             </span>
-            {loadingWoredas && <Loader2 className="w-3 h-3 text-[#1E3A8A] animate-spin" />}
+            {loadingWoredas && <Loader2 className="w-3 h-3 text-[#1E3A8A] dark:text-blue-400 animate-spin" />}
           </label>
           <Select
             value={woredaId}
@@ -265,12 +265,12 @@ export default function LocationDropdown({
       {/* 4. Assigned Supervisor Dropdown (Field Officer Only) */}
       {role === 'field_officer' && (
         <div>
-          <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center justify-between">
             <span className="flex items-center gap-1.5">
-              <UserCheck className="w-3.5 h-3.5 text-[#1E3A8A]" />
+              <UserCheck className="w-3.5 h-3.5 text-[#1E3A8A] dark:text-blue-400" />
               Assigned Supervisor
             </span>
-            {loadingSupervisors && <Loader2 className="w-3 h-3 text-[#1E3A8A] animate-spin" />}
+            {loadingSupervisors && <Loader2 className="w-3 h-3 text-[#1E3A8A] dark:text-blue-400 animate-spin" />}
           </label>
           <Select
             value={supervisorId}
@@ -291,7 +291,7 @@ export default function LocationDropdown({
             ))}
           </Select>
           {supervisors.length > 1 && (
-            <p className="mt-1 text-[11px] text-amber-600">
+            <p className="mt-1 text-[11px] text-amber-600 dark:text-amber-400">
               Multiple supervisors detected for this zone. Please select the primary supervisor.
             </p>
           )}

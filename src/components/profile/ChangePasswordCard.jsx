@@ -97,10 +97,10 @@ export default function ChangePasswordCard({ user, onPasswordChanged }) {
   };
 
   return (
-    <Card className="border border-slate-200">
+    <Card className="border border-slate-200 dark:border-[#334155]">
       <CardHeader>
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-lg bg-blue-50 text-[#1E3A8A] flex items-center justify-center font-bold">
+          <div className="w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-[#1E3A8A] dark:text-blue-400 flex items-center justify-center font-bold">
             <KeyRound className="w-5 h-5" />
           </div>
           <div>
@@ -114,7 +114,7 @@ export default function ChangePasswordCard({ user, onPasswordChanged }) {
 
       <CardContent>
         {error && (
-          <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs flex items-center gap-2">
+          <div className="mb-4 p-3 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/40 rounded-xl text-rose-700 dark:text-rose-300 text-xs flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{error}</span>
           </div>
@@ -123,7 +123,7 @@ export default function ChangePasswordCard({ user, onPasswordChanged }) {
         <form onSubmit={handleSubmit} className="space-y-4 max-w-lg">
           {/* Current Password */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
               Current Password <span className="text-rose-500">*</span>
             </label>
             <div className="relative">
@@ -133,12 +133,12 @@ export default function ChangePasswordCard({ user, onPasswordChanged }) {
                 onChange={(e) => { setCurrentPassword(e.target.value); setError(''); }}
                 placeholder="Enter current password"
                 required
-                className="w-full h-10 px-3.5 pr-10 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]"
+                className="w-full h-10 px-3.5 pr-10 rounded-lg border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] placeholder:text-slate-400 dark:placeholder:text-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]"
               />
               <button
                 type="button"
                 onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1"
                 tabIndex={-1}
               >
                 {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -148,7 +148,7 @@ export default function ChangePasswordCard({ user, onPasswordChanged }) {
 
           {/* New Password */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
               New Password <span className="text-rose-500">*</span>
             </label>
             <div className="relative">
@@ -158,12 +158,12 @@ export default function ChangePasswordCard({ user, onPasswordChanged }) {
                 onChange={(e) => { setNewPassword(e.target.value); setError(''); }}
                 placeholder="Create a strong password"
                 required
-                className="w-full h-10 px-3.5 pr-10 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]"
+                className="w-full h-10 px-3.5 pr-10 rounded-lg border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] placeholder:text-slate-400 dark:placeholder:text-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]"
               />
               <button
                 type="button"
                 onClick={() => setShowNewPassword(!showNewPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1"
                 tabIndex={-1}
               >
                 {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -173,29 +173,29 @@ export default function ChangePasswordCard({ user, onPasswordChanged }) {
 
           {/* Real-time Checklist */}
           {newPassword && (
-            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-1.5 animate-in fade-in duration-150">
-              <span className="font-semibold text-slate-600 block text-[11px] mb-1">
+            <div className="p-3 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155] text-xs space-y-1.5 animate-in fade-in duration-150">
+              <span className="font-semibold text-slate-600 dark:text-slate-300 block text-[11px] mb-1">
                 Password Security Criteria:
               </span>
               <div className="grid grid-cols-2 gap-1.5 text-[11px]">
-                <div className={`flex items-center gap-1.5 ${hasMinLength ? 'text-emerald-700 font-medium' : 'text-slate-400'}`}>
-                  <Check className={`w-3.5 h-3.5 ${hasMinLength ? 'text-emerald-600' : 'text-slate-300'}`} />
+                <div className={`flex items-center gap-1.5 ${hasMinLength ? 'text-emerald-700 dark:text-emerald-400 font-medium' : 'text-slate-400 dark:text-slate-500'}`}>
+                  <Check className={`w-3.5 h-3.5 ${hasMinLength ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-300 dark:text-slate-600'}`} />
                   <span>8+ characters</span>
                 </div>
-                <div className={`flex items-center gap-1.5 ${hasUpper ? 'text-emerald-700 font-medium' : 'text-slate-400'}`}>
-                  <Check className={`w-3.5 h-3.5 ${hasUpper ? 'text-emerald-600' : 'text-slate-300'}`} />
+                <div className={`flex items-center gap-1.5 ${hasUpper ? 'text-emerald-700 dark:text-emerald-400 font-medium' : 'text-slate-400 dark:text-slate-500'}`}>
+                  <Check className={`w-3.5 h-3.5 ${hasUpper ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-300 dark:text-slate-600'}`} />
                   <span>1 uppercase letter</span>
                 </div>
-                <div className={`flex items-center gap-1.5 ${hasLower ? 'text-emerald-700 font-medium' : 'text-slate-400'}`}>
-                  <Check className={`w-3.5 h-3.5 ${hasLower ? 'text-emerald-600' : 'text-slate-300'}`} />
+                <div className={`flex items-center gap-1.5 ${hasLower ? 'text-emerald-700 dark:text-emerald-400 font-medium' : 'text-slate-400 dark:text-slate-500'}`}>
+                  <Check className={`w-3.5 h-3.5 ${hasLower ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-300 dark:text-slate-600'}`} />
                   <span>1 lowercase letter</span>
                 </div>
-                <div className={`flex items-center gap-1.5 ${hasNumber ? 'text-emerald-700 font-medium' : 'text-slate-400'}`}>
-                  <Check className={`w-3.5 h-3.5 ${hasNumber ? 'text-emerald-600' : 'text-slate-300'}`} />
+                <div className={`flex items-center gap-1.5 ${hasNumber ? 'text-emerald-700 dark:text-emerald-400 font-medium' : 'text-slate-400 dark:text-slate-500'}`}>
+                  <Check className={`w-3.5 h-3.5 ${hasNumber ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-300 dark:text-slate-600'}`} />
                   <span>1 number</span>
                 </div>
-                <div className={`flex items-center gap-1.5 ${hasSymbol ? 'text-emerald-700 font-medium' : 'text-slate-400'}`}>
-                  <Check className={`w-3.5 h-3.5 ${hasSymbol ? 'text-emerald-600' : 'text-slate-300'}`} />
+                <div className={`flex items-center gap-1.5 ${hasSymbol ? 'text-emerald-700 dark:text-emerald-400 font-medium' : 'text-slate-400 dark:text-slate-500'}`}>
+                  <Check className={`w-3.5 h-3.5 ${hasSymbol ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-300 dark:text-slate-600'}`} />
                   <span>1 special symbol</span>
                 </div>
               </div>
@@ -204,7 +204,7 @@ export default function ChangePasswordCard({ user, onPasswordChanged }) {
 
           {/* Confirm Password */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
               Confirm New Password <span className="text-rose-500">*</span>
             </label>
             <input
@@ -213,7 +213,7 @@ export default function ChangePasswordCard({ user, onPasswordChanged }) {
               onChange={(e) => { setConfirmPassword(e.target.value); setError(''); }}
               placeholder="Confirm your new password"
               required
-              className="w-full h-10 px-3.5 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]"
+              className="w-full h-10 px-3.5 rounded-lg border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] placeholder:text-slate-400 dark:placeholder:text-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]"
             />
           </div>
 

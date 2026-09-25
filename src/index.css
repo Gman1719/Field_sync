@@ -19,12 +19,13 @@
   --color-info: #0284C7;
 }
 
-[data-theme='dark'] {
-  --color-app-bg: #0B132B;
-  --color-card-bg: #1C2541;
+.dark, [data-theme='dark'] {
+  --color-app-bg: #0F172A;
+  --color-card-bg: #1E293B;
   --color-text-main: #F8FAFC;
   --color-text-muted: #94A3B8;
   --color-border: #334155;
+  color-scheme: dark;
 }
 
 @layer base {
@@ -41,6 +42,12 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     min-height: 100vh;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  ::selection {
+    background-color: #2563EB;
+    color: #ffffff;
   }
 
   /* Language-specific typography enhancement for Ge'ez script */
@@ -63,5 +70,54 @@
   }
   ::-webkit-scrollbar-thumb:hover {
     background: #94a3b8;
+  }
+
+  .dark ::-webkit-scrollbar-thumb,
+  [data-theme='dark'] ::-webkit-scrollbar-thumb {
+    background: #334155;
+  }
+  .dark ::-webkit-scrollbar-thumb:hover,
+  [data-theme='dark'] ::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+  }
+
+  /* Prevent blinding white autofill in dark mode */
+  .dark input:-webkit-autofill,
+  .dark input:-webkit-autofill:hover,
+  .dark input:-webkit-autofill:focus,
+  .dark textarea:-webkit-autofill,
+  .dark select:-webkit-autofill {
+    -webkit-text-fill-color: #F8FAFC;
+    -webkit-box-shadow: 0 0 0px 1000px #1E293B inset;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+
+  /* Enterprise Table Header Polish - Guarantees Attractive, High-Contrast Headers Across All Pages */
+  table thead {
+    background-color: #F8FAFC;
+    border-bottom: 1px solid #E2E8F0;
+  }
+  table thead th {
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #475569;
+  }
+
+  .dark table thead,
+  [data-theme='dark'] table thead {
+    background-color: #0F172A !important;
+    border-bottom: 1px solid #334155 !important;
+  }
+  .dark table thead tr,
+  [data-theme='dark'] table thead tr {
+    background-color: #0F172A !important;
+    border-color: #334155 !important;
+  }
+  .dark table thead th,
+  [data-theme='dark'] table thead th {
+    background-color: #0F172A !important;
+    color: #CBD5E1 !important;
+    border-color: #334155 !important;
   }
 }

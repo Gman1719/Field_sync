@@ -20,6 +20,7 @@ import ScreenTimeManagement from '../screentime/ScreenTimeManagement';
 import ActivityTimeline from '../activity/ActivityTimeline';
 import WorkSessionTracker from '../sessions/WorkSessionTracker';
 import DailyWorkReportView from '../reports/DailyWorkReportView';
+import MyReportsView from '../reports/MyReportsView';
 import SyncCenterView from '../sync/SyncCenterView';
 import SupervisorReports from '../supervisor/SupervisorReports';
 import TeamManagement from '../team/TeamManagement';
@@ -200,14 +201,24 @@ export default function MainLayout({
               citizens={citizens}
               setCitizens={setCitizens}
               addNotification={addNotification}
+              setActiveTab={setActiveTab}
             />
           )}
 
           {/* Daily Work Reports - All Roles (Officer, Supervisor, Manager) */}
-          {(activeTab === 'reports' || activeTab === 'report_new' || activeTab === 'all_reports') && (
+          {(activeTab === 'daily_report' || activeTab === 'reports' || activeTab === 'report_new' || activeTab === 'all_reports') && (
             <DailyWorkReportView
               user={user}
               addNotification={addNotification}
+              setActiveTab={setActiveTab}
+            />
+          )}
+
+          {/* My Report - Dedicated Officer Historical Reports View */}
+          {activeTab === 'my_reports' && (
+            <MyReportsView
+              user={user}
+              setActiveTab={setActiveTab}
             />
           )}
 
@@ -324,13 +335,8 @@ export default function MainLayout({
           {activeTab === 'citizens' && (
             <CitizensDatabase
               user={user}
-            />
-          )}
-
-          {/* Duplicate Citizen Reviews - Supervisor & Manager */}
-          {activeTab === 'duplicates' && (isSupervisor || isManager) && (
-            <DuplicateReviewConsole
-              user={user}
+              users={users}
+              setActiveTab={setActiveTab}
             />
           )}
 
@@ -384,22 +390,22 @@ export default function MainLayout({
           {/* Sync Log Modal */}
           {showSyncLog && (
             <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowSyncLog(false)}>
-              <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150" onClick={(e) => e.stopPropagation()}>
-                <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-slate-900 font-semibold text-sm">
-                    <RefreshCw className="w-4 h-4 text-[#1E3A8A]" />
+              <div className="bg-white dark:bg-[#1E293B] rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 dark:border-[#334155] overflow-hidden animate-in fade-in zoom-in-95 duration-150" onClick={(e) => e.stopPropagation()}>
+                <div className="px-6 py-4 border-b border-slate-100 dark:border-[#334155] flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-slate-900 dark:text-[#F8FAFC] font-semibold text-sm">
+                    <RefreshCw className="w-4 h-4 text-[#1E3A8A] dark:text-blue-400" />
                     <span>Sync Activity Log</span>
                   </div>
-                  <button className="text-slate-400 hover:text-slate-600 p-1 rounded-md" onClick={() => setShowSyncLog(false)}>
+                  <button className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-md" onClick={() => setShowSyncLog(false)}>
                     <X className="w-5 h-5" />
                   </button>
                 </div>
-                <div className="p-6 max-h-96 overflow-y-auto font-mono text-xs text-slate-700 space-y-2">
+                <div className="p-6 max-h-96 overflow-y-auto font-mono text-xs text-slate-700 dark:text-slate-200 space-y-2">
                   {syncLog.length === 0 ? (
-                    <div className="text-center py-8 text-slate-400 font-sans">No sync activity recorded yet</div>
+                    <div className="text-center py-8 text-slate-400 dark:text-slate-500 font-sans">No sync activity recorded yet</div>
                   ) : (
                     syncLog.map((log, i) => (
-                      <div key={i} className="p-2.5 bg-slate-50 rounded-lg border border-slate-100 break-words">
+                      <div key={i} className="p-2.5 bg-slate-50 dark:bg-[#0F172A] rounded-lg border border-slate-100 dark:border-[#334155] break-words">
                         {log}
                       </div>
                     ))

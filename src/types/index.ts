@@ -89,6 +89,8 @@ export interface Citizen {
   gender: Gender;
   maritalStatus?: string;
   phoneNumber?: string;
+  email?: string;
+  nationalId?: string;
   alternativePhone?: string;
 
   // Complete Administrative Address Hierarchy
