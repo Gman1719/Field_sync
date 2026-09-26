@@ -11,7 +11,7 @@ import {
   TrendingUp, CheckCircle2, Award, ShieldCheck, AlertCircle,
   UserPlus, FilePlus2, BarChart3, Radio, ArrowRight, ShieldAlert,
   Percent, Sparkles, RefreshCw, AlertTriangle, ChevronRight,
-  Activity, MapPin, Eye, Phone, Mail, Check
+  Activity, MapPin, Eye, Phone, Mail, Check, UserCog, Database, History
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -311,22 +311,26 @@ export default function Dashboard({
     return data;
   }, [citizens]);
 
-  // Chart: Geographic Distribution (Woredas)
+  // Chart: Geographic Distribution (by Region)
   const geographicData = useMemo(() => {
-    if (telemetryData?.citizens?.geographicDistribution?.length > 0) {
-      return telemetryData.citizens.geographicDistribution.map(g => ({
-        name: g.woredaName,
-        count: g.count
-      }));
-    }
-    // Fallback from citizens prop
     const map = {};
+    const normalizeRegion = (raw) => {
+      if (!raw) return 'Addis Ababa';
+      const clean = raw.trim();
+      const lower = clean.toLowerCase();
+      if (lower === 'north') return 'Amhara';
+      if (lower === 'south') return 'Sidama';
+      if (lower === 'east') return 'Somali';
+      if (lower === 'west') return 'Oromia';
+      if (lower === 'central') return 'Addis Ababa';
+      return clean;
+    };
     (citizens || []).forEach(c => {
-      const w = c.woreda || c.woredaName || 'Bole Sub-City';
-      map[w] = (map[w] || 0) + 1;
+      const reg = normalizeRegion(c.region || c.regionName);
+      map[reg] = (map[reg] || 0) + 1;
     });
     return Object.entries(map).map(([name, count]) => ({ name, count }));
-  }, [telemetryData, citizens]);
+  }, [citizens]);
 
   // Chart: Gender Breakdown
   const genderData = useMemo(() => {
@@ -375,6 +379,63 @@ export default function Dashboard({
       .sort((a, b) => b.registrations - a.registrations);
   }, [users, citizens, reports]);
 
+  // Chart: Supervisor Zonal Registration Performance
+  const supervisorZonePerformanceData = useMemo(() => {
+    const supervisors = (users || []).filter(u => u.role === 'supervisor' || u.role === 'SUPERVISOR');
+
+    const list = supervisors.map(sup => {
+      const supName = sup.fullName || sup.name || 'Supervisor';
+      const zoneName = sup.zone || sup.zoneName || sup.region || 'Assigned Zone';
+
+      // Officers assigned to this supervisor
+      const assignedOfficers = (users || []).filter(u =>
+        (u.role === 'field_officer' || u.role === 'FIELD_OFFICER') &&
+        (u.supervisorId === sup.id || u.supervisor === sup.id || u.supervisor === sup.name || (sup.zone && u.zone === sup.zone))
+      );
+      const officerIds = new Set(assignedOfficers.map(u => u.id));
+
+      // Count registrations
+      const registrationCount = (citizens || []).filter(c => {
+        const byOfficer = c.registeredById || c.registeredBy;
+        if (byOfficer && (byOfficer === sup.id || officerIds.has(byOfficer))) {
+          return true;
+        }
+        if (sup.zone && (c.zone === sup.zone || c.zoneName === sup.zone || c.zoneId === sup.zoneId)) {
+          return true;
+        }
+        return false;
+      }).length;
+
+      return {
+        id: sup.id,
+        name: supName,
+        zone: zoneName,
+        displayName: `${supName} (${zoneName})`,
+        registrations: registrationCount,
+        officers: assignedOfficers.length,
+      };
+    });
+
+    // Fallback if no supervisors exist in local dataset
+    if (list.length === 0) {
+      const zoneMap = {};
+      (citizens || []).forEach(c => {
+        const z = c.zone || c.zoneName || c.woreda || 'Central Zone';
+        zoneMap[z] = (zoneMap[z] || 0) + 1;
+      });
+      return Object.entries(zoneMap).map(([zone, count], idx) => ({
+        id: `sup-${idx}`,
+        name: `Supervisor ${idx + 1}`,
+        zone: zone,
+        displayName: `Supervisor ${idx + 1} (${zone})`,
+        registrations: count,
+        officers: 3,
+      }));
+    }
+
+    return list.sort((a, b) => b.registrations - a.registrations);
+  }, [users, citizens]);
+
   return (
     <div className="space-y-6">
       {/* Officer Security Verification Popup */}
@@ -387,118 +448,116 @@ export default function Dashboard({
         />
       )}
 
-      {/* Top Banner: Status & Real-Time Sync Indicator */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-[#1E293B] p-4 rounded-2xl border border-slate-200/90 dark:border-[#334155] shadow-2xs">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-            {isManager && 'Executive Operations Dashboard'}
-            {isSupervisor && 'Supervisor Real-Time Monitoring'}
-            {isOfficer && 'Field Officer Operations Console'}
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            {isManager && 'Consolidated live telemetry across all regions, zones, and field officers'}
-            {isSupervisor && 'Real-time telemetry and registration velocity for your assigned territory'}
-            {isOfficer && 'Real-time tracking of personal registrations, reports, and screen-time telemetry'}
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2.5 flex-wrap">
-          <Badge variant={isLiveConnected ? 'success' : 'warning'} dot>
-            {isLiveConnected ? 'Live Server Telemetry' : 'Offline Local Cache'}
-          </Badge>
-
-          {lastRefreshed && (
-            <span className="text-xs text-slate-400">
-              Updated {lastRefreshed.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-            </span>
-          )}
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => fetchTelemetryOverview(true)}
-            disabled={isRefreshing}
-            className="flex items-center gap-1.5"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-blue-600' : ''}`} />
-            <span>Refresh</span>
-          </Button>
-        </div>
-      </div>
 
       {/* ============================================================
-          URGENT ROADBLOCKS ESCALATION BANNER (Supervisor & Manager)
+          MANAGER DASHBOARD OVERVIEW: CARDS FROM ALL SIDEBAR TABS
          ============================================================ */}
-      {(isManager || isSupervisor) && urgentRoadblocks.length > 0 && (
-        <div className="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 rounded-2xl p-4 sm:p-5 shadow-xs animate-in fade-in">
-          <div className="flex items-start gap-3.5">
-            <div className="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
-              <AlertTriangle className="w-5 h-5" />
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center justify-between gap-2 flex-wrap">
-                <h4 className="text-sm sm:text-base font-bold text-rose-900 dark:text-rose-200 flex items-center gap-2">
-                  Urgent Roadblocks & Escalations Requiring Immediate Action
-                  <span className="px-2 py-0.5 rounded-full text-xs bg-rose-200 dark:bg-rose-900/80 text-rose-800 dark:text-rose-200 font-bold">
-                    {urgentRoadblocks.length}
-                  </span>
-                </h4>
-              </div>
-              <p className="text-xs text-rose-700 dark:text-rose-300 mt-0.5">
-                The following field officers flagged critical impediments in their daily reports today:
+      {isManager && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
+                Operations & System Overview
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Real-time operational metrics across all organizational divisions
               </p>
+            </div>
+          </div>
 
-              <div className="mt-3 space-y-2">
-                {urgentRoadblocks.map((rb, idx) => (
-                  <div key={idx} className="bg-white/90 dark:bg-[#1E293B] rounded-xl p-3 border border-rose-200/80 dark:border-rose-900/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-slate-900 dark:text-white">{rb.officerName}</span>
-                        <span className="text-slate-400">·</span>
-                        <span className="text-slate-600 dark:text-slate-300 font-medium">{rb.woredaName}</span>
-                        <span className="text-slate-400">·</span>
-                        <span className="text-slate-400">
-                          {new Date(rb.submittedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </span>
-                      </div>
-                      <p className="text-rose-900 dark:text-rose-300 font-medium mt-1">
-                        "{rb.reason}"
-                      </p>
-                    </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
+            {/* 1. User Management (from 'users' sidebar tab) */}
+            <div onClick={() => setActiveTab && setActiveTab('users')} className="cursor-pointer">
+              <StatCard
+                title="User Management"
+                value={users.length}
+                subtitle={`${users.filter(u => u.status === 'active' || u.isActive).length} active staff accounts`}
+                icon={UserCog}
+                iconColor="text-blue-700 dark:text-blue-400"
+                iconBg="bg-blue-50 dark:bg-blue-950/80"
+                badge={`${users.filter(u => u.role === 'field_officer' || u.role === 'FIELD_OFFICER').length} Officers`}
+                badgeColor="bg-blue-50 text-blue-700 border-blue-200"
+              />
+            </div>
 
-                    <div className="flex items-center gap-2">
-                      <Button
-                        size="xs"
-                        variant="outline"
-                        onClick={() => handleOpenOfficerDrilldown(rb.reportId)}
-                        className="bg-white dark:bg-[#1E293B] hover:bg-rose-50 dark:hover:bg-rose-950/50 border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300"
-                      >
-                        Inspect Officer
-                      </Button>
-                      {setActiveTab && (
-                        <Button
-                          size="xs"
-                          variant="primary"
-                          onClick={() => setActiveTab(isManager ? 'all_reports' : 'reports')}
-                          className="bg-rose-700 hover:bg-rose-800 text-white"
-                        >
-                          Review Report
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
+            {/* 2. Registered Citizens (from 'citizens' sidebar tab) */}
+            <div onClick={() => setActiveTab && setActiveTab('citizens')} className="cursor-pointer">
+              <StatCard
+                title="Registered Citizens"
+                value={totalCitizens}
+                subtitle={`${todayCitizens} registered today`}
+                icon={Database}
+                iconColor="text-emerald-700 dark:text-emerald-400"
+                iconBg="bg-emerald-50 dark:bg-emerald-950/80"
+                badge={`${syncedCitizens} Synced`}
+                badgeColor="bg-emerald-50 text-emerald-700 border-emerald-200"
+              />
+            </div>
+
+            {/* 3. Field Officers (from 'team' sidebar tab) */}
+            <div onClick={() => setActiveTab && setActiveTab('team')} className="cursor-pointer">
+              <StatCard
+                title="Field Officers"
+                value={users.filter(u => u.role === 'field_officer' || u.role === 'FIELD_OFFICER').length}
+                subtitle={`${users.filter(u => u.role === 'supervisor' || u.role === 'SUPERVISOR').length} supervisors across all zones`}
+                icon={Users}
+                iconColor="text-purple-700 dark:text-purple-400"
+                iconBg="bg-purple-50 dark:bg-purple-950/80"
+                badge="Active Staff"
+                badgeColor="bg-purple-50 text-purple-700 border-purple-200"
+              />
+            </div>
+
+            {/* 4. All Daily Reports (from 'all_reports' sidebar tab) */}
+            <div onClick={() => setActiveTab && setActiveTab('all_reports')} className="cursor-pointer">
+              <StatCard
+                title="Daily Work Reports"
+                value={reportsToday}
+                subtitle={`${reports.length} total reports filed`}
+                icon={FileText}
+                iconColor="text-indigo-700 dark:text-indigo-400"
+                iconBg="bg-indigo-50 dark:bg-indigo-950/80"
+                badge={`${complianceRate}% Compliance`}
+                badgeColor={complianceRate === 100 ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-amber-50 text-amber-700 border-amber-200"}
+              />
+            </div>
+
+            {/* 5. System Sync Health (from 'sync_center' sidebar tab) */}
+            <div onClick={() => setActiveTab && setActiveTab('sync_center')} className="cursor-pointer">
+              <StatCard
+                title="System Sync Health"
+                value={pendingCitizens === 0 ? '100%' : `${pendingCitizens} Pending`}
+                subtitle={`${syncedCitizens} records synchronized`}
+                icon={RefreshCw}
+                iconColor="text-sky-700 dark:text-sky-400"
+                iconBg="bg-sky-50 dark:bg-sky-950/80"
+                badge={pendingCitizens === 0 ? "Synced" : "Sync Queue"}
+                badgeColor={pendingCitizens === 0 ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-amber-50 text-amber-700 border-amber-200"}
+              />
+            </div>
+
+            {/* 6. Analysis & Detail (from 'analytics' sidebar tab) */}
+            <div onClick={() => setActiveTab && setActiveTab('analytics')} className="cursor-pointer">
+              <StatCard
+                title="Analysis & Detail"
+                value={totalCitizens > 0 ? `${Math.round((todayCitizens / (totalCitizens || 1)) * 100)}% Pace` : '0%'}
+                subtitle="Demographic & regional analytics"
+                icon={BarChart3}
+                iconColor="text-amber-700 dark:text-amber-400"
+                iconBg="bg-amber-50 dark:bg-amber-950/80"
+                badge="Telemetry"
+                badgeColor="bg-amber-50 text-amber-700 border-amber-200"
+              />
             </div>
           </div>
         </div>
       )}
 
       {/* ============================================================
-          EXECUTIVE / SUPERVISOR KPI STAT CARDS
+          SUPERVISOR KPI STAT CARDS
          ============================================================ */}
-      {(isManager || isSupervisor) && (
-        <div className="grid grid-cols-2 lg:grid-cols-6 gap-3.5">
+      {isSupervisor && (
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3.5">
           <StatCard
             title="Registered Citizens"
             value={totalCitizens}
@@ -511,15 +570,6 @@ export default function Dashboard({
           />
 
           <StatCard
-            title="Today's Screen Time"
-            value={todayScreenTimeFormatted}
-            subtitle={`Total: ${totalScreenTimeFormatted}`}
-            icon={Clock}
-            iconColor="text-teal-700"
-            iconBg="bg-teal-50"
-          />
-
-          <StatCard
             title="Daily Report Compliance"
             value={`${complianceRate}%`}
             subtitle={`${reportsToday} of ${totalStaff} submitted today`}
@@ -529,31 +579,6 @@ export default function Dashboard({
             badge={complianceRate === 100 ? '100% Complete' : 'In Progress'}
             badgeColor={complianceRate === 100 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'}
           />
-
-          <StatCard
-            title="Urgent Roadblocks"
-            value={urgentRoadblocks.length}
-            subtitle={urgentRoadblocks.length > 0 ? 'Requires attention' : 'All clear'}
-            icon={AlertTriangle}
-            iconColor={urgentRoadblocks.length > 0 ? 'text-rose-700' : 'text-slate-400'}
-            iconBg={urgentRoadblocks.length > 0 ? 'bg-rose-50 dark:bg-rose-950/60' : 'bg-slate-50 dark:bg-slate-800'}
-          />
-
-          <div
-            onClick={() => setActiveTab && setActiveTab('duplicates')}
-            className="cursor-pointer"
-          >
-            <StatCard
-              title="Duplicate Reviews"
-              value={pendingDuplicates}
-              subtitle="Pending adjudication"
-              icon={ShieldCheck}
-              iconColor="text-amber-700"
-              iconBg="bg-amber-50"
-              badge={pendingDuplicates > 0 ? 'Review Needed' : 'Clean'}
-              badgeColor={pendingDuplicates > 0 ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200'}
-            />
-          </div>
 
           <div
             onClick={() => setActiveTab && setActiveTab('sync_center')}
@@ -620,7 +645,7 @@ export default function Dashboard({
           )}
 
           {/* Officer Key Metrics */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <StatCard
               title="My Registrations"
               value={totalCitizens}
@@ -630,28 +655,12 @@ export default function Dashboard({
               iconBg="bg-blue-50"
             />
             <StatCard
-              title="Today's Screen Time"
-              value={todayScreenTimeFormatted}
-              subtitle="Recorded on current shift"
-              icon={Clock}
-              iconColor="text-teal-700"
-              iconBg="bg-teal-50"
-            />
-            <StatCard
               title="Today's Report Status"
               value={reportsToday > 0 ? 'SUBMITTED' : 'PENDING'}
-              subtitle={reportsToday > 0 ? 'Daily report submitted' : 'Submission required by EOD'}
+              subtitle={reportsToday > 0 ? 'Daily report submitted' : 'Pending submission'}
               icon={FileText}
               iconColor="text-indigo-700"
               iconBg="bg-indigo-50"
-            />
-            <StatCard
-              title="Verification Score"
-              value={`${verificationScore || 100}%`}
-              subtitle="Device & security integrity"
-              icon={ShieldCheck}
-              iconColor="text-emerald-700"
-              iconBg="bg-emerald-50"
             />
           </div>
         </>
@@ -699,8 +708,8 @@ export default function Dashboard({
 
         {/* Geographic Distribution Chart */}
         <ChartWrapper
-          title="Geographic Distribution by Woreda"
-          subtitle="Citizen registration density across administrative woredas"
+          title="Geographic Distribution by Region"
+          subtitle="Citizen registration density across administrative regions"
         >
           {geographicData.length === 0 ? (
             <div className="h-full flex items-center justify-center text-xs text-slate-400">
@@ -837,9 +846,138 @@ export default function Dashboard({
       </div>
 
       {/* ============================================================
-          OFFICER PERFORMANCE & LEADERBOARD (Supervisor & Manager)
+          MANAGER VIEW: SUPERVISOR ZONAL REGISTRATION PERFORMANCE CHART
          ============================================================ */}
-      {(isManager || isSupervisor) && (
+      {isManager && (
+        <Card className="bg-white dark:bg-[#1E293B] border border-slate-200/90 dark:border-[#334155] shadow-xs">
+          <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 gap-2">
+            <div>
+              <CardTitle className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <BarChart3 className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                Supervisor Registration Performance by Assigned Zone
+              </CardTitle>
+              <CardDescription className="text-xs text-slate-500 dark:text-slate-400">
+                Comparative citizen intake volume across zonal jurisdictions and supervisory units
+              </CardDescription>
+            </div>
+            {setActiveTab && (
+              <Button
+                variant="outline"
+                size="xs"
+                onClick={() => setActiveTab('team')}
+                className="text-xs self-start sm:self-auto"
+              >
+                Inspect Supervisors & Zones
+              </Button>
+            )}
+          </CardHeader>
+          <CardContent className="pt-2">
+            {supervisorZonePerformanceData.length === 0 ? (
+              <div className="text-center py-12 text-xs text-slate-400 dark:text-slate-500">
+                No supervisor zonal registration data available
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {/* Summary Badges */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  <div className="bg-slate-50 dark:bg-[#0F172A] p-3 rounded-xl border border-slate-100 dark:border-slate-800">
+                    <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Top Performing Zone</p>
+                    <p className="text-sm font-bold text-slate-900 dark:text-white mt-0.5 truncate">
+                      {supervisorZonePerformanceData[0]?.zone || '—'}
+                    </p>
+                    <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                      {supervisorZonePerformanceData[0]?.name} ({supervisorZonePerformanceData[0]?.registrations} records)
+                    </p>
+                  </div>
+                  <div className="bg-slate-50 dark:bg-[#0F172A] p-3 rounded-xl border border-slate-100 dark:border-slate-800">
+                    <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Active Supervisors</p>
+                    <p className="text-sm font-bold text-slate-900 dark:text-white mt-0.5">
+                      {supervisorZonePerformanceData.length} Supervisors
+                    </p>
+                    <p className="text-xs text-slate-400">Across all operational zones</p>
+                  </div>
+                  <div className="col-span-2 sm:col-span-1 bg-slate-50 dark:bg-[#0F172A] p-3 rounded-xl border border-slate-100 dark:border-slate-800">
+                    <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Zonal Intake</p>
+                    <p className="text-sm font-bold text-slate-900 dark:text-white mt-0.5">
+                      {supervisorZonePerformanceData.reduce((sum, s) => sum + s.registrations, 0)} Registrations
+                    </p>
+                    <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">All assigned territories</p>
+                  </div>
+                </div>
+
+                {/* Recharts Bar Chart */}
+                <div className="h-72 w-full pt-2">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={supervisorZonePerformanceData}
+                      margin={{ top: 10, right: 15, left: -10, bottom: 25 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" opacity={0.15} />
+                      <XAxis
+                        dataKey="displayName"
+                        tick={{ fontSize: 11, fill: '#64748B' }}
+                        tickLine={false}
+                        axisLine={{ stroke: '#E2E8F0' }}
+                        interval={0}
+                        angle={-15}
+                        textAnchor="end"
+                      />
+                      <YAxis
+                        tick={{ fontSize: 11, fill: '#64748B' }}
+                        tickLine={false}
+                        axisLine={false}
+                        allowDecimals={false}
+                      />
+                      <Tooltip
+                        content={({ active, payload }) => {
+                          if (active && payload && payload.length) {
+                            const data = payload[0].payload;
+                            return (
+                              <div className="bg-white dark:bg-[#1E293B] p-3 rounded-xl border border-slate-200 dark:border-[#334155] shadow-lg text-xs">
+                                <p className="font-bold text-slate-900 dark:text-white">{data.name}</p>
+                                <p className="text-slate-500 dark:text-slate-400 text-[11px] mb-1.5">Zone: <span className="font-medium text-slate-700 dark:text-slate-200">{data.zone}</span></p>
+                                <div className="space-y-0.5 border-t border-slate-100 dark:border-slate-800 pt-1.5">
+                                  <p className="flex justify-between gap-4 text-blue-600 dark:text-blue-400 font-bold">
+                                    <span>Registrations:</span>
+                                    <span>{data.registrations}</span>
+                                  </p>
+                                  <p className="flex justify-between gap-4 text-slate-500 dark:text-slate-400">
+                                    <span>Field Officers:</span>
+                                    <span>{data.officers}</span>
+                                  </p>
+                                </div>
+                              </div>
+                            );
+                          }
+                          return null;
+                        }}
+                      />
+                      <Bar
+                        dataKey="registrations"
+                        name="Registrations"
+                        radius={[6, 6, 0, 0]}
+                        maxBarSize={55}
+                      >
+                        {supervisorZonePerformanceData.map((_entry, index) => (
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={CHART_COLORS[index % CHART_COLORS.length]}
+                          />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* ============================================================
+          SUPERVISOR VIEW: FIELD OFFICER PERFORMANCE & LEADERBOARD
+         ============================================================ */}
+      {isSupervisor && (
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
@@ -902,7 +1040,7 @@ export default function Dashboard({
                             className="text-blue-700 dark:text-blue-400 group-hover:bg-blue-50 dark:group-hover:bg-blue-950/40 font-semibold"
                           >
                             <Eye className="w-3.5 h-3.5 mr-1" />
-                            Inspect
+                            Detail
                           </Button>
                         </td>
                       </tr>

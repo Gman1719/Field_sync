@@ -125,15 +125,43 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
     return false;
   };
 
+  const isSupervisor = user?.role === 'supervisor' || user?.role === 'SUPERVISOR';
+
+  // Compute supervisor's assigned field officers
+  const supervisorAssignedOfficers = useMemo(() => {
+    if (!isSupervisor) return [];
+    return (users || []).filter((u) => {
+      const role = (u.role || '').toLowerCase();
+      if (role !== 'field_officer') return false;
+      const directMatch =
+        (user?.id && (u.supervisorId === user.id || u.supervisor_id === user.id)) ||
+        (user?.name && (u.supervisorName === user.name || u.supervisor === user.name)) ||
+        (user?.fullName && (u.supervisorName === user.fullName || u.supervisor === user.fullName)) ||
+        (user?.employeeId && u.supervisorEmployeeId === user.employeeId);
+      const zoneMatch =
+        user?.zone && u.zone && u.zone.toLowerCase() === user.zone.toLowerCase();
+      const woredaMatch =
+        user?.woreda && u.woreda && u.woreda.toLowerCase() === user.woreda.toLowerCase();
+      return directMatch || zoneMatch || woredaMatch;
+    });
+  }, [isSupervisor, users, user]);
+
   // 3. BASE CITIZENS SCOPE:
   // For Field Officers: strictly only display citizens registered by this officer!
-  // For Supervisors/Managers: access all citizens in their jurisdiction.
+  // For Supervisors: strictly only display citizens registered by their assigned officers!
+  // For Managers: access all citizens in their jurisdiction.
   const baseCitizens = useMemo(() => {
     if (isOfficer) {
       return allCitizens.filter((c) => matchesOfficer(c, user));
     }
+    if (isSupervisor) {
+      return allCitizens.filter((c) => {
+        if (matchesOfficer(c, user)) return true;
+        return supervisorAssignedOfficers.some((off) => matchesOfficer(c, off));
+      });
+    }
     return allCitizens;
-  }, [allCitizens, isOfficer, user]);
+  }, [allCitizens, isOfficer, isSupervisor, user, supervisorAssignedOfficers]);
 
   // 4. Computed Unique Officers for "Registered By" Dropdown (for managers/supervisors)
   const registeredByOptions = useMemo(() => {
@@ -142,7 +170,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
     const map = new Map();
 
     // From loaded citizen records
-    allCitizens.forEach((c) => {
+    baseCitizens.forEach((c) => {
       const officerId = c.registeredById || c.registeredBy;
       if (officerId && !map.has(officerId)) {
         const matchedUser = (users || []).find(
@@ -154,19 +182,32 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
       }
     });
 
-    // Also include any field officers in system users
-    (users || []).forEach((u) => {
-      if ((u.role === 'field_officer' || u.role === 'FIELD_OFFICER') && !map.has(u.id)) {
-        map.set(u.id, {
-          id: u.id,
-          name: u.name || u.fullName || u.email,
-          employeeId: u.employeeId || ''
-        });
-      }
-    });
+    if (isSupervisor) {
+      supervisorAssignedOfficers.forEach((u) => {
+        if (!map.has(u.id)) {
+          map.set(u.id, {
+            id: u.id,
+            name: u.name || u.fullName || u.email,
+            employeeId: u.employeeId || ''
+          });
+        }
+      });
+    } else {
+      // Also include any field officers in system users for managers
+      (users || []).forEach((u) => {
+        const role = (u.role || '').toLowerCase();
+        if (role === 'field_officer' && !map.has(u.id)) {
+          map.set(u.id, {
+            id: u.id,
+            name: u.name || u.fullName || u.email,
+            employeeId: u.employeeId || ''
+          });
+        }
+      });
+    }
 
     return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name));
-  }, [allCitizens, users, isOfficer]);
+  }, [baseCitizens, isOfficer, isSupervisor, supervisorAssignedOfficers, users]);
 
   // Selected officer object for managers/supervisors
   const currentOfficer = useMemo(() => {
@@ -289,27 +330,15 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
           <h2 className="text-xl sm:text-2xl font-black text-[#0F172A] dark:text-[#F8FAFC] tracking-tight">
             {isOfficer ? 'My Registered Citizens' : 'Registered Citizens'}
           </h2>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-[#94A3B8] mt-1">
-            {isOfficer
-              ? 'Frontline citizen enrollment directory with administrative jurisdiction'
-              : 'Master national biographic registry with intake provenance and regional telemetry'}
-          </p>
+          {isOfficer && (
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-[#94A3B8] mt-1">
+              Frontline citizen enrollment directory with administrative jurisdiction
+            </p>
+          )}
         </div>
 
-        <div className="flex items-center gap-2.5 shrink-0">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={handleRefresh}
-            loading={isRefreshing}
-            className="text-xs h-10 px-4 rounded-xl border-[#E2E8F0] dark:border-[#334155] text-slate-700 dark:text-[#F8FAFC] dark:hover:bg-[#0F172A]"
-          >
-            Refresh
-          </Button>
-
-          {/* Quick link to register citizen for field officers */}
-          {isOfficer && setActiveTab && (
+        {isOfficer && setActiveTab && (
+          <div className="flex items-center gap-2.5 shrink-0">
             <Button
               type="button"
               variant="primary"
@@ -319,8 +348,8 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
             >
               Register Citizen
             </Button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* 2. Interactive KPI Stats Cards (No icons, responsive, clickable to filter) */}

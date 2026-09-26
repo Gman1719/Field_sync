@@ -1,4 +1,3 @@
-// src/db/offlineDb.ts
 // Offline-First IndexedDB Database using Dexie.js for FieldSync (Phase 3)
 
 import Dexie, { type EntityTable } from 'dexie';
@@ -16,6 +15,9 @@ import type {
   SyncQueueItem,
   SyncErrorRecord,
   AppNotification,
+  DailyScreenTime,
+  WorkVerification,
+  ChatMessage,
 } from '../types/index';
 
 export class FieldSyncDatabase extends Dexie {
@@ -32,6 +34,10 @@ export class FieldSyncDatabase extends Dexie {
   syncQueue!: EntityTable<SyncQueueItem, 'id'>;
   syncErrors!: EntityTable<SyncErrorRecord, 'id'>;
   notifications!: EntityTable<AppNotification, 'id'>;
+  dailyScreenTimes!: EntityTable<DailyScreenTime, 'id'>;
+  workVerifications!: EntityTable<WorkVerification, 'id'>;
+
+  chatMessages!: EntityTable<ChatMessage, 'id'>;
 
   constructor() {
     super('FieldSyncOfflineDB');
@@ -57,6 +63,15 @@ export class FieldSyncDatabase extends Dexie {
 
     this.version(3).stores({
       notifications: 'id, recipientId, isRead, priority, type, createdAt',
+    });
+
+    this.version(4).stores({
+      dailyScreenTimes: 'id, officerId, date, status, syncStatus',
+      workVerifications: 'id, officerId, scheduledAt, deadlineAt, status, syncStatus, date',
+    });
+
+    this.version(5).stores({
+      chatMessages: 'id, senderId, receiverId, conversationId, timestamp, isRead, status',
     });
   }
 }

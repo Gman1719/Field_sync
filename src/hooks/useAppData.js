@@ -223,6 +223,12 @@ export function useAppData(user) {
                     mustChangePassword: serverUser.mustChangePassword !== undefined ? serverUser.mustChangePassword : Boolean(serverUser.must_change_password),
                     lastLogin: serverUser.lastLogin || serverUser.last_login,
                     password: mergedUsers[existingIndex].password,
+                    profilePhotoUrl:
+                      serverUser.profilePhotoUrl ||
+                      serverUser.profile_photo_url ||
+                      mergedUsers[existingIndex].profilePhotoUrl ||
+                      (serverUser.id ? localStorage.getItem(`fieldsync_avatar_${serverUser.id}`) : null) ||
+                      null,
                   };
                 } else {
                   const defaultPassword =
@@ -250,6 +256,11 @@ export function useAppData(user) {
                     mustChangePassword: serverUser.mustChangePassword !== undefined ? serverUser.mustChangePassword : Boolean(serverUser.must_change_password),
                     lastLogin: serverUser.lastLogin || serverUser.last_login,
                     phone: serverUser.phone || '',
+                    profilePhotoUrl:
+                      serverUser.profilePhotoUrl ||
+                      serverUser.profile_photo_url ||
+                      (serverUser.id ? localStorage.getItem(`fieldsync_avatar_${serverUser.id}`) : null) ||
+                      null,
                     shift: serverUser.shift || 'Day',
                     department: serverUser.department || '',
                     assignedSites: [],

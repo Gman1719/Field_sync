@@ -10,6 +10,7 @@ import {
 import { db, syncQueue, checkRealInternet, clearStuckSyncItems } from '../../services/database';
 import { getToday, uid } from '../../utils/helpers';
 import { API_BASE } from '../../config/api';
+import ActivityLogger from '../../services/activityLogger';
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
 import StatCard from '../ui/StatCard';
@@ -277,6 +278,21 @@ export default function AttendanceManagement({
           'info'
         );
       }
+
+      // Record Activity Log
+      await ActivityLogger.log('ATTENDANCE_RECORDED', `Updated attendance record for ${selectedOfficer.name} (${form.status}, ${form.checkIn || '--'} to ${form.checkOut || '--'})`, {
+        officerId: user?.id || 'staff',
+        relatedRecordId: recordId,
+        metadata: {
+          targetOfficerId: selectedOfficer.id,
+          targetOfficerName: selectedOfficer.name,
+          status: form.status,
+          checkIn: form.checkIn,
+          checkOut: form.checkOut,
+          workHours: Math.round(workHours * 10) / 10,
+          date: today,
+        }
+      });
 
       setShowModal(false);
       setSelectedOfficer(null);

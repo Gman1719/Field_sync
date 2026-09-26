@@ -22,6 +22,7 @@ import {
   Radio,
   RefreshCw,
   Activity,
+  MessageSquare,
   X
 } from 'lucide-react';
 
@@ -75,7 +76,6 @@ export default function Sidebar({
           { id: 'my_reports', label: 'My Report', icon: FileText, badge: pendingSync > 0 ? pendingSync : null, badgeColor: 'bg-amber-500' },
           { id: 'activity_logs', label: 'Activity Logs', icon: Activity },
           { id: 'screentime', label: 'Work Sessions & Time', icon: Smartphone },
-          { id: 'sync_center', label: 'Sync Center', icon: RefreshCw, badge: pendingSync > 0 ? pendingSync : null, badgeColor: 'bg-amber-500' },
         ]
       });
     }
@@ -85,8 +85,9 @@ export default function Sidebar({
       sections.push({
         title: 'Field Oversight',
         items: [
+          { id: 'chat', label: 'Manager Chat', icon: MessageSquare },
           { id: 'citizens', label: 'Registered Citizens', icon: Database },
-          { id: 'team', label: 'Team Overview', icon: Users },
+          { id: 'team', label: 'Team', icon: Users },
           { id: 'reports', label: 'Officer Daily Reports', icon: FileText, badge: pendingSync > 0 ? pendingSync : null, badgeColor: 'bg-amber-500' },
           { id: 'supervisor_reports', label: 'Supervisor Evaluations', icon: FileSpreadsheet }
         ]
@@ -96,10 +97,9 @@ export default function Sidebar({
         title: 'Activity & Synchronization',
         items: [
           { id: 'activity_logs', label: 'Activity Logs', icon: Activity },
-          { id: 'screentime', label: 'Screen Time Telemetry', icon: Smartphone },
-          { id: 'analytics', label: 'Field Analytics & Telemetry', icon: BarChart3 },
+          { id: 'screentime', label: 'Officers Screen Time', icon: Smartphone },
+          { id: 'analytics', label: 'Analysis and Detail', icon: BarChart3 },
           { id: 'sync_center', label: 'Sync Health Monitor', icon: RefreshCw, badge: pendingSync > 0 ? pendingSync : null, badgeColor: 'bg-amber-500' },
-          { id: 'audit', label: 'Zone Audit Trail', icon: History },
         ]
       });
     }
@@ -109,19 +109,19 @@ export default function Sidebar({
       sections.push({
         title: 'Workforce & Registry',
         items: [
-          { id: 'users', label: 'User Directory', icon: UserCog },
+          { id: 'users', label: 'User Management', icon: UserCog },
+          { id: 'chat', label: 'Supervisor Chat', icon: MessageSquare },
           { id: 'citizens', label: 'Registered Citizens', icon: Database },
-          { id: 'team', label: 'Team Overview', icon: Users },
+          { id: 'team', label: 'Team', icon: Users },
           { id: 'all_reports', label: 'All Daily Reports', icon: FileText },
         ]
       });
 
       sections.push({
-        title: 'Telemetry & Analytics',
+        title: 'Detail & Analytics',
         items: [
           { id: 'activity_logs', label: 'Activity Logs', icon: Activity },
-          { id: 'screentime', label: 'Screen Time Tracking', icon: Smartphone },
-          { id: 'analytics', label: 'Analytics & Insights', icon: BarChart3 },
+          { id: 'analytics', label: 'Analysis and Detail', icon: BarChart3 },
           { id: 'sync_center', label: 'System Sync Health', icon: RefreshCw },
           { id: 'audit', label: 'System Audit Trail', icon: History },
         ]
@@ -229,8 +229,12 @@ export default function Sidebar({
               title="View My Profile"
             >
               <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-950 text-[#2563EB] dark:text-[#60A5FA] flex items-center justify-center font-bold text-xs shrink-0 overflow-hidden">
-                {user?.profilePhotoUrl ? (
-                  <img src={user.profilePhotoUrl} alt="Avatar" className="w-full h-full object-cover" />
+                {(user?.profilePhotoUrl || (user?.id ? localStorage.getItem(`fieldsync_avatar_${user.id}`) : null)) ? (
+                  <img
+                    src={user?.profilePhotoUrl || (user?.id ? localStorage.getItem(`fieldsync_avatar_${user.id}`) : null) || ''}
+                    alt="Avatar"
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
                   (user?.fullName || user?.name || user?.email || 'U')[0].toUpperCase()
                 )}

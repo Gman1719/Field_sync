@@ -3,6 +3,7 @@
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import { db, checkRealInternet } from '../services/database';
 import { API_BASE } from '../config/api';
+import ActivityLogger from '../services/activityLogger';
 
 const AuthContext = createContext(null);
 
@@ -31,6 +32,11 @@ export function AuthProvider({ children }) {
             const resData = await res.json();
             if (resData.success && resData.data?.user) {
               const liveUser = resData.data.user;
+              const persistentPhoto = liveUser.id ? localStorage.getItem(`fieldsync_avatar_${liveUser.id}`) : null;
+              if (!liveUser.profilePhotoUrl && persistentPhoto) {
+                liveUser.profilePhotoUrl = persistentPhoto;
+              }
+
               setUser(liveUser);
               setToken(storedToken);
               setMustChangePassword(!!liveUser.mustChangePassword);
@@ -62,6 +68,11 @@ export function AuthProvider({ children }) {
           const allUsers = await db.users.toArray();
           const foundUser = allUsers.find(u => u.id === session.userId);
           if (foundUser && (foundUser.status === 'active' || foundUser.isActive)) {
+            const persistentPhoto = foundUser.id ? localStorage.getItem(`fieldsync_avatar_${foundUser.id}`) : null;
+            if (!foundUser.profilePhotoUrl && persistentPhoto) {
+              foundUser.profilePhotoUrl = persistentPhoto;
+            }
+
             setUser(foundUser);
             if (session.token) {
               setToken(session.token);
@@ -105,6 +116,11 @@ export function AuthProvider({ children }) {
         const authenticatedUser = resData.data.user;
         const authToken = resData.data.token;
 
+        const persistentPhoto = authenticatedUser.id ? localStorage.getItem(`fieldsync_avatar_${authenticatedUser.id}`) : null;
+        if (!authenticatedUser.profilePhotoUrl && persistentPhoto) {
+          authenticatedUser.profilePhotoUrl = persistentPhoto;
+        }
+
         setUser(authenticatedUser);
         setToken(authToken);
         localStorage.setItem('fieldsync_token', authToken);
@@ -118,6 +134,12 @@ export function AuthProvider({ children }) {
         } else {
           setMustChangePassword(false);
         }
+
+        // Record User Login Activity Log
+        ActivityLogger.log('USER_LOGIN', `User ${authenticatedUser.name || authenticatedUser.fullName || authenticatedUser.email} logged in`, {
+          officerId: authenticatedUser.id,
+          metadata: { role: authenticatedUser.role, email: authenticatedUser.email },
+        }).catch(() => {});
 
         return authenticatedUser;
       } else if (response.status === 403) {
@@ -145,6 +167,11 @@ export function AuthProvider({ children }) {
           return null;
         }
 
+        const persistentPhoto = foundUser.id ? localStorage.getItem(`fieldsync_avatar_${foundUser.id}`) : null;
+        if (!foundUser.profilePhotoUrl && persistentPhoto) {
+          foundUser.profilePhotoUrl = persistentPhoto;
+        }
+
         setUser(foundUser);
         await db.auth.put({ id: 'session', userId: foundUser.id });
 
@@ -153,6 +180,12 @@ export function AuthProvider({ children }) {
         } else {
           setMustChangePassword(false);
         }
+
+        // Record Offline User Login Activity Log
+        ActivityLogger.log('USER_LOGIN', `User ${foundUser.name || foundUser.fullName || foundUser.email} logged in (offline)`, {
+          officerId: foundUser.id,
+          metadata: { role: foundUser.role, email: foundUser.email },
+        }).catch(() => {});
 
         return foundUser;
       }
@@ -182,12 +215,18 @@ export function AuthProvider({ children }) {
         // Offline or unreachable, ignore
       }
     }
+    if (user?.id) {
+      ActivityLogger.log('USER_LOGOUT', `User ${user.name || user.fullName || user.email} logged out`, {
+        officerId: user.id,
+        metadata: { role: user.role, email: user.email },
+      }).catch(() => {});
+    }
     setUser(null);
     setToken(null);
     setMustChangePassword(false);
     localStorage.removeItem('fieldsync_token');
     await db.auth.delete('session');
-  }, [token]);
+  }, [token, user]);
 
   // 4. Mandatory Password Change
   const handleSetNewPassword = useCallback(async (newPassword, currentPassword) => {
@@ -221,6 +260,11 @@ export function AuthProvider({ children }) {
       setToken(newToken);
       localStorage.setItem('fieldsync_token', newToken);
       setMustChangePassword(false);
+
+      ActivityLogger.log('PASSWORD_CHANGED', `User updated account password`, {
+        officerId: user.id,
+        metadata: { email: user.email },
+      }).catch(() => {});
     } catch (err) {
       // If offline, still update local store if current matches
       console.warn('Backend password change network issue, updating local store:', err.message);

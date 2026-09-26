@@ -194,6 +194,11 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
   const handleSubmitReport = async (e) => {
     e.preventDefault();
 
+    if (todayReport) {
+      toast.error("You reported today's report already!");
+      return;
+    }
+
     if (!form.summary.trim()) {
       toast.error('Please enter a summary of today’s field operations');
       return;
@@ -426,18 +431,6 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={loadSupervisorManagerReports}
-              className="text-xs"
-            >
-              <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
-              Refresh Reports
-            </Button>
-          </div>
         </div>
 
         {/* Aggregate KPI Stat Cards */}
@@ -608,7 +601,7 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
                           className="text-xs font-semibold"
                         >
                           <Eye className="w-3.5 h-3.5 mr-1.5 text-[#1E3A8A] dark:text-blue-400" />
-                          Inspect Report
+                          Report Detail
                         </Button>
                       </div>
                     </div>
@@ -619,7 +612,7 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
           </CardContent>
         </Card>
 
-        {/* Modal Inspector for Supervisor & Manager */}
+        {/* Modal Detail for Supervisor & Manager */}
         {inspectModalReport && (
           <Modal
             isOpen={!!inspectModalReport}
@@ -655,7 +648,7 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
                     </div>
                   )}
 
-                  {/* Telemetry & Verified Verification Grid */}
+                  {/* Detail & Verified Verification Grid */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3.5 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155]">
                     <div className="space-y-0.5">
                       <span className="text-[10px] text-slate-400 uppercase font-semibold block">Citizens Registered</span>
@@ -672,7 +665,7 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
                     <div className="space-y-0.5">
                       <span className="text-[10px] text-slate-400 uppercase font-semibold block">Activity Events</span>
                       <span className="text-sm font-bold text-amber-700 dark:text-amber-400">{inspectModalReport.activityCount} Logged</span>
-                      <span className="text-[10px] text-slate-400 block">Verified Telemetry</span>
+                      <span className="text-[10px] text-slate-400 block">Verified Detail</span>
                     </div>
                     <div className="space-y-0.5">
                       <span className="text-[10px] text-slate-400 uppercase font-semibold block">Sync Status</span>
@@ -747,12 +740,6 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
             <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-[#F8FAFC] tracking-tight">
               Today's Report — {todayStr}
             </h1>
-            {todayReport && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                <ShieldCheck className="w-3.5 h-3.5" />
-                Finalized Submission
-              </span>
-            )}
           </div>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-[#94A3B8] mt-1">
             Official daily operational summary, citizen totals, and screen-time telemetry submission
@@ -760,17 +747,6 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={computeDailyMetrics}
-            className="text-xs h-9 px-3.5 rounded-xl border-[#E2E8F0] dark:border-[#334155] text-slate-700 dark:text-[#F8FAFC] dark:hover:bg-[#0F172A]"
-          >
-            <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
-            Recalculate Today
-          </Button>
-
           {setActiveTab && (
             <Button
               type="button"
@@ -817,7 +793,7 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
             Reporting Officer
           </span>
           <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-[#F8FAFC] truncate block leading-snug">
-            {user?.fullName || user?.name || 'Field Officer'}
+            {user?.fullName || user?.name || user?.email || 'Field Staff'}
           </span>
           {user?.employeeId && (
             <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500">
@@ -862,9 +838,6 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
                   >
                     Daily Work Narrative & Completed Deliverables <span className="text-rose-500">*</span>
                   </label>
-                  <span className="text-[10px] font-bold text-[#2563EB] dark:text-[#60A5FA] bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded border border-blue-200/60 dark:border-blue-900/50 whitespace-nowrap">
-                    Primary Deliverable
-                  </span>
                 </div>
                 <p className="text-xs text-slate-500 dark:text-[#94A3B8] mb-1.5">
                   Comprehensive log of today's field operations, community intake, and kebele coverage
@@ -873,9 +846,9 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
                   id="dailyWorkNarrative"
                   value={form.summary}
                   onChange={(e) => setForm({ ...form, summary: e.target.value })}
-                  disabled={!!todayReport}
                   rows={3}
                   required
+                  placeholder="Enter details of today's citizen intake, site visits, and completed registrations..."
                   className="w-full text-sm leading-relaxed"
                 />
               </div>
@@ -894,8 +867,8 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
                   id="roadblocksInput"
                   value={form.challenges}
                   onChange={(e) => setForm({ ...form, challenges: e.target.value })}
-                  disabled={!!todayReport}
                   rows={3}
+                  placeholder="Describe any field obstacles, network issues, or equipment challenges..."
                   className="w-full text-sm leading-relaxed"
                 />
               </div>
@@ -929,8 +902,8 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
                   id="resourcesInput"
                   value={form.resources}
                   onChange={(e) => setForm({ ...form, resources: e.target.value })}
-                  disabled={!!todayReport}
                   rows={3}
+                  placeholder="Biometric kits, tablets, vehicle/fuel, battery packs..."
                   className="w-full text-sm leading-relaxed"
                 />
               </div>
@@ -946,65 +919,26 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
                   id="nextDayPlanInput"
                   value={form.nextDayPlan}
                   onChange={(e) => setForm({ ...form, nextDayPlan: e.target.value })}
-                  disabled={!!todayReport}
                   rows={3}
+                  placeholder="Target kebeles, prioritized registration sites for next shift..."
                   className="w-full text-sm leading-relaxed"
                 />
               </div>
             </CardContent>
           </Card>
 
-          {/* Card 4: Inline Submission & Finalization Action Panel */}
-          <Card className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl shadow-xs p-5 space-y-4">
-            <div>
-              <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-1">
-                Submission Status
-              </span>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC]">
-                  {todayReport ? 'Locked & Finalized' : 'Ready for Submission'}
-                </span>
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                  Auto-Save Active
-                </span>
-              </div>
-            </div>
-
-            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-              Submitting closes open work sessions and finalizes today's screen-time telemetry for supervisor and manager review.
-            </p>
-
-            {!todayReport ? (
-              <Button
-                type="submit"
-                variant="primary"
-                size="lg"
-                loading={isSubmitting}
-                className="w-full text-xs font-bold py-3.5 rounded-xl shadow-md shadow-blue-600/20"
-              >
-                <Send className="w-4 h-4 mr-2" />
-                Submit Daily Report
-              </Button>
-            ) : (
-              <div className="space-y-2 pt-1">
-                <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs text-emerald-800 dark:text-emerald-200 font-semibold flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Report finalized for {todayStr}</span>
-                </div>
-                {setActiveTab && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setActiveTab('my_reports')}
-                    className="w-full text-xs font-bold h-10 rounded-xl border-[#E2E8F0] dark:border-[#334155] text-[#2563EB] dark:text-[#60A5FA]"
-                  >
-                    View All in My Reports
-                  </Button>
-                )}
-              </div>
-            )}
+          {/* Card 4: Submission Action Panel */}
+          <Card className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl shadow-xs p-5">
+            <Button
+              type="submit"
+              variant="primary"
+              size="lg"
+              loading={isSubmitting}
+              className="w-full text-xs font-bold py-3.5 rounded-xl shadow-md shadow-blue-600/20"
+            >
+              <Send className="w-4 h-4 mr-2" />
+              Send Daily Report
+            </Button>
           </Card>
         </div>
       </form>

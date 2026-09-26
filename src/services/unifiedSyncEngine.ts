@@ -1,4 +1,3 @@
-// src/services/unifiedSyncEngine.ts
 // Unified Offline-First Synchronization Engine for FieldSync (Phase 7)
 
 import { offlineDb } from '../db/offlineDb';
@@ -10,6 +9,8 @@ export interface SyncSummary {
   activityLogsPending: number;
   workSessionsPending: number;
   dailyReportsPending: number;
+  verificationsPending: number;
+  screenTimesPending: number;
   totalPending: number;
   queuePendingCount: number;
   unresolvedErrorsCount: number;
@@ -46,22 +47,26 @@ class UnifiedSyncEngine {
    */
   async getPendingSummary(): Promise<SyncSummary> {
     try {
-      const [citizens, activities, sessions, reports, queuePending, errors] = await Promise.all([
+      const [citizens, activities, sessions, reports, queuePending, errors, verifications, screenTimes] = await Promise.all([
         offlineDb.citizens.where('syncStatus').equals('PENDING').count(),
         offlineDb.activityLogs.where('syncStatus').equals('PENDING').count(),
         offlineDb.workSessions.where('syncStatus').equals('PENDING').count(),
         offlineDb.dailyWorkReports.where('syncStatus').equals('PENDING').count(),
         offlineDb.syncQueue.where('status').equals('PENDING').count(),
         offlineDb.syncErrors.filter((e) => !e.resolved).count(),
+        offlineDb.workVerifications ? offlineDb.workVerifications.where('syncStatus').equals('PENDING').count() : Promise.resolve(0),
+        offlineDb.dailyScreenTimes ? offlineDb.dailyScreenTimes.where('syncStatus').equals('PENDING').count() : Promise.resolve(0),
       ]);
 
-      const totalPending = citizens + activities + sessions + reports;
+      const totalPending = citizens + activities + sessions + reports + verifications + screenTimes;
 
       return {
         citizensPending: citizens,
         activityLogsPending: activities,
         workSessionsPending: sessions,
         dailyReportsPending: reports,
+        verificationsPending: verifications,
+        screenTimesPending: screenTimes,
         totalPending,
         queuePendingCount: queuePending,
         unresolvedErrorsCount: errors,
@@ -76,6 +81,8 @@ class UnifiedSyncEngine {
         activityLogsPending: 0,
         workSessionsPending: 0,
         dailyReportsPending: 0,
+        verificationsPending: 0,
+        screenTimesPending: 0,
         totalPending: 0,
         queuePendingCount: 0,
         unresolvedErrorsCount: 0,
@@ -202,6 +209,56 @@ class UnifiedSyncEngine {
             resolved: false,
           });
         }
+      }
+
+      // 2b. Push pending Work Verifications to Server
+      try {
+        const pendingVerifications = offlineDb.workVerifications
+          ? await offlineDb.workVerifications.where('syncStatus').equals('PENDING').toArray()
+          : [];
+        if (pendingVerifications.length > 0) {
+          const vRes = await fetch(`${API_BASE}/work-monitoring/verifications/sync`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${authToken}`,
+            },
+            body: JSON.stringify({ verifications: pendingVerifications }),
+          });
+          if (vRes.ok) {
+            for (const v of pendingVerifications) {
+              await offlineDb.workVerifications.update(v.id, { syncStatus: 'SYNCED', syncedAt: new Date().toISOString() });
+            }
+            syncedCount += pendingVerifications.length;
+          }
+        }
+      } catch (vErr: any) {
+        console.warn('Verifications sync error:', vErr.message);
+      }
+
+      // 2c. Push pending Daily Screen Times to Server
+      try {
+        const pendingScreenTimes = offlineDb.dailyScreenTimes
+          ? await offlineDb.dailyScreenTimes.where('syncStatus').equals('PENDING').toArray()
+          : [];
+        if (pendingScreenTimes.length > 0) {
+          const sRes = await fetch(`${API_BASE}/work-monitoring/screen-time/sync`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${authToken}`,
+            },
+            body: JSON.stringify({ records: pendingScreenTimes }),
+          });
+          if (sRes.ok) {
+            for (const st of pendingScreenTimes) {
+              await offlineDb.dailyScreenTimes.update(st.id, { syncStatus: 'SYNCED', lastSyncedAt: new Date().toISOString() });
+            }
+            syncedCount += pendingScreenTimes.length;
+          }
+        }
+      } catch (sErr: any) {
+        console.warn('Screen-time sync error:', sErr.message);
       }
 
       // 3. Bidirectional Pull: Fetch latest central changes (delta update)

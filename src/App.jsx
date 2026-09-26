@@ -42,9 +42,10 @@ function AppContent() {
   const isOfficer = user?.role === 'field_officer';
   const {
     showPopup,
-    handleAnswer,
-    handleClose
-  } = useVerification(isOfficer ? user?.id : null, isOfficer ? user?.name : null);
+    pendingVerification,
+    handleConfirm,
+    handleTimeout,
+  } = useVerification(isOfficer ? user?.id : null, isOfficer ? (user?.fullName || user?.name) : null);
 
   // Login handler with audit log
   const handleLogin = async (email, password) => {
@@ -56,12 +57,9 @@ function AppContent() {
     return false;
   };
 
-  // Logout handler with audit log & screen time stop
+  // Logout handler with audit log
   const handleLogout = async () => {
     if (user) {
-      if (screenTimeInfo.stopScreenTime) {
-        screenTimeInfo.stopScreenTime();
-      }
       appData.addAuditLog('User Logout', { email: user.email });
     }
     setAuthView('landing');
@@ -111,10 +109,9 @@ function AppContent() {
     <>
       {isOfficer && showPopup && (
         <VerificationPopup
-          officerId={user?.id}
-          officerName={user?.name}
-          onAnswer={handleAnswer}
-          onClose={handleClose}
+          pendingVerification={pendingVerification}
+          onConfirm={handleConfirm}
+          onTimeout={handleTimeout}
         />
       )}
 

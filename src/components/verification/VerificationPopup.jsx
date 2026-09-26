@@ -1,250 +1,194 @@
 // src/components/verification/VerificationPopup.jsx
-// Enterprise Random Verification Modal for Field Officers
+// Mandatory 15-Second Random Active-Work Verification Modal
+// Strict compliance: Real-timestamp countdown, "I'm Here" button, keyboard accessible,
+// non-dismissible, dark/light theme fidelity, offline-state awareness.
 
 import React, { useState, useEffect, useRef } from 'react';
-import toast from 'react-hot-toast';
-import { ShieldAlert, ShieldCheck, Clock, FastForward, CheckCircle2 } from 'lucide-react';
-import Button from '../ui/Button';
+import { ShieldCheck, WifiOff } from 'lucide-react';
 
-function VerificationPopup({ officerId, officerName, onAnswer, onClose }) {
-  const [selectedAnswer, setSelectedAnswer] = useState('');
-  const [question, setQuestion] = useState({
-    question: 'What is your current location?',
-    options: ['Office', 'Field', 'Home', 'Other']
-  });
-  const [isVisible, setIsVisible] = useState(false);
-  const [countdown, setCountdown] = useState(30);
-  const [appearTime, setAppearTime] = useState(null);
+export default function VerificationPopup({
+  pendingVerification,
+  onConfirm,
+  onTimeout,
+}) {
+  const deadlineMs = pendingVerification?.deadlineAt
+    ? new Date(pendingVerification.deadlineAt).getTime()
+    : Date.now() + 15000;
 
-  const verificationCountRef = useRef(0);
-  const countdownRef = useRef(null);
-  const popupTimeoutRef = useRef(null);
-  const isAnsweredRef = useRef(false);
+  const [remainingSeconds, setRemainingSeconds] = useState(15);
+  const [hasResponded, setHasResponded] = useState(false);
+  const buttonRef = useRef(null);
+  const isOnline = navigator.onLine && !pendingVerification?.isOffline;
 
-  const getRandomIntervalSeconds = () => {
-    const min = 2 * 60;
-    const max = 15 * 60;
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  };
-
-  const getNextIntervalSeconds = (count) => {
-    if (count === 0) return 30;
-    return getRandomIntervalSeconds();
-  };
-
-  const startCountdown = () => {
-    const totalSeconds = getNextIntervalSeconds(verificationCountRef.current);
-    let remaining = totalSeconds;
-    setCountdown(remaining);
-
-    if (countdownRef.current) clearInterval(countdownRef.current);
-
-    countdownRef.current = setInterval(() => {
-      remaining -= 1;
-      setCountdown(remaining);
-      if (remaining <= 0) {
-        clearInterval(countdownRef.current);
-        showPopup();
-      }
-    }, 1000);
-  };
-
-  const showPopup = () => {
-    setIsVisible(true);
-    setAppearTime(Date.now());
-
-    const questions = [
-      { question: 'What is your current location?', options: ['Office', 'Field', 'Home', 'Other'] },
-      { question: 'How many citizens did you register today?', options: ['0-5', '6-10', '11-15', '16+'] },
-      { question: 'What is your current task?', options: ['Field Visit', 'Report Writing', 'Data Entry', 'Meeting'] },
-      { question: 'How many reports did you submit today?', options: ['0-2', '3-5', '6-8', '9+'] },
-      { question: 'What is your estimated work completion?', options: ['0-25%', '26-50%', '51-75%', '76-100%'] }
-    ];
-    const randomIndex = Math.floor(Math.random() * questions.length);
-    setQuestion(questions[randomIndex]);
-    setSelectedAnswer('');
-    isAnsweredRef.current = false;
-
-    if (popupTimeoutRef.current) clearTimeout(popupTimeoutRef.current);
-    popupTimeoutRef.current = setTimeout(() => {
-      if (!isAnsweredRef.current && isVisible) {
-        const responseTime = Math.round((Date.now() - appearTime) / 1000);
-        const result = {
-          success: false,
-          question: question.question,
-          answer: 'Timeout',
-          responseTime,
-          officerId,
-          officerName,
-          message: 'Verification timed out'
-        };
-        isAnsweredRef.current = true;
-        setIsVisible(false);
-        onAnswer(result);
-        verificationCountRef.current += 1;
-        startCountdown();
-      }
-    }, 60000);
-  };
-
+  // Auto-focus the "I'm Here" button on mount for quick keyboard access (space/enter)
   useEffect(() => {
-    startCountdown();
-    return () => {
-      if (countdownRef.current) clearInterval(countdownRef.current);
-      if (popupTimeoutRef.current) clearTimeout(popupTimeoutRef.current);
-    };
+    buttonRef.current?.focus();
   }, []);
 
-  const handleSubmit = () => {
-    if (!selectedAnswer) {
-      toast.error('Please select an answer to verify');
-      return;
-    }
-    if (isAnsweredRef.current) return;
-
-    if (popupTimeoutRef.current) clearTimeout(popupTimeoutRef.current);
-
-    const responseTime = Math.round((Date.now() - appearTime) / 1000);
-    const result = {
-      success: true,
-      question: question.question,
-      answer: selectedAnswer,
-      responseTime,
-      officerId,
-      officerName,
-      message: 'Verification passed successfully'
+  // Trap keyboard events to prevent escape or outside navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        handleButtonClick();
+      }
     };
 
-    isAnsweredRef.current = true;
-    setIsVisible(false);
-    toast.success('Verification passed!');
-    onAnswer(result);
+    window.addEventListener('keydown', handleKeyDown, true);
+    return () => window.removeEventListener('keydown', handleKeyDown, true);
+  }, [hasResponded]);
 
-    verificationCountRef.current += 1;
-    startCountdown();
-  };
+  // Real-timestamp based countdown (immune to tab throttling/freezing)
+  useEffect(() => {
+    const tick = () => {
+      if (hasResponded) return;
+      const now = Date.now();
+      const diffSecs = Math.max(0, Math.ceil((deadlineMs - now) / 1000));
+      setRemainingSeconds(diffSecs);
 
-  const handleSkip = () => {
-    if (isAnsweredRef.current) return;
-
-    if (popupTimeoutRef.current) clearTimeout(popupTimeoutRef.current);
-
-    const responseTime = Math.round((Date.now() - appearTime) / 1000);
-    const result = {
-      success: false,
-      question: question.question,
-      answer: 'Skipped',
-      responseTime,
-      officerId,
-      officerName,
-      message: 'Verification skipped'
+      if (diffSecs <= 0) {
+        setHasResponded(true);
+        if (onTimeout) onTimeout();
+      }
     };
 
-    isAnsweredRef.current = true;
-    setIsVisible(false);
-    toast('Verification check skipped', { icon: '⏭️' });
-    onAnswer(result);
+    tick();
+    const interval = setInterval(tick, 250);
+    return () => clearInterval(interval);
+  }, [deadlineMs, hasResponded, onTimeout]);
 
-    verificationCountRef.current += 1;
-    startCountdown();
+  const handleButtonClick = () => {
+    if (hasResponded) return;
+    setHasResponded(true);
+    if (onConfirm) onConfirm();
   };
 
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    if (mins > 0) return `${mins}m ${secs}s`;
-    return `${secs}s`;
-  };
+  // Circular progress calculation
+  const totalDuration = 15;
+  const progressRatio = Math.max(0, Math.min(1, remainingSeconds / totalDuration));
+  const strokeDashoffset = 283 - 283 * progressRatio; // 2 * PI * 45 ≈ 283
+
+  // Color dynamic based on urgency
+  const isUrgent = remainingSeconds <= 5;
+  const ringColor = isUrgent ? '#F87171' : remainingSeconds <= 9 ? '#FBBF24' : '#3B82F6';
 
   return (
-    <>
-      {/* Floating Verification Countdown Indicator */}
-      <div className="fixed bottom-5 right-5 z-40 bg-slate-900/90 text-white backdrop-blur-md px-3.5 py-2 rounded-xl shadow-lg border border-slate-700/50 flex items-center gap-2.5 text-xs">
-        <Clock className="w-3.5 h-3.5 text-blue-400 animate-pulse" />
-        <span className="text-slate-300">Next check in:</span>
-        <span className="font-mono font-bold text-amber-400">{formatTime(countdown)}</span>
-      </div>
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="verification-dialog-title"
+      aria-describedby="verification-dialog-desc"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm select-none"
+      onClick={(e) => {
+        // Prevent dismissal on backdrop click
+        e.preventDefault();
+        e.stopPropagation();
+      }}
+    >
+      <div
+        className="w-full max-w-md p-6 sm:p-8 rounded-2xl shadow-2xl transition-all border
+          bg-white text-slate-900 border-slate-200
+          dark:bg-[#14161D] dark:text-[#F4F4F5] dark:border-[#272A35]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header Icon & Title */}
+        <div className="flex flex-col items-center text-center">
+          <div className="w-12 h-12 mb-3 rounded-full flex items-center justify-center bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-[#3B82F6] border border-blue-100 dark:border-blue-900/60">
+            <ShieldCheck className="w-6 h-6" />
+          </div>
 
-      {/* Verification Modal Dialog */}
-      {isVisible && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#1E293B] rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 dark:border-[#334155] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            <div className="p-6 border-b border-slate-100 dark:border-[#334155] flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-[#1E3A8A] dark:text-blue-400 flex items-center justify-center">
-                  <ShieldAlert className="w-5 h-5 text-[#1E3A8A] dark:text-blue-400" />
-                </div>
-                <div>
-                  <h3 className="text-base font-semibold text-slate-900 dark:text-[#F8FAFC]">Security Check</h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Field Activity Verification</p>
-                </div>
-              </div>
-              <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-blue-50 dark:bg-blue-950/50 text-[#1E3A8A] dark:text-blue-400 border border-blue-100 dark:border-blue-900/50">
-                Random Audit
+          <h2
+            id="verification-dialog-title"
+            className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-[#F4F4F5]"
+          >
+            Work Verification
+          </h2>
+
+          <p
+            id="verification-dialog-desc"
+            className="mt-2 text-sm sm:text-base font-medium text-slate-600 dark:text-[#D4D4D8]"
+          >
+            Are you still working in FieldSync?
+          </p>
+        </div>
+
+        {/* Real-time Countdown Timer Ring */}
+        <div className="my-6 flex flex-col items-center justify-center">
+          <div className="relative w-32 h-32 flex items-center justify-center">
+            <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 100 100">
+              {/* Background circle */}
+              <circle
+                cx="50"
+                cy="50"
+                r="45"
+                className="stroke-slate-200 dark:stroke-[#202431]"
+                strokeWidth="6"
+                fill="none"
+              />
+              {/* Animated countdown ring */}
+              <circle
+                cx="50"
+                cy="50"
+                r="45"
+                stroke={ringColor}
+                strokeWidth="6"
+                strokeDasharray="283"
+                strokeDashoffset={strokeDashoffset}
+                strokeLinecap="round"
+                fill="none"
+                style={{ transition: 'stroke-dashoffset 0.25s linear, stroke 0.3s ease' }}
+              />
+            </svg>
+
+            {/* Numeric Display */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span
+                className={`text-4xl font-extrabold font-mono tracking-tighter ${
+                  isUrgent
+                    ? 'text-red-600 dark:text-[#F87171] animate-pulse'
+                    : 'text-slate-900 dark:text-white'
+                }`}
+              >
+                {remainingSeconds}
               </span>
-            </div>
-
-            <div className="p-6 space-y-4">
-              <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                Officer: <span className="text-slate-800 dark:text-slate-200 font-semibold">{officerName}</span>
-              </div>
-
-              <div className="text-sm font-semibold text-slate-900 dark:text-[#F8FAFC]">
-                {question.question}
-              </div>
-
-              <div className="space-y-2">
-                {question.options.map((option, index) => {
-                  const isChecked = selectedAnswer === option;
-                  return (
-                    <label
-                      key={index}
-                      className={`flex items-center gap-3 p-3 rounded-xl border text-xs font-medium cursor-pointer transition-all ${
-                        isChecked
-                          ? 'border-[#1E3A8A] dark:border-blue-500 bg-blue-50/50 dark:bg-blue-950/40 text-[#1E3A8A] dark:text-blue-300'
-                          : 'border-slate-200 dark:border-[#334155] hover:border-slate-300 dark:hover:border-slate-600 bg-white dark:bg-[#0F172A] text-slate-700 dark:text-slate-200'
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="verification_opt"
-                        value={option}
-                        checked={isChecked}
-                        onChange={() => setSelectedAnswer(option)}
-                        className="w-4 h-4 text-[#1E3A8A] focus:ring-[#1E3A8A]"
-                      />
-                      <span>{option}</span>
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="p-4 px-6 bg-slate-50 dark:bg-[#182234] border-t border-slate-100 dark:border-[#334155] flex items-center justify-between gap-3">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleSkip}
-                className="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
-              >
-                <FastForward className="w-4 h-4 mr-1.5" />
-                Skip Check
-              </Button>
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={handleSubmit}
-                disabled={!selectedAnswer}
-              >
-                <CheckCircle2 className="w-4 h-4 mr-1.5" />
-                Submit Verification
-              </Button>
+              <span className="text-[11px] uppercase font-semibold tracking-wider text-slate-400 dark:text-slate-500">
+                seconds
+              </span>
             </div>
           </div>
         </div>
-      )}
-    </>
+
+        {/* Mandatory Action Button */}
+        <div className="flex flex-col gap-3">
+          <button
+            ref={buttonRef}
+            type="button"
+            onClick={handleButtonClick}
+            disabled={hasResponded || remainingSeconds <= 0}
+            className="w-full py-3.5 px-6 rounded-xl font-semibold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 dark:bg-[#3B82F6] dark:hover:bg-blue-500 transition-all duration-150 shadow-lg shadow-blue-500/25 focus:outline-none focus:ring-4 focus:ring-blue-500/40 cursor-pointer disabled:opacity-50 text-base"
+          >
+            I'm Here
+          </button>
+        </div>
+
+        {/* Policy Notice & Offline Alert */}
+        <div className="mt-5 space-y-2 text-center">
+          <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">
+            This verification cannot be skipped or dismissed.
+          </p>
+
+          {!isOnline && (
+            <div className="flex items-center justify-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 py-1.5 px-3 rounded-lg border border-emerald-200 dark:border-emerald-800/40">
+              <WifiOff className="w-3.5 h-3.5 shrink-0" />
+              <span>This response will be saved offline and synchronized when internet returns.</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
-
-export default VerificationPopup;

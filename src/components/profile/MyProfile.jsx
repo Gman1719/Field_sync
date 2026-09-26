@@ -33,6 +33,8 @@ export default function MyProfile({ user: propUser, defaultTab = 'personal' }) {
     if (!quiet) setIsLoading(true);
     else setIsRefreshing(true);
 
+    const persistentPhoto = currentUser?.id ? localStorage.getItem(`fieldsync_avatar_${currentUser.id}`) : null;
+
     try {
       const token = localStorage.getItem('fieldsync_token');
       const res = await fetch(`${API_BASE}/users/me`, {
@@ -43,14 +45,26 @@ export default function MyProfile({ user: propUser, defaultTab = 'personal' }) {
 
       const resData = await res.json();
       if (res.ok && resData.success && resData.data) {
-        setProfileData(resData.data);
+        const fetched = resData.data;
+        if (!fetched.profilePhotoUrl && persistentPhoto) {
+          fetched.profilePhotoUrl = persistentPhoto;
+        }
+        setProfileData(fetched);
       } else {
         // Fallback to local user
-        setProfileData(currentUser);
+        const fallback = { ...currentUser };
+        if (!fallback.profilePhotoUrl && persistentPhoto) {
+          fallback.profilePhotoUrl = persistentPhoto;
+        }
+        setProfileData(fallback);
       }
     } catch (err) {
       console.warn('Network unreachable while fetching profile, fallback to context:', err.message);
-      setProfileData(currentUser);
+      const fallback = { ...currentUser };
+      if (!fallback.profilePhotoUrl && persistentPhoto) {
+        fallback.profilePhotoUrl = persistentPhoto;
+      }
+      setProfileData(fallback);
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
@@ -62,9 +76,13 @@ export default function MyProfile({ user: propUser, defaultTab = 'personal' }) {
   }, [fetchProfile]);
 
   const handleProfileUpdated = (updatedUser) => {
-    setProfileData(updatedUser);
+    const photo =
+      updatedUser.profilePhotoUrl ||
+      (updatedUser.id ? localStorage.getItem(`fieldsync_avatar_${updatedUser.id}`) : null);
+    const merged = { ...updatedUser, profilePhotoUrl: photo };
+    setProfileData(merged);
     if (setAuthUser) {
-      setAuthUser((prev) => ({ ...prev, ...updatedUser }));
+      setAuthUser((prev) => ({ ...prev, ...merged }));
     }
   };
 
@@ -115,6 +133,10 @@ export default function MyProfile({ user: propUser, defaultTab = 'personal' }) {
     );
   }
 
+  const persistentPhotoUrl =
+    user?.profilePhotoUrl ||
+    (user?.id ? localStorage.getItem(`fieldsync_avatar_${user.id}`) : null);
+
   return (
     <div className="space-y-6 pb-12 animate-in fade-in duration-200">
       {/* 1. Profile Header Card */}
@@ -122,10 +144,10 @@ export default function MyProfile({ user: propUser, defaultTab = 'personal' }) {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
             {/* Avatar */}
-            {user?.profilePhotoUrl ? (
+            {persistentPhotoUrl ? (
               <img
-                src={user.profilePhotoUrl}
-                alt={user.fullName || user.name}
+                src={persistentPhotoUrl}
+                alt={user?.fullName || user?.name || 'User'}
                 className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-slate-100 dark:border-[#334155] shadow-xs"
               />
             ) : (
@@ -140,15 +162,6 @@ export default function MyProfile({ user: propUser, defaultTab = 'personal' }) {
                 <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight truncate">
                   {user?.fullName || user?.name || 'FieldSync User'}
                 </h2>
-                <Badge
-                  variant={isManager ? 'primary' : isSupervisor ? 'info' : 'neutral'}
-                  className="capitalize text-xs font-semibold"
-                >
-                  {user?.role?.replace('_', ' ')}
-                </Badge>
-                <Badge variant={user?.isActive !== false ? 'success' : 'error'} dot className="text-xs">
-                  {user?.isActive !== false ? 'ACTIVE' : 'INACTIVE'}
-                </Badge>
               </div>
 
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
@@ -171,17 +184,14 @@ export default function MyProfile({ user: propUser, defaultTab = 'personal' }) {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-2 self-start sm:self-center">
+          <div className="flex flex-wrap items-center gap-2 self-start sm:self-center">
             <Button
               variant="outline"
               size="sm"
-              onClick={() => fetchProfile(true)}
-              disabled={isRefreshing}
-              icon={RefreshCw}
-              className={isRefreshing ? 'animate-spin' : ''}
-              title="Refresh profile data"
+              onClick={() => setActiveTab('security')}
+              icon={KeyRound}
             >
-              Refresh
+              Change Password
             </Button>
             <Button
               variant="primary"
@@ -229,21 +239,11 @@ export default function MyProfile({ user: propUser, defaultTab = 'personal' }) {
         <div className="space-y-6 animate-in fade-in duration-150">
           <Card className="border border-slate-200">
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>Personal Details</CardTitle>
-                  <CardDescription>
-                    Your personal identity and contact details across the FieldSync system.
-                  </CardDescription>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowEditModal(true)}
-                  icon={Edit3}
-                >
-                  Edit Details
-                </Button>
+              <div>
+                <CardTitle>Personal Details</CardTitle>
+                <CardDescription>
+                  Your personal identity and contact details across the FieldSync system.
+                </CardDescription>
               </div>
             </CardHeader>
             <CardContent>
@@ -361,15 +361,6 @@ export default function MyProfile({ user: propUser, defaultTab = 'personal' }) {
                     />
                   </div>
 
-                  <div className="p-4 bg-slate-50 dark:bg-[#0F172A] border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-700 dark:text-slate-300 flex items-start gap-3">
-                    <Info className="w-4 h-4 text-[#1E3A8A] dark:text-blue-400 shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-semibold text-slate-900 dark:text-[#F8FAFC] mb-0.5">Location Assignment Policy</p>
-                      <p className="text-slate-600 dark:text-slate-400">
-                        Supervisory jurisdictions are determined by central organization leadership. If your assigned Region or Zone needs modification, please contact an Organization Manager.
-                      </p>
-                    </div>
-                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -498,15 +489,6 @@ export default function MyProfile({ user: propUser, defaultTab = 'personal' }) {
                     {formatDateTime(user?.lastLogin)}
                   </span>
                 </div>
-                <div className="p-3.5 bg-slate-50 dark:bg-[#0F172A] border border-slate-200 dark:border-slate-700 rounded-xl sm:col-span-2 lg:col-span-3">
-                  <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mb-1">Password Setup Status</span>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                    <span className="text-xs font-semibold text-emerald-800 dark:text-emerald-300">
-                      Permanent password active & verified (Bcrypt cryptographic hashing)
-                    </span>
-                  </div>
-                </div>
               </div>
             </CardContent>
           </Card>
@@ -517,37 +499,6 @@ export default function MyProfile({ user: propUser, defaultTab = 'personal' }) {
       {activeTab === 'security' && (
         <div className="space-y-6 animate-in fade-in duration-150">
           <ChangePasswordCard user={user} onPasswordChanged={() => fetchProfile(true)} />
-
-          <Card className="border border-slate-200">
-            <CardHeader>
-              <CardTitle>Session & Authentication Security</CardTitle>
-              <CardDescription>
-                Best practices for keeping your FieldSync workstation secure.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3 text-xs text-slate-600">
-                <div className="flex items-start gap-2.5">
-                  <ShieldCheck className="w-4 h-4 text-[#1E3A8A] shrink-0 mt-0.5" />
-                  <span>
-                    <strong>JSON Web Token (JWT) Encryption:</strong> Your session token is signed with a high-entropy secret and expires periodically to protect offline data stores.
-                  </span>
-                </div>
-                <div className="flex items-start gap-2.5">
-                  <ShieldCheck className="w-4 h-4 text-[#1E3A8A] shrink-0 mt-0.5" />
-                  <span>
-                    <strong>Offline Credential Vault:</strong> Local credentials and synchronized data are protected by browser sandbox boundaries with zero plain-text password storage.
-                  </span>
-                </div>
-                <div className="flex items-start gap-2.5">
-                  <ShieldCheck className="w-4 h-4 text-[#1E3A8A] shrink-0 mt-0.5" />
-                  <span>
-                    <strong>First-Login Enforcement:</strong> Temporary passwords issued by managers must be replaced immediately before protected system features are unlocked.
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       )}
 

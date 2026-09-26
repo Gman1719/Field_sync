@@ -3,6 +3,9 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
+  resolve: {
+    extensions: ['.tsx', '.ts', '.jsx', '.js', '.json']
+  },
   plugins: [
     react(),
     VitePWA({

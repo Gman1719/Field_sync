@@ -5,6 +5,95 @@ import React, { useState, useEffect } from 'react';
 import { MapPin, Building, Home, UserCheck, Loader2 } from 'lucide-react';
 import Select from '../ui/Select';
 import { API_BASE } from '../../config/api';
+import { offlineDb } from '../../db/offlineDb';
+import { db } from '../../services/database';
+
+const DEFAULT_ETHIOPIA_REGIONS = [
+  { id: 'reg-addis-ababa', code: 'AA', name: 'Addis Ababa' },
+  { id: 'reg-oromia', code: 'OR', name: 'Oromia' },
+  { id: 'reg-amhara', code: 'AM', name: 'Amhara' },
+  { id: 'reg-sidama', code: 'SI', name: 'Sidama' },
+  { id: 'reg-somali', code: 'SO', name: 'Somali' },
+  { id: 'reg-tigray', code: 'TG', name: 'Tigray' },
+  { id: 'reg-dire-dawa', code: 'DD', name: 'Dire Dawa' },
+  { id: 'reg-afar', code: 'AF', name: 'Afar' },
+  { id: 'reg-benishangul', code: 'BG', name: 'Benishangul-Gumuz' },
+  { id: 'reg-gambela', code: 'GA', name: 'Gambela' },
+  { id: 'reg-harari', code: 'HA', name: 'Harari' },
+  { id: 'reg-south-ethiopia', code: 'SE', name: 'South Ethiopia' },
+  { id: 'reg-central-ethiopia', code: 'CE', name: 'Central Ethiopia' },
+  { id: 'reg-south-west', code: 'SWE', name: 'South West Ethiopia' },
+];
+
+const DEFAULT_ETHIOPIA_ZONES = {
+  'reg-addis-ababa': [
+    { id: 'zone-aa-bole', name: 'Bole Sub-City' },
+    { id: 'zone-aa-yeka', name: 'Yeka Sub-City' },
+    { id: 'zone-aa-kirkos', name: 'Kirkos Sub-City' },
+    { id: 'zone-aa-arada', name: 'Arada Sub-City' },
+    { id: 'zone-aa-gullele', name: 'Gullele Sub-City' },
+    { id: 'zone-aa-lideta', name: 'Lideta Sub-City' },
+    { id: 'zone-aa-nifassilk', name: 'Nifas Silk-Lafto Sub-City' },
+    { id: 'zone-aa-akaki', name: 'Akaki Kality Sub-City' },
+    { id: 'zone-aa-kolfe', name: 'Kolfe Keranio Sub-City' },
+    { id: 'zone-aa-lemikura', name: 'Lemi Kura Sub-City' },
+  ],
+  'reg-oromia': [
+    { id: 'zone-or-sheger', name: 'Sheger City Zone' },
+    { id: 'zone-or-finfinne', name: 'Finfinne Special Zone' },
+    { id: 'zone-or-east-shewa', name: 'East Shewa Zone' },
+    { id: 'zone-or-jimma', name: 'Jimma Zone' },
+    { id: 'zone-or-arsi', name: 'Arsi Zone' },
+  ],
+  'reg-amhara': [
+    { id: 'zone-am-north-shewa', name: 'North Shewa Zone' },
+    { id: 'zone-am-south-gondar', name: 'South Gondar Zone' },
+    { id: 'zone-am-west-gojjam', name: 'West Gojjam Zone' },
+  ],
+  'reg-sidama': [
+    { id: 'zone-si-hawassa', name: 'Hawassa City Administration' },
+    { id: 'zone-si-central', name: 'Central Sidama Zone' },
+  ],
+  'reg-tigray': [
+    { id: 'zone-tg-mekelle', name: 'Mekelle Special Zone' },
+    { id: 'zone-tg-central', name: 'Central Tigray Zone' },
+  ],
+  'reg-somali': [
+    { id: 'zone-so-jigjiga', name: 'Jigjiga City Administration' },
+    { id: 'zone-so-faafan', name: 'Faafan Zone' },
+  ],
+  'reg-dire-dawa': [
+    { id: 'zone-dd-admin', name: 'Dire Dawa Administration' },
+  ],
+};
+
+const DEFAULT_ETHIOPIA_WOREDAS = {
+  'zone-aa-bole': [
+    { id: 'wor-aa-bol-01', name: 'Bole Woreda 01' },
+    { id: 'wor-aa-bol-02', name: 'Bole Woreda 02' },
+    { id: 'wor-aa-bol-03', name: 'Bole Woreda 03' },
+    { id: 'wor-aa-bol-04', name: 'Bole Woreda 04' },
+    { id: 'wor-aa-bol-05', name: 'Bole Woreda 05' },
+    { id: 'wor-aa-bol-06', name: 'Bole Woreda 06' },
+  ],
+  'zone-aa-yeka': [
+    { id: 'wor-aa-yek-01', name: 'Yeka Woreda 01' },
+    { id: 'wor-aa-yek-02', name: 'Yeka Woreda 02' },
+    { id: 'wor-aa-yek-03', name: 'Yeka Woreda 03' },
+  ],
+  'zone-aa-kirkos': [
+    { id: 'wor-aa-kir-01', name: 'Kirkos Woreda 01' },
+    { id: 'wor-aa-kir-02', name: 'Kirkos Woreda 02' },
+  ],
+  'zone-or-sheger': [
+    { id: 'wor-or-sh-01', name: 'Sheger Sub-District 01' },
+    { id: 'wor-or-sh-02', name: 'Sheger Sub-District 02' },
+  ],
+  'zone-or-east-shewa': [
+    { id: 'wor-or-es-adama', name: 'Adama Rural Woreda' },
+    { id: 'wor-or-es-bishoftu', name: 'Bishoftu Woreda' },
+  ],
+};
 
 export default function LocationDropdown({
   role = 'field_officer',
@@ -26,22 +115,38 @@ export default function LocationDropdown({
   const [loadingWoredas, setLoadingWoredas] = useState(false);
   const [loadingSupervisors, setLoadingSupervisors] = useState(false);
 
-  // 1. Fetch Regions on mount
+  // 1. Fetch Regions on mount (API -> IndexedDB -> Fallback constants)
   useEffect(() => {
     let isMounted = true;
     const fetchRegions = async () => {
       setLoadingRegions(true);
       try {
-        const res = await fetch(`${API_BASE}/locations/regions`);
-        const data = await res.json();
-        if (isMounted && data.success) {
-          setRegions(data.data);
+        if (navigator.onLine) {
+          const res = await fetch(`${API_BASE}/locations/regions`);
+          if (res.ok) {
+            const data = await res.json();
+            if (isMounted && data.success && Array.isArray(data.data) && data.data.length > 0) {
+              setRegions(data.data);
+              return;
+            }
+          }
         }
       } catch (err) {
-        console.warn('Could not fetch regions from API, using fallback:', err.message);
-      } finally {
-        if (isMounted) setLoadingRegions(false);
+        console.warn('Could not fetch regions from API, trying offline storage:', err.message);
       }
+
+      try {
+        const offRegs = await offlineDb.regions.orderBy('name').toArray();
+        if (isMounted && offRegs.length > 0) {
+          setRegions(offRegs);
+          return;
+        }
+      } catch (_e) {}
+
+      if (isMounted) {
+        setRegions(DEFAULT_ETHIOPIA_REGIONS);
+      }
+      setLoadingRegions(false);
     };
 
     fetchRegions();
@@ -61,16 +166,37 @@ export default function LocationDropdown({
     const fetchZones = async () => {
       setLoadingZones(true);
       try {
-        const res = await fetch(`${API_BASE}/locations/regions/${regionId}/zones`);
-        const data = await res.json();
-        if (isMounted && data.success) {
-          setZones(data.data);
+        if (navigator.onLine) {
+          const res = await fetch(`${API_BASE}/locations/regions/${regionId}/zones`);
+          if (res.ok) {
+            const data = await res.json();
+            if (isMounted && data.success && Array.isArray(data.data) && data.data.length > 0) {
+              setZones(data.data);
+              setLoadingZones(false);
+              return;
+            }
+          }
         }
       } catch (err) {
-        console.warn('Could not fetch zones:', err.message);
-      } finally {
-        if (isMounted) setLoadingZones(false);
+        console.warn('Could not fetch zones from API, trying offline storage:', err.message);
       }
+
+      try {
+        const offZones = await offlineDb.zones.where('regionId').equals(regionId).toArray();
+        if (isMounted && offZones.length > 0) {
+          setZones(offZones);
+          setLoadingZones(false);
+          return;
+        }
+      } catch (_e) {}
+
+      if (isMounted) {
+        setZones(DEFAULT_ETHIOPIA_ZONES[regionId] || [
+          { id: `${regionId}-zone-01`, name: 'Central Zone' },
+          { id: `${regionId}-zone-02`, name: 'Metropolitan Zone' }
+        ]);
+      }
+      setLoadingZones(false);
     };
 
     fetchZones();
@@ -90,40 +216,69 @@ export default function LocationDropdown({
       setLoadingWoredas(true);
       setLoadingSupervisors(true);
 
-      try {
-        // Fetch Woredas if Field Officer
-        if (role === 'field_officer') {
-          const wRes = await fetch(`${API_BASE}/locations/zones/${zoneId}/woredas`);
-          const wData = await wRes.json();
-          if (isMounted && wData.success) {
-            setWoredas(wData.data);
+      // Fetch Woredas if Field Officer
+      if (role === 'field_officer') {
+        let loadedWoredas = false;
+        try {
+          if (navigator.onLine) {
+            const wRes = await fetch(`${API_BASE}/locations/zones/${zoneId}/woredas`);
+            if (wRes.ok) {
+              const wData = await wRes.json();
+              if (isMounted && wData.success && Array.isArray(wData.data) && wData.data.length > 0) {
+                setWoredas(wData.data);
+                loadedWoredas = true;
+              }
+            }
           }
+        } catch (_err) {}
+
+        if (!loadedWoredas) {
+          try {
+            const offWor = await offlineDb.woredas.where('zoneId').equals(zoneId).toArray();
+            if (isMounted && offWor.length > 0) {
+              setWoredas(offWor);
+              loadedWoredas = true;
+            }
+          } catch (_e) {}
         }
 
-        // Fetch Supervisors stationed in this zone
-        const sRes = await fetch(`${API_BASE}/locations/zones/${zoneId}/supervisors`);
-        const sData = await sRes.json();
-        if (isMounted && sData.success) {
-          setSupervisors(sData.data);
-
-          // Auto-select supervisor if only 1 active supervisor exists and none is chosen yet
-          if (sData.data.length === 1 && !supervisorId && role === 'field_officer') {
-            onChange({
-              regionId,
-              zoneId,
-              woredaId,
-              supervisorId: sData.data[0].id
-            });
-          }
+        if (!loadedWoredas && isMounted) {
+          setWoredas(DEFAULT_ETHIOPIA_WOREDAS[zoneId] || [
+            { id: `${zoneId}-wor-01`, name: 'Woreda 01' },
+            { id: `${zoneId}-wor-02`, name: 'Woreda 02' },
+            { id: `${zoneId}-wor-03`, name: 'Woreda 03' },
+          ]);
         }
-      } catch (err) {
-        console.warn('Could not fetch woredas/supervisors:', err.message);
-      } finally {
-        if (isMounted) {
-          setLoadingWoredas(false);
-          setLoadingSupervisors(false);
-        }
+        setLoadingWoredas(false);
       }
+
+      // Fetch Supervisors stationed in this zone
+      let loadedSups = false;
+      try {
+        if (navigator.onLine) {
+          const sRes = await fetch(`${API_BASE}/locations/zones/${zoneId}/supervisors`);
+          if (sRes.ok) {
+            const sData = await sRes.json();
+            if (isMounted && sData.success && Array.isArray(sData.data)) {
+              setSupervisors(sData.data);
+              loadedSups = true;
+            }
+          }
+        }
+      } catch (_err) {}
+
+      if (!loadedSups) {
+        try {
+          const allLocalUsers = await db.users.toArray();
+          const localSups = allLocalUsers.filter(
+            u => (u.role === 'supervisor' || u.role === 'SUPERVISOR') && (u.status === 'active' || u.isActive !== false)
+          );
+          if (isMounted) {
+            setSupervisors(localSups);
+          }
+        } catch (_e) {}
+      }
+      setLoadingSupervisors(false);
     };
 
     fetchWoredasAndSupervisors();
@@ -132,40 +287,73 @@ export default function LocationDropdown({
 
   const handleRegionChange = (e) => {
     const newRegId = e.target.value;
+    const regObj = regions.find(r => r.id === newRegId);
     onChange({
       regionId: newRegId,
+      region: regObj?.name || '',
+      regionName: regObj?.name || '',
       zoneId: '',
+      zone: '',
+      zoneName: '',
       woredaId: '',
+      woreda: '',
+      woredaName: '',
       supervisorId: ''
     });
   };
 
   const handleZoneChange = (e) => {
     const newZoneId = e.target.value;
+    const regObj = regions.find(r => r.id === regionId);
+    const zoneObj = zones.find(z => z.id === newZoneId);
     onChange({
       regionId,
+      region: regObj?.name || '',
+      regionName: regObj?.name || '',
       zoneId: newZoneId,
+      zone: zoneObj?.name || '',
+      zoneName: zoneObj?.name || '',
       woredaId: '',
+      woreda: '',
+      woredaName: '',
       supervisorId: ''
     });
   };
 
   const handleWoredaChange = (e) => {
     const newWorId = e.target.value;
+    const regObj = regions.find(r => r.id === regionId);
+    const zoneObj = zones.find(z => z.id === zoneId);
+    const worObj = woredas.find(w => w.id === newWorId);
     onChange({
       regionId,
+      region: regObj?.name || '',
+      regionName: regObj?.name || '',
       zoneId,
+      zone: zoneObj?.name || '',
+      zoneName: zoneObj?.name || '',
       woredaId: newWorId,
+      woreda: worObj?.name || '',
+      woredaName: worObj?.name || '',
       supervisorId
     });
   };
 
   const handleSupervisorChange = (e) => {
     const newSupId = e.target.value;
+    const regObj = regions.find(r => r.id === regionId);
+    const zoneObj = zones.find(z => z.id === zoneId);
+    const worObj = woredas.find(w => w.id === woredaId);
     onChange({
       regionId,
+      region: regObj?.name || '',
+      regionName: regObj?.name || '',
       zoneId,
+      zone: zoneObj?.name || '',
+      zoneName: zoneObj?.name || '',
       woredaId,
+      woreda: worObj?.name || '',
+      woredaName: worObj?.name || '',
       supervisorId: newSupId
     });
   };

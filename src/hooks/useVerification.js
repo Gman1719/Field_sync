@@ -278,6 +278,24 @@ export function useVerification(officerId, officerName) {
     setVerificationScore(updatedScore);
     const now = new Date().toISOString();
     await saveState(updatedScore, verificationHistory, lastVerified || now);
+
+    // Notify supervisor when officer closes/skips verification prompt
+    try {
+      const online = await checkRealInternet();
+      if (online) {
+        const token = localStorage.getItem('fieldsync_token');
+        fetch(`${API_BASE_URL}/work-monitoring/verifications/missed`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({
+            reason: 'NO_RESPONSE_SKIPPED',
+          }),
+        }).catch((e) => console.warn('Failed to notify supervisor of skipped verification:', e));
+      }
+    } catch (_e) {}
     
     // Schedule next popup with random delay (2–8 min)
     scheduleNext();

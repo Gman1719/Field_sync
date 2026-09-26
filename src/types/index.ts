@@ -1,4 +1,3 @@
-// src/types/index.ts
 // Core TypeScript Domain Interfaces for FieldSync (Phase 1)
 
 export type Role = 'field_officer' | 'supervisor' | 'manager';
@@ -111,8 +110,10 @@ export interface Citizen {
   syncStatus: SyncStatus;
   duplicateReviewStatus: DuplicateReviewStatus;
   registrationTimestamp: string;
+  registrationDate?: string;
   createdAt: string;
   synced?: boolean;
+  [key: string]: any;
 }
 
 // Assignment Model
@@ -156,6 +157,79 @@ export interface WorkSession {
   durationSeconds: number;
   deviceReported: boolean;
   syncStatus: SyncStatus;
+}
+
+// Screen Time Statuses
+export type ScreenTimeStatus =
+  | 'NOT_STARTED'
+  | 'TRACKING'
+  | 'NOT_TRACKING'
+  | 'VERIFICATION_PENDING'
+  | 'FINALIZED';
+
+// Work Verification Statuses
+export type VerificationStatus =
+  | 'SCHEDULED'
+  | 'PENDING'
+  | 'CONFIRMED'
+  | 'MISSED'
+  | 'CONFIRMED_OFFLINE'
+  | 'MISSED_OFFLINE'
+  | 'NO_ACTIVE_SESSION'
+  | 'NO_ACTIVE_CONNECTION'
+  | 'SYNC_PENDING'
+  | 'SYNC_FAILED'
+  | 'SYNCED';
+
+export type VerificationFailureReason =
+  | 'NO_RESPONSE'
+  | 'NO_ACTIVE_SESSION'
+  | 'NO_ACTIVE_CONNECTION'
+  | 'CLIENT_NOT_AVAILABLE'
+  | 'TAB_HIDDEN'
+  | 'NETWORK_UNAVAILABLE'
+  | 'SESSION_NOT_ACTIVE';
+
+export type ConnectionState = 'ONLINE' | 'OFFLINE' | 'UNKNOWN';
+export type LoginState = 'LOGGED_IN' | 'LOGGED_OUT' | 'SESSION_EXPIRED' | 'UNKNOWN';
+
+// Daily Screen Time Model
+export interface DailyScreenTime {
+  id: string;
+  officerId: string;
+  workSessionId?: string | null;
+  date: string; // YYYY-MM-DD
+  startedAt?: string | null;
+  finalizedAt?: string | null;
+  totalEligibleSeconds: number;
+  status: ScreenTimeStatus;
+  lastActivityAt?: string | null;
+  lastSyncedAt?: string | null;
+  syncStatus?: SyncStatus;
+}
+
+// Work Verification Model
+export interface WorkVerification {
+  id: string;
+  officerId: string;
+  officerName?: string;
+  workSessionId?: string | null;
+  scheduledAt: string;
+  triggeredAt?: string | null;
+  respondedAt?: string | null;
+  deadlineAt: string;
+  status: VerificationStatus;
+  responseTimeSeconds?: number | null;
+  failureReason?: VerificationFailureReason | null;
+  connectionState: ConnectionState;
+  loginState: LoginState;
+  trackingStateBefore?: ScreenTimeStatus | null;
+  trackingStateAfter?: ScreenTimeStatus | null;
+  offlineCreated?: boolean;
+  syncStatus: SyncStatus;
+  syncedAt?: string | null;
+  date: string;
+  notes?: string | null;
 }
 
 // Daily Work Report Model
@@ -231,4 +305,28 @@ export interface AppNotification {
   createdAt: string;
   updatedAt: string;
 }
-
+export interface ChatMessage {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  conversationId: string;
+  text: string;
+  senderName: string;
+  senderRole: 'manager' | 'supervisor';
+  timestamp: string;
+  isRead: boolean;
+  status: 'sent' | 'delivered' | 'read';
+  reactions?: Record<string, string[]>;
+  replyTo?: {
+    id: string;
+    senderName: string;
+    text: string;
+  };
+  attachment?: {
+    name: string;
+    type: string;
+    size?: string;
+    url?: string;
+    dataUrl?: string;
+  };
+}

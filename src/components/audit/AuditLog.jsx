@@ -208,16 +208,6 @@ export default function AuditLog({ user }) {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => fetchLogs(true)}
-            disabled={isRefreshing}
-            className="flex items-center gap-1.5 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-[#0F172A]"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#1E3A8A] dark:text-blue-400' : ''}`} />
-            <span>Refresh</span>
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
             onClick={handleExportCSV}
             className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-[#0F172A]"
           >

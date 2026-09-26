@@ -60,7 +60,7 @@ export default function Header({
     supervisor_reports: 'Supervisor Evaluations',
     team: 'Field Team Directory',
     users: 'User Management',
-    analytics: 'Analytics & Insights',
+    analytics: 'Analysis and Detail',
     citizens: 'Citizen Database',
     audit: 'System Audit Trail',
     all_reports: 'All Daily Reports',
@@ -172,15 +172,15 @@ export default function Header({
         {/* Screen Time Badge (Officers only) */}
         {isOfficer && (
           <div
-            className={`hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono font-medium border ${
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono font-medium border shadow-xs ${
               isScreenTimeRunning
                 ? 'bg-blue-50 text-[#2563EB] border-blue-200 dark:bg-blue-950/60 dark:text-[#60A5FA] dark:border-blue-900/60'
                 : 'bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'
             }`}
-            title="Active Field Session Timer"
+            title="Today's Cumulative Screen Time"
           >
             <Clock className={`w-3.5 h-3.5 ${isScreenTimeRunning ? 'text-[#2563EB] dark:text-[#60A5FA] animate-pulse' : 'text-slate-400 dark:text-slate-500'}`} />
-            <span>{screenTimeDisplay}</span>
+            <span className="font-semibold">{screenTimeDisplay || '00:00:00'}</span>
           </div>
         )}
 
@@ -355,8 +355,12 @@ export default function Header({
             className="flex items-center gap-2 p-1.5 hover:bg-slate-100 dark:hover:bg-[#1E293B] rounded-lg transition-colors cursor-pointer"
           >
             <div className="w-8 h-8 rounded-full bg-[#2563EB] text-white font-bold text-xs flex items-center justify-center shadow-xs overflow-hidden">
-              {user?.profilePhotoUrl ? (
-                <img src={user.profilePhotoUrl} alt="Avatar" className="w-full h-full object-cover" />
+              {(user?.profilePhotoUrl || (user?.id ? localStorage.getItem(`fieldsync_avatar_${user.id}`) : null)) ? (
+                <img
+                  src={user?.profilePhotoUrl || (user?.id ? localStorage.getItem(`fieldsync_avatar_${user.id}`) : null) || ''}
+                  alt="Avatar"
+                  className="w-full h-full object-cover"
+                />
               ) : (
                 user?.name ? user.name.charAt(0).toUpperCase() : 'U'
               )}

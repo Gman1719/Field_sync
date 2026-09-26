@@ -1,4 +1,3 @@
-// src/utils/phoneUtils.ts
 // Ethiopian Phone Number Validation and Normalization Utilities (Frontend)
 
 export const ETHIOPIAN_PHONE_REGEX = /^(?:\+251[97]\d{8}|0[97]\d{8})$/;

@@ -1,4 +1,3 @@
-// src/services/sessionTracker.ts
 // Robust Timestamp-Based Work Session & Screen-Time Telemetry Engine (Phase 5)
 
 import { offlineDb } from '../db/offlineDb';
@@ -259,6 +258,20 @@ export class SessionTracker {
       (sum, s) => sum + (s.durationSeconds || 0),
       0
     );
+
+    // 3. Mark DailyScreenTime as FINALIZED in Dexie
+    if (offlineDb.dailyScreenTimes) {
+      const screenTimeId = `st_${officerId}_${reportDate}`;
+      const existing = await offlineDb.dailyScreenTimes.get(screenTimeId);
+      if (existing) {
+        await offlineDb.dailyScreenTimes.update(screenTimeId, {
+          status: 'FINALIZED',
+          finalizedAt: now,
+          totalEligibleSeconds: Math.max(finalizedScreenTimeSeconds, existing.totalEligibleSeconds),
+          syncStatus: 'PENDING',
+        });
+      }
+    }
 
     return {
       finalizedScreenTimeSeconds,

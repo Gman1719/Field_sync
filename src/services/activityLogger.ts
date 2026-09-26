@@ -1,4 +1,3 @@
-// src/services/activityLogger.ts
 // Reusable Offline Activity Logger for FieldSync (Phase 4)
 
 import { offlineDb } from '../db/offlineDb';

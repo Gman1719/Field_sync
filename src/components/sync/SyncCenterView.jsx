@@ -323,7 +323,7 @@ export default function SyncCenterView({ user }) {
               : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
           }`}
         >
-          Pipeline Overview & Telemetry
+          Pipeline Overview & Detail
         </button>
 
         <button
@@ -335,7 +335,7 @@ export default function SyncCenterView({ user }) {
               : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
           }`}
         >
-          Sync Queue Inspector
+          Sync Queue Detail
           {queueItems.length > 0 && (
             <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
               {queueItems.length}
@@ -425,7 +425,7 @@ export default function SyncCenterView({ user }) {
             <CardHeader>
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-[#1E3A8A] dark:text-blue-400" />
-                <CardTitle className="text-base">System Synchronization Telemetry</CardTitle>
+                <CardTitle className="text-base">System Synchronization Detail</CardTitle>
               </div>
               <CardDescription className="text-xs">
                 Real-time connection metrics and PostgreSQL health
@@ -614,7 +614,7 @@ export default function SyncCenterView({ user }) {
               <div>
                 <CardTitle className="text-base">Failure Diagnostics & Error Records</CardTitle>
                 <CardDescription className="text-xs">
-                  Inspect recorded sync exceptions, network timeouts, and validation rejections
+                  Review recorded sync exceptions, network timeouts, and validation rejections
                 </CardDescription>
               </div>
 

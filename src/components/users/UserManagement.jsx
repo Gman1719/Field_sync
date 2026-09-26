@@ -8,6 +8,8 @@ import {
   Building, Home, Eye, Edit3, RefreshCw, AlertTriangle, Users
 } from 'lucide-react';
 import { db, syncQueue, checkRealInternet } from '../../services/database';
+import { offlineDb } from '../../db/offlineDb';
+import ActivityLogger from '../../services/activityLogger';
 import { validateEthiopianPhone } from '../../utils/phoneValidation';
 import { API_BASE } from '../../config/api';
 
@@ -154,18 +156,24 @@ export default function UserManagement({
     });
   }, [users, roleFilter, statusFilter, regionFilter, specialFilter, searchTerm]);
 
-  // 5. Validation for Add User
   const validateNewUser = () => {
     const errs = {};
 
     if (!newUser.firstName.trim()) errs.firstName = 'First name is required';
     else if (/[0-9]/.test(newUser.firstName)) errs.firstName = 'First name cannot contain numbers';
 
-    if (!newUser.middleName.trim()) errs.middleName = 'Middle name (Father) is required';
-    else if (/[0-9]/.test(newUser.middleName)) errs.middleName = 'Middle name cannot contain numbers';
+    if (newUser.middleName && /[0-9]/.test(newUser.middleName)) {
+      errs.middleName = 'Middle name cannot contain numbers';
+    }
 
-    if (!newUser.lastName.trim()) errs.lastName = 'Last name (Grandfather) is required';
-    else if (/[0-9]/.test(newUser.lastName)) errs.lastName = 'Last name cannot contain numbers';
+    if (newUser.lastName && /[0-9]/.test(newUser.lastName)) {
+      errs.lastName = 'Last name cannot contain numbers';
+    }
+
+    // Require at least one secondary name (Father or Grandfather)
+    if (!newUser.middleName?.trim() && !newUser.lastName?.trim()) {
+      errs.middleName = 'Father name or last name is required';
+    }
 
     if (!newUser.email.trim()) {
       errs.email = 'Email address is required';
@@ -173,19 +181,18 @@ export default function UserManagement({
       errs.email = 'Invalid email address format';
     }
 
-    if (newUser.phone) {
-      const phoneErr = validateEthiopianPhone(newUser.phone, false);
-      if (phoneErr) errs.phone = phoneErr;
+    if (newUser.phone && newUser.phone.trim()) {
+      const phoneRes = validateEthiopianPhone(newUser.phone.trim(), false);
+      if (phoneRes && !phoneRes.isValid) {
+        errs.phone = phoneRes.message || 'Invalid Ethiopian phone format';
+      }
     }
 
     // Role-specific location rules
     if (newUser.role === 'supervisor') {
       if (!newUser.regionId) errs.regionId = 'Region is required for Supervisors';
-      if (!newUser.zoneId) errs.zoneId = 'Zone is required for Supervisors';
     } else if (newUser.role === 'field_officer') {
       if (!newUser.regionId) errs.regionId = 'Region is required for Field Officers';
-      if (!newUser.zoneId) errs.zoneId = 'Zone is required for Field Officers';
-      if (!newUser.woredaId) errs.woredaId = 'Woreda is required for Field Officers';
     }
 
     setFormErrors(errs);
@@ -194,19 +201,24 @@ export default function UserManagement({
 
   // 6. Handle Create User
   const handleCreateUser = async (e) => {
-    e.preventDefault();
+    if (e && typeof e.preventDefault === 'function') {
+      e.preventDefault();
+    }
     if (!validateNewUser()) {
       toast.error('Please resolve validation errors in the form.');
       return;
     }
 
-    const emailExists = users.some(u => u.email.toLowerCase() === newUser.email.trim().toLowerCase());
+    const emailExists = users.some(u => u && u.email && u.email.toLowerCase() === newUser.email.trim().toLowerCase());
     if (emailExists) {
       toast.error('A user with this email address already exists');
       return;
     }
 
     setIsSubmitting(true);
+    let createdUser = null;
+    let temporaryPassword = null;
+
     try {
       const token = localStorage.getItem('fieldsync_token');
       const payload = {
@@ -225,26 +237,84 @@ export default function UserManagement({
         supervisorId: newUser.supervisorId || null,
       };
 
-      const response = await fetch(`${API_BASE}/users`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify(payload),
-      });
+      if (navigator.onLine && token) {
+        try {
+          const response = await fetch(`${API_BASE}/users`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(payload),
+          });
 
-      const resData = await response.json();
-
-      if (!response.ok || !resData.success) {
-        throw new Error(resData.error || 'Failed to create user');
+          if (response.ok) {
+            const resData = await response.json();
+            if (resData.success) {
+              createdUser = resData.user || resData.data;
+              temporaryPassword = resData.temporaryPassword || resData.data?.temporaryPassword;
+            }
+          }
+        } catch (netErr) {
+          console.warn('Backend API unreachable, creating user locally in offline database:', netErr.message);
+        }
       }
 
-      const createdUser = resData.user || resData.data;
-      const temporaryPassword = resData.temporaryPassword || resData.data?.temporaryPassword;
+      // If offline or backend didn't respond, create locally with complete schema
+      if (!createdUser) {
+        const id = crypto.randomUUID();
+        const genTempPass = `FieldSync#${Math.floor(1000 + Math.random() * 9000)}!`;
+        temporaryPassword = genTempPass;
+        const fullName = [newUser.firstName, newUser.middleName, newUser.lastName].filter(Boolean).join(' ');
+
+        createdUser = {
+          id,
+          employeeId: `EMP-${Math.floor(10000 + Math.random() * 90000)}`,
+          firstName: newUser.firstName.trim(),
+          middleName: newUser.middleName.trim(),
+          lastName: newUser.lastName.trim(),
+          fullName,
+          name: fullName,
+          email: newUser.email.trim(),
+          phoneNumber: newUser.phone?.trim() || null,
+          phone: newUser.phone?.trim() || null,
+          role: newUser.role.toLowerCase(),
+          status: 'active',
+          isActive: true,
+          mustChangePassword: true,
+          password: genTempPass,
+          passwordHash: genTempPass,
+          regionId: newUser.regionId || null,
+          region: newUser.region || newUser.regionName || null,
+          regionName: newUser.region || newUser.regionName || null,
+          zoneId: newUser.zoneId || null,
+          zone: newUser.zone || newUser.zoneName || null,
+          zoneName: newUser.zone || newUser.zoneName || null,
+          woredaId: newUser.woredaId || null,
+          woreda: newUser.woreda || newUser.woredaName || null,
+          woredaName: newUser.woreda || newUser.woredaName || null,
+          supervisorId: newUser.supervisorId || null,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          synced: false,
+        };
+      }
 
       // Update state and Dexie DB
       await db.users.put(createdUser);
+      try {
+        await offlineDb.users.put(createdUser);
+      } catch (_e) {}
+
+      // Log activity
+      try {
+        await ActivityLogger.log('USER_CREATED', `Created new staff account for ${createdUser.name || createdUser.fullName} (${createdUser.role})`, {
+          officerId: 'manager',
+          relatedRecordId: createdUser.id,
+          metadata: { email: createdUser.email, role: createdUser.role },
+        });
+      } catch (_e) {}
+
       if (setUsers) {
         setUsers(prev => [createdUser, ...prev]);
       }
@@ -393,7 +463,7 @@ export default function UserManagement({
             className="w-full sm:w-auto bg-[#2563EB] hover:bg-blue-700 text-white font-bold h-11 px-5 rounded-xl shadow-md shadow-blue-600/20"
           >
             <UserPlus className="w-4 h-4 mr-2" />
-            Add Users
+            Create User
           </Button>
         </div>
       </div>
@@ -843,7 +913,7 @@ export default function UserManagement({
               />
               <Input
                 label="Phone Number"
-                type="number"
+                type="tel"
                 value={newUser.phone}
                 onChange={(e) => setNewUser(p => ({ ...p, phone: e.target.value }))}
                 placeholder="09XXXXXXXX or 07XXXXXXXX"
@@ -927,6 +997,7 @@ export default function UserManagement({
               type="submit"
               variant="primary"
               loading={isSubmitting}
+              disabled={isSubmitting}
               className="bg-[#2563EB] hover:bg-blue-700 text-white font-bold"
             >
               <UserPlus className="w-4 h-4 mr-2" />

@@ -220,7 +220,7 @@ export default function UserDetailsModal({
           <div className="space-y-2.5">
             <h4 className="text-xs font-bold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider flex items-center gap-1.5">
               <FileText className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#60A5FA]" />
-              Operational Activity Telemetry
+              Operational Activity Detail
             </h4>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
               {stats.roleType === 'field_officer' && (

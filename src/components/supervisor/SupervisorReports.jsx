@@ -9,6 +9,7 @@ import {
 import { getToday, uid } from '../../utils/helpers';
 import { db, syncQueue, checkRealInternet, pullSupervisorReportsFromServer } from '../../services/database';
 import { API_URL } from '../../config/api';
+import ActivityLogger from '../../services/activityLogger';
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
 import Button from '../ui/Button';
@@ -193,6 +194,18 @@ export default function SupervisorReports({
         toast('Evaluation saved offline! Will sync when connected.', { icon: '💾' });
       }
 
+      // Record Supervisor Evaluation Activity Log locally & mark for sync
+      await ActivityLogger.log('SUPERVISOR_EVALUATION', `Completed field performance evaluation for ${officer.name || 'Officer'} (Score: ${form.overallRating}/5)`, {
+        officerId: user?.id || 'supervisor',
+        relatedRecordId: report.id,
+        metadata: {
+          evaluatedOfficerId: officer.id,
+          evaluatedOfficerName: officer.name,
+          overallRating: Number(form.overallRating),
+          reportDate: form.reportDate,
+        }
+      });
+
       setShowOfficerReport(false);
       setForm({
         officerId: '',
@@ -274,6 +287,18 @@ export default function SupervisorReports({
         toast('Report saved offline! Will sync when connected.', { icon: '💾' });
       }
 
+      // Record Supervisor Summary Report Activity Log
+      await ActivityLogger.log('SUPERVISOR_REPORT', `Submitted supervisor summary report for ${selfForm.reportDate} (${selfForm.siteVisits || 0} visits, ${selfForm.issuesResolved || 0} issues resolved)`, {
+        officerId: user?.id || 'supervisor',
+        relatedRecordId: report.id,
+        metadata: {
+          reportDate: selfForm.reportDate,
+          siteVisits: selfForm.siteVisits,
+          issuesResolved: selfForm.issuesResolved,
+          overallStatus: selfForm.overallStatus,
+        }
+      });
+
       setShowSelfReport(false);
       setSelfForm({
         reportDate: getToday(),
@@ -314,15 +339,6 @@ export default function SupervisorReports({
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleRefresh}
-            loading={isLoading}
-          >
-            <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
-            Refresh
-          </Button>
 
           <Button
             variant="secondary"

@@ -138,19 +138,6 @@ export default function DuplicateReviewConsole({ user }) {
             </p>
           </div>
         </div>
-
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={fetchReviews}
-            className="text-xs"
-          >
-            <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
-            Refresh Queue
-          </Button>
-        </div>
       </div>
 
       {/* Aggregate KPI Stat Cards */}

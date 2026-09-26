@@ -34,6 +34,7 @@ import AlertManagement from '../alerts/AlertManagement';
 import VerificationPage from '../verification/VerificationPage';
 import MyProfile from '../profile/MyProfile';
 import NotificationCenter from '../notifications/NotificationCenter';
+import ChatConsole from '../chat/ChatConsole';
 import { fetchUnreadCount } from '../../services/notificationApi';
 
 export default function MainLayout({
@@ -253,25 +254,20 @@ export default function MainLayout({
             <ActivityTimeline user={user} />
           )}
 
-          {/* Sync Center - All roles */}
-          {activeTab === 'sync_center' && (
+          {/* Sync Center - Supervisors, Managers, and Admins only */}
+          {activeTab === 'sync_center' && !isOfficer && (
             <SyncCenterView user={user} />
           )}
 
-          {/* Screen Time & Work Sessions */}
-          {activeTab === 'screentime' && (
+          {/* Screen Time & Work Sessions (Officers & Supervisors only, not Manager) */}
+          {activeTab === 'screentime' && !isManager && (
             isOfficer ? (
-              <WorkSessionTracker user={user} />
+              <WorkSessionTracker user={user} screenTimeInfo={screenTimeInfo} />
             ) : (
               <ScreenTimeManagement
-                screenTime={filteredScreenTime}
-                setScreenTime={setScreenTime}
                 user={user}
                 isManager={isManager}
                 isSupervisor={isSupervisor}
-                isOfficer={isOfficer}
-                teamMembers={teamMembers}
-                addNotification={addNotification}
               />
             )
           )}
@@ -310,6 +306,15 @@ export default function MainLayout({
               users={users}
               setUsers={setUsers}
               addNotification={addNotification}
+            />
+          )}
+
+          {/* Operational Chat - Manager and Supervisor only */}
+          {activeTab === 'chat' && (isManager || isSupervisor) && (
+            <ChatConsole
+              user={user}
+              users={users}
+              setActiveTab={setActiveTab}
             />
           )}
 

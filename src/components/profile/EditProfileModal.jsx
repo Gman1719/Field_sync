@@ -1,21 +1,27 @@
-// src/components/profile/EditProfileModal.jsx
-// Enterprise Profile Editing Modal with Ethiopian Phone Validation & Security Guards
-
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   User, Mail, Phone, Image, Lock, ShieldCheck,
-  AlertCircle, CheckCircle2, X, Save
+  AlertCircle, CheckCircle2, X, Save, Upload, Trash2
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { API_BASE } from '../../config/api';
+import { db } from '../../services/database';
+import { ActivityLogger } from '../../services/activityLogger';
 import { validateEthiopianPhone } from '../../utils/phoneValidation';
 import Modal from '../ui/Modal';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
-import Badge from '../ui/Badge';
 
 export default function EditProfileModal({ isOpen, onClose, user, onProfileUpdated }) {
   if (!user) return null;
+
+  const fileInputRef = useRef(null);
+
+  // Strictly user-scoped photo: NEVER fall back to other users' photos!
+  const persistentSavedPhoto =
+    user.profilePhotoUrl ||
+    (user.id ? localStorage.getItem(`fieldsync_avatar_${user.id}`) : null) ||
+    '';
 
   const [form, setForm] = useState({
     firstName: user.firstName || user.name?.split(' ')[0] || '',
@@ -23,7 +29,7 @@ export default function EditProfileModal({ isOpen, onClose, user, onProfileUpdat
     lastName: user.lastName || user.name?.split(' ').slice(1).join(' ') || '',
     email: user.email || '',
     phone: user.phoneNumber || user.phone || '',
-    profilePhotoUrl: user.profilePhotoUrl || '',
+    profilePhotoUrl: persistentSavedPhoto,
   });
 
   const [errors, setErrors] = useState({});
@@ -33,6 +39,68 @@ export default function EditProfileModal({ isOpen, onClose, user, onProfileUpdat
     setForm((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: '' }));
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select a valid image file (PNG, JPG, WebP, etc.)');
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('Image size must be less than 10MB');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataUrl = event.target?.result;
+      const img = new window.Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_DIM = 400;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_DIM) {
+            height = Math.round((height * MAX_DIM) / width);
+            width = MAX_DIM;
+          }
+        } else {
+          if (height > MAX_DIM) {
+            width = Math.round((width * MAX_DIM) / height);
+            height = MAX_DIM;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressed = canvas.toDataURL('image/jpeg', 0.88);
+          setForm((prev) => ({ ...prev, profilePhotoUrl: compressed }));
+        } else {
+          setForm((prev) => ({ ...prev, profilePhotoUrl: dataUrl }));
+        }
+      };
+      img.onerror = () => {
+        setForm((prev) => ({ ...prev, profilePhotoUrl: dataUrl }));
+      };
+      img.src = dataUrl;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemovePhoto = () => {
+    setForm((prev) => ({ ...prev, profilePhotoUrl: '' }));
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
@@ -51,56 +119,116 @@ export default function EditProfileModal({ isOpen, onClose, user, onProfileUpdat
     }
 
     if (form.phone.trim()) {
-      const phoneValidation = validateEthiopianPhone(form.phone.trim());
+      const phoneValidation = validateEthiopianPhone(form.phone.trim(), false);
       if (!phoneValidation.isValid) {
         errs.phone = phoneValidation.message || 'Invalid Ethiopian phone number (e.g., 0911223344 or +251911223344)';
       }
     }
 
     setErrors(errs);
-    return Object.keys(errs).length === 0;
+    if (Object.keys(errs).length > 0) {
+      toast.error(Object.values(errs)[0]);
+      return false;
+    }
+    return true;
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) {
+      e.preventDefault();
+    }
     if (!validate()) return;
 
     setIsSubmitting(true);
+    const photoUrl = form.profilePhotoUrl ? form.profilePhotoUrl.trim() : '';
+
+    // Persist photo permanently in localStorage
+    // Persist photo permanently in localStorage - STRICTLY per-user ID!
+    if (user?.id) {
+      if (photoUrl) {
+        localStorage.setItem(`fieldsync_avatar_${user.id}`, photoUrl);
+      } else {
+        localStorage.removeItem(`fieldsync_avatar_${user.id}`);
+      }
+    }
+    // Clean up any stale shared key
+    try {
+      localStorage.removeItem('fieldsync_user_avatar');
+    } catch (_e) {}
+
+    let updatedUser = {
+      ...user,
+      firstName: form.firstName.trim(),
+      middleName: form.middleName.trim() || null,
+      lastName: form.lastName.trim(),
+      fullName: [form.firstName.trim(), form.middleName.trim(), form.lastName.trim()].filter(Boolean).join(' '),
+      name: [form.firstName.trim(), form.middleName.trim(), form.lastName.trim()].filter(Boolean).join(' '),
+      email: form.email.trim().toLowerCase(),
+      phoneNumber: form.phone.trim() || null,
+      phone: form.phone.trim() || null,
+      profilePhotoUrl: photoUrl || null,
+    };
+
     try {
       const token = localStorage.getItem('fieldsync_token');
-      const res = await fetch(`${API_BASE}/users/me`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({
-          firstName: form.firstName.trim(),
-          middleName: form.middleName.trim() || null,
-          lastName: form.lastName.trim(),
-          email: form.email.trim().toLowerCase(),
-          phoneNumber: form.phone.trim() || null,
-          profilePhotoUrl: form.profilePhotoUrl.trim() || null,
-        }),
-      });
+      if (navigator.onLine) {
+        const res = await fetch(`${API_BASE}/users/me`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({
+            firstName: form.firstName.trim(),
+            middleName: form.middleName.trim() || null,
+            lastName: form.lastName.trim(),
+            email: form.email.trim().toLowerCase(),
+            phoneNumber: form.phone.trim() || null,
+            profilePhotoUrl: photoUrl || null,
+          }),
+        });
 
-      const resData = await res.json();
-      if (!res.ok || !resData.success) {
-        throw new Error(resData.error || 'Failed to update profile');
+        const resData = await res.json();
+        if (res.ok && resData.success && resData.data) {
+          updatedUser = {
+            ...updatedUser,
+            ...resData.data,
+            profilePhotoUrl: resData.data.profilePhotoUrl || photoUrl || null,
+          };
+        }
       }
-
-      toast.success('Profile details updated successfully');
-      if (onProfileUpdated) {
-        onProfileUpdated(resData.data);
-      }
-      onClose();
     } catch (err) {
-      console.error('Error updating profile:', err);
-      toast.error(err.message || 'Error updating profile');
-      setErrors((prev) => ({ ...prev, submit: err.message }));
-    } finally {
-      setIsSubmitting(false);
+      console.warn('Backend update failed, saving locally:', err.message);
     }
+
+    // Update offline Dexie database cache
+    try {
+      await db.users.put(updatedUser);
+    } catch (_e) {
+      // dexie write fallback
+    }
+
+    // Record activity log for this user
+    try {
+      if (user?.id) {
+        await ActivityLogger.log('PROFILE_UPDATED', 'Updated personal profile details', {
+          officerId: user.id,
+          metadata: {
+            fullName: updatedUser.fullName,
+            email: updatedUser.email,
+            phone: updatedUser.phoneNumber,
+            hasPhoto: Boolean(photoUrl),
+          },
+        });
+      }
+    } catch (_e) {}
+
+    toast.success('Profile details updated successfully');
+    if (onProfileUpdated) {
+      onProfileUpdated(updatedUser);
+    }
+    setIsSubmitting(false);
+    onClose();
   };
 
   return (
@@ -123,6 +251,64 @@ export default function EditProfileModal({ isOpen, onClose, user, onProfileUpdat
           <h4 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
             Personal Details (Editable)
           </h4>
+
+          {/* Avatar / Photo Upload */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+              Profile Photo / Avatar
+            </label>
+            <div className="flex flex-col sm:flex-row items-center gap-4 p-4 rounded-xl bg-slate-50 dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#334155]">
+              <div className="relative group shrink-0">
+                {form.profilePhotoUrl ? (
+                  <img
+                    src={form.profilePhotoUrl}
+                    alt="Preview"
+                    className="w-20 h-20 rounded-2xl object-cover border-2 border-[#2563EB] shadow-xs"
+                  />
+                ) : (
+                  <div className="w-20 h-20 rounded-2xl bg-[#2563EB] text-white flex items-center justify-center text-2xl font-bold tracking-tight shadow-xs">
+                    {(form.firstName?.[0] || user?.name?.[0] || 'U').toUpperCase()}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex-1 space-y-2 text-center sm:text-left">
+                <div className="flex flex-wrap items-center gap-2 justify-center sm:justify-start">
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    accept="image/*"
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    icon={Upload}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    Upload Photo
+                  </Button>
+                  {form.profilePhotoUrl && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      icon={Trash2}
+                      onClick={handleRemovePhoto}
+                      className="text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+                    >
+                      Remove
+                    </Button>
+                  )}
+                </div>
+                <p className="text-[11px] text-slate-400 dark:text-slate-500">
+                  Select a photo from your computer (PNG, JPG, WebP). It will be saved to your profile and displayed across your header, sidebar, and workstation.
+                </p>
+              </div>
+            </div>
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
@@ -188,61 +374,6 @@ export default function EditProfileModal({ isOpen, onClose, user, onProfileUpdat
               <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">Ethiopian mobile format (09/07 or +251)</p>
             </div>
           </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-              Profile Photo URL
-            </label>
-            <Input
-              value={form.profilePhotoUrl}
-              onChange={(e) => handleChange('profilePhotoUrl', e.target.value)}
-              placeholder="https://example.com/avatar.jpg"
-            />
-          </div>
-        </div>
-
-        {/* Read-Only Protected Administrative Fields */}
-        <div className="pt-4 border-t border-slate-200 dark:border-slate-700">
-          <div className="flex items-center gap-2 mb-3">
-            <Lock className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
-            <h4 className="text-xs font-semibold text-slate-400 dark:text-slate-400 uppercase tracking-wider">
-              Protected Administrative Information (Read-Only)
-            </h4>
-          </div>
-
-          <div className="bg-slate-50 dark:bg-[#0F172A] rounded-xl p-3.5 border border-slate-200 dark:border-slate-700 grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
-            <div>
-              <span className="text-slate-400 dark:text-slate-500 block text-[10px]">User ID</span>
-              <span className="font-mono font-medium text-slate-700 dark:text-slate-300 truncate block">{user.id}</span>
-            </div>
-            <div>
-              <span className="text-slate-400 dark:text-slate-500 block text-[10px]">System Role</span>
-              <Badge variant="primary" className="capitalize mt-0.5">
-                {user.role?.replace('_', ' ')}
-              </Badge>
-            </div>
-            <div>
-              <span className="text-slate-400 dark:text-slate-500 block text-[10px]">Account Status</span>
-              <Badge variant="success" dot className="mt-0.5">
-                ACTIVE
-              </Badge>
-            </div>
-            <div>
-              <span className="text-slate-400 dark:text-slate-500 block text-[10px]">Assigned Region</span>
-              <span className="font-semibold text-slate-800 dark:text-[#F8FAFC]">{user.region || 'Unassigned'}</span>
-            </div>
-            <div>
-              <span className="text-slate-400 dark:text-slate-500 block text-[10px]">Assigned Zone</span>
-              <span className="font-semibold text-slate-800 dark:text-[#F8FAFC]">{user.zone || 'Unassigned'}</span>
-            </div>
-            <div>
-              <span className="text-slate-400 dark:text-slate-500 block text-[10px]">Assigned Woreda</span>
-              <span className="font-semibold text-slate-800 dark:text-[#F8FAFC]">{user.woreda || 'Unassigned'}</span>
-            </div>
-          </div>
-          <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-2 italic">
-            Note: Role and administrative location assignments can only be updated by your central Organization Manager.
-          </p>
         </div>
 
         {/* Modal Actions */}
@@ -260,6 +391,7 @@ export default function EditProfileModal({ isOpen, onClose, user, onProfileUpdat
             type="submit"
             variant="primary"
             disabled={isSubmitting}
+            onClick={handleSubmit}
             icon={Save}
           >
             {isSubmitting ? 'Saving Changes...' : 'Save Changes'}

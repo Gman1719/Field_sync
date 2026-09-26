@@ -20,11 +20,11 @@
 }
 
 .dark, [data-theme='dark'] {
-  --color-app-bg: #0F172A;
-  --color-card-bg: #1E293B;
+  --color-app-bg: #0B0F17;
+  --color-card-bg: #181B22;
   --color-text-main: #F8FAFC;
   --color-text-muted: #94A3B8;
-  --color-border: #334155;
+  --color-border: #2D3748;
   color-scheme: dark;
 }
 
@@ -120,4 +120,34 @@
     color: #CBD5E1 !important;
     border-color: #334155 !important;
   }
+}
+
+/* ============================================================== */
+/* Subtle, Non-Bulky Hero Animations                              */
+/* ============================================================== */
+@keyframes heroEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-hero-headline {
+  animation: heroEntrance 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both;
+}
+
+.animate-hero-subtitle {
+  animation: heroEntrance 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.18s both;
+}
+
+.animate-hero-desc1 {
+  animation: heroEntrance 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.30s both;
+}
+
+.animate-hero-desc2 {
+  animation: heroEntrance 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.42s both;
 }
