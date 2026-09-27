@@ -63,8 +63,8 @@ export default function Login({
       {/* ============================================================== */}
       {/* LEFT PANEL: Field Officer Hero Image Display (With Outer Margin) */}
       {/* ============================================================== */}
-      <div className="lg:w-1/2 p-4 sm:p-6 lg:p-7 flex flex-col justify-center">
-        <div className="relative w-full h-[400px] sm:h-[500px] lg:h-full min-h-[380px] lg:min-h-[calc(100vh-3.5rem)] rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/90 dark:border-slate-800 shadow-xl dark:shadow-2xl bg-slate-900">
+      <div className="lg:w-1/2 p-4 sm:p-6 lg:p-7 flex flex-col justify-end">
+        <div className="relative w-full mt-[10mm] h-[calc(400px-10mm)] sm:h-[calc(500px-10mm)] lg:h-[calc(100%-10mm)] min-h-[calc(380px-10mm)] lg:min-h-[calc(100vh-3.5rem-10mm)] rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/90 dark:border-slate-800 shadow-xl dark:shadow-2xl bg-slate-900">
           <img
             src={heroImage}
             alt="FieldSync Officer performing offline citizen registration"

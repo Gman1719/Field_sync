@@ -46,7 +46,7 @@ export default function Sidebar({
 
     // 1. Overview (All Roles)
     sections.push({
-      title: 'Overview',
+      title: '',
       items: [
         { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
         {
@@ -83,23 +83,21 @@ export default function Sidebar({
     // 3. Field Oversight (Supervisor)
     if (isSupervisor) {
       sections.push({
-        title: 'Field Oversight',
+        title: '',
         items: [
           { id: 'chat', label: 'Manager Chat', icon: MessageSquare },
           { id: 'citizens', label: 'Registered Citizens', icon: Database },
           { id: 'team', label: 'Team', icon: Users },
           { id: 'reports', label: 'Officer Daily Reports', icon: FileText, badge: pendingSync > 0 ? pendingSync : null, badgeColor: 'bg-amber-500' },
-          { id: 'supervisor_reports', label: 'Supervisor Evaluations', icon: FileSpreadsheet }
         ]
       });
 
       sections.push({
-        title: 'Activity & Synchronization',
+        title: '',
         items: [
           { id: 'activity_logs', label: 'Activity Logs', icon: Activity },
           { id: 'screentime', label: 'Officers Screen Time', icon: Smartphone },
           { id: 'analytics', label: 'Analysis and Detail', icon: BarChart3 },
-          { id: 'sync_center', label: 'Sync Health Monitor', icon: RefreshCw, badge: pendingSync > 0 ? pendingSync : null, badgeColor: 'bg-amber-500' },
         ]
       });
     }
@@ -107,22 +105,20 @@ export default function Sidebar({
     // 4. Organization Management (Manager)
     if (isManager) {
       sections.push({
-        title: 'Workforce & Registry',
+        title: '',
         items: [
           { id: 'users', label: 'User Management', icon: UserCog },
           { id: 'chat', label: 'Supervisor Chat', icon: MessageSquare },
           { id: 'citizens', label: 'Registered Citizens', icon: Database },
           { id: 'team', label: 'Team', icon: Users },
-          { id: 'all_reports', label: 'All Daily Reports', icon: FileText },
         ]
       });
 
       sections.push({
-        title: 'Detail & Analytics',
+        title: '',
         items: [
           { id: 'activity_logs', label: 'Activity Logs', icon: Activity },
           { id: 'analytics', label: 'Analysis and Detail', icon: BarChart3 },
-          { id: 'sync_center', label: 'System Sync Health', icon: RefreshCw },
           { id: 'audit', label: 'System Audit Trail', icon: History },
         ]
       });
@@ -184,11 +180,13 @@ export default function Sidebar({
         {/* Navigation Sections */}
         <div className="flex-1 overflow-y-auto px-4 py-4 space-y-6">
           {navSections.map((section, idx) => (
-            <div key={idx} className="space-y-1">
-              <h3 className="px-2 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                {section.title}
-              </h3>
-              <div className="space-y-0.5 pt-1">
+            <div key={idx} className={section.title ? 'space-y-1' : 'space-y-0.5'}>
+              {section.title ? (
+                <h3 className="px-2 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                  {section.title}
+                </h3>
+              ) : null}
+              <div className="space-y-0.5 pt-0.5">
                 {section.items.map((item) => {
                   const Icon = item.icon;
                   const isActive = activeTab === item.id;

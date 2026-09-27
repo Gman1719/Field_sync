@@ -147,32 +147,86 @@ export default function TeamManagement({
 
     const teamList = [];
     const assignedOfficerIds = new Set();
+    const supervisorOfficersMap = new Map();
 
     supervisors.forEach((sup) => {
-      const teamOfficers = officers.filter((o) => {
-        const directMatch = o.supervisorId === sup.id || (o.supervisorName && o.supervisorName === sup.name);
-        const areaMatch = !o.supervisorId && o.region && sup.region && o.region === sup.region && o.zone && sup.zone && o.zone === sup.zone;
-        return directMatch || areaMatch;
+      const supKey = String(sup.id || sup.employeeId);
+      supervisorOfficersMap.set(supKey, []);
+    });
+
+    // Pass 1: Direct matches (by ID, employeeId, name, or assignedSupervisorId)
+    officers.forEach((o) => {
+      const directSup = supervisors.find((sup) => {
+        const supId = sup.id != null ? String(sup.id) : null;
+        const supEmpId = sup.employeeId != null ? String(sup.employeeId) : null;
+        const oSupId = o.supervisorId != null ? String(o.supervisorId) : null;
+        const oSupIdAlt = o.supervisor_id != null ? String(o.supervisor_id) : null;
+        const oSupEmpId = o.supervisorEmployeeId != null ? String(o.supervisorEmployeeId) : null;
+        const oAssignedSupId = o.assignedSupervisorId != null ? String(o.assignedSupervisorId) : null;
+
+        const idMatch =
+          Boolean(supId && (oSupId === supId || oSupIdAlt === supId || oAssignedSupId === supId)) ||
+          Boolean(supEmpId && (oSupId === supEmpId || oSupIdAlt === supEmpId || oSupEmpId === supEmpId || oAssignedSupId === supEmpId));
+
+        const supName = (sup.name || sup.fullName || '').trim().toLowerCase();
+        const oSupName = (o.supervisorName || o.supervisor_name || (o.supervisor && (o.supervisor.name || o.supervisor.fullName)) || '').trim().toLowerCase();
+        const nameMatch = Boolean(supName && oSupName && (supName === oSupName || supName.includes(oSupName) || oSupName.includes(supName)));
+
+        return idMatch || nameMatch;
       });
 
-      teamOfficers.forEach((o) => assignedOfficerIds.add(o.id));
+      if (directSup) {
+        const supKey = String(directSup.id || directSup.employeeId);
+        supervisorOfficersMap.get(supKey)?.push(o);
+        assignedOfficerIds.add(String(o.id || o.employeeId));
+      }
+    });
+
+    // Pass 2: Geographic matching for any officer without a direct supervisor match
+    officers.forEach((o) => {
+      const oKey = String(o.id || o.employeeId);
+      if (assignedOfficerIds.has(oKey)) return;
+
+      const areaSup = supervisors.find((sup) => {
+        const oZone = (o.zone || '').trim().toLowerCase();
+        const supZone = (sup.zone || '').trim().toLowerCase();
+        const oRegion = (o.region || '').trim().toLowerCase();
+        const supRegion = (sup.region || '').trim().toLowerCase();
+
+        const zoneMatch = Boolean(oZone && supZone && oZone === supZone);
+        const regionMatch = Boolean(oRegion && supRegion && oRegion === supRegion);
+
+        return zoneMatch || (regionMatch && (!oZone || !supZone));
+      });
+
+      if (areaSup) {
+        const supKey = String(areaSup.id || areaSup.employeeId);
+        supervisorOfficersMap.get(supKey)?.push(o);
+        assignedOfficerIds.add(oKey);
+      }
+    });
+
+    supervisors.forEach((sup) => {
+      const supKey = String(sup.id || sup.employeeId);
+      const teamOfficers = supervisorOfficersMap.get(supKey) || [];
 
       const totalRegs = citizens.filter((c) =>
-        teamOfficers.some((o) => o.employeeId === c.registeredBy || o.id === c.registeredById) ||
-        sup.employeeId === c.registeredBy
+        teamOfficers.some((o) => o.employeeId === c.registeredBy || o.id === c.registeredById || o.id === c.registeredBy) ||
+        sup.employeeId === c.registeredBy || sup.id === c.registeredBy
       ).length;
 
       const totalReps = reports.filter((r) =>
-        teamOfficers.some((o) => o.employeeId === r.employeeId) || sup.employeeId === r.employeeId
+        teamOfficers.some((o) => o.employeeId === r.employeeId || o.id === r.userId) ||
+        sup.employeeId === r.employeeId
       ).length;
 
       const activeOfficers = teamOfficers.filter((o) => o.status === 'active').length;
       const onlineOfficers = (liveStatus || []).filter((l) =>
-        teamOfficers.some((o) => o.employeeId === l.employeeId) && l.status === 'online'
+        teamOfficers.some((o) => o.employeeId === l.employeeId || o.id === l.userId) && l.status === 'online'
       ).length;
 
       teamList.push({
-        id: `team-${sup.id}`,
+        id: `team-${sup.id || sup.employeeId}`,
         name: `${sup.zone || sup.region || 'Zonal'} Operations Team`,
         region: sup.region || 'Organization-wide',
         zone: sup.zone || 'Zonal Jurisdiction',
@@ -185,13 +239,15 @@ export default function TeamManagement({
           onlineOfficers,
           totalRegistrations: totalRegs,
           totalReports: totalReps,
-          isSupervisorOnline: (liveStatus || []).some((l) => l.employeeId === sup.employeeId && l.status === 'online'),
+          isSupervisorOnline: (liveStatus || []).some(
+            (l) => (l.employeeId === sup.employeeId || l.userId === sup.id) && l.status === 'online'
+          ),
         }
       });
     });
 
     // Frontline officers pool
-    const unassignedOfficers = officers.filter((o) => !assignedOfficerIds.has(o.id));
+    const unassignedOfficers = officers.filter((o) => !assignedOfficerIds.has(String(o.id || o.employeeId)));
     if (unassignedOfficers.length > 0) {
       teamList.push({
         id: 'unassigned-team',
@@ -205,7 +261,7 @@ export default function TeamManagement({
           officersCount: unassignedOfficers.length,
           activeOfficers: unassignedOfficers.filter((o) => o.status === 'active').length,
           onlineOfficers: (liveStatus || []).filter((l) =>
-            unassignedOfficers.some((o) => o.employeeId === l.employeeId) && l.status === 'online'
+            unassignedOfficers.some((o) => o.employeeId === l.employeeId || o.id === l.userId) && l.status === 'online'
           ).length,
           totalRegistrations: 0,
           totalReports: 0,
@@ -764,47 +820,130 @@ export default function TeamManagement({
       </div>
 
       {/* Teams Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {filteredTeams.map((team) => (
           <div
             key={team.id}
-            className="rounded-2xl border bg-white dark:bg-[#14161D] border-slate-200 dark:border-[#272A35] shadow-xs p-5 flex flex-col justify-between"
+            className="rounded-2xl border bg-white dark:bg-[#14161D] border-slate-200 dark:border-[#272A35] shadow-xs p-5 flex flex-col justify-between hover:shadow-md transition-shadow"
           >
-            <div>
+            <div className="space-y-4">
+              {/* Team Header */}
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <h3 className="font-bold text-sm text-slate-900 dark:text-white">
                     {team.name}
                   </h3>
                   <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
-                    <MapPin className="w-3.5 h-3.5 text-blue-500" />
-                    <span>{team.region} &gt; {team.zone}</span>
+                    <MapPin className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                    <span className="truncate">{team.region} &gt; {team.zone}</span>
                   </p>
                 </div>
-                <Badge variant="primary" className="text-[10px]">
-                  {team.officers.length} Officers
+                <Badge variant="primary" className="text-[10px] shrink-0">
+                  {team.officers.length} {team.officers.length === 1 ? 'Officer' : 'Officers'}
                 </Badge>
               </div>
 
               {/* Supervisor info */}
-              <div className="mt-3.5 p-3 rounded-xl bg-slate-50 dark:bg-[#1E222D] border border-slate-100 dark:border-[#272A35]">
-                <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
-                  Lead Supervisor
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#1E222D] border border-slate-100 dark:border-[#272A35]">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 block tracking-wider">
+                    Lead Supervisor
+                  </span>
+                  {team.supervisor && (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full ${
+                          team.stats.isSupervisorOnline ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-600'
+                        }`}
+                      />
+                      {team.stats.isSupervisorOnline ? 'Online' : 'Offline'}
+                    </span>
+                  )}
+                </div>
+                <span className="text-xs font-bold text-slate-900 dark:text-white mt-1 block">
+                  {team.supervisor?.name || team.supervisor?.fullName || 'Frontline Pool'}
                 </span>
-                <span className="text-xs font-bold text-slate-900 dark:text-white mt-0.5 block">
-                  {team.supervisor?.name || 'Assigned Lead'}
-                </span>
+                {team.supervisor && (
+                  <p className="text-[10px] text-slate-400 font-mono mt-0.5">
+                    ID: {team.supervisor.employeeId || team.supervisor.id}
+                  </p>
+                )}
+              </div>
+
+              {/* All Officers under this Supervisor */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider">
+                    Officers ({team.officers.length})
+                  </span>
+                  {team.stats.onlineOfficers > 0 && (
+                    <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                      {team.stats.onlineOfficers} online
+                    </span>
+                  )}
+                </div>
+
+                {team.officers.length === 0 ? (
+                  <div className="py-4 text-center rounded-xl bg-slate-50 dark:bg-[#1E222D] border border-dashed border-slate-200 dark:border-[#272A35]">
+                    <p className="text-xs text-slate-400 dark:text-slate-500">No officers assigned to this supervisor</p>
+                  </div>
+                ) : (
+                  <div className="space-y-1.5 max-h-52 overflow-y-auto pr-1">
+                    {team.officers.map((officer) => {
+                      const { regCount, isOnline } = getOfficerStats(officer);
+                      const initials = ((officer.name || officer.fullName || 'FO')[0] || 'O').toUpperCase();
+                      return (
+                        <div
+                          key={officer.id || officer.employeeId}
+                          onClick={() => setSelectedOfficer(officer)}
+                          className="p-2 rounded-xl bg-slate-50 dark:bg-[#1E222D] border border-slate-100 dark:border-[#272A35] hover:border-blue-300 dark:hover:border-blue-700/60 hover:bg-blue-50/40 dark:hover:bg-blue-950/20 transition-all flex items-center justify-between cursor-pointer group"
+                          title="Click to view officer detail"
+                        >
+                          <div className="flex items-center gap-2 min-w-0">
+                            <div className="relative shrink-0">
+                              <div className="w-6 h-6 rounded-md bg-blue-100 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-[10px]">
+                                {initials}
+                              </div>
+                              <span
+                                className={`absolute -bottom-0.5 -right-0.5 w-1.5 h-1.5 rounded-full border border-white dark:border-[#1E222D] ${
+                                  isOnline ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-600'
+                                }`}
+                              />
+                            </div>
+                            <div className="min-w-0">
+                              <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 block truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                {officer.name || officer.fullName}
+                              </span>
+                              <span className="text-[10px] text-slate-400 font-mono block truncate">
+                                {officer.employeeId || officer.id} • {officer.woreda || officer.zone || 'Field'}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 bg-white dark:bg-[#14161D] px-1.5 py-0.5 rounded border border-slate-200 dark:border-[#272A35]">
+                              {regCount} regs
+                            </span>
+                            <Eye className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 transition-colors" />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
 
-            <div className="mt-4 pt-3 border-t border-slate-100 dark:border-[#272A35] flex items-center justify-between">
-              <span className="text-xs text-slate-400">
-                {team.stats.activeOfficers} Active Personnel
+            {/* Card Footer */}
+            <div className="mt-4 pt-3 border-t border-slate-100 dark:border-[#272A35] flex items-center justify-between gap-2">
+              <span className="text-xs text-slate-500 dark:text-slate-400">
+                <strong className="text-slate-800 dark:text-slate-200">{team.stats.activeOfficers}</strong> Active Personnel
               </span>
               <button
                 type="button"
                 onClick={() => setSelectedTeam(team)}
-                className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-blue-500 hover:text-white dark:bg-[#1E222D] text-xs font-semibold transition-colors cursor-pointer"
+                className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-blue-600 hover:text-white dark:bg-[#1E222D] dark:hover:bg-blue-600 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-all cursor-pointer shadow-2xs"
               >
                 Detail
               </button>
@@ -812,6 +951,253 @@ export default function TeamManagement({
           </div>
         ))}
       </div>
+
+      {/* Team Detail Modal for Manager */}
+      {selectedTeam && (
+        <Modal
+          isOpen={!!selectedTeam}
+          onClose={() => setSelectedTeam(null)}
+          title={`Team Details — ${selectedTeam.name}`}
+          size="lg"
+        >
+          <div className="space-y-5 text-xs">
+            {/* Header info */}
+            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#1E222D] border border-slate-200 dark:border-[#272A35] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h4 className="font-bold text-base text-slate-900 dark:text-white">
+                  {selectedTeam.name}
+                </h4>
+                <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-1">
+                  <MapPin className="w-3.5 h-3.5 text-blue-500" />
+                  <span>
+                    {[selectedTeam.region, selectedTeam.zone, selectedTeam.woreda]
+                      .filter(Boolean)
+                      .filter((s) => s !== 'Unassigned')
+                      .join(' > ') || 'Operational Unit'}
+                  </span>
+                </p>
+              </div>
+              <Badge variant="primary" className="text-xs font-semibold self-start sm:self-auto">
+                {selectedTeam.officers.length} Assigned Officers
+              </Badge>
+            </div>
+
+            {/* Quick Metrics Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="p-3 rounded-xl border border-slate-200 dark:border-[#272A35] bg-white dark:bg-[#14161D]">
+                <span className="text-[10px] text-slate-400 font-bold uppercase block">Total Officers</span>
+                <span className="text-lg font-black text-slate-900 dark:text-white font-mono mt-0.5 block">
+                  {selectedTeam.stats.officersCount}
+                </span>
+              </div>
+              <div className="p-3 rounded-xl border border-slate-200 dark:border-[#272A35] bg-white dark:bg-[#14161D]">
+                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold uppercase block">Online Now</span>
+                <span className="text-lg font-black text-emerald-600 dark:text-emerald-400 font-mono mt-0.5 block">
+                  {selectedTeam.stats.onlineOfficers}
+                </span>
+              </div>
+              <div className="p-3 rounded-xl border border-slate-200 dark:border-[#272A35] bg-white dark:bg-[#14161D]">
+                <span className="text-[10px] text-blue-600 dark:text-blue-400 font-bold uppercase block">Active Status</span>
+                <span className="text-lg font-black text-blue-600 dark:text-blue-400 font-mono mt-0.5 block">
+                  {selectedTeam.stats.activeOfficers}
+                </span>
+              </div>
+              <div className="p-3 rounded-xl border border-slate-200 dark:border-[#272A35] bg-white dark:bg-[#14161D]">
+                <span className="text-[10px] text-purple-600 dark:text-purple-400 font-bold uppercase block">Total Registered</span>
+                <span className="text-lg font-black text-purple-600 dark:text-purple-400 font-mono mt-0.5 block">
+                  {selectedTeam.stats.totalRegistrations}
+                </span>
+              </div>
+            </div>
+
+            {/* Supervisor Info Card */}
+            {selectedTeam.supervisor && (
+              <div className="p-4 rounded-xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40">
+                <span className="text-[10px] uppercase font-bold text-blue-600 dark:text-[#3B82F6] block tracking-wider mb-2">
+                  Lead Supervisor Information
+                </span>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <h5 className="font-bold text-sm text-slate-900 dark:text-white">
+                      {selectedTeam.supervisor.name || selectedTeam.supervisor.fullName}
+                    </h5>
+                    <p className="text-[11px] text-slate-500 font-mono mt-0.5">
+                      ID: {selectedTeam.supervisor.employeeId || selectedTeam.supervisor.id} • Role: Zonal Supervisor
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {selectedTeam.supervisor.phone && (
+                      <a
+                        href={`tel:${selectedTeam.supervisor.phone}`}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white dark:bg-[#1E222D] border border-slate-200 dark:border-[#272A35] text-slate-700 dark:text-slate-300 hover:text-blue-600 transition-colors"
+                      >
+                        <Phone className="w-3.5 h-3.5" />
+                        <span>{formatEthiopianPhone(selectedTeam.supervisor.phone)}</span>
+                      </a>
+                    )}
+                    {selectedTeam.supervisor.email && (
+                      <a
+                        href={`mailto:${selectedTeam.supervisor.email}`}
+                        className="p-1.5 rounded-lg bg-white dark:bg-[#1E222D] border border-slate-200 dark:border-[#272A35] text-slate-700 dark:text-slate-300 hover:text-blue-600 transition-colors"
+                        title={selectedTeam.supervisor.email}
+                      >
+                        <Mail className="w-3.5 h-3.5" />
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Detailed Officers List */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <h5 className="font-bold text-xs uppercase text-slate-700 dark:text-slate-300 tracking-wider">
+                  Officers Under This Supervisor ({selectedTeam.officers.length})
+                </h5>
+              </div>
+
+              {selectedTeam.officers.length === 0 ? (
+                <div className="py-8 text-center rounded-xl border border-dashed border-slate-200 dark:border-[#272A35] p-4">
+                  <Users className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-1.5" />
+                  <p className="text-xs text-slate-500">No field officers currently assigned to this supervisor.</p>
+                </div>
+              ) : (
+                <div className="rounded-xl border border-slate-200 dark:border-[#272A35] overflow-hidden">
+                  <div className="overflow-x-auto max-h-72">
+                    <table className="w-full text-left border-collapse text-xs">
+                      <thead className="sticky top-0 bg-slate-50 dark:bg-[#1E222D] border-b border-slate-200 dark:border-[#272A35] text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                        <tr>
+                          <th className="py-2.5 px-3">Officer</th>
+                          <th className="py-2.5 px-3">Station</th>
+                          <th className="py-2.5 px-3">Status</th>
+                          <th className="py-2.5 px-3 text-center">Registrations</th>
+                          <th className="py-2.5 px-3 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 dark:divide-[#272A35] bg-white dark:bg-[#14161D]">
+                        {selectedTeam.officers.map((officer) => {
+                          const { regCount, isOnline } = getOfficerStats(officer);
+                          return (
+                            <tr
+                              key={officer.id || officer.employeeId}
+                              className="hover:bg-slate-50/80 dark:hover:bg-[#1E222D]/60 transition-colors"
+                            >
+                              <td className="py-2.5 px-3">
+                                <div className="flex items-center gap-2">
+                                  <span
+                                    className={`w-2 h-2 rounded-full shrink-0 ${
+                                      isOnline ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-600'
+                                    }`}
+                                  />
+                                  <div>
+                                    <span className="font-bold text-slate-900 dark:text-white block">
+                                      {officer.name || officer.fullName}
+                                    </span>
+                                    <span className="text-[10px] text-slate-400 font-mono">
+                                      ID: {officer.employeeId || officer.id}
+                                    </span>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="py-2.5 px-3 text-slate-600 dark:text-slate-300">
+                                {officer.woreda || officer.zone || 'Assigned Station'}
+                              </td>
+                              <td className="py-2.5 px-3">
+                                <Badge variant={isOnline ? 'success' : 'neutral'} className="text-[10px]">
+                                  {isOnline ? 'Online' : 'Offline'}
+                                </Badge>
+                              </td>
+                              <td className="py-2.5 px-3 text-center font-mono font-bold text-slate-900 dark:text-white">
+                                {regCount}
+                              </td>
+                              <td className="py-2.5 px-3 text-right">
+                                <button
+                                  type="button"
+                                  onClick={() => setSelectedOfficer(officer)}
+                                  className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-blue-600 hover:text-white dark:bg-[#1E222D] dark:hover:bg-blue-600 text-slate-700 dark:text-slate-200 transition-colors cursor-pointer"
+                                >
+                                  Detail
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Officer Detail Modal for Manager */}
+      {selectedOfficer && (
+        <Modal
+          isOpen={!!selectedOfficer}
+          onClose={() => setSelectedOfficer(null)}
+          title={`Officer Detail — ${selectedOfficer.name || selectedOfficer.fullName}`}
+          size="md"
+        >
+          <div className="space-y-4 text-xs">
+            <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#1E222D] border border-slate-200 dark:border-[#272A35] flex items-center justify-between">
+              <div>
+                <h4 className="font-bold text-sm text-slate-900 dark:text-white">
+                  {selectedOfficer.name || selectedOfficer.fullName}
+                </h4>
+                <p className="text-[11px] text-slate-400 font-mono mt-0.5">
+                  ID: {selectedOfficer.id || selectedOfficer.employeeId} • Role: Field Officer
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5 text-blue-500" />
+                  <span>
+                    {[selectedOfficer.region, selectedOfficer.zone, selectedOfficer.woreda]
+                      .filter(Boolean)
+                      .filter((s) => s !== 'Unassigned')
+                      .join(' > ') || 'Operational Unit'}
+                  </span>
+                </p>
+              </div>
+
+              <Badge
+                variant={selectedOfficer.status === 'active' ? 'success' : 'neutral'}
+                className="capitalize text-xs font-semibold"
+              >
+                {selectedOfficer.status || 'Active'}
+              </Badge>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-3 rounded-xl border border-slate-200 dark:border-[#272A35]">
+                <span className="text-[10px] text-slate-400 font-bold uppercase block">Phone</span>
+                <span className="text-xs font-mono font-semibold text-slate-800 dark:text-slate-200 mt-0.5 block">
+                  {formatEthiopianPhone(selectedOfficer.phone) || 'N/A'}
+                </span>
+              </div>
+              <div className="p-3 rounded-xl border border-slate-200 dark:border-[#272A35]">
+                <span className="text-[10px] text-slate-400 font-bold uppercase block">Email</span>
+                <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 mt-0.5 block truncate">
+                  {selectedOfficer.email || 'N/A'}
+                </span>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-xl bg-blue-50/60 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/50 flex items-center justify-between">
+              <div>
+                <span className="text-[10px] uppercase font-bold text-blue-600 dark:text-[#3B82F6]">
+                  Cumulative Citizens Registered
+                </span>
+                <span className="text-xl font-black text-blue-700 dark:text-blue-300 font-mono block mt-0.5">
+                  {getOfficerStats(selectedOfficer).regCount}
+                </span>
+              </div>
+              <UserCheck className="w-8 h-8 text-blue-500/40" />
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }

@@ -276,16 +276,11 @@ export default function ActivityTimeline({ user }) {
   return (
     <div className="space-y-6 animate-in fade-in duration-150">
       {/* 1. Header & Quick Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl border bg-white dark:bg-[#14161D] border-slate-200 dark:border-[#272A35] shadow-xs">
+      <div className="p-5 rounded-2xl border bg-white dark:bg-[#14161D] border-slate-200 dark:border-[#272A35] shadow-xs">
         <div>
-          <div className="flex items-center gap-2.5">
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-[#F4F4F5]">
-              Activity Logs
-            </h1>
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 dark:bg-blue-950/70 text-[#2563EB] dark:text-blue-300 border border-blue-200 dark:border-blue-900">
-              {logs.length} Recorded
-            </span>
-          </div>
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-[#F4F4F5]">
+            Activity Logs
+          </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             {isSupervisor
               ? 'Personal activity log of your supervisor actions, tasks assigned, and evaluations'
@@ -293,19 +288,6 @@ export default function ActivityTimeline({ user }) {
               ? 'Chronological audit log of your citizen registrations, work sessions, and reports'
               : 'Central audit feed of actions across the system'}
           </p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleRefresh}
-            disabled={isRefreshing}
-            icon={RefreshCw}
-            className={isRefreshing ? 'animate-spin' : ''}
-          >
-            {isRefreshing ? 'Refreshing...' : 'Refresh'}
-          </Button>
         </div>
       </div>
 
