@@ -20,11 +20,11 @@
 }
 
 .dark, [data-theme='dark'] {
-  --color-app-bg: #08171e;
-  --color-card-bg: #0c222c;
-  --color-text-main: #f0fdfa;
-  --color-text-muted: #7b9ea8;
-  --color-border: #153847;
+  --color-app-bg: #18110D;
+  --color-card-bg: #251B15;
+  --color-text-main: #FFF8F0;
+  --color-text-muted: #BFA89B;
+  --color-border: #3A281E;
   color-scheme: dark;
 }
 
@@ -180,129 +180,200 @@
 }
 
 /* ============================================================== */
-/* Deep Oceanic Teal Dark Mode (Matching IDE Abyss Aesthetic)      */
+/* Sidebar Navigation: Preserved Sleek Dark Shell                 */
+/* ============================================================== */
+html.dark aside,
+html[data-theme='dark'] aside {
+  background-color: #061318 !important;
+  border-right-color: #153847 !important;
+}
+
+html.dark aside .bg-\[\#0F172A\],
+html.dark aside [class*="bg-[#0F172A]"] {
+  background-color: #061318 !important;
+}
+
+html.dark aside .border-slate-100,
+html.dark aside [class*="border-[#334155]"] {
+  border-color: #153847 !important;
+}
+
+html.dark aside [class*="bg-[#1E293B]"] {
+  background-color: #0c222c !important;
+}
+
+/* Header Navigation Bar */
+html.dark header,
+html[data-theme='dark'] header {
+  background-color: #0a1820 !important;
+  border-bottom-color: #153847 !important;
+}
+
+html.dark header .bg-\[\#0F172A\],
+html.dark header [class*="bg-[#0F172A]"] {
+  background-color: #0a1820 !important;
+}
+
+html.dark header [class*="border-[#334155]"] {
+  border-color: #153847 !important;
+}
+
+/* ============================================================== */
+/* Main Content Area: Rich Warm Dark Coffee Palette               */
 /* ============================================================== */
 html.dark,
 html[data-theme='dark'] {
-  background-color: #08171e !important;
+  background-color: #18110D !important;
   color-scheme: dark;
 }
 
 html.dark body,
 html[data-theme='dark'] body {
-  background-color: #08171e !important;
-  color: #f0fdfa !important;
+  background-color: #18110D !important;
+  color: #FFF8F0 !important;
 }
 
 /* Base App Layout Canvas */
 html.dark .min-h-screen,
-html[data-theme='dark'] .min-h-screen {
-  background-color: #08171e !important;
-}
-
-/* Sidebar, Header, Activity Bar Shells */
-html.dark aside,
-html.dark header,
-html.dark .bg-\[\#0F172A\],
-html.dark [class*="bg-[#0F172A]"],
-html.dark [class*="bg-[#0B0F17]"] {
-  background-color: #061318 !important;
+html[data-theme='dark'] .min-h-screen,
+html.dark main,
+html.dark .lg\:pl-64 {
+  background-color: #18110D !important;
 }
 
 /* Cards, Modals, Panels, Dialogs, Stat Cards, Floating Menus */
-html.dark .bg-\[\#1E293B\],
-html.dark [class*="bg-[#1E293B]"],
+html.dark main .bg-\[\#1E293B\],
+html.dark main [class*="bg-[#1E293B]"],
+html.dark [role="dialog"],
+html.dark [role="dialog"] .bg-\[\#1E293B\],
+html.dark [role="dialog"] [class*="bg-[#1E293B]"],
+html.dark .modal-content,
 html.dark [class*="bg-[#181B22]"] {
-  background-color: #0c222c !important;
+  background-color: #251B15 !important;
 }
 
 /* Card Headers, Secondary Sections, Sub-panels */
-html.dark .bg-\[\#182234\],
-html.dark [class*="bg-[#182234]"] {
-  background-color: #0a1c25 !important;
+html.dark main .bg-\[\#182234\],
+html.dark main [class*="bg-[#182234]"],
+html.dark [role="dialog"] .bg-\[\#182234\],
+html.dark [role="dialog"] [class*="bg-[#182234]"],
+html.dark [role="dialog"] [class*="bg-slate-50"] {
+  background-color: #1F1510 !important;
 }
 
-/* Table Rows & Alternating Strips in Dark Mode */
+/* Table Headers & Rows in Main Content Area */
+html.dark table thead,
+html.dark table thead tr,
+html.dark table thead th {
+  background-color: #1F1510 !important;
+  color: #E8D5C4 !important;
+  border-color: #3A281E !important;
+}
+
 html.dark table tbody tr {
-  background-color: #0c222c;
-  border-color: #153847 !important;
+  background-color: #251B15;
+  border-color: #3A281E !important;
 }
 
-html.dark table tbody tr:nth-child(even) {
-  background-color: #091a22 !important;
+html.dark table tbody tr:nth-child(even),
+html.dark table tbody tr.bg-slate-50\/40,
+html.dark table tbody tr[class*="bg-slate-50"] {
+  background-color: #1E150F !important;
 }
 
 html.dark table tbody tr:hover {
-  background-color: rgba(6, 182, 212, 0.08) !important;
+  background-color: rgba(212, 163, 115, 0.12) !important;
 }
 
-/* Borders across all dark elements */
-html.dark .border-\[\#334155\],
-html.dark [class*="border-[#334155]"],
-html.dark [class*="border-[#2D3748]"],
-html.dark .border-slate-700,
-html.dark .border-slate-800,
-html.dark .divide-\[\#334155\] > * {
-  border-color: #153847 !important;
+/* Borders across Main Content Area */
+html.dark main .border-\[\#334155\],
+html.dark main [class*="border-[#334155]"],
+html.dark main [class*="border-[#2D3748]"],
+html.dark main [class*="border-[#E2E8F0]"],
+html.dark main .border-slate-700,
+html.dark main .border-slate-800,
+html.dark main .divide-\[\#334155\] > *,
+html.dark [role="dialog"] [class*="border-[#334155]"],
+html.dark [role="dialog"] [class*="border-[#E2E8F0]"] {
+  border-color: #3A281E !important;
 }
 
-/* Typography in Dark Mode */
-html.dark .text-\[\#F8FAFC\],
-html.dark [class*="text-[#F8FAFC]"] {
-  color: #f0fdfa !important;
+/* Typography in Main Content Area */
+html.dark main .text-\[\#F8FAFC\],
+html.dark main [class*="text-[#F8FAFC]"],
+html.dark [role="dialog"] .text-\[\#F8FAFC\],
+html.dark [role="dialog"] [class*="text-[#F8FAFC]"] {
+  color: #FFF8F0 !important;
 }
 
-html.dark .text-\[\#94A3B8\],
-html.dark [class*="text-[#94A3B8]"] {
-  color: #7b9ea8 !important;
+html.dark main .text-\[\#94A3B8\],
+html.dark main [class*="text-[#94A3B8]"],
+html.dark [role="dialog"] .text-\[\#94A3B8\],
+html.dark [role="dialog"] [class*="text-[#94A3B8]"] {
+  color: #BFA89B !important;
 }
 
-html.dark .text-\[\#CBD5E1\],
-html.dark [class*="text-[#CBD5E1]"] {
-  color: #c5dce4 !important;
+html.dark main .text-\[\#CBD5E1\],
+html.dark main [class*="text-[#CBD5E1]"],
+html.dark [role="dialog"] .text-\[\#CBD5E1\],
+html.dark [role="dialog"] [class*="text-[#CBD5E1]"] {
+  color: #DCC8BA !important;
 }
 
-html.dark .text-\[\#60A5FA\],
-html.dark [class*="text-[#60A5FA]"] {
-  color: #22d3ee !important;
+html.dark main .text-slate-400,
+html.dark main .text-slate-500,
+html.dark [role="dialog"] .text-slate-400,
+html.dark [role="dialog"] .text-slate-500 {
+  color: #B0988A !important;
 }
 
-/* Form Controls (Inputs, Selects, Textareas) in Dark Mode */
-html.dark input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="submit"]):not([type="button"]),
-html.dark select,
-html.dark textarea {
-  background-color: #08171e !important;
-  border-color: #153847 !important;
-  color: #f0fdfa !important;
+html.dark main .text-\[\#60A5FA\],
+html.dark main [class*="text-[#60A5FA]"] {
+  color: #E6B17E !important;
 }
 
-html.dark input:focus,
-html.dark select:focus,
-html.dark textarea:focus {
-  border-color: #06b6d4 !important;
-  box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.25) !important;
+/* Form Controls in Main Content Area */
+html.dark main input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="submit"]):not([type="button"]),
+html.dark main select,
+html.dark main textarea,
+html.dark [role="dialog"] input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="submit"]):not([type="button"]),
+html.dark [role="dialog"] select,
+html.dark [role="dialog"] textarea {
+  background-color: #1A120C !important;
+  border-color: #3E2B20 !important;
+  color: #FFF8F0 !important;
 }
 
-/* Cyan / Teal Highlights & Badges */
-html.dark [class*="bg-blue-950"],
-html.dark [class*="bg-blue-900\/60"] {
-  background-color: rgba(6, 182, 212, 0.12) !important;
-  color: #22d3ee !important;
+html.dark main input:focus,
+html.dark main select:focus,
+html.dark main textarea:focus,
+html.dark [role="dialog"] input:focus,
+html.dark [role="dialog"] select:focus,
+html.dark [role="dialog"] textarea:focus {
+  border-color: #D4A373 !important;
+  box-shadow: 0 0 0 2px rgba(212, 163, 115, 0.25) !important;
 }
 
-html.dark [class*="border-blue-900"],
-html.dark [class*="border-blue-800"] {
-  border-color: rgba(6, 182, 212, 0.3) !important;
+/* Warm Coffee Accent Badges */
+html.dark main [class*="bg-blue-950"],
+html.dark main [class*="bg-blue-900\/60"] {
+  background-color: rgba(212, 163, 115, 0.15) !important;
+  color: #E6B17E !important;
 }
 
-/* Custom Oceanic Scrollbars */
+html.dark main [class*="border-blue-900"],
+html.dark main [class*="border-blue-800"] {
+  border-color: rgba(212, 163, 115, 0.35) !important;
+}
+
+/* Custom Coffee Scrollbars */
 .dark ::-webkit-scrollbar-thumb,
 [data-theme='dark'] ::-webkit-scrollbar-thumb {
-  background: #153847 !important;
+  background: #3A281E !important;
 }
 .dark ::-webkit-scrollbar-thumb:hover,
 [data-theme='dark'] ::-webkit-scrollbar-thumb:hover {
-  background: #1f5064 !important;
+  background: #4D372A !important;
 }
 
 /* ============================================================== */
