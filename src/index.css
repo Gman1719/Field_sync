@@ -346,46 +346,214 @@ html.dark main [class*="text-[#60A5FA]"] {
 }
 
 /* ============================================================== */
-/* Attractive, Vibrant Buttons in Dark Mode                       */
+/* UI Psychology Compliant Button Architecture (Dark Coffee Theme) */
 /* ============================================================== */
+
+/* 1. Primary Action Buttons (Anchors of Progress & Direct Intent) */
 html.dark main button[class*="bg-[#2563EB]"],
+html.dark main button[class*="bg-blue-600"],
+html.dark main button[class*="bg-blue-500"],
+html.dark main button[class*="bg-[#1E3A8A]"],
 html.dark main .bg-\[\#2563EB\],
+html.dark main button[type="submit"]:not([class*="bg-slate"]):not([class*="bg-rose"]):not([class*="bg-red"]),
 html.dark [role="dialog"] button[class*="bg-[#2563EB]"],
-html.dark table button {
+html.dark [role="dialog"] button[class*="bg-blue-600"],
+html.dark [role="dialog"] button[type="submit"]:not([class*="bg-slate"]):not([class*="bg-rose"]):not([class*="bg-red"]),
+html.dark table td button[class*="bg-[#2563EB]"],
+html.dark table td button[class*="bg-blue"] {
   background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%) !important;
   color: #FFFFFF !important;
   font-weight: 700 !important;
-  border: 1px solid rgba(147, 197, 253, 0.3) !important;
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35) !important;
+  border: 1px solid rgba(147, 197, 253, 0.35) !important;
+  box-shadow: 0 4px 14px -1px rgba(37, 99, 235, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+  cursor: pointer !important;
   transition: all 0.15s ease-in-out !important;
 }
 
 html.dark main button[class*="bg-[#2563EB]"]:hover,
+html.dark main button[class*="bg-blue-600"]:hover,
+html.dark main button[class*="bg-blue-500"]:hover,
+html.dark main button[class*="bg-[#1E3A8A]"]:hover,
 html.dark main .bg-\[\#2563EB\]:hover,
+html.dark main button[type="submit"]:not([class*="bg-slate"]):not([class*="bg-rose"]):not([class*="bg-red"]):hover,
 html.dark [role="dialog"] button[class*="bg-[#2563EB]"]:hover,
-html.dark table button:hover {
+html.dark [role="dialog"] button[class*="bg-blue-600"]:hover,
+html.dark [role="dialog"] button[type="submit"]:not([class*="bg-slate"]):not([class*="bg-rose"]):not([class*="bg-red"]):hover,
+html.dark table td button[class*="bg-[#2563EB]"]:hover,
+html.dark table td button[class*="bg-blue"]:hover {
   background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%) !important;
-  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5) !important;
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+  border-color: rgba(191, 219, 254, 0.55) !important;
   transform: translateY(-1px) !important;
 }
 
-/* Secondary & Filter Buttons */
+/* 2. Secondary, Filter, Reset & Modal Cancel Buttons (Warm Roasted Espresso) */
 html.dark main button[class*="bg-slate-100"],
 html.dark main button[class*="bg-slate-50"],
-html.dark main button.bg-white {
-  background-color: #241A15 !important;
-  color: #FFFFFF !important;
-  border: 1px solid #3E2B20 !important;
+html.dark main button.bg-white:not([class*="bg-blue"]):not([class*="bg-emerald"]):not([class*="bg-rose"]):not([class*="bg-red"]),
+html.dark main button[class*="bg-[#0F172A]"],
+html.dark main button[class*="dark:bg-[#0F172A]"],
+html.dark main button[class*="dark:bg-[#1E293B]"],
+html.dark main button[class*="dark:bg-[#1E222D]"],
+html.dark main button[class*="dark:bg-[#14161D]"],
+html.dark [role="dialog"] button[class*="bg-slate-100"],
+html.dark [role="dialog"] button[class*="bg-slate-50"],
+html.dark [role="dialog"] button.bg-white:not([class*="bg-blue"]):not([class*="bg-emerald"]):not([class*="bg-rose"]):not([class*="bg-red"]),
+html.dark [role="dialog"] button[class*="dark:bg-[#1E293B]"],
+html.dark [role="dialog"] button[class*="dark:bg-[#0F172A]"] {
+  background: linear-gradient(180deg, #261C16 0%, #1E1511 100%) !important;
+  color: #FFF8F0 !important;
+  border: 1px solid #463327 !important;
   font-weight: 600 !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease-in-out !important;
 }
 
 html.dark main button[class*="bg-slate-100"]:hover,
 html.dark main button[class*="bg-slate-50"]:hover,
-html.dark main button.bg-white:hover {
-  background-color: #34241C !important;
+html.dark main button.bg-white:hover,
+html.dark main button[class*="bg-[#0F172A]"]:hover,
+html.dark main button[class*="dark:bg-[#0F172A]"]:hover,
+html.dark main button[class*="dark:bg-[#1E293B]"]:hover,
+html.dark main button[class*="dark:bg-[#1E222D]"]:hover,
+html.dark main button[class*="dark:bg-[#14161D]"]:hover,
+html.dark [role="dialog"] button[class*="bg-slate-100"]:hover,
+html.dark [role="dialog"] button[class*="bg-slate-50"]:hover,
+html.dark [role="dialog"] button.bg-white:hover,
+html.dark [role="dialog"] button[class*="dark:bg-[#1E293B]"]:hover,
+html.dark [role="dialog"] button[class*="dark:bg-[#0F172A]"]:hover {
+  background: linear-gradient(180deg, #35251E 0%, #2A1D17 100%) !important;
   border-color: #D4A373 !important;
   color: #FFFFFF !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(212, 163, 115, 0.3) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* 3. Success & Positive Action Buttons (Approval, Sync, Verification) */
+html.dark main button[class*="bg-emerald"],
+html.dark main button[class*="bg-green"],
+html.dark [role="dialog"] button[class*="bg-emerald"],
+html.dark [role="dialog"] button[class*="bg-green"] {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+  border: 1px solid rgba(110, 231, 183, 0.35) !important;
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  cursor: pointer !important;
+}
+
+html.dark main button[class*="bg-emerald"]:hover,
+html.dark main button[class*="bg-green"]:hover,
+html.dark [role="dialog"] button[class*="bg-emerald"]:hover,
+html.dark [role="dialog"] button[class*="bg-green"]:hover {
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%) !important;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* 4. Danger & Destructive Action Buttons (Caution, Deactivate, Revoke) */
+html.dark main button[class*="bg-rose"],
+html.dark main button[class*="bg-red"],
+html.dark [role="dialog"] button[class*="bg-rose"],
+html.dark [role="dialog"] button[class*="bg-red"] {
+  background: linear-gradient(135deg, #E11D48 0%, #BE123C 100%) !important;
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+  border: 1px solid rgba(253, 164, 175, 0.35) !important;
+  box-shadow: 0 4px 14px rgba(225, 29, 72, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  cursor: pointer !important;
+}
+
+html.dark main button[class*="bg-rose"]:hover,
+html.dark main button[class*="bg-red"]:hover,
+html.dark [role="dialog"] button[class*="bg-rose"]:hover,
+html.dark [role="dialog"] button[class*="bg-red"]:hover {
+  background: linear-gradient(135deg, #F43F5E 0%, #E11D48 100%) !important;
+  box-shadow: 0 6px 20px rgba(244, 63, 94, 0.55) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* 5. Outline Buttons in Dark Theme */
+html.dark main button[class*="border-2"][class*="text-[#2563EB]"],
+html.dark main button[class*="dark:border-[#D4A373]"] {
+  background-color: rgba(212, 163, 115, 0.08) !important;
+  border: 1.5px solid #D4A373 !important;
+  color: #F5D0A9 !important;
+  font-weight: 700 !important;
+}
+
+html.dark main button[class*="border-2"][class*="text-[#2563EB]"]:hover,
+html.dark main button[class*="dark:border-[#D4A373]"]:hover {
+  background-color: rgba(212, 163, 115, 0.18) !important;
+  border-color: #F59E0B !important;
+  color: #FFFFFF !important;
+  transform: translateY(-1px) !important;
+}
+
+/* 6. Table Row Action Buttons ("Details", "Detail") */
+html.dark table td button[class*="px-4"],
+html.dark table td button[class*="px-3.5"]:not([class*="p-1"]):not([class*="p-2"]) {
+  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%) !important;
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+  border: 1px solid rgba(147, 197, 253, 0.35) !important;
+  box-shadow: 0 3px 10px rgba(37, 99, 235, 0.35) !important;
+  border-radius: 0.75rem !important;
+  cursor: pointer !important;
+}
+
+html.dark table td button[class*="px-4"]:hover,
+html.dark table td button[class*="px-3.5"]:not([class*="p-1"]):not([class*="p-2"]):hover {
+  background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%) !important;
+  box-shadow: 0 5px 16px rgba(37, 99, 235, 0.5) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* 7. Table Icon Utility Buttons (Eye, Edit, Key, Power, Email) */
+html.dark table td button.p-2,
+html.dark table td button.p-1\.5,
+html.dark table td button.p-1 {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+html.dark table td button.p-2:hover,
+html.dark table td button.p-1\.5:hover,
+html.dark table td button.p-1:hover {
+  background-color: #261C16 !important;
+  border-color: #463327 !important;
+  color: #FFFFFF !important;
+  transform: none !important;
+}
+
+/* 8. Table Text Utility Buttons ("Copy", "✕", etc.) */
+html.dark table td button[class*="text-\[11px\]"],
+html.dark table td button[title*="Copy"],
+html.dark table td button.text-xs:not([class*="px-3"]):not([class*="px-4"]) {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #93C5FD !important;
+}
+
+html.dark table td button[class*="text-\[11px\]"]:hover,
+html.dark table td button[title*="Copy"]:hover,
+html.dark table td button.text-xs:not([class*="px-3"]):not([class*="px-4"]):hover {
+  color: #FBBF24 !important;
+  background: transparent !important;
+}
+
+/* 9. Internal sub-panels and inputs with old navy converted to espresso */
+html.dark main .bg-\[\#0F172A\],
+html.dark main [class*="bg-[#0F172A]"],
+html.dark main [class*="bg-[#1E222D]"],
+html.dark main [class*="bg-[#14161D]"],
+html.dark [role="dialog"] .bg-\[\#0F172A\],
+html.dark [role="dialog"] [class*="bg-[#0F172A]"] {
+  background-color: #140E0C !important;
+  border-color: #2F221B !important;
 }
 
 /* Form Controls in Main Content Area */

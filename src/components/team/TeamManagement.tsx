@@ -455,10 +455,10 @@ export default function TeamManagement({
             <button
               type="button"
               onClick={() => setStatusFilter('ALL')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-colors ${
                 statusFilter === 'ALL'
-                  ? 'bg-blue-500 text-white shadow-xs'
-                  : 'bg-slate-100 dark:bg-[#1E222D] text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+                  ? 'bg-[#2563EB] text-white shadow-xs'
+                  : 'bg-slate-100 dark:bg-[#261C16] text-slate-600 dark:text-[#FFF8F0] border border-transparent dark:border-[#463327] hover:bg-slate-200 dark:hover:bg-[#34241C] dark:hover:border-[#D4A373]'
               }`}
             >
               All ({supervisorOfficers.length})
@@ -466,10 +466,10 @@ export default function TeamManagement({
             <button
               type="button"
               onClick={() => setStatusFilter('ONLINE')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-colors ${
                 statusFilter === 'ONLINE'
                   ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'bg-slate-100 dark:bg-[#1E222D] text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+                  : 'bg-slate-100 dark:bg-[#261C16] text-slate-600 dark:text-[#FFF8F0] border border-transparent dark:border-[#463327] hover:bg-slate-200 dark:hover:bg-[#34241C] dark:hover:border-[#D4A373]'
               }`}
             >
               Online ({onlineCount})
@@ -477,10 +477,10 @@ export default function TeamManagement({
             <button
               type="button"
               onClick={() => setStatusFilter('ACTIVE')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-colors ${
                 statusFilter === 'ACTIVE'
-                  ? 'bg-blue-600 text-white shadow-xs'
-                  : 'bg-slate-100 dark:bg-[#1E222D] text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+                  ? 'bg-[#2563EB] text-white shadow-xs'
+                  : 'bg-slate-100 dark:bg-[#261C16] text-slate-600 dark:text-[#FFF8F0] border border-transparent dark:border-[#463327] hover:bg-slate-200 dark:hover:bg-[#34241C] dark:hover:border-[#D4A373]'
               }`}
             >
               Active ({activeCount})

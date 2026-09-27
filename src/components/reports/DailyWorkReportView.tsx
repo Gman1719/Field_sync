@@ -472,8 +472,10 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
             <button
               type="button"
               onClick={() => setSelectedDate('')}
-              className={`px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-colors ${
-                !selectedDate ? 'bg-[#1E3A8A] text-white border-[#1E3A8A]' : 'bg-white dark:bg-[#0F172A] text-slate-600 dark:text-slate-300 border-slate-200 dark:border-[#334155] hover:bg-slate-50 dark:hover:bg-slate-800'
+              className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition-all cursor-pointer ${
+                !selectedDate
+                  ? 'bg-[#2563EB] text-white border-[#2563EB] shadow-xs'
+                  : 'bg-white dark:bg-[#261C16] text-slate-600 dark:text-[#FFF8F0] border-slate-200 dark:border-[#463327] hover:bg-slate-50 dark:hover:bg-[#34241C] dark:hover:border-[#D4A373] dark:hover:text-white'
               }`}
             >
               All Dates

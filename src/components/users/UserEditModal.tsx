@@ -229,7 +229,7 @@ export default function UserEditModal({ user, isOpen, onClose, onUserUpdated }: 
             variant="secondary"
             onClick={onClose}
             disabled={isSubmitting}
-            className="dark:bg-[#1E293B] dark:border-[#334155] dark:text-[#F8FAFC]"
+            className="font-semibold"
           >
             Cancel
           </Button>

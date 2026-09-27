@@ -359,7 +359,7 @@ export default function UserDetailsModal({
 
         {/* Footer */}
         <div className="flex justify-end pt-3 border-t border-[#E2E8F0] dark:border-[#334155]">
-          <Button variant="secondary" onClick={onClose} className="dark:bg-[#1E293B] dark:border-[#334155] dark:text-[#F8FAFC]">
+          <Button variant="secondary" onClick={onClose} className="font-semibold px-6">
             Close Profile
           </Button>
         </div>

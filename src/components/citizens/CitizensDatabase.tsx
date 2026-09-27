@@ -445,7 +445,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
               className={`h-11 px-4 rounded-xl text-sm font-bold transition-all border cursor-pointer ${
                 selectedDate === todayStr
                   ? 'bg-[#2563EB] text-white border-[#2563EB] shadow-xs'
-                  : 'bg-slate-50 dark:bg-[#0F172A] text-slate-700 dark:text-slate-200 border-[#E2E8F0] dark:border-[#334155] hover:bg-slate-100 dark:hover:bg-slate-800'
+                  : 'bg-slate-50 dark:bg-[#261C16] text-slate-700 dark:text-[#FFF8F0] border-[#E2E8F0] dark:border-[#463327] hover:bg-slate-100 dark:hover:bg-[#34241C] dark:hover:border-[#D4A373]'
               }`}
               title="Filter records registered today"
             >
@@ -517,7 +517,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
             <button
               type="button"
               onClick={clearAllFilters}
-              className="h-10 px-3.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-[#0F172A] hover:bg-slate-200 dark:hover:bg-slate-800 border border-[#E2E8F0] dark:border-[#334155] transition-all whitespace-nowrap cursor-pointer shadow-2xs ml-auto"
+              className="h-10 px-3.5 rounded-xl text-xs font-bold text-slate-600 dark:text-[#FFF8F0] hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-[#261C16] hover:bg-slate-200 dark:hover:bg-[#34241C] border border-[#E2E8F0] dark:border-[#463327] dark:hover:border-[#D4A373] transition-all whitespace-nowrap cursor-pointer shadow-2xs ml-auto"
               title="Reset all filters"
             >
               Clear Filters
@@ -972,7 +972,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
               <Button
                 variant="secondary"
                 onClick={() => setSelectedCitizen(null)}
-                className="dark:bg-[#1E293B] dark:border-[#334155] dark:text-[#F8FAFC] text-xs font-bold px-6 rounded-xl"
+                className="text-sm font-bold px-6 rounded-xl"
               >
                 Close Details
               </Button>

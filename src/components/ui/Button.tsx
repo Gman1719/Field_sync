@@ -31,21 +31,21 @@ export default function Button({
 }: ButtonProps) {
   const isSpinning = isLoading || loading;
   const baseStyles =
-    'inline-flex items-center justify-center font-semibold transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 select-none active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none disabled:active:scale-100';
+    'inline-flex items-center justify-center font-semibold transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 select-none active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none disabled:active:scale-100 cursor-pointer';
 
   const variants: Record<ButtonVariant, string> = {
     primary:
-      'bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] hover:from-[#1D4ED8] hover:to-[#1E40AF] text-white shadow-md shadow-blue-900/30 focus:ring-blue-500 font-bold border border-blue-400/30',
+      'bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] hover:from-[#1D4ED8] hover:to-[#1E40AF] text-white shadow-md shadow-blue-900/30 focus:ring-blue-500 font-bold border border-blue-400/30 dark:border-blue-400/40 dark:shadow-[0_4px_14px_rgba(37,99,235,0.4)]',
     secondary:
-      'bg-white hover:bg-slate-50 dark:bg-[#221813] dark:hover:bg-[#2F211A] text-slate-800 dark:text-[#FFF8F0] border border-slate-200 dark:border-[#422E23] shadow-sm focus:ring-amber-500 font-semibold',
+      'bg-white hover:bg-slate-50 dark:bg-[#261C16] dark:hover:bg-[#34241C] text-slate-800 dark:text-[#FFF8F0] dark:hover:text-white border border-slate-200 dark:border-[#463327] dark:hover:border-[#D4A373] shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.35)] focus:ring-amber-500 font-semibold',
     success:
-      'bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-emerald-600 text-white shadow-md shadow-emerald-900/30 focus:ring-green-600 font-bold border border-emerald-400/30',
+      'bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-emerald-600 text-white shadow-md shadow-emerald-900/30 focus:ring-green-600 font-bold border border-emerald-400/30 dark:border-emerald-400/40 dark:shadow-[0_4px_14px_rgba(16,185,129,0.35)]',
     danger:
-      'bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white shadow-md shadow-rose-900/30 focus:ring-red-600 font-bold border border-rose-400/30',
+      'bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white shadow-md shadow-rose-900/30 focus:ring-red-600 font-bold border border-rose-400/30 dark:border-rose-400/40 dark:shadow-[0_4px_14px_rgba(244,63,94,0.35)]',
     ghost:
-      'bg-transparent hover:bg-slate-100 dark:hover:bg-[#251A15] text-slate-700 hover:text-slate-900 dark:text-[#E0D4CA] dark:hover:text-white focus:ring-amber-300 font-semibold',
+      'bg-transparent hover:bg-slate-100 dark:hover:bg-[#2A1D17] text-slate-700 hover:text-slate-900 dark:text-[#E0D4CA] dark:hover:text-white focus:ring-amber-300 font-semibold',
     outline:
-      'bg-transparent border-2 border-[#2563EB] text-[#2563EB] hover:bg-blue-50 dark:border-[#D4A373] dark:text-[#F3C293] dark:hover:bg-[#D4A373]/15 focus:ring-amber-800 font-bold',
+      'bg-transparent border-2 border-[#2563EB] text-[#2563EB] hover:bg-blue-50 dark:border-[#D4A373] dark:text-[#F3C293] dark:hover:bg-[#D4A373]/15 dark:hover:text-white focus:ring-amber-800 font-bold',
   };
 
   const sizes: Record<ButtonSize, string> = {

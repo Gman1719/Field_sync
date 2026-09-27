@@ -626,7 +626,7 @@ export default function UserManagement({
                   setRegionFilter('all');
                   setSpecialFilter('all');
                 }}
-                className="h-10 px-3.5 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-[#0F172A] hover:bg-slate-200 dark:hover:bg-slate-800 border border-[#E2E8F0] dark:border-[#334155] transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer shadow-2xs"
+                className="h-10 px-3.5 rounded-xl text-sm font-bold text-slate-700 dark:text-[#FFF8F0] hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-[#261C16] hover:bg-slate-200 dark:hover:bg-[#34241C] border border-[#E2E8F0] dark:border-[#463327] dark:hover:border-[#D4A373] transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer shadow-2xs"
                 title="Reset all filters"
               >
                 <RefreshCw className="w-4 h-4" />
