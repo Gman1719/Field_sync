@@ -585,7 +585,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
                 </div>
               </div>
 
-              {/* Age (Dedicated Column) */}
+              {/* Age (Separate Column) */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-[#CBD5E1] uppercase tracking-wider mb-1.5">
                   Age
@@ -595,8 +595,8 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
                     type="text"
                     readOnly
                     value={calculatedAge !== null ? `${calculatedAge} ${calculatedAge === 1 ? 'year' : 'years'}` : ''}
-                    placeholder="Auto-calculated"
-                    className="w-full h-11 px-3.5 rounded-xl border border-slate-300 dark:border-[#334155] bg-slate-50 dark:bg-[#0F172A]/70 text-slate-900 dark:text-[#F8FAFC] text-sm font-semibold focus:outline-none"
+                    placeholder="—"
+                    className="w-full h-11 px-3.5 rounded-xl border border-slate-300 dark:border-[#334155] bg-slate-50 dark:bg-[#0F172A]/70 text-slate-900 dark:text-[#F8FAFC] text-sm font-semibold cursor-not-allowed select-none focus:outline-none"
                   />
                 </div>
               </div>
