@@ -79,15 +79,15 @@ export default function Login({
       <div className="lg:w-1/2 bg-slate-50 dark:bg-[#0A0E1A] flex flex-col justify-between p-4 sm:p-6 lg:p-8 xl:p-10 transition-colors duration-200 relative overflow-hidden">
         
         {/* Subtle Ambient Depth Glow (gives depth in dark mode) */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[520px] h-[520px] bg-blue-500/5 dark:bg-blue-600/10 rounded-full blur-3xl pointer-events-none -z-0" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[560px] h-[560px] bg-blue-500/5 dark:bg-blue-600/10 rounded-full blur-3xl pointer-events-none -z-0" />
 
         {/* Top Header: "Back to Home" & Theme Toggle */}
-        <div className="relative z-10 flex items-center justify-between w-full max-w-[720px] mx-auto pt-2 pb-4">
+        <div className="relative z-10 flex items-center justify-between w-full max-w-2xl mx-auto pt-2">
           {onBackToHome ? (
             <button
               type="button"
               onClick={onBackToHome}
-              className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white px-3.5 py-2 rounded-xl hover:bg-slate-200/60 dark:hover:bg-slate-800/80 transition-colors cursor-pointer"
+              className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white px-3.5 py-2 rounded-xl hover:bg-slate-200/60 dark:hover:bg-slate-850/80 transition-colors cursor-pointer"
             >
               Back to Home
             </button>
@@ -111,13 +111,13 @@ export default function Login({
           </button>
         </div>
 
-        {/* Center Main Card - Substantially Enlarged to Minimize White Space */}
-        <div className="relative z-10 w-full max-w-[720px] mx-auto my-auto py-2 sm:py-4">
-          <div className="bg-white dark:bg-[#131A2A] rounded-3xl border border-slate-200/90 dark:border-slate-700/60 p-8 sm:p-12 lg:p-14 xl:p-16 shadow-2xl shadow-slate-300/40 dark:shadow-black/70 space-y-8">
+        {/* Center Main Card - Enlarged with Greater Height & Reduced White Space */}
+        <div className="relative z-10 w-full max-w-2xl mx-auto my-auto py-4 sm:py-6">
+          <div className="bg-white dark:bg-[#131A2A] rounded-3xl border border-slate-200/90 dark:border-slate-700/60 p-8 sm:p-14 lg:p-16 min-h-[580px] lg:min-h-[640px] flex flex-col justify-center shadow-xl shadow-slate-200/60 dark:shadow-2xl dark:shadow-black/60 space-y-8">
             
             {/* Title & Guidance */}
             <div className="space-y-2.5">
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 dark:text-white">
+              <h2 className="text-3xl sm:text-4xl lg:text-[2.65rem] font-black tracking-tight text-slate-900 dark:text-white leading-tight">
                 Sign In
               </h2>
               <p className="text-base sm:text-lg text-slate-500 dark:text-slate-300 font-normal">
@@ -134,13 +134,13 @@ export default function Login({
             )}
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-7">
               <div>
                 <label className="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-2.5">
                   Email Address
                 </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-400">
+                <div className="relative flex items-center">
+                  <div className="absolute left-4 pointer-events-none text-slate-400 dark:text-slate-400 flex items-center justify-center">
                     <Mail className="w-5 h-5" />
                   </div>
                   <input
@@ -150,7 +150,7 @@ export default function Login({
                     placeholder="name@fieldsync.com"
                     required
                     autoComplete="email"
-                    className="w-full h-14 sm:h-15 pl-13 pr-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0B101D] text-slate-900 dark:text-white text-base sm:text-lg placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-4 focus:ring-blue-500/15 dark:focus:ring-blue-400/20 focus:border-[#2563EB] dark:focus:border-blue-400 transition-all shadow-xs"
+                    className="w-full h-14 pl-14 pr-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0B101D] text-slate-900 dark:text-white text-base sm:text-lg placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-4 focus:ring-blue-500/15 dark:focus:ring-blue-400/20 focus:border-[#2563EB] dark:focus:border-blue-400 transition-all shadow-xs"
                   />
                 </div>
               </div>
@@ -159,8 +159,8 @@ export default function Login({
                 <label className="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-2.5">
                   Password
                 </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-400">
+                <div className="relative flex items-center">
+                  <div className="absolute left-4 pointer-events-none text-slate-400 dark:text-slate-400 flex items-center justify-center">
                     <Lock className="w-5 h-5" />
                   </div>
                   <input
@@ -170,12 +170,12 @@ export default function Login({
                     placeholder="Enter your password"
                     required
                     autoComplete="current-password"
-                    className="w-full h-14 sm:h-15 pl-13 pr-14 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0B101D] text-slate-900 dark:text-white text-base sm:text-lg placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-4 focus:ring-blue-500/15 dark:focus:ring-blue-400/20 focus:border-[#2563EB] dark:focus:border-blue-400 transition-all shadow-xs"
+                    className="w-full h-14 pl-14 pr-14 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0B101D] text-slate-900 dark:text-white text-base sm:text-lg placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-4 focus:ring-blue-500/15 dark:focus:ring-blue-400/20 focus:border-[#2563EB] dark:focus:border-blue-400 transition-all shadow-xs"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 p-2 cursor-pointer rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    className="absolute right-3.5 text-slate-400 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 p-2 cursor-pointer rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-center"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
@@ -197,7 +197,7 @@ export default function Login({
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full h-14 sm:h-15 mt-4 rounded-xl bg-[#2563EB] hover:bg-blue-600 active:scale-[0.99] disabled:opacity-60 text-white font-bold text-base sm:text-lg shadow-lg shadow-blue-600/30 hover:shadow-xl hover:shadow-blue-600/40 flex items-center justify-center gap-3 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/40 cursor-pointer"
+                className="w-full h-14 mt-4 rounded-xl bg-[#2563EB] hover:bg-blue-600 active:scale-[0.99] disabled:opacity-60 text-white font-bold text-base sm:text-lg shadow-lg shadow-blue-600/30 hover:shadow-xl hover:shadow-blue-600/40 flex items-center justify-center gap-3 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/40 cursor-pointer"
               >
                 {loading ? (
                   <div className="flex items-center gap-2.5">
@@ -216,7 +216,7 @@ export default function Login({
         </div>
 
         {/* Minimalist Footer */}
-        <div className="relative z-10 text-center text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-[720px] mx-auto w-full pt-4 pb-2">
+        <div className="relative z-10 text-center text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-2xl mx-auto w-full pb-2">
           FieldSync Platform • 2026
         </div>
       </div>

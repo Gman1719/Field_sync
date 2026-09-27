@@ -139,9 +139,9 @@ export default function Login({
                 <label className="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-2.5">
                   Email Address
                 </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-400">
-                    <Mail className="w-5.5 h-5.5" />
+                <div className="relative flex items-center">
+                  <div className="absolute left-4 pointer-events-none text-slate-400 dark:text-slate-400 flex items-center justify-center">
+                    <Mail className="w-5 h-5" />
                   </div>
                   <input
                     type="email"
@@ -150,7 +150,7 @@ export default function Login({
                     placeholder="name@fieldsync.com"
                     required
                     autoComplete="email"
-                    className="w-full h-14 sm:h-15 pl-13 pr-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0B101D] text-slate-900 dark:text-white text-base sm:text-lg placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-4 focus:ring-blue-500/15 dark:focus:ring-blue-400/20 focus:border-[#2563EB] dark:focus:border-blue-400 transition-all shadow-xs"
+                    className="w-full h-14 pl-14 pr-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0B101D] text-slate-900 dark:text-white text-base sm:text-lg placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-4 focus:ring-blue-500/15 dark:focus:ring-blue-400/20 focus:border-[#2563EB] dark:focus:border-blue-400 transition-all shadow-xs"
                   />
                 </div>
               </div>
@@ -159,9 +159,9 @@ export default function Login({
                 <label className="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-2.5">
                   Password
                 </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-400">
-                    <Lock className="w-5.5 h-5.5" />
+                <div className="relative flex items-center">
+                  <div className="absolute left-4 pointer-events-none text-slate-400 dark:text-slate-400 flex items-center justify-center">
+                    <Lock className="w-5 h-5" />
                   </div>
                   <input
                     type={showPassword ? 'text' : 'password'}
@@ -170,12 +170,12 @@ export default function Login({
                     placeholder="Enter your password"
                     required
                     autoComplete="current-password"
-                    className="w-full h-14 sm:h-15 pl-13 pr-14 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0B101D] text-slate-900 dark:text-white text-base sm:text-lg placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-4 focus:ring-blue-500/15 dark:focus:ring-blue-400/20 focus:border-[#2563EB] dark:focus:border-blue-400 transition-all shadow-xs"
+                    className="w-full h-14 pl-14 pr-14 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0B101D] text-slate-900 dark:text-white text-base sm:text-lg placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-4 focus:ring-blue-500/15 dark:focus:ring-blue-400/20 focus:border-[#2563EB] dark:focus:border-blue-400 transition-all shadow-xs"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 p-2 cursor-pointer rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    className="absolute right-3.5 text-slate-400 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 p-2 cursor-pointer rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-center"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
@@ -197,7 +197,7 @@ export default function Login({
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full h-14 sm:h-15 mt-4 rounded-xl bg-[#2563EB] hover:bg-blue-600 active:scale-[0.99] disabled:opacity-60 text-white font-bold text-base sm:text-lg shadow-lg shadow-blue-600/30 hover:shadow-xl hover:shadow-blue-600/40 flex items-center justify-center gap-3 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/40 cursor-pointer"
+                className="w-full h-14 mt-4 rounded-xl bg-[#2563EB] hover:bg-blue-600 active:scale-[0.99] disabled:opacity-60 text-white font-bold text-base sm:text-lg shadow-lg shadow-blue-600/30 hover:shadow-xl hover:shadow-blue-600/40 flex items-center justify-center gap-3 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/40 cursor-pointer"
               >
                 {loading ? (
                   <div className="flex items-center gap-2.5">
