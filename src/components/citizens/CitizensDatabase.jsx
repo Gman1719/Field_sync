@@ -647,7 +647,8 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
                   <tr className="bg-slate-50/90 dark:bg-[#0F172A] border-b border-[#E2E8F0] dark:border-[#334155] text-xs font-bold text-slate-600 dark:text-slate-200 uppercase tracking-wider">
                     <th className="py-4 pl-4 sm:pl-6 pr-3">Citizen Name & 12-Digit ID</th>
                     <th className="py-4 px-3">Contact</th>
-                    <th className="py-4 px-3">Gender / Age</th>
+                    <th className="py-4 px-3">Gender</th>
+                    <th className="py-4 px-3">Age</th>
                     <th className="py-4 px-3">Region</th>
                     <th className="py-4 px-3">Zone</th>
                     <th className="py-4 px-3">Woreda</th>
@@ -704,13 +705,16 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
                           )}
                         </td>
 
-                        {/* 3. Gender / Age */}
+                        {/* 3. Gender */}
                         <td className="py-3.5 px-3 whitespace-nowrap">
                           <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
                             {citizen.gender || '—'}
                           </span>
-                          <span className="text-slate-400 dark:text-slate-500 mx-1.5">•</span>
-                          <span className="text-xs text-slate-600 dark:text-slate-300 font-medium">
+                        </td>
+
+                        {/* 4. Age */}
+                        <td className="py-3.5 px-3 whitespace-nowrap">
+                          <span className="text-xs text-slate-700 dark:text-slate-300 font-semibold">
                             {citizen.age ? `${citizen.age} yrs` : (citizen.dateOfBirth || '—')}
                           </span>
                         </td>

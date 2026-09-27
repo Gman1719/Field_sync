@@ -824,9 +824,6 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
                 <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-[#F8FAFC] tracking-tight">
                   Daily Work & Field Observations
                 </h3>
-                <p className="text-xs text-slate-500 dark:text-[#94A3B8] mt-0.5">
-                  Core shift deliverables and operational roadblocks
-                </p>
               </div>
             </CardHeader>
             <CardContent className="p-5 space-y-4">
@@ -839,9 +836,6 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
                     Daily Work Narrative & Completed Deliverables <span className="text-rose-500">*</span>
                   </label>
                 </div>
-                <p className="text-xs text-slate-500 dark:text-[#94A3B8] mb-1.5">
-                  Comprehensive log of today's field operations, community intake, and kebele coverage
-                </p>
                 <Textarea
                   id="dailyWorkNarrative"
                   value={form.summary}
@@ -860,9 +854,6 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
                 >
                   Roadblocks & Operational Challenges
                 </label>
-                <p className="text-xs text-slate-500 dark:text-[#94A3B8] mb-1.5">
-                  Field obstacles, weather disruptions, connectivity gaps, or community access issues
-                </p>
                 <Textarea
                   id="roadblocksInput"
                   value={form.challenges}
@@ -885,9 +876,6 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
                 <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-[#F8FAFC] tracking-tight">
                   Shift Logistics & Next Steps
                 </h3>
-                <p className="text-xs text-slate-500 dark:text-[#94A3B8] mt-0.5">
-                  Operational prerequisites and target scheduling
-                </p>
               </div>
             </CardHeader>
             <CardContent className="p-5 space-y-4">

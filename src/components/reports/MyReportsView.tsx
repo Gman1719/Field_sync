@@ -182,18 +182,6 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={handleRefresh}
-            loading={isRefreshing}
-            className="text-xs h-9 px-3 rounded-xl border-[#E2E8F0] dark:border-[#334155] text-slate-700 dark:text-[#F8FAFC]"
-          >
-            <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
-            Refresh
-          </Button>
-
           {setActiveTab && (
             <Button
               type="button"
