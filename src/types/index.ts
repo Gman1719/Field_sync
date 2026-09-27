@@ -137,6 +137,8 @@ export interface Assignment {
 export interface ActivityLog {
   id: string;
   officerId: string;
+  officerName?: string;
+  woredaName?: string;
   assignmentId?: string | null;
   eventType: string;
   description: string;

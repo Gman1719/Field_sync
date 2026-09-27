@@ -15,8 +15,6 @@ import toast from 'react-hot-toast';
 import { API_BASE } from '../../config/api';
 import { offlineDb } from '../../db/offlineDb';
 import { getToday } from '../../utils/helpers';
-import VerificationPopup from '../verification/VerificationPopup';
-import { useVerification } from '../../hooks/useVerification';
 import StatCard from '../ui/StatCard';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
 import Badge from '../ui/Badge';
@@ -99,15 +97,6 @@ export default function Dashboard({
   liveStatus,
   setActiveTab
 }: DashboardProps) {
-  // ===== VERIFICATION (Officer Only) =====
-  const {
-    showPopup,
-    verificationScore,
-    handleAnswer,
-    handleClose,
-    lastVerified
-  } = useVerification(isOfficer ? user?.id : null, isOfficer ? user?.name : null);
-
   // ===== LIVE TELEMETRY STATE =====
   const [telemetryData, setTelemetryData] = useState(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -457,15 +446,7 @@ export default function Dashboard({
 
   return (
     <div className="space-y-6">
-      {/* Officer Security Verification Popup */}
-      {isOfficer && showPopup && (
-        <VerificationPopup
-          officerId={user?.id}
-          officerName={user?.name || user?.fullName}
-          onAnswer={handleAnswer}
-          onClose={handleClose}
-        />
-      )}
+
 
 
       {/* ============================================================
