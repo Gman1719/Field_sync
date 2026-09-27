@@ -32,7 +32,7 @@ export function CardHeader({ children, className = '', ...props }: HTMLAttribute
 
 export function CardTitle({ children, className = '', ...props }: HTMLAttributes<HTMLHeadingElement>) {
   return (
-    <h3 className={`font-semibold text-[#0F172A] dark:text-[#F8FAFC] text-base tracking-tight ${className}`} {...props}>
+    <h3 className={`font-bold text-[#0F172A] dark:text-[#F8FAFC] text-base sm:text-lg tracking-tight ${className}`} {...props}>
       {children}
     </h3>
   );
@@ -40,7 +40,7 @@ export function CardTitle({ children, className = '', ...props }: HTMLAttributes
 
 export function CardDescription({ children, className = '', ...props }: HTMLAttributes<HTMLParagraphElement>) {
   return (
-    <p className={`text-xs text-[#64748B] dark:text-[#94A3B8] mt-0.5 ${className}`} {...props}>
+    <p className={`text-xs sm:text-sm text-[#64748B] dark:text-[#94A3B8] mt-1 ${className}`} {...props}>
       {children}
     </p>
   );

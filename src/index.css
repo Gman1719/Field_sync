@@ -42,12 +42,34 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.55;
     transition: background-color 0.2s ease, color 0.2s ease;
   }
 
   ::selection {
     background-color: #2563EB;
     color: #ffffff;
+  }
+
+  /* Universal minimum readable typography floor */
+  [class*="text-[10px]"],
+  [class*="text-[9px]"],
+  [class*="text-[8px]"] {
+    font-size: 0.8125rem !important; /* ~13px */
+    line-height: 1.25rem !important;
+  }
+
+  [class*="text-[11px]"] {
+    font-size: 0.84375rem !important; /* ~13.5px */
+    line-height: 1.25rem !important;
+  }
+
+  /* Form control readability & consistency across all pages */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
+  select,
+  textarea {
+    font-size: 0.9375rem !important; /* 15px */
   }
 
   /* Language-specific typography enhancement for Ge'ez script */
@@ -92,16 +114,23 @@
     transition: background-color 5000s ease-in-out 0s;
   }
 
-  /* Enterprise Table Header Polish - Guarantees Attractive, High-Contrast Headers Across All Pages */
+  /* Enterprise Table Header Polish - Guarantees High-Contrast, Readable Headers Across All Pages */
   table thead {
     background-color: #F8FAFC;
     border-bottom: 1px solid #E2E8F0;
   }
   table thead th {
+    font-size: 0.8125rem !important; /* ~13px */
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: #475569;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+
+  table tbody td {
+    font-size: 0.9375rem !important; /* 15px */
   }
 
   .dark table thead,

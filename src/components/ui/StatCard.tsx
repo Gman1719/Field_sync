@@ -109,25 +109,25 @@ export default function StatCard({
             }`
       } ${onClick ? 'cursor-pointer active:scale-[0.98]' : ''} ${className}`}
     >
-      <div className="flex items-center justify-between gap-1.5">
-        <span className="text-[11px] font-bold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wider truncate">
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider truncate">
           {displayTitle}
         </span>
-        {active && <span className="w-2 h-2 rounded-full bg-[#2563EB] dark:bg-[#3B82F6] shrink-0" />}
+        {active && <span className="w-2.5 h-2.5 rounded-full bg-[#2563EB] dark:bg-[#3B82F6] shrink-0" />}
         {Icon && (
-          <div className={`w-7 h-7 rounded-lg ${finalIconBg} ${finalIconColor} flex items-center justify-center shrink-0`}>
-            <Icon className="w-3.5 h-3.5" />
+          <div className={`w-8 h-8 rounded-xl ${finalIconBg} ${finalIconColor} flex items-center justify-center shrink-0`}>
+            <Icon className="w-4 h-4" />
           </div>
         )}
       </div>
 
-      <div className="mt-2 flex items-baseline gap-2">
-        <span className="text-xl sm:text-2xl font-black tracking-tight text-[#0F172A] dark:text-[#F8FAFC]">
+      <div className="mt-2.5 flex items-baseline gap-2">
+        <span className="text-2xl sm:text-3xl font-black tracking-tight text-[#0F172A] dark:text-[#F8FAFC]">
           {value}
         </span>
         {trend !== undefined && (
           <span
-            className={`inline-flex items-center text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
+            className={`inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-full ${
               isPositive
                 ? 'text-emerald-700 bg-emerald-50 dark:bg-emerald-950/60'
                 : isNegative
@@ -135,16 +135,16 @@ export default function StatCard({
                 : 'text-slate-600 bg-slate-100 dark:bg-slate-800'
             }`}
           >
-            {isPositive && <TrendingUp className="w-3 h-3 mr-0.5" />}
-            {isNegative && <TrendingDown className="w-3 h-3 mr-0.5" />}
+            {isPositive && <TrendingUp className="w-3.5 h-3.5 mr-0.5" />}
+            {isNegative && <TrendingDown className="w-3.5 h-3.5 mr-0.5" />}
             {trend > 0 ? `+${trend}%` : `${trend}%`}
           </span>
         )}
       </div>
 
       {(subtitle || trendLabel) && (
-        <p className="mt-0.5 text-[11px] text-slate-500 dark:text-[#94A3B8] flex items-center gap-1 truncate">
-          {trendLabel && <span className="font-medium text-[#0F172A] dark:text-[#F8FAFC]">{trendLabel}</span>}
+        <p className="mt-1 text-xs sm:text-sm text-slate-500 dark:text-[#94A3B8] flex items-center gap-1.5 truncate">
+          {trendLabel && <span className="font-semibold text-[#0F172A] dark:text-[#F8FAFC]">{trendLabel}</span>}
           <span>{subtitle}</span>
         </p>
       )}

@@ -68,8 +68,8 @@ export default function Modal({
         >
           <div className="px-6 py-4 border-b border-[#E2E8F0] dark:border-[#334155] flex items-center justify-between">
             <div>
-              {title && <h3 className="text-lg font-bold text-[#0F172A] dark:text-[#F8FAFC]">{title}</h3>}
-              {description && <p className="text-xs text-[#64748B] dark:text-[#94A3B8] mt-0.5">{description}</p>}
+              {title && <h3 className="text-xl font-bold text-[#0F172A] dark:text-[#F8FAFC] tracking-tight">{title}</h3>}
+              {description && <p className="text-sm text-[#64748B] dark:text-[#94A3B8] mt-1">{description}</p>}
             </div>
             <button
               type="button"

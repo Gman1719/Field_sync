@@ -25,9 +25,10 @@ export default function Button({
   };
 
   const sizes = {
-    sm: 'text-xs px-2.5 py-1.5 rounded-md gap-1.5',
-    md: 'text-sm px-4 py-2 rounded-lg gap-2',
-    lg: 'text-base px-5 py-2.5 rounded-xl gap-2.5'
+    xs: 'text-xs px-2.5 py-1 rounded-lg gap-1.5',
+    sm: 'text-sm px-3.5 py-2 rounded-lg gap-2',
+    md: 'text-sm font-semibold px-4 py-2.5 rounded-xl gap-2',
+    lg: 'text-base font-semibold px-5 py-3 rounded-xl gap-2.5'
   };
 
   return (

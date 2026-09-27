@@ -11,7 +11,7 @@ export default function SyncBadge({
   return (
     <div
       onClick={onClick}
-      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all duration-150 select-none ${
+      className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-sm font-semibold border transition-all duration-150 select-none ${
         onClick ? 'cursor-pointer hover:shadow-sm active:scale-95' : ''
       } ${
         !isOnline
@@ -33,11 +33,11 @@ export default function SyncBadge({
       }
     >
       {syncing ? (
-        <RefreshCw className="w-3.5 h-3.5 text-blue-600 animate-spin" />
+        <RefreshCw className="w-4 h-4 text-blue-600 animate-spin" />
       ) : !isOnline ? (
-        <WifiOff className="w-3.5 h-3.5 text-amber-600" />
+        <WifiOff className="w-4 h-4 text-amber-600" />
       ) : (
-        <Wifi className="w-3.5 h-3.5 text-emerald-600" />
+        <Wifi className="w-4 h-4 text-emerald-600" />
       )}
 
       <span>
@@ -51,7 +51,7 @@ export default function SyncBadge({
       </span>
 
       {pendingSync > 0 && (
-        <span className="ml-0.5 px-1.5 py-0.2 bg-amber-500 text-white rounded-full text-[10px] font-bold">
+        <span className="ml-1 px-2 py-0.5 bg-amber-500 text-white rounded-full text-xs font-bold">
           {pendingSync}
         </span>
       )}
