@@ -20,11 +20,11 @@
 }
 
 .dark, [data-theme='dark'] {
-  --color-app-bg: #0B0F17;
-  --color-card-bg: #181B22;
-  --color-text-main: #F8FAFC;
-  --color-text-muted: #94A3B8;
-  --color-border: #2D3748;
+  --color-app-bg: #08171e;
+  --color-card-bg: #0c222c;
+  --color-text-main: #f0fdfa;
+  --color-text-muted: #7b9ea8;
+  --color-border: #153847;
   color-scheme: dark;
 }
 
@@ -163,20 +163,146 @@
 
   .dark table thead,
   [data-theme='dark'] table thead {
-    background-color: #0F172A !important;
-    border-bottom: 1px solid #334155 !important;
+    background-color: #0a1c25 !important;
+    border-bottom: 1px solid #153847 !important;
   }
   .dark table thead tr,
   [data-theme='dark'] table thead tr {
-    background-color: #0F172A !important;
-    border-color: #334155 !important;
+    background-color: #0a1c25 !important;
+    border-color: #153847 !important;
   }
   .dark table thead th,
   [data-theme='dark'] table thead th {
-    background-color: #0F172A !important;
-    color: #CBD5E1 !important;
-    border-color: #334155 !important;
+    background-color: #0a1c25 !important;
+    color: #c5dce4 !important;
+    border-color: #153847 !important;
   }
+}
+
+/* ============================================================== */
+/* Deep Oceanic Teal Dark Mode (Matching IDE Abyss Aesthetic)      */
+/* ============================================================== */
+html.dark,
+html[data-theme='dark'] {
+  background-color: #08171e !important;
+  color-scheme: dark;
+}
+
+html.dark body,
+html[data-theme='dark'] body {
+  background-color: #08171e !important;
+  color: #f0fdfa !important;
+}
+
+/* Base App Layout Canvas */
+html.dark .min-h-screen,
+html[data-theme='dark'] .min-h-screen {
+  background-color: #08171e !important;
+}
+
+/* Sidebar, Header, Activity Bar Shells */
+html.dark aside,
+html.dark header,
+html.dark .bg-\[\#0F172A\],
+html.dark [class*="bg-[#0F172A]"],
+html.dark [class*="bg-[#0B0F17]"] {
+  background-color: #061318 !important;
+}
+
+/* Cards, Modals, Panels, Dialogs, Stat Cards, Floating Menus */
+html.dark .bg-\[\#1E293B\],
+html.dark [class*="bg-[#1E293B]"],
+html.dark [class*="bg-[#181B22]"] {
+  background-color: #0c222c !important;
+}
+
+/* Card Headers, Secondary Sections, Sub-panels */
+html.dark .bg-\[\#182234\],
+html.dark [class*="bg-[#182234]"] {
+  background-color: #0a1c25 !important;
+}
+
+/* Table Rows & Alternating Strips in Dark Mode */
+html.dark table tbody tr {
+  background-color: #0c222c;
+  border-color: #153847 !important;
+}
+
+html.dark table tbody tr:nth-child(even) {
+  background-color: #091a22 !important;
+}
+
+html.dark table tbody tr:hover {
+  background-color: rgba(6, 182, 212, 0.08) !important;
+}
+
+/* Borders across all dark elements */
+html.dark .border-\[\#334155\],
+html.dark [class*="border-[#334155]"],
+html.dark [class*="border-[#2D3748]"],
+html.dark .border-slate-700,
+html.dark .border-slate-800,
+html.dark .divide-\[\#334155\] > * {
+  border-color: #153847 !important;
+}
+
+/* Typography in Dark Mode */
+html.dark .text-\[\#F8FAFC\],
+html.dark [class*="text-[#F8FAFC]"] {
+  color: #f0fdfa !important;
+}
+
+html.dark .text-\[\#94A3B8\],
+html.dark [class*="text-[#94A3B8]"] {
+  color: #7b9ea8 !important;
+}
+
+html.dark .text-\[\#CBD5E1\],
+html.dark [class*="text-[#CBD5E1]"] {
+  color: #c5dce4 !important;
+}
+
+html.dark .text-\[\#60A5FA\],
+html.dark [class*="text-[#60A5FA]"] {
+  color: #22d3ee !important;
+}
+
+/* Form Controls (Inputs, Selects, Textareas) in Dark Mode */
+html.dark input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="submit"]):not([type="button"]),
+html.dark select,
+html.dark textarea {
+  background-color: #08171e !important;
+  border-color: #153847 !important;
+  color: #f0fdfa !important;
+}
+
+html.dark input:focus,
+html.dark select:focus,
+html.dark textarea:focus {
+  border-color: #06b6d4 !important;
+  box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.25) !important;
+}
+
+/* Cyan / Teal Highlights & Badges */
+html.dark [class*="bg-blue-950"],
+html.dark [class*="bg-blue-900\/60"] {
+  background-color: rgba(6, 182, 212, 0.12) !important;
+  color: #22d3ee !important;
+}
+
+html.dark [class*="border-blue-900"],
+html.dark [class*="border-blue-800"] {
+  border-color: rgba(6, 182, 212, 0.3) !important;
+}
+
+/* Custom Oceanic Scrollbars */
+.dark ::-webkit-scrollbar-thumb,
+[data-theme='dark'] ::-webkit-scrollbar-thumb {
+  background: #153847 !important;
+}
+.dark ::-webkit-scrollbar-thumb:hover,
+[data-theme='dark'] ::-webkit-scrollbar-thumb:hover {
+  background: #1f5064 !important;
 }
 
 /* ============================================================== */
