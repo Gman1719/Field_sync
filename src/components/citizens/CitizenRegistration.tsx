@@ -435,7 +435,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
                 Citizen Registration Console
               </h2>
               <p className="text-xs sm:text-sm text-slate-500 dark:text-[#94A3B8] mt-0.5">
-                Frontline citizen intake with automatic age calculation and 12-digit unique national ID issuance
+                Register citizens easily Register citizens easily
               </p>
             </div>
           </div>
@@ -451,12 +451,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
             </div>
           )}
 
-          {isOnline ? (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 shadow-2xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              Cloud Sync Active
-            </span>
-          ) : (
+          {!isOnline && (
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 shadow-2xs">
               <WifiOff className="w-3.5 h-3.5 text-amber-500" />
               Offline Mode • Stored Locally
@@ -571,9 +566,9 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
               />
             </div>
 
-            {/* Date of Birth, Gender, Marital Status */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start">
-              {/* Date of Birth (Only Date Picker - Age automatically calculated) */}
+            {/* Date of Birth, Age, Gender, Marital Status */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-start">
+              {/* Date of Birth */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-[#CBD5E1] uppercase tracking-wider mb-1.5">
                   Date of Birth <span className="text-rose-500">*</span>
@@ -588,18 +583,21 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
                     className="w-full h-11 px-3.5 rounded-xl border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-[#3B82F6] transition-all cursor-pointer font-medium"
                   />
                 </div>
-                {/* Live calculated age display */}
-                <div className="mt-2 text-xs">
-                  {calculatedAge !== null ? (
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-50 dark:bg-blue-950/60 border border-blue-200/70 dark:border-blue-900/60 font-bold text-[#2563EB] dark:text-[#60A5FA]">
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      Calculated Age: {calculatedAge} {calculatedAge === 1 ? 'year' : 'years'} old
-                    </span>
-                  ) : (
-                    <span className="text-slate-400 dark:text-slate-500 text-[11px]">
-                      Age is automatically computed from date of birth
-                    </span>
-                  )}
+              </div>
+
+              {/* Age (Dedicated Column) */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-[#CBD5E1] uppercase tracking-wider mb-1.5">
+                  Age
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    readOnly
+                    value={calculatedAge !== null ? `${calculatedAge} ${calculatedAge === 1 ? 'year' : 'years'}` : ''}
+                    placeholder="Auto-calculated"
+                    className="w-full h-11 px-3.5 rounded-xl border border-slate-300 dark:border-[#334155] bg-slate-50 dark:bg-[#0F172A]/70 text-slate-900 dark:text-[#F8FAFC] text-sm font-semibold focus:outline-none"
+                  />
                 </div>
               </div>
 
@@ -652,9 +650,6 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
                 <CardTitle className="text-base font-bold text-slate-900 dark:text-[#F8FAFC]">
                   2. Contact Channels (Optional)
                 </CardTitle>
-                <CardDescription className="text-xs text-slate-500 dark:text-[#94A3B8]">
-                  Phone and email are optional — citizens without phone or email can be registered freely
-                </CardDescription>
               </div>
             </div>
           </CardHeader>
@@ -696,9 +691,6 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
                 <CardTitle className="text-base font-bold text-slate-900 dark:text-[#F8FAFC]">
                   3. Administrative Address & Location
                 </CardTitle>
-                <CardDescription className="text-xs text-slate-500 dark:text-[#94A3B8]">
-                  Region &rarr; Zone &rarr; Woreda &rarr; Kebele cascading administrative hierarchy
-                </CardDescription>
               </div>
             </div>
           </CardHeader>
