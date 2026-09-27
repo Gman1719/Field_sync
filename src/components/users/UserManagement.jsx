@@ -627,10 +627,10 @@ export default function UserManagement({
                   setRegionFilter('all');
                   setSpecialFilter('all');
                 }}
-                className="h-10 px-3 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-[#0F172A] hover:bg-slate-200 dark:hover:bg-slate-800 border border-[#E2E8F0] dark:border-[#334155] transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer"
+                className="h-10 px-3.5 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-[#0F172A] hover:bg-slate-200 dark:hover:bg-slate-800 border border-[#E2E8F0] dark:border-[#334155] transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer shadow-2xs"
                 title="Reset all filters"
               >
-                <RefreshCw className="w-3.5 h-3.5" />
+                <RefreshCw className="w-4 h-4" />
                 <span>Clear Filters</span>
               </button>
             )}
@@ -798,52 +798,52 @@ export default function UserManagement({
                             <button
                               type="button"
                               onClick={() => setSelectedUserDetails(u)}
-                              className="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#0F172A] border border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-all cursor-pointer"
+                              className="p-2 rounded-xl text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#0F172A] border border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-all cursor-pointer"
                               title="View Details"
                             >
-                              <Eye className="w-3.5 h-3.5" />
+                              <Eye className="w-4 h-4" />
                             </button>
 
                             <button
                               type="button"
                               onClick={() => setSelectedUserEdit(u)}
-                              className="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#0F172A] border border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-all cursor-pointer"
+                              className="p-2 rounded-xl text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#0F172A] border border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-all cursor-pointer"
                               title="Edit Profile"
                             >
-                              <Edit3 className="w-3.5 h-3.5" />
+                              <Edit3 className="w-4 h-4" />
                             </button>
 
                             {u.role !== 'manager' && (
                               <button
                                 type="button"
                                 onClick={() => setSelectedUserReassign(u)}
-                                className="p-1.5 rounded-lg text-[#2563EB] dark:text-[#60A5FA] hover:bg-blue-50 dark:hover:bg-blue-950/50 border border-transparent hover:border-blue-200 dark:hover:border-blue-900 transition-all cursor-pointer"
+                                className="p-2 rounded-xl text-[#2563EB] dark:text-[#60A5FA] hover:bg-blue-50 dark:hover:bg-blue-950/50 border border-transparent hover:border-blue-200 dark:hover:border-blue-900 transition-all cursor-pointer"
                                 title="Reassign Workstation"
                               >
-                                <MapPin className="w-3.5 h-3.5" />
+                                <MapPin className="w-4 h-4" />
                               </button>
                             )}
 
                             <button
                               type="button"
                               onClick={() => handleResetPassword(u)}
-                              className="p-1.5 rounded-lg text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/50 border border-transparent hover:border-amber-200 dark:hover:border-amber-900 transition-all cursor-pointer"
+                              className="p-2 rounded-xl text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/50 border border-transparent hover:border-amber-200 dark:hover:border-amber-900 transition-all cursor-pointer"
                               title="Reset Password"
                             >
-                              <KeyRound className="w-3.5 h-3.5" />
+                              <KeyRound className="w-4 h-4" />
                             </button>
 
                             <button
                               type="button"
                               onClick={() => handleToggleStatus(u)}
-                              className={`p-1.5 rounded-lg transition-all cursor-pointer ${
+                              className={`p-2 rounded-xl transition-all cursor-pointer ${
                                 isActive
                                   ? 'text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50'
                                   : 'text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/50'
                               }`}
                               title={isActive ? 'Deactivate Account' : 'Activate Account'}
                             >
-                              <Power className="w-3.5 h-3.5" />
+                              <Power className="w-4 h-4" />
                             </button>
                           </div>
                         </td>

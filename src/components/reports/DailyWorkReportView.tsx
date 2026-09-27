@@ -591,11 +591,11 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
                         <Button
                           type="button"
                           variant="outline"
-                          size="sm"
+                          size="md"
                           onClick={() => setInspectModalReport(report)}
-                          className="text-xs font-semibold"
+                          className="font-bold text-sm"
                         >
-                          <Eye className="w-3.5 h-3.5 mr-1.5 text-[#1E3A8A] dark:text-blue-400" />
+                          <Eye className="w-4 h-4 mr-1.5 text-[#1E3A8A] dark:text-blue-400" />
                           Detail Report
                         </Button>
                       </div>
@@ -744,11 +744,11 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
             <Button
               type="button"
               variant="outline"
-              size="sm"
+              size="md"
               onClick={() => setActiveTab('my_reports')}
-              className="text-xs h-9 px-3.5 rounded-xl border-[#E2E8F0] dark:border-[#334155] text-[#2563EB] dark:text-[#60A5FA] dark:hover:bg-[#0F172A]"
+              className="h-10 px-4 rounded-xl border-[#E2E8F0] dark:border-[#334155] text-[#2563EB] dark:text-[#60A5FA] font-bold text-sm dark:hover:bg-[#0F172A]"
             >
-              <FileText className="w-3.5 h-3.5 mr-1.5" />
+              <FileText className="w-4 h-4 mr-2" />
               View My Reports
             </Button>
           )}
@@ -927,9 +927,9 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
               variant="primary"
               size="lg"
               loading={isSubmitting}
-              className="w-full text-xs font-bold py-3.5 rounded-xl shadow-md shadow-blue-600/20"
+              className="w-full text-base font-bold py-3.5 rounded-xl shadow-md shadow-blue-600/20"
             >
-              <Send className="w-4 h-4 mr-2" />
+              <Send className="w-5 h-5 mr-2" />
               Send Daily Report
             </Button>
           </Card>

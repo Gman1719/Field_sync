@@ -66,15 +66,15 @@ export default {
         ethiopia: ['Noto Sans Ethiopic', 'Nyala', 'sans-serif'],
       },
       fontSize: {
-        '2xs': ['0.75rem', { lineHeight: '1.05rem' }],     // 12px
-        'xs': ['0.84375rem', { lineHeight: '1.25rem' }],   // 13.5px (elevated from 12px)
-        'sm': ['0.9375rem', { lineHeight: '1.4rem' }],     // 15px (elevated from 14px)
-        'base': ['1.0625rem', { lineHeight: '1.65rem' }],  // 17px (elevated from 16px)
-        'lg': ['1.1875rem', { lineHeight: '1.75rem' }],    // 19px (elevated from 18px)
-        'xl': ['1.3125rem', { lineHeight: '1.875rem' }],   // 21px (elevated from 20px)
-        '2xl': ['1.625rem', { lineHeight: '2.15rem' }],    // 26px (elevated from 24px)
-        '3xl': ['2rem', { lineHeight: '2.4rem' }],         // 32px (elevated from 30px)
-        '4xl': ['2.375rem', { lineHeight: '2.8rem' }],     // 38px (elevated from 36px)
+        '2xs': ['0.8125rem', { lineHeight: '1.15rem' }],   // 13px
+        'xs': ['0.9375rem', { lineHeight: '1.4rem' }],     // 15px (elevated so all text-xs elements are easily readable)
+        'sm': ['1rem', { lineHeight: '1.5rem' }],          // 16px (elevated)
+        'base': ['1.125rem', { lineHeight: '1.7rem' }],    // 18px (comfortable reading body)
+        'lg': ['1.25rem', { lineHeight: '1.8rem' }],       // 20px
+        'xl': ['1.375rem', { lineHeight: '1.95rem' }],     // 22px
+        '2xl': ['1.75rem', { lineHeight: '2.25rem' }],     // 28px
+        '3xl': ['2.15rem', { lineHeight: '2.5rem' }],      // 34.5px
+        '4xl': ['2.5rem', { lineHeight: '2.9rem' }],       // 40px
       },
       boxShadow: {
         'subtle': '0 1px 3px 0 rgba(15, 23, 42, 0.05), 0 1px 2px -1px rgba(15, 23, 42, 0.05)',

@@ -341,9 +341,9 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
             <Button
               type="button"
               variant="primary"
-              size="sm"
+              size="md"
               onClick={() => setActiveTab('register')}
-              className="text-xs h-10 px-4 rounded-xl shadow-xs"
+              className="h-11 px-5 rounded-xl shadow-xs font-bold"
             >
               Register Citizen
             </Button>
@@ -442,10 +442,10 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
             <button
               type="button"
               onClick={() => setSelectedDate(selectedDate === todayStr ? '' : todayStr)}
-              className={`h-11 px-3.5 rounded-xl text-xs font-bold transition-all border ${
+              className={`h-11 px-4 rounded-xl text-sm font-bold transition-all border cursor-pointer ${
                 selectedDate === todayStr
                   ? 'bg-[#2563EB] text-white border-[#2563EB] shadow-xs'
-                  : 'bg-slate-50 dark:bg-[#0F172A] text-slate-700 dark:text-slate-300 border-[#E2E8F0] dark:border-[#334155] hover:bg-slate-100 dark:hover:bg-slate-800'
+                  : 'bg-slate-50 dark:bg-[#0F172A] text-slate-700 dark:text-slate-200 border-[#E2E8F0] dark:border-[#334155] hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
               title="Filter records registered today"
             >
@@ -621,18 +621,18 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
                 {hasActiveFilters ? (
                   <Button
                     variant="outline"
-                    size="sm"
+                    size="md"
                     onClick={clearAllFilters}
-                    className="text-xs"
+                    className="font-bold px-4"
                   >
                     Reset All Filters
                   </Button>
                 ) : isOfficer && setActiveTab ? (
                   <Button
                     variant="primary"
-                    size="sm"
+                    size="md"
                     onClick={() => setActiveTab('register')}
-                    className="text-xs px-5 rounded-xl shadow-xs"
+                    className="px-5 rounded-xl shadow-xs font-bold"
                   >
                     Register Citizen Now
                   </Button>
@@ -765,7 +765,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
                           <button
                             type="button"
                             onClick={() => setSelectedCitizen(citizen)}
-                            className="px-3 py-1.5 rounded-xl text-xs font-bold text-[#2563EB] dark:text-[#60A5FA] bg-blue-50/60 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/60 border border-blue-200/70 dark:border-blue-800/70 transition-all inline-block cursor-pointer shadow-2xs"
+                            className="px-4 py-2 rounded-xl text-sm font-bold text-white bg-[#2563EB] hover:bg-blue-700 active:scale-95 transition-all inline-block cursor-pointer shadow-xs"
                             title="View Citizen Details"
                           >
                             Details

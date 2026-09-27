@@ -35,14 +35,19 @@
     box-sizing: border-box;
   }
   
-  html, body {
+  html {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
     background-color: var(--color-app-bg);
     color: var(--color-text-main);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     min-height: 100vh;
-    font-size: 15px;
+    font-size: 1rem;
     line-height: 1.55;
     transition: background-color 0.2s ease, color 0.2s ease;
   }
@@ -52,17 +57,40 @@
     color: #ffffff;
   }
 
+  /* Universal Button Visibility and Readability */
+  button,
+  [role="button"],
+  .btn {
+    font-size: 0.9375rem; /* 15px */
+    font-weight: 600;
+    line-height: 1.25rem;
+  }
+
+  button.text-xs,
+  button[class*="text-xs"],
+  .btn.text-xs,
+  [role="button"].text-xs {
+    font-size: 0.9375rem !important; /* 15px */
+    font-weight: 600 !important;
+  }
+
   /* Universal minimum readable typography floor */
+  .text-\[10px\],
+  .text-\[9px\],
+  .text-\[8px\],
   [class*="text-[10px]"],
   [class*="text-[9px]"],
   [class*="text-[8px]"] {
-    font-size: 0.8125rem !important; /* ~13px */
-    line-height: 1.25rem !important;
+    font-size: 0.875rem !important; /* 14px */
+    line-height: 1.35rem !important;
   }
 
-  [class*="text-[11px]"] {
-    font-size: 0.84375rem !important; /* ~13.5px */
-    line-height: 1.25rem !important;
+  .text-\[11px\],
+  .text-\[12px\],
+  [class*="text-[11px]"],
+  [class*="text-[12px]"] {
+    font-size: 0.9375rem !important; /* 15px */
+    line-height: 1.4rem !important;
   }
 
   /* Form control readability & consistency across all pages */
