@@ -761,20 +761,20 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
       <div className="bg-white dark:bg-[#1E293B] rounded-2xl border border-[#E2E8F0] dark:border-[#334155] shadow-xs overflow-hidden grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-100 dark:divide-slate-800">
         {/* Metric 1: Citizens Registered */}
         <div className="p-3.5 sm:p-4">
-          <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-1">
+          <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-[#BFA89B] uppercase tracking-wider block mb-1">
             Citizens Registered
           </span>
           <div className="flex items-baseline gap-1.5">
             <span className="text-xl sm:text-2xl font-black text-[#2563EB] dark:text-[#60A5FA] font-mono leading-none">
               {localCitizenCount}
             </span>
-            <span className="text-xs text-slate-500 font-semibold">Today</span>
+            <span className="text-xs text-slate-500 dark:text-[#A8988B] font-semibold">Today</span>
           </div>
         </div>
 
         {/* Metric 2: Screen Time Telemetry */}
         <div className="p-3.5 sm:p-4">
-          <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-1">
+          <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-[#BFA89B] uppercase tracking-wider block mb-1">
             {todayReport ? 'Finalized Screen Time' : 'Recorded Screen Time'}
           </span>
           <span className="text-xl sm:text-2xl font-black text-indigo-600 dark:text-indigo-400 font-mono leading-none block">
@@ -784,25 +784,25 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
 
         {/* Metric 3: Reporting Officer */}
         <div className="p-3.5 sm:p-4">
-          <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-1">
+          <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-[#BFA89B] uppercase tracking-wider block mb-1">
             Reporting Officer
           </span>
-          <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-[#F8FAFC] truncate block leading-snug">
+          <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-[#FFFFFF] truncate block leading-snug">
             {user?.fullName || user?.name || user?.email || 'Field Staff'}
           </span>
           {user?.employeeId && (
-            <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500">
-              {user.employeeId}
+            <span className="text-[11px] font-mono text-slate-500 dark:text-[#A8988B]">
+              ({user.employeeId})
             </span>
           )}
         </div>
 
         {/* Metric 4: Report Date */}
         <div className="p-3.5 sm:p-4">
-          <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-1">
+          <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-[#BFA89B] uppercase tracking-wider block mb-1">
             Report Date
           </span>
-          <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-[#F8FAFC] block leading-snug font-mono">
+          <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-[#FFFFFF] block leading-snug font-mono">
             {todayStr}
           </span>
         </div>
@@ -826,16 +826,16 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
                 <div className="flex items-center justify-between mb-1.5">
                   <label
                     htmlFor="dailyWorkNarrative"
-                    className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 block"
+                    className="text-xs sm:text-sm font-bold text-slate-900 dark:text-[#F5EBE1] block"
                   >
-                    Daily Work Narrative & Completed Deliverables <span className="text-rose-500">*</span>
+                    Daily Work Narrative & Completed Deliverables <span className="text-rose-500 font-bold">*</span>
                   </label>
                 </div>
                 <Textarea
                   id="dailyWorkNarrative"
                   value={form.summary}
                   onChange={(e) => setForm({ ...form, summary: e.target.value })}
-                  rows={3}
+                  rows={4}
                   required
                   placeholder="Enter details of today's citizen intake, site visits, and completed registrations..."
                   className="w-full text-sm leading-relaxed"
@@ -845,7 +845,7 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
               <div>
                 <label
                   htmlFor="roadblocksInput"
-                  className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 block mb-1.5"
+                  className="text-xs sm:text-sm font-bold text-slate-900 dark:text-[#F5EBE1] block mb-1.5"
                 >
                   Roadblocks & Operational Challenges
                 </label>
@@ -853,7 +853,7 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
                   id="roadblocksInput"
                   value={form.challenges}
                   onChange={(e) => setForm({ ...form, challenges: e.target.value })}
-                  rows={3}
+                  rows={4}
                   placeholder="Describe any field obstacles, network issues, or equipment challenges..."
                   className="w-full text-sm leading-relaxed"
                 />
@@ -877,7 +877,7 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
               <div>
                 <label
                   htmlFor="resourcesInput"
-                  className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 block mb-1.5"
+                  className="text-xs sm:text-sm font-bold text-slate-900 dark:text-[#F5EBE1] block mb-1.5"
                 >
                   Resources Used & Logistics Needed
                 </label>
@@ -885,7 +885,7 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
                   id="resourcesInput"
                   value={form.resources}
                   onChange={(e) => setForm({ ...form, resources: e.target.value })}
-                  rows={3}
+                  rows={4}
                   placeholder="Biometric kits, tablets, vehicle/fuel, battery packs..."
                   className="w-full text-sm leading-relaxed"
                 />
@@ -894,7 +894,7 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
               <div>
                 <label
                   htmlFor="nextDayPlanInput"
-                  className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 block mb-1.5"
+                  className="text-xs sm:text-sm font-bold text-slate-900 dark:text-[#F5EBE1] block mb-1.5"
                 >
                   Tomorrow's Priorities & Target Kebeles
                 </label>
@@ -902,7 +902,7 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
                   id="nextDayPlanInput"
                   value={form.nextDayPlan}
                   onChange={(e) => setForm({ ...form, nextDayPlan: e.target.value })}
-                  rows={3}
+                  rows={4}
                   placeholder="Target kebeles, prioritized registration sites for next shift..."
                   className="w-full text-sm leading-relaxed"
                 />

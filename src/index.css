@@ -556,26 +556,100 @@ html.dark [role="dialog"] [class*="bg-[#0F172A]"] {
   border-color: #2F221B !important;
 }
 
-/* Form Controls in Main Content Area */
-html.dark main input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="submit"]):not([type="button"]),
-html.dark main select,
-html.dark main textarea,
-html.dark [role="dialog"] input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="submit"]):not([type="button"]),
-html.dark [role="dialog"] select,
-html.dark [role="dialog"] textarea {
-  background-color: #140E0C !important;
-  border-color: #36261E !important;
-  color: #FFFFFF !important;
+/* ============================================================== */
+/* Form Controls: Inputs, Textareas, Selects (Both Themes)       */
+/* Meets WCAG 2.1 SC 1.4.11 (3:1 contrast), Norman Affordance,    */
+/* and Gestalt Law of Common Region                              */
+/* ============================================================== */
+
+/* Universal Form Control Ergonomics */
+input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="submit"]):not([type="button"]):not([class*="bg-transparent"]),
+select:not([class*="bg-transparent"]),
+textarea:not([class*="bg-transparent"]) {
+  font-size: 0.9375rem !important; /* 15px */
+  line-height: 1.55 !important;
+  border-radius: 0.75rem !important; /* 12px */
+  transition: all 0.15s ease-in-out !important;
 }
 
+/* Light Theme: Clean, High-Contrast Crisp Boundaries */
+input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="submit"]):not([type="button"]):not([class*="bg-transparent"]),
+select:not([class*="bg-transparent"]),
+textarea:not([class*="bg-transparent"]) {
+  background-color: #FFFFFF;
+  border: 1.5px solid #CBD5E1;
+  color: #0F172A;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="submit"]):not([type="button"]):not([class*="bg-transparent"])::placeholder,
+textarea:not([class*="bg-transparent"])::placeholder {
+  color: #64748B !important;
+  opacity: 1 !important;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="submit"]):not([type="button"]):not([class*="bg-transparent"]):hover,
+select:not([class*="bg-transparent"]):hover,
+textarea:not([class*="bg-transparent"]):hover {
+  border-color: #94A3B8 !important;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="submit"]):not([type="button"]):not([class*="bg-transparent"]):focus,
+select:not([class*="bg-transparent"]):focus,
+textarea:not([class*="bg-transparent"]):focus {
+  border-color: #2563EB !important;
+  box-shadow: 0 0 0 3.5px rgba(37, 99, 235, 0.18) !important;
+  outline: none !important;
+}
+
+/* Dark Theme Form Controls: High-Affordance Recessed Well & Roasted Bronze Frame */
+html.dark main input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="submit"]):not([type="button"]):not([class*="bg-transparent"]),
+html.dark main select:not([class*="bg-transparent"]),
+html.dark main textarea:not([class*="bg-transparent"]),
+html.dark [role="dialog"] input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="submit"]):not([type="button"]):not([class*="bg-transparent"]),
+html.dark [role="dialog"] select:not([class*="bg-transparent"]),
+html.dark [role="dialog"] textarea:not([class*="bg-transparent"]) {
+  background-color: #231914 !important;
+  border: 1.5px solid #5A4032 !important;
+  color: #FFFFFF !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.45), 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+  border-radius: 0.75rem !important;
+}
+
+/* High-Legibility, Professional Placeholder in Dark Theme */
+html.dark main input::placeholder,
+html.dark main textarea::placeholder,
+html.dark [role="dialog"] input::placeholder,
+html.dark [role="dialog"] textarea::placeholder,
+html.dark ::placeholder {
+  color: #BFA89B !important;
+  opacity: 1 !important;
+  font-weight: 400 !important;
+}
+
+/* Responsive Hover State in Dark Theme */
+html.dark main input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="submit"]):not([type="button"]):hover,
+html.dark main select:hover,
+html.dark main textarea:hover,
+html.dark [role="dialog"] input:hover,
+html.dark [role="dialog"] select:hover,
+html.dark [role="dialog"] textarea:hover {
+  border-color: #9E7254 !important;
+  background-color: #281D17 !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(158, 114, 84, 0.2) !important;
+}
+
+/* Active Focus State in Dark Theme (Luminous Sapphire Indicator) */
 html.dark main input:focus,
 html.dark main select:focus,
 html.dark main textarea:focus,
 html.dark [role="dialog"] input:focus,
 html.dark [role="dialog"] select:focus,
 html.dark [role="dialog"] textarea:focus {
-  border-color: #D4A373 !important;
-  box-shadow: 0 0 0 2px rgba(212, 163, 115, 0.3) !important;
+  background-color: #2A1E18 !important;
+  border-color: #3B82F6 !important;
+  box-shadow: 0 0 0 3.5px rgba(59, 130, 246, 0.3), inset 0 1px 2px rgba(0, 0, 0, 0.25) !important;
+  outline: none !important;
 }
 
 /* Warm Caramel Highlight Badges */
