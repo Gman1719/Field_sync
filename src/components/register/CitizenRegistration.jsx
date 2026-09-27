@@ -580,19 +580,20 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
                 </div>
               </div>
 
-              {/* Age (Separate Column) */}
+              {/* Age (Split into separate column) */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-[#CBD5E1] uppercase tracking-wider mb-1.5">
                   Age
                 </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    readOnly
-                    value={calculatedAge !== null ? `${calculatedAge} ${calculatedAge === 1 ? 'year' : 'years'}` : ''}
-                    placeholder="—"
-                    className="w-full h-11 px-3.5 rounded-xl border border-slate-300 dark:border-[#334155] bg-slate-50 dark:bg-[#0F172A]/70 text-slate-900 dark:text-[#F8FAFC] text-sm font-semibold cursor-not-allowed select-none focus:outline-none"
-                  />
+                <div className="h-11 px-3.5 rounded-xl border border-slate-300 dark:border-[#334155] bg-slate-50/80 dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] text-sm flex items-center font-bold">
+                  {calculatedAge !== null ? (
+                    <span className="inline-flex items-center gap-1.5 text-[#2563EB] dark:text-[#60A5FA]">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                      {calculatedAge} {calculatedAge === 1 ? 'year' : 'years'}
+                    </span>
+                  ) : (
+                    <span className="text-slate-400 font-normal">—</span>
+                  )}
                 </div>
               </div>
 
