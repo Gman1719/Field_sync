@@ -35,17 +35,17 @@ export default function Button({
 
   const variants: Record<ButtonVariant, string> = {
     primary:
-      'bg-[#2563EB] hover:bg-[#1D4ED8] dark:bg-[#2563EB] dark:hover:bg-[#1D4ED8] text-white shadow-sm focus:ring-blue-500',
+      'bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] hover:from-[#1D4ED8] hover:to-[#1E40AF] text-white shadow-md shadow-blue-900/30 focus:ring-blue-500 font-bold border border-blue-400/30',
     secondary:
-      'bg-white hover:bg-slate-50 dark:bg-[#1E293B] dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-[#334155] shadow-sm focus:ring-slate-400',
+      'bg-white hover:bg-slate-50 dark:bg-[#221813] dark:hover:bg-[#2F211A] text-slate-800 dark:text-[#FFF8F0] border border-slate-200 dark:border-[#422E23] shadow-sm focus:ring-amber-500 font-semibold',
     success:
-      'bg-[#16A34A] hover:bg-green-700 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white shadow-sm focus:ring-green-600',
+      'bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-emerald-600 text-white shadow-md shadow-emerald-900/30 focus:ring-green-600 font-bold border border-emerald-400/30',
     danger:
-      'bg-[#DC2626] hover:bg-red-700 dark:bg-rose-600 dark:hover:bg-rose-700 text-white shadow-sm focus:ring-red-600',
+      'bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white shadow-md shadow-rose-900/30 focus:ring-red-600 font-bold border border-rose-400/30',
     ghost:
-      'bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 hover:text-slate-900 dark:text-slate-200 dark:hover:text-white focus:ring-slate-300',
+      'bg-transparent hover:bg-slate-100 dark:hover:bg-[#251A15] text-slate-700 hover:text-slate-900 dark:text-[#E0D4CA] dark:hover:text-white focus:ring-amber-300 font-semibold',
     outline:
-      'bg-transparent border border-[#2563EB] text-[#2563EB] hover:bg-blue-50 dark:border-[#60A5FA] dark:text-[#60A5FA] dark:hover:bg-blue-950/40 focus:ring-blue-800 font-semibold',
+      'bg-transparent border-2 border-[#2563EB] text-[#2563EB] hover:bg-blue-50 dark:border-[#D4A373] dark:text-[#F3C293] dark:hover:bg-[#D4A373]/15 focus:ring-amber-800 font-bold',
   };
 
   const sizes: Record<ButtonSize, string> = {

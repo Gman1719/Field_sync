@@ -219,18 +219,18 @@ html.dark header [class*="border-[#334155]"] {
 }
 
 /* ============================================================== */
-/* Main Content Area: Rich Warm Dark Coffee Palette               */
+/* Main Content Area: Luxury Espresso Noir & Coffee Obsidian      */
 /* ============================================================== */
 html.dark,
 html[data-theme='dark'] {
-  background-color: #18110D !important;
+  background-color: #100C0A !important;
   color-scheme: dark;
 }
 
 html.dark body,
 html[data-theme='dark'] body {
-  background-color: #18110D !important;
-  color: #FFF8F0 !important;
+  background-color: #100C0A !important;
+  color: #FFFFFF !important;
 }
 
 /* Base App Layout Canvas */
@@ -238,10 +238,10 @@ html.dark .min-h-screen,
 html[data-theme='dark'] .min-h-screen,
 html.dark main,
 html.dark .lg\:pl-64 {
-  background-color: #18110D !important;
+  background-color: #100C0A !important;
 }
 
-/* Cards, Modals, Panels, Dialogs, Stat Cards, Floating Menus */
+/* Cards, Modals, Panels, Dialogs, Stat Cards */
 html.dark main .bg-\[\#1E293B\],
 html.dark main [class*="bg-[#1E293B]"],
 html.dark [role="dialog"],
@@ -249,7 +249,9 @@ html.dark [role="dialog"] .bg-\[\#1E293B\],
 html.dark [role="dialog"] [class*="bg-[#1E293B]"],
 html.dark .modal-content,
 html.dark [class*="bg-[#181B22]"] {
-  background-color: #251B15 !important;
+  background: linear-gradient(180deg, #1C1512 0%, #17110F 100%) !important;
+  border-color: #2F221B !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4), inset 0 1px 0 0 rgba(255, 255, 255, 0.04) !important;
 }
 
 /* Card Headers, Secondary Sections, Sub-panels */
@@ -258,31 +260,32 @@ html.dark main [class*="bg-[#182234]"],
 html.dark [role="dialog"] .bg-\[\#182234\],
 html.dark [role="dialog"] [class*="bg-[#182234]"],
 html.dark [role="dialog"] [class*="bg-slate-50"] {
-  background-color: #1F1510 !important;
+  background-color: #140E0C !important;
+  border-color: #2F221B !important;
 }
 
 /* Table Headers & Rows in Main Content Area */
 html.dark table thead,
 html.dark table thead tr,
 html.dark table thead th {
-  background-color: #1F1510 !important;
-  color: #E8D5C4 !important;
-  border-color: #3A281E !important;
+  background-color: #140E0C !important;
+  color: #FFFFFF !important;
+  border-color: #2F221B !important;
 }
 
 html.dark table tbody tr {
-  background-color: #251B15;
-  border-color: #3A281E !important;
+  background-color: #1A1310;
+  border-color: #261B15 !important;
 }
 
 html.dark table tbody tr:nth-child(even),
 html.dark table tbody tr.bg-slate-50\/40,
 html.dark table tbody tr[class*="bg-slate-50"] {
-  background-color: #1E150F !important;
+  background-color: #140E0C !important;
 }
 
 html.dark table tbody tr:hover {
-  background-color: rgba(212, 163, 115, 0.12) !important;
+  background-color: rgba(212, 163, 115, 0.1) !important;
 }
 
 /* Borders across Main Content Area */
@@ -295,41 +298,94 @@ html.dark main .border-slate-800,
 html.dark main .divide-\[\#334155\] > *,
 html.dark [role="dialog"] [class*="border-[#334155]"],
 html.dark [role="dialog"] [class*="border-[#E2E8F0]"] {
-  border-color: #3A281E !important;
+  border-color: #2F221B !important;
 }
 
-/* Typography in Main Content Area */
+/* Typography in Main Content Area (High Contrast, Radiant & Clear) */
 html.dark main .text-\[\#F8FAFC\],
 html.dark main [class*="text-[#F8FAFC]"],
 html.dark [role="dialog"] .text-\[\#F8FAFC\],
-html.dark [role="dialog"] [class*="text-[#F8FAFC]"] {
-  color: #FFF8F0 !important;
+html.dark [role="dialog"] [class*="text-[#F8FAFC]"],
+html.dark main h1,
+html.dark main h2,
+html.dark main h3,
+html.dark main h4,
+html.dark main .font-bold,
+html.dark main .font-extrabold,
+html.dark main .font-black {
+  color: #FFFFFF !important;
 }
 
 html.dark main .text-\[\#94A3B8\],
 html.dark main [class*="text-[#94A3B8]"],
 html.dark [role="dialog"] .text-\[\#94A3B8\],
-html.dark [role="dialog"] [class*="text-[#94A3B8]"] {
-  color: #BFA89B !important;
+html.dark [role="dialog"] [class*="text-[#94A3B8]"],
+html.dark main p,
+html.dark main span.text-slate-500 {
+  color: #E0D4CA !important;
 }
 
 html.dark main .text-\[\#CBD5E1\],
 html.dark main [class*="text-[#CBD5E1]"],
 html.dark [role="dialog"] .text-\[\#CBD5E1\],
-html.dark [role="dialog"] [class*="text-[#CBD5E1]"] {
-  color: #DCC8BA !important;
+html.dark [role="dialog"] [class*="text-[#CBD5E1]"],
+html.dark main label {
+  color: #F5EBE1 !important;
+  font-weight: 700 !important;
 }
 
 html.dark main .text-slate-400,
-html.dark main .text-slate-500,
-html.dark [role="dialog"] .text-slate-400,
-html.dark [role="dialog"] .text-slate-500 {
-  color: #B0988A !important;
+html.dark [role="dialog"] .text-slate-400 {
+  color: #D4C4B8 !important;
 }
 
+/* High-Contrast Vibrant Metrics & Highlights */
 html.dark main .text-\[\#60A5FA\],
 html.dark main [class*="text-[#60A5FA]"] {
-  color: #E6B17E !important;
+  color: #F59E0B !important;
+}
+
+/* ============================================================== */
+/* Attractive, Vibrant Buttons in Dark Mode                       */
+/* ============================================================== */
+html.dark main button[class*="bg-[#2563EB]"],
+html.dark main .bg-\[\#2563EB\],
+html.dark [role="dialog"] button[class*="bg-[#2563EB]"],
+html.dark table button {
+  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%) !important;
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+  border: 1px solid rgba(147, 197, 253, 0.3) !important;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35) !important;
+  transition: all 0.15s ease-in-out !important;
+}
+
+html.dark main button[class*="bg-[#2563EB]"]:hover,
+html.dark main .bg-\[\#2563EB\]:hover,
+html.dark [role="dialog"] button[class*="bg-[#2563EB]"]:hover,
+html.dark table button:hover {
+  background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%) !important;
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Secondary & Filter Buttons */
+html.dark main button[class*="bg-slate-100"],
+html.dark main button[class*="bg-slate-50"],
+html.dark main button.bg-white {
+  background-color: #241A15 !important;
+  color: #FFFFFF !important;
+  border: 1px solid #3E2B20 !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
+}
+
+html.dark main button[class*="bg-slate-100"]:hover,
+html.dark main button[class*="bg-slate-50"]:hover,
+html.dark main button.bg-white:hover {
+  background-color: #34241C !important;
+  border-color: #D4A373 !important;
+  color: #FFFFFF !important;
 }
 
 /* Form Controls in Main Content Area */
@@ -339,9 +395,9 @@ html.dark main textarea,
 html.dark [role="dialog"] input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="submit"]):not([type="button"]),
 html.dark [role="dialog"] select,
 html.dark [role="dialog"] textarea {
-  background-color: #1A120C !important;
-  border-color: #3E2B20 !important;
-  color: #FFF8F0 !important;
+  background-color: #140E0C !important;
+  border-color: #36261E !important;
+  color: #FFFFFF !important;
 }
 
 html.dark main input:focus,
@@ -351,14 +407,14 @@ html.dark [role="dialog"] input:focus,
 html.dark [role="dialog"] select:focus,
 html.dark [role="dialog"] textarea:focus {
   border-color: #D4A373 !important;
-  box-shadow: 0 0 0 2px rgba(212, 163, 115, 0.25) !important;
+  box-shadow: 0 0 0 2px rgba(212, 163, 115, 0.3) !important;
 }
 
-/* Warm Coffee Accent Badges */
+/* Warm Caramel Highlight Badges */
 html.dark main [class*="bg-blue-950"],
 html.dark main [class*="bg-blue-900\/60"] {
   background-color: rgba(212, 163, 115, 0.15) !important;
-  color: #E6B17E !important;
+  color: #FBBF24 !important;
 }
 
 html.dark main [class*="border-blue-900"],
@@ -369,7 +425,7 @@ html.dark main [class*="border-blue-800"] {
 /* Custom Coffee Scrollbars */
 .dark ::-webkit-scrollbar-thumb,
 [data-theme='dark'] ::-webkit-scrollbar-thumb {
-  background: #3A281E !important;
+  background: #36261E !important;
 }
 .dark ::-webkit-scrollbar-thumb:hover,
 [data-theme='dark'] ::-webkit-scrollbar-thumb:hover {
