@@ -244,9 +244,10 @@ html.dark .lg\:pl-64 {
 /* Cards, Modals, Panels, Dialogs, Stat Cards */
 html.dark main .bg-\[\#1E293B\],
 html.dark main [class*="bg-[#1E293B]"],
-html.dark [role="dialog"],
 html.dark [role="dialog"] .bg-\[\#1E293B\],
 html.dark [role="dialog"] [class*="bg-[#1E293B]"],
+html.dark [role="dialog"] .bg-\[\#0F172A\],
+html.dark [role="dialog"] [class*="bg-[#0F172A]"],
 html.dark .modal-content,
 html.dark [class*="bg-[#181B22]"] {
   background: linear-gradient(180deg, #1C1512 0%, #17110F 100%) !important;
@@ -259,7 +260,9 @@ html.dark main .bg-\[\#182234\],
 html.dark main [class*="bg-[#182234]"],
 html.dark [role="dialog"] .bg-\[\#182234\],
 html.dark [role="dialog"] [class*="bg-[#182234]"],
-html.dark [role="dialog"] [class*="bg-slate-50"] {
+html.dark [role="dialog"] .bg-slate-50,
+html.dark [role="dialog"] [class*="bg-slate-50"],
+html.dark [role="dialog"] [class*="bg-slate-50/"] {
   background-color: #140E0C !important;
   border-color: #2F221B !important;
 }
@@ -339,7 +342,11 @@ html.dark main .border-slate-700,
 html.dark main .border-slate-800,
 html.dark main .divide-\[\#334155\] > *,
 html.dark [role="dialog"] [class*="border-[#334155]"],
-html.dark [role="dialog"] [class*="border-[#E2E8F0]"] {
+html.dark [role="dialog"] [class*="border-[#E2E8F0]"],
+html.dark [role="dialog"] [class*="border-slate-200"],
+html.dark [role="dialog"] [class*="border-slate-100"],
+html.dark [role="dialog"] [class*="border-slate-700"],
+html.dark [role="dialog"] [class*="border-slate-800"] {
   border-color: #2F221B !important;
 }
 
@@ -744,4 +751,36 @@ html.dark main [class*="border-blue-800"] {
 
 .animate-hero-desc2 {
   animation: heroEntrance 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.42s both;
+}
+
+/* ============================================================== */
+/* Modern Enterprise Modal Design Tokens                          */
+/* ============================================================== */
+
+/* Slender, modern scrollbars for modal scrollable wells */
+[role="dialog"] ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+[role="dialog"] ::-webkit-scrollbar-track {
+  background: transparent;
+}
+[role="dialog"] ::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 9999px;
+}
+[role="dialog"] ::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+html.dark [role="dialog"] ::-webkit-scrollbar-thumb {
+  background: #3E2B20;
+}
+html.dark [role="dialog"] ::-webkit-scrollbar-thumb:hover {
+  background: #5A4032;
+}
+
+/* Frosted glass backdrop blur support */
+[role="dialog"] [class*="backdrop-blur"] {
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
 }

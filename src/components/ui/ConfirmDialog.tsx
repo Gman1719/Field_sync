@@ -27,17 +27,17 @@ export default function ConfirmDialog({
   isLoading = false,
 }: ConfirmDialogProps) {
   const icons = {
-    danger: <AlertTriangle className="w-6 h-6 text-red-600" />,
-    warning: <AlertTriangle className="w-6 h-6 text-amber-600" />,
-    info: <Info className="w-6 h-6 text-blue-600" />,
-    success: <CheckCircle2 className="w-6 h-6 text-green-600" />,
+    danger: <AlertTriangle className="w-5 h-5 text-rose-600 dark:text-rose-400" />,
+    warning: <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400" />,
+    info: <Info className="w-5 h-5 text-blue-600 dark:text-blue-400" />,
+    success: <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />,
   };
 
   const iconBgs = {
-    danger: 'bg-red-50 dark:bg-red-950/50',
-    warning: 'bg-amber-50 dark:bg-amber-950/50',
-    info: 'bg-blue-50 dark:bg-blue-950/50',
-    success: 'bg-green-50 dark:bg-green-950/50',
+    danger: 'bg-rose-50 border border-rose-200/80 dark:bg-rose-950/40 dark:border-rose-900/50',
+    warning: 'bg-amber-50 border border-amber-200/80 dark:bg-amber-950/40 dark:border-amber-900/50',
+    info: 'bg-blue-50 border border-blue-200/80 dark:bg-blue-950/40 dark:border-blue-900/50',
+    success: 'bg-emerald-50 border border-emerald-200/80 dark:bg-emerald-950/40 dark:border-emerald-900/50',
   };
 
   const buttonVariant: ButtonVariant = variant === 'warning' ? 'primary' : (variant as ButtonVariant);
@@ -58,13 +58,13 @@ export default function ConfirmDialog({
         </>
       }
     >
-      <div className="flex items-start gap-4">
-        <div className={`p-2.5 rounded-full flex-shrink-0 ${iconBgs[variant] || 'bg-slate-100 dark:bg-slate-800'}`}>
+      <div className="flex items-start gap-4 py-1">
+        <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 shadow-xs ${iconBgs[variant] || 'bg-slate-100 border border-slate-200 dark:bg-[#251A14] dark:border-[#38261E]'}`}>
           {icons[variant] || icons.danger}
         </div>
-        <div>
-          <h4 className="text-base font-semibold text-slate-900 dark:text-[#F8FAFC]">{title}</h4>
-          {message && <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{message}</p>}
+        <div className="min-w-0 pt-0.5">
+          <h4 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">{title}</h4>
+          {message && <p className="text-sm text-slate-600 dark:text-[#BFA89B] mt-1.5 leading-relaxed">{message}</p>}
         </div>
       </div>
     </Modal>

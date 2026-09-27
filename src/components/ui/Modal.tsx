@@ -53,39 +53,76 @@ export default function Modal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={title ? 'modal-title' : undefined}
+      className="fixed inset-0 z-50 overflow-y-auto"
+    >
+      {/* Modern Glassmorphic Backdrop Scrim */}
       <div
-        className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity animate-in fade-in duration-200"
+        className="fixed inset-0 bg-slate-950/65 dark:bg-black/80 backdrop-blur-md transition-opacity animate-in fade-in duration-200"
         onClick={onClose}
+        aria-hidden="true"
       />
 
-      <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+      {/* Dialog Positioning Wrapper */}
+      <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-6">
         <div
-          className={`relative transform overflow-hidden rounded-2xl bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] text-left shadow-2xl transition-all sm:my-8 w-full ${
-            sizes[size] || sizes.md
-          } ${className} animate-in zoom-in-95 duration-200`}
+          className={`relative transform overflow-hidden rounded-2xl sm:rounded-3xl bg-white text-left shadow-[0_25px_60px_-15px_rgba(15,23,42,0.18),0_0_1px_1px_rgba(15,23,42,0.06)] border border-slate-200/90 dark:bg-gradient-to-b dark:from-[#1C1410] dark:to-[#140E0B] dark:border-[#38261E] dark:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85),inset_0_1px_0_0_rgba(255,255,255,0.08)] transition-all sm:my-8 w-full ${
+            maxWidth || sizes[size] || sizes.md
+          } ${className} animate-in zoom-in-95 fade-in duration-200 ease-out`}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="px-6 py-4 border-b border-[#E2E8F0] dark:border-[#334155] flex items-center justify-between">
-            <div>
-              {title && <h3 className="text-xl font-bold text-[#0F172A] dark:text-[#F8FAFC] tracking-tight">{title}</h3>}
-              {description && <p className="text-sm text-[#64748B] dark:text-[#94A3B8] mt-1">{description}</p>}
+          {/* Header */}
+          {(title || description) && (
+            <div className="px-6 py-5 border-b border-slate-100 dark:border-[#2C1D16] flex items-center justify-between gap-4">
+              <div className="min-w-0 pr-2">
+                {title && (
+                  <h3
+                    id="modal-title"
+                    className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white tracking-tight leading-snug"
+                  >
+                    {title}
+                  </h3>
+                )}
+                {description && (
+                  <p className="text-xs sm:text-sm text-slate-500 dark:text-[#BFA89B] mt-1 leading-normal">
+                    {description}
+                  </p>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Close dialog"
+                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 dark:text-[#A8988B] dark:hover:text-white bg-slate-100/70 hover:bg-slate-200/80 dark:bg-[#251A14] dark:hover:bg-[#34241C] border border-transparent dark:border-[#38261E] transition-all duration-150 shrink-0"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
+          )}
+
+          {/* Dismiss button when no title or description is provided */}
+          {!title && !description && (
             <button
               type="button"
               onClick={onClose}
-              className="text-slate-400 hover:text-slate-600 dark:hover:text-white rounded-lg p-1.5 transition-colors"
+              aria-label="Close dialog"
+              className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 dark:text-[#A8988B] dark:hover:text-white bg-slate-100/70 hover:bg-slate-200/80 dark:bg-[#251A14] dark:hover:bg-[#34241C] border border-transparent dark:border-[#38261E] transition-all duration-150"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
-          </div>
+          )}
 
-          <div className="px-6 py-5 max-h-[75vh] overflow-y-auto text-slate-700 dark:text-[#CBD5E1]">
+          {/* Modal Content Well */}
+          <div className="px-6 py-5 sm:p-6 max-h-[75vh] overflow-y-auto text-slate-700 dark:text-[#E8DDD7]">
             {children}
           </div>
 
+          {/* Docked Modern Footer */}
           {footer && (
-            <div className="px-6 py-3.5 bg-slate-50/70 dark:bg-[#1E293B]/70 border-t border-[#E2E8F0] dark:border-[#334155] flex items-center justify-end gap-3 rounded-b-2xl">
+            <div className="px-6 py-4 bg-slate-50/90 dark:bg-[#120C0A]/95 backdrop-blur-sm border-t border-slate-100 dark:border-[#2C1D16] flex items-center justify-end gap-3 rounded-b-2xl sm:rounded-b-3xl">
               {footer}
             </div>
           )}

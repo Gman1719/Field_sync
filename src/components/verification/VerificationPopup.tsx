@@ -89,7 +89,7 @@ export default function VerificationPopup({
       aria-modal="true"
       aria-labelledby="verification-dialog-title"
       aria-describedby="verification-dialog-desc"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm select-none"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 dark:bg-black/85 backdrop-blur-md select-none animate-in fade-in duration-200"
       onClick={(e) => {
         // Prevent dismissal on backdrop click
         e.preventDefault();
@@ -97,27 +97,27 @@ export default function VerificationPopup({
       }}
     >
       <div
-        className="w-full max-w-md p-6 sm:p-8 rounded-2xl shadow-2xl transition-all border
-          bg-white text-slate-900 border-slate-200
-          dark:bg-[#14161D] dark:text-[#F4F4F5] dark:border-[#272A35]"
+        className="w-full max-w-md p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-[0_25px_60px_-15px_rgba(15,23,42,0.22),0_0_1px_1px_rgba(15,23,42,0.06)] dark:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9),inset_0_1px_0_0_rgba(255,255,255,0.08)] transition-all border
+          bg-white text-slate-900 border-slate-200/90
+          dark:bg-gradient-to-b dark:from-[#1C1410] dark:to-[#140E0B] dark:text-white dark:border-[#38261E] animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header Icon & Title */}
         <div className="flex flex-col items-center text-center">
-          <div className="w-12 h-12 mb-3 rounded-full flex items-center justify-center bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-[#3B82F6] border border-blue-100 dark:border-blue-900/60">
-            <ShieldCheck className="w-6 h-6" />
+          <div className="w-14 h-14 mb-3 rounded-2xl flex items-center justify-center bg-blue-50 dark:bg-blue-950/60 text-[#2563EB] dark:text-[#60A5FA] border border-blue-100 dark:border-blue-900/50 shadow-xs">
+            <ShieldCheck className="w-7 h-7" />
           </div>
 
           <h2
             id="verification-dialog-title"
-            className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-[#F4F4F5]"
+            className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white"
           >
             Work Verification
           </h2>
 
           <p
             id="verification-dialog-desc"
-            className="mt-2 text-sm sm:text-base font-medium text-slate-600 dark:text-[#D4D4D8]"
+            className="mt-2 text-sm sm:text-base font-medium text-slate-600 dark:text-[#D4C3B7]"
           >
             Are you still working in FieldSync?
           </p>
@@ -132,7 +132,7 @@ export default function VerificationPopup({
                 cx="50"
                 cy="50"
                 r="45"
-                className="stroke-slate-200 dark:stroke-[#202431]"
+                className="stroke-slate-200 dark:stroke-[#2E2019]"
                 strokeWidth="6"
                 fill="none"
               />
