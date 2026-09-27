@@ -623,43 +623,37 @@ export default function Dashboard({
           {/* Quick Action Shortcuts */}
           {setActiveTab && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Card
-                hover
+              <button
+                type="button"
                 onClick={() => setActiveTab('register')}
-                className="p-5 cursor-pointer bg-gradient-to-r from-blue-900 to-blue-800 text-white border-0 shadow-md group"
+                className="w-full h-14 sm:h-16 px-5 sm:px-6 rounded-2xl bg-[#2563EB] hover:bg-[#1D4ED8] active:scale-[0.99] text-white font-extrabold text-sm sm:text-base flex items-center justify-between shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer group border border-blue-600/30"
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3.5">
-                    <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center text-white backdrop-blur-xs">
-                      <UserPlus className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-base text-white">Register Citizen</h4>
-                      <p className="text-xs text-blue-200 mt-0.5">Record offline citizen profile</p>
-                    </div>
+                <div className="flex items-center gap-3.5">
+                  <div className="w-10 h-10 rounded-xl bg-white/20 text-white flex items-center justify-center shrink-0">
+                    <UserPlus className="w-5 h-5" />
                   </div>
-                  <ArrowRight className="w-5 h-5 text-blue-200 group-hover:translate-x-1 transition-transform" />
+                  <span className="tracking-tight">Register Citizen</span>
                 </div>
-              </Card>
+                <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center group-hover:translate-x-1 transition-transform shrink-0">
+                  <ArrowRight className="w-4 h-4 text-white" />
+                </div>
+              </button>
 
-              <Card
-                hover
+              <button
+                type="button"
                 onClick={() => setActiveTab('report_new')}
-                className="p-5 cursor-pointer bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-[#334155] shadow-subtle group hover:border-blue-300 dark:hover:border-blue-500"
+                className="w-full h-14 sm:h-16 px-5 sm:px-6 rounded-2xl bg-white dark:bg-[#1E293B] hover:bg-slate-50 dark:hover:bg-[#233044] active:scale-[0.99] text-slate-900 dark:text-[#F8FAFC] font-extrabold text-sm sm:text-base flex items-center justify-between border border-slate-200 dark:border-[#334155] shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer group"
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3.5">
-                    <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-[#1E3A8A] dark:text-[#60A5FA] flex items-center justify-center">
-                      <FilePlus2 className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-base text-slate-900 dark:text-white">Submit Daily Report</h4>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Finalize screen time & submit work log</p>
-                    </div>
+                <div className="flex items-center gap-3.5">
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-[#2563EB] dark:text-[#60A5FA] border border-blue-100 dark:border-blue-900/50 flex items-center justify-center shrink-0">
+                    <FilePlus2 className="w-5 h-5" />
                   </div>
-                  <ArrowRight className="w-5 h-5 text-slate-400 group-hover:translate-x-1 group-hover:text-[#1E3A8A] dark:group-hover:text-[#60A5FA] transition-all" />
+                  <span className="tracking-tight">Submit Daily Report</span>
                 </div>
-              </Card>
+                <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-[#0F172A] text-slate-400 group-hover:text-[#2563EB] dark:group-hover:text-[#60A5FA] group-hover:bg-blue-50 dark:group-hover:bg-blue-950/50 flex items-center justify-center group-hover:translate-x-1 transition-all shrink-0">
+                  <ArrowRight className="w-4 h-4" />
+                </div>
+              </button>
             </div>
           )}
 
