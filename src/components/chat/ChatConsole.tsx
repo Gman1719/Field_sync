@@ -761,37 +761,37 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
     .join('');
 
   return (
-    <div className="h-[calc(100vh-7.5rem)] min-h-[640px] flex bg-white dark:bg-[#1E293B] rounded-2xl border border-[#E2E8F0] dark:border-slate-800 shadow-sm overflow-hidden transition-all duration-200">
+    <div className="h-[calc(100vh-7.5rem)] min-h-[640px] flex bg-white dark:bg-[#160F0D] rounded-2xl border border-slate-200/90 dark:border-[#2F211A] shadow-sm overflow-hidden transition-all duration-200">
       
       {/* ============================================================== */}
       {/* LEFT SIDEBAR: Supervisors List (Manager Only)                  */}
       {/* ============================================================== */}
       {isManager && (
         <div
-          className={`w-80 shrink-0 border-r border-[#E2E8F0] dark:border-slate-800 bg-white dark:bg-[#1E293B] flex flex-col transition-all duration-200 ${
+          className={`w-80 shrink-0 border-r border-slate-200/80 dark:border-[#2F211A] bg-white dark:bg-[#140E0B] flex flex-col transition-all duration-200 ${
             showMobileSidebar ? 'fixed inset-y-0 left-0 z-40 w-80 shadow-2xl md:relative md:shadow-none' : 'hidden md:flex'
           }`}
         >
           {/* Sidebar Header & Search */}
-          <div className="p-4 border-b border-[#E2E8F0] dark:border-slate-800 bg-white dark:bg-[#1E293B] space-y-3">
+          <div className="p-4 border-b border-slate-200/80 dark:border-[#2F211A] bg-white dark:bg-[#140E0B] space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-[#2563EB] dark:text-blue-400 flex items-center justify-center">
                   <Users className="w-4 h-4" />
                 </div>
-                <h3 className="text-sm font-bold text-[#0F172A] dark:text-slate-100 tracking-tight">
+                <h3 className="text-sm font-bold text-[#0F172A] dark:text-white tracking-tight">
                   Supervisors
                 </h3>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-[#64748B] dark:text-slate-400">
+                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-[#251A14] text-[#64748B] dark:text-[#BFA89B] border border-transparent dark:border-[#38261E]">
                   {supervisorsList.length} Total
                 </span>
                 {showMobileSidebar && (
                   <button
                     type="button"
                     onClick={() => setShowMobileSidebar(false)}
-                    className="md:hidden p-1 text-[#64748B] dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-200 cursor-pointer"
+                    className="md:hidden p-1 text-[#64748B] dark:text-[#A8988B] hover:text-[#0F172A] dark:hover:text-white cursor-pointer"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -801,13 +801,13 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
 
             {/* Search Input */}
             <div className="relative">
-              <Search className="w-4 h-4 text-[#64748B] dark:text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <Search className="w-4 h-4 text-[#64748B] dark:text-[#A8988B] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by name, region, ID..."
-                className="w-full h-9 pl-9 pr-3 rounded-xl border border-[#E2E8F0] dark:border-slate-700 bg-[#F8FAFC] dark:bg-[#0F172A] text-xs text-[#0F172A] dark:text-slate-100 placeholder-[#64748B] dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/15 focus:border-[#2563EB] transition-all"
+                className="w-full h-9 pl-9 pr-3 rounded-xl border border-slate-200 dark:border-[#3E2B20] bg-[#F8FAFC] dark:bg-[#1F1511] text-xs text-[#0F172A] dark:text-white placeholder-[#64748B] dark:placeholder-[#8C7A70] focus:outline-none focus:ring-2 focus:ring-blue-500/15 focus:border-[#2563EB] dark:focus:border-[#D4A373] transition-all"
               />
             </div>
 
@@ -819,7 +819,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                 className={`px-3 py-1 rounded-lg font-medium transition-all cursor-pointer ${
                   !filterUnreadOnly
                     ? 'bg-[#2563EB] text-white shadow-2xs'
-                    : 'bg-[#F8FAFC] dark:bg-[#0F172A] text-[#64748B] dark:text-slate-400 border border-[#E2E8F0] dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    : 'bg-[#F8FAFC] dark:bg-[#1F1511] text-[#64748B] dark:text-[#BFA89B] border border-slate-200 dark:border-[#3E2B20] hover:bg-slate-100 dark:hover:bg-[#2A1D17]'
                 }`}
               >
                 All
@@ -830,7 +830,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                 className={`px-3 py-1 rounded-lg font-medium transition-all cursor-pointer flex items-center gap-1 ${
                   filterUnreadOnly
                     ? 'bg-[#2563EB] text-white shadow-2xs'
-                    : 'bg-[#F8FAFC] dark:bg-[#0F172A] text-[#64748B] dark:text-slate-400 border border-[#E2E8F0] dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    : 'bg-[#F8FAFC] dark:bg-[#1F1511] text-[#64748B] dark:text-[#BFA89B] border border-slate-200 dark:border-[#3E2B20] hover:bg-slate-100 dark:hover:bg-[#2A1D17]'
                 }`}
               >
                 <span>Unread</span>
@@ -842,11 +842,11 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
           </div>
 
           {/* Supervisors Directory List */}
-          <div className="flex-1 overflow-y-auto divide-y divide-[#E2E8F0]/60 dark:divide-slate-800/60">
+          <div className="flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-[#241712]">
             {filteredSupervisors.length === 0 ? (
               <div className="p-8 text-center space-y-2">
-                <p className="text-xs font-medium text-[#64748B] dark:text-slate-400">No supervisors found</p>
-                <p className="text-[11px] text-slate-400 dark:text-slate-500">Try modifying your search criteria</p>
+                <p className="text-xs font-medium text-[#64748B] dark:text-[#BFA89B]">No supervisors found</p>
+                <p className="text-[11px] text-slate-400 dark:text-[#8C7A70]">Try modifying your search criteria</p>
               </div>
             ) : (
               filteredSupervisors.map((sup) => {
@@ -869,8 +869,8 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                     }}
                     className={`w-full p-3.5 text-left flex items-start gap-3 transition-all duration-150 cursor-pointer ${
                       isSelected
-                        ? 'bg-blue-50/70 dark:bg-blue-950/40 border-l-4 border-[#2563EB]'
-                        : 'hover:bg-[#F8FAFC] dark:hover:bg-slate-800/50 border-l-4 border-transparent'
+                        ? 'bg-blue-50/80 dark:bg-[#251A14] border-l-4 border-[#2563EB] dark:border-[#D4A373]'
+                        : 'hover:bg-slate-50/80 dark:hover:bg-[#1C1410] border-l-4 border-transparent'
                     }`}
                   >
                     {/* Avatar with Online Status */}
@@ -878,7 +878,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                       <div className={`w-10 h-10 rounded-full overflow-hidden flex items-center justify-center font-bold text-xs ${
                         isSelected
                           ? 'bg-[#2563EB] text-white shadow-2xs'
-                          : 'bg-slate-100 dark:bg-slate-800 text-[#0F172A] dark:text-slate-200 border border-[#E2E8F0] dark:border-slate-700'
+                          : 'bg-slate-100 dark:bg-[#251A14] text-[#0F172A] dark:text-[#E8DDD7] border border-slate-200 dark:border-[#38261E]'
                       }`}>
                         {supPhoto ? (
                           <img
@@ -893,13 +893,13 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                           <span>{initials}</span>
                         )}
                       </div>
-                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-[#1E293B] absolute bottom-0 right-0" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-[#160F0D] absolute bottom-0 right-0" />
                     </div>
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-1 mb-0.5">
                         <span className={`text-xs font-bold truncate ${
-                          isSelected ? 'text-[#2563EB] dark:text-blue-400' : 'text-[#0F172A] dark:text-slate-100'
+                          isSelected ? 'text-[#2563EB] dark:text-[#D4A373]' : 'text-[#0F172A] dark:text-white'
                         }`}>
                           {sup.fullName || sup.name}
                         </span>
@@ -910,10 +910,10 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                         )}
                       </div>
 
-                      <div className="flex items-center gap-1.5 text-[11px] text-[#64748B] dark:text-slate-400">
+                      <div className="flex items-center gap-1.5 text-[11px] text-[#64748B] dark:text-[#BFA89B]">
                         <span className="truncate">{sup.region || 'Regional Supervisor'}</span>
                         <span>•</span>
-                        <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">{sup.employeeId || 'SUP'}</span>
+                        <span className="text-[10px] text-slate-400 dark:text-[#8C7A70] font-mono">{sup.employeeId || 'SUP'}</span>
                       </div>
                     </div>
                   </button>
@@ -927,20 +927,20 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
       {/* ============================================================== */}
       {/* MAIN CHAT CONVERSATION WORKSPACE                               */}
       {/* ============================================================== */}
-      <div className="flex-1 flex flex-col min-w-0 bg-[#F8FAFC] dark:bg-[#0B0F17] transition-colors">
+      <div className="flex-1 flex flex-col min-w-0 bg-[#F8FAFC] dark:bg-[#100B09] transition-colors">
         
         {/* Sticky Header or Multi-Select Action Bar */}
         {isSelectionMode ? (
           /* Multi-Select Bulk Action Header */
-          <div className="sticky top-0 z-30 h-16 px-5 border-b border-blue-200 dark:border-blue-900/60 bg-blue-50/95 dark:bg-blue-950/90 backdrop-blur-sm shadow-sm flex items-center justify-between shrink-0 animate-in fade-in duration-150">
+          <div className="sticky top-0 z-30 h-16 px-5 border-b border-blue-200 dark:border-[#38261E] bg-blue-50/95 dark:bg-[#1A120E]/95 backdrop-blur-sm shadow-sm flex items-center justify-between shrink-0 animate-in fade-in duration-150">
             <div className="flex items-center gap-3">
-              <span className="text-sm font-bold text-[#2563EB] dark:text-blue-300">
+              <span className="text-sm font-bold text-[#2563EB] dark:text-[#D4A373]">
                 {selectedMessageIds.size} message{selectedMessageIds.size !== 1 ? 's' : ''} selected
               </span>
               <button
                 type="button"
                 onClick={handleToggleSelectAll}
-                className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-white dark:bg-[#1E293B] border border-blue-200 dark:border-blue-900 text-[#0F172A] dark:text-slate-200 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors cursor-pointer"
+                className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-white dark:bg-[#251A14] border border-blue-200 dark:border-[#38261E] text-[#0F172A] dark:text-white hover:bg-blue-100 dark:hover:bg-[#34241C] transition-colors cursor-pointer"
               >
                 {selectedMessageIds.size === visibleMessages.length ? 'Deselect All' : 'Select All'}
               </button>
@@ -959,31 +959,31 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
               <button
                 type="button"
                 onClick={handleCancelSelection}
-                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-slate-700 text-[#64748B] dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-[#251A14] border border-slate-200 dark:border-[#38261E] text-[#64748B] dark:text-[#BFA89B] hover:bg-slate-100 dark:hover:bg-[#34241C] dark:hover:text-white transition-colors cursor-pointer"
               >
                 Cancel
               </button>
             </div>
           </div>
         ) : (
-          /* Normal Sticky Conversation Header (matching Image 2 with real profile photo) */
-          <div className="sticky top-0 z-20 h-16 px-5 border-b border-[#E2E8F0] dark:border-slate-800 flex items-center justify-between shrink-0 bg-white/95 dark:bg-[#1E293B]/95 backdrop-blur-sm shadow-2xs transition-colors">
+          /* Normal Sticky Conversation Header */
+          <div className="sticky top-0 z-20 h-16 px-5 border-b border-slate-200/80 dark:border-[#2F211A] flex items-center justify-between shrink-0 bg-white/95 dark:bg-[#160F0D]/95 backdrop-blur-sm shadow-2xs transition-colors">
             <div className="flex items-center gap-3 min-w-0">
               {/* Mobile Sidebar Toggle Button for Manager */}
               {isManager && (
                 <button
                   type="button"
                   onClick={() => setShowMobileSidebar(true)}
-                  className="md:hidden p-1.5 -ml-1 text-[#64748B] dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                  className="md:hidden p-1.5 -ml-1 text-[#64748B] dark:text-[#A8988B] hover:text-[#0F172A] dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-[#251A14] cursor-pointer"
                   title="Supervisors list"
                 >
                   <Users className="w-4.5 h-4.5" />
                 </button>
               )}
 
-              {/* Contact Avatar displaying profile photo (matching Image 2) */}
+              {/* Contact Avatar displaying profile photo */}
               <div className="relative shrink-0">
-                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center font-bold text-xs sm:text-sm shadow-2xs border border-[#E2E8F0] dark:border-slate-700">
+                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center font-bold text-xs sm:text-sm shadow-2xs border border-slate-200 dark:border-[#38261E]">
                   {contactPhoto ? (
                     <img
                       src={contactPhoto}
@@ -997,15 +997,15 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                     <span>{selectedContactInitials}</span>
                   )}
                 </div>
-                <span className="w-3 h-3 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-[#1E293B] absolute bottom-0 right-0" />
+                <span className="w-3 h-3 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-[#160F0D] absolute bottom-0 right-0" />
               </div>
 
-              {/* Name & Role (matching Image 2) */}
+              {/* Name & Role */}
               <div className="min-w-0">
-                <h4 className="text-sm sm:text-base font-bold text-[#0F172A] dark:text-slate-100 tracking-tight truncate">
+                <h4 className="text-sm sm:text-base font-bold text-[#0F172A] dark:text-white tracking-tight truncate">
                   {selectedContact?.fullName || selectedContact?.name || (isSupervisor ? 'አበበ በቀለ' : 'Supervisor')}
                 </h4>
-                <p className="text-xs text-[#64748B] dark:text-slate-400 flex items-center gap-1.5 font-medium truncate">
+                <p className="text-xs text-[#64748B] dark:text-[#BFA89B] flex items-center gap-1.5 font-medium truncate">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
                   <span>
                     {isSupervisor
@@ -1020,14 +1020,14 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
             <div className="flex items-center gap-1.5">
               {/* In-Thread Search */}
               {showInMessageSearch ? (
-                <div className="flex items-center gap-1.5 bg-[#F8FAFC] dark:bg-[#111827] border border-[#E2E8F0] dark:border-slate-800 rounded-xl px-2.5 py-1">
-                  <Search className="w-3.5 h-3.5 text-[#64748B] dark:text-slate-400" />
+                <div className="flex items-center gap-1.5 bg-slate-50 dark:bg-[#1C1410] border border-slate-200 dark:border-[#38261E] rounded-xl px-2.5 py-1">
+                  <Search className="w-3.5 h-3.5 text-[#64748B] dark:text-[#A8988B]" />
                   <input
                     type="text"
                     value={inMessageSearch}
                     onChange={(e) => setInMessageSearch(e.target.value)}
                     placeholder="Find in this chat..."
-                    className="w-32 sm:w-48 bg-transparent text-xs text-[#0F172A] dark:text-slate-100 focus:outline-none"
+                    className="w-32 sm:w-48 bg-transparent text-xs text-[#0F172A] dark:text-white placeholder-[#64748B] dark:placeholder-[#8C7A70] focus:outline-none"
                     autoFocus
                   />
                   <button
@@ -1036,7 +1036,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                       setInMessageSearch('');
                       setShowInMessageSearch(false);
                     }}
-                    className="text-[#64748B] dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-200 p-0.5 cursor-pointer"
+                    className="text-[#64748B] dark:text-[#A8988B] hover:text-[#0F172A] dark:hover:text-white p-0.5 cursor-pointer"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
@@ -1045,7 +1045,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                 <button
                   type="button"
                   onClick={() => setShowInMessageSearch(true)}
-                  className="p-2 text-[#64748B] dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                  className="p-2 text-[#64748B] dark:text-[#A8988B] hover:text-[#0F172A] dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-[#251A14] transition-colors cursor-pointer"
                   title="Search conversation"
                 >
                   <Search className="w-4.5 h-4.5" />
@@ -1058,8 +1058,8 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                 onClick={() => setShowInfoPanel(!showInfoPanel)}
                 className={`p-2 rounded-xl transition-all cursor-pointer ${
                   showInfoPanel
-                    ? 'bg-blue-50 dark:bg-blue-950/60 text-[#2563EB] dark:text-blue-400 border border-blue-200 dark:border-blue-800'
-                    : 'text-[#64748B] dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 border border-transparent'
+                    ? 'bg-blue-50 dark:bg-[#2A1D17] text-[#2563EB] dark:text-[#D4A373] border border-blue-200 dark:border-[#5A4032]'
+                    : 'text-[#64748B] dark:text-[#A8988B] hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#251A14] border border-transparent'
                 }`}
                 title="Conversation details"
               >
@@ -1070,27 +1070,27 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
         )}
 
         {/* ============================================================== */}
-        {/* MESSAGES FEED AREA (#F8FAFC / dark:bg-[#0F172A])               */}
+        {/* MESSAGES FEED AREA (#F8FAFC / dark:bg-[#100B09])               */}
         {/* ============================================================== */}
-        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-5 space-y-4">
+        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-5">
           {visibleMessages.length === 0 ? (
             /* Empty State with Operational Starter Templates (Auto-disappears once messages exist) */
             <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-5 animate-in fade-in duration-200">
-              <div className="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-950/50 text-[#2563EB] dark:text-blue-400 flex items-center justify-center shadow-2xs">
+              <div className="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-[#251A14] text-[#2563EB] dark:text-[#D4A373] flex items-center justify-center shadow-2xs border border-blue-100 dark:border-[#38261E]">
                 <MessageSquare className="w-7 h-7" />
               </div>
               <div className="space-y-1 max-w-md">
-                <h4 className="text-base font-bold text-[#0F172A] dark:text-slate-100">
+                <h4 className="text-base font-bold text-[#0F172A] dark:text-[#F3EAE4]">
                   Direct Line with {selectedContact?.fullName || selectedContact?.name}
                 </h4>
-                <p className="text-xs text-[#64748B] dark:text-slate-400 leading-relaxed">
+                <p className="text-xs text-[#64748B] dark:text-[#A8988B] leading-relaxed">
                   Start your operational conversation. Select an operational starter template below to send immediately, or compose a custom message.
                 </p>
               </div>
 
               {/* Starter Templates Grid - ONLY VISIBLE WHEN EMPTY */}
               <div className="w-full max-w-xl text-left pt-2">
-                <div className="flex items-center gap-1.5 mb-2.5 text-xs font-bold text-[#64748B] dark:text-slate-400">
+                <div className="flex items-center gap-1.5 mb-2.5 text-xs font-bold text-[#64748B] dark:text-[#A8988B]">
                   <Zap className="w-3.5 h-3.5 text-amber-500" />
                   <span>Suggested Operational Starters</span>
                 </div>
@@ -1100,9 +1100,9 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                       key={i}
                       type="button"
                       onClick={() => handleSendStarterTemplate(tpl)}
-                      className="p-3 text-left text-xs bg-white dark:bg-[#1E293B] rounded-xl border border-[#E2E8F0] dark:border-slate-800 text-[#0F172A] dark:text-slate-200 hover:border-[#2563EB] dark:hover:border-blue-500 hover:text-[#2563EB] dark:hover:text-blue-400 shadow-2xs hover:shadow-xs transition-all cursor-pointer flex items-start gap-2"
+                      className="p-3 text-left text-xs bg-white dark:bg-[#1A120E] rounded-xl border border-[#E2E8F0] dark:border-[#2F211A] text-[#0F172A] dark:text-[#F3EAE4] hover:border-[#2563EB] dark:hover:border-[#D4A373] hover:bg-blue-50/40 dark:hover:bg-[#261C16] shadow-2xs hover:shadow-xs transition-all cursor-pointer flex items-start gap-2"
                     >
-                      <Sparkles className="w-3.5 h-3.5 text-blue-500 mt-0.5 shrink-0" />
+                      <Sparkles className="w-3.5 h-3.5 text-blue-500 dark:text-[#D4A373] mt-0.5 shrink-0" />
                       <span className="leading-snug">{tpl}</span>
                     </button>
                   ))}
@@ -1111,6 +1111,9 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
             </div>
           ) : (
             visibleMessages.map((msg, index) => {
+              const prevMsg = visibleMessages[index - 1];
+              const nextMsg = visibleMessages[index + 1];
+
               const normCurrentUserId = normalizeUserId(user?.id);
               const normMsgSenderId = normalizeUserId(msg.senderId);
               const isMine = normMsgSenderId === normCurrentUserId;
@@ -1118,10 +1121,45 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
               const isMenuOpen = activeMenuMessageId === msg.id;
 
               // Centered date separator
-              const prevMsg = visibleMessages[index - 1];
               const currentDateStr = new Date(msg.timestamp).toDateString();
               const prevDateStr = prevMsg ? new Date(prevMsg.timestamp).toDateString() : null;
               const showDateHeader = !prevDateStr || currentDateStr !== prevDateStr;
+
+              // Proximity & Gestalt Sequence Calculations (slack/telegram standard)
+              const isPrevSameSender = !showDateHeader && prevMsg && normalizeUserId(prevMsg.senderId) === normMsgSenderId;
+              const timeDiffWithPrev = prevMsg ? Math.abs(new Date(msg.timestamp).getTime() - new Date(prevMsg.timestamp).getTime()) : Infinity;
+              const isGroupedWithPrev = isPrevSameSender && timeDiffWithPrev < 5 * 60 * 1000;
+
+              const nextDateStr = nextMsg ? new Date(nextMsg.timestamp).toDateString() : null;
+              const isNextSameDate = nextDateStr === currentDateStr;
+              const isNextSameSender = isNextSameDate && nextMsg && normalizeUserId(nextMsg.senderId) === normMsgSenderId;
+              const timeDiffWithNext = nextMsg ? Math.abs(new Date(nextMsg.timestamp).getTime() - new Date(msg.timestamp).getTime()) : Infinity;
+              const isGroupedWithNext = isNextSameSender && timeDiffWithNext < 5 * 60 * 1000;
+
+              const isFirstInGroup = !isGroupedWithPrev;
+              const isLastInGroup = !isGroupedWithNext;
+
+              // UI / UX Distance Principle:
+              // - 20px gap (mt-5) between different speakers or >5min gaps
+              // - 5px gap (mt-1.5) between rapid consecutive messages from same speaker
+              const messageSpacing = showDateHeader ? 'mt-2' : isFirstInGroup ? 'mt-4 sm:mt-5' : 'mt-1 sm:mt-1.5';
+
+              // Dynamic corner radius stacking for Gestalt proximity
+              const bubbleRadius = isMine
+                ? (isFirstInGroup && isLastInGroup
+                    ? 'rounded-2xl rounded-br-xs'
+                    : isFirstInGroup
+                    ? 'rounded-2xl rounded-br-md'
+                    : isLastInGroup
+                    ? 'rounded-2xl rounded-tr-md rounded-br-xs'
+                    : 'rounded-2xl rounded-tr-md rounded-br-md')
+                : (isFirstInGroup && isLastInGroup
+                    ? 'rounded-2xl rounded-bl-xs'
+                    : isFirstInGroup
+                    ? 'rounded-2xl rounded-bl-md'
+                    : isLastInGroup
+                    ? 'rounded-2xl rounded-tl-md rounded-bl-xs'
+                    : 'rounded-2xl rounded-tl-md rounded-bl-md');
 
               // Check if attachment is visual media
               const isImage = msg.attachment && (
@@ -1140,30 +1178,59 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
               return (
                 <React.Fragment key={msg.id}>
                   {showDateHeader && (
-                    <div className="flex items-center justify-center my-4">
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-slate-800 text-[#64748B] dark:text-slate-400 shadow-2xs">
-                        <Clock className="w-3 h-3 text-slate-400 dark:text-slate-500" />
-                        <span>{formatMsgDate(msg.timestamp)}</span>
-                      </span>
+                    <div className="flex items-center justify-center my-6">
+                      <div className="relative flex items-center justify-center w-full">
+                        <div className="absolute inset-0 flex items-center">
+                          <div className="w-full border-t border-slate-200/80 dark:border-[#261C16]" />
+                        </div>
+                        <span className="relative z-10 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-white dark:bg-[#1C1410] border border-slate-200/90 dark:border-[#35251E] text-slate-500 dark:text-[#C5B3A7] shadow-2xs">
+                          <Clock className="w-3 h-3 text-slate-400 dark:text-[#8C7A70]" />
+                          <span>{formatMsgDate(msg.timestamp)}</span>
+                        </span>
+                      </div>
                     </div>
                   )}
 
-                  {/* Message Item Wrapper */}
-                  <div className={`flex items-start gap-2.5 ${isMine ? 'justify-end' : 'justify-start'} group relative`}>
+                  {/* Message Item Wrapper with Gestalt Dynamic Distance */}
+                  <div className={`flex items-end gap-2.5 ${isMine ? 'justify-end' : 'justify-start'} ${messageSpacing} group relative`}>
                     
                     {/* Multi-Select Checkbox when in Selection Mode (left for received) */}
                     {isSelectionMode && !isMine && (
                       <button
                         type="button"
                         onClick={() => handleToggleSelectMessage(msg.id)}
-                        className="mt-2.5 text-[#2563EB] dark:text-blue-400 cursor-pointer p-0.5"
+                        className="mb-2 text-[#2563EB] dark:text-[#D4A373] cursor-pointer p-0.5"
                       >
                         {isSelected ? (
-                          <CheckSquare className="w-5 h-5 fill-blue-600 text-white dark:fill-blue-500" />
+                          <CheckSquare className="w-5 h-5 fill-blue-600 text-white dark:fill-[#D4A373] dark:text-[#100B09]" />
                         ) : (
-                          <Square className="w-5 h-5 text-slate-300 dark:text-slate-600" />
+                          <Square className="w-5 h-5 text-slate-300 dark:text-[#5A4032]" />
                         )}
                       </button>
+                    )}
+
+                    {/* Sender Avatar for Received Messages (Anchor at bottom of cluster) */}
+                    {!isMine && (
+                      <div className="w-8 h-8 shrink-0 self-end mb-0.5">
+                        {isLastInGroup ? (
+                          <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center text-xs font-bold border border-slate-200 dark:border-[#38261E] shadow-2xs">
+                            {contactPhoto ? (
+                              <img
+                                src={contactPhoto}
+                                alt={msg.senderName}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  (e.currentTarget as HTMLElement).style.display = 'none';
+                                }}
+                              />
+                            ) : (
+                              <span>{msg.senderName ? msg.senderName.slice(0, 2).toUpperCase() : 'FS'}</span>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="w-8 h-8" aria-hidden="true" />
+                        )}
+                      </div>
                     )}
 
                     <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} max-w-[85%] sm:max-w-[70%]`}>
@@ -1182,17 +1249,19 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                           }
                         }}
                         className={`relative cursor-pointer transition-all duration-150 ${
-                          isSelected ? 'ring-2 ring-[#2563EB] rounded-2xl' : ''
+                          isSelected ? 'ring-2 ring-[#2563EB] dark:ring-[#D4A373] rounded-2xl' : ''
                         }`}
                       >
                         {/* 1. VISUAL PHOTO / IMAGE CARD */}
                         {isImage && msg.attachment ? (
-                          <div className={`w-full max-w-[360px] bg-white dark:bg-[#1E293B] border rounded-2xl p-2 shadow-xs hover:shadow-md transition-all ${
-                            isMine ? 'border-blue-200/80 dark:border-blue-900/60' : 'border-[#E2E8F0] dark:border-slate-800'
+                          <div className={`w-full max-w-[360px] bg-white dark:bg-[#18110E] border ${bubbleRadius} p-2 shadow-xs hover:shadow-md transition-all ${
+                            isMine
+                              ? 'border-blue-200/80 dark:border-blue-900/60'
+                              : 'border-[#E2E8F0] dark:border-[#2F211A]'
                           }`}>
-                            {!isMine && (
+                            {!isMine && isFirstInGroup && (
                               <div className="flex items-center gap-1.5 px-1 py-1 mb-1">
-                                <span className="text-xs font-bold text-[#2563EB] dark:text-blue-400">
+                                <span className="text-xs font-bold text-[#1E40AF] dark:text-[#D4A373]">
                                   {msg.senderName}
                                 </span>
                               </div>
@@ -1224,7 +1293,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                                       e.stopPropagation();
                                       handleDownloadFile(msg.attachment!);
                                     }}
-                                    className="p-1.5 rounded-lg bg-white/20 hover:bg-white/30 backdrop-blur-md text-white transition-colors cursor-pointer"
+                                    className="p-1.5 rounded-lg bg-white/20 hover:bg-[#D4A373]/30 backdrop-blur-md text-white transition-colors cursor-pointer"
                                     title="Download photo"
                                   >
                                     <Download className="w-3.5 h-3.5" />
@@ -1239,7 +1308,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                                         size: msg.attachment!.size,
                                       });
                                     }}
-                                    className="p-1.5 rounded-lg bg-white/20 hover:bg-white/30 backdrop-blur-md text-white transition-colors cursor-pointer"
+                                    className="p-1.5 rounded-lg bg-white/20 hover:bg-[#D4A373]/30 backdrop-blur-md text-white transition-colors cursor-pointer"
                                     title="Expand full screen"
                                   >
                                     <Maximize2 className="w-3.5 h-3.5" />
@@ -1250,13 +1319,13 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
 
                             {/* Optional Text Caption */}
                             {msg.text && !msg.text.startsWith('Shared an operational attachment') && (
-                              <p className="text-xs text-[#0F172A] dark:text-slate-200 px-1 pt-2 leading-relaxed whitespace-pre-wrap">
+                              <p className="text-xs text-[#0F172A] dark:text-[#F3EAE4] px-1 pt-2 leading-relaxed whitespace-pre-wrap">
                                 {renderMessageContent(msg.text, false)}
                               </p>
                             )}
 
                             {/* Footer Timestamp & Delivery Status */}
-                            <div className="flex items-center justify-between px-1 pt-2 text-[11px] text-[#64748B] dark:text-slate-400">
+                            <div className="flex items-center justify-between px-1 pt-2 text-[11px] text-[#64748B] dark:text-[#A8988B]">
                               <span className="font-mono text-[10px]">{msg.attachment.size}</span>
                               <div className="flex items-center gap-1">
                                 <span>{formatMsgTime(msg.timestamp)}</span>
@@ -1267,7 +1336,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                                       <span className="text-[10px]">Seen</span>
                                     </span>
                                   ) : (
-                                    <span title="Delivered" className="text-[#64748B] dark:text-slate-400 flex items-center gap-0.5 ml-1">
+                                    <span title="Delivered" className="text-[#64748B] dark:text-[#A8988B] flex items-center gap-0.5 ml-1">
                                       <CheckCheck className="w-3.5 h-3.5" />
                                       <span className="text-[10px]">Delivered</span>
                                     </span>
@@ -1278,61 +1347,75 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                           </div>
                         ) : isVideo && msg.attachment ? (
                           /* 2. VIDEO PLAYER CARD */
-                          <div className={`w-full max-w-[360px] bg-white dark:bg-[#1E293B] border rounded-2xl p-2 shadow-xs ${
-                            isMine ? 'border-blue-200/80 dark:border-blue-900/60' : 'border-[#E2E8F0] dark:border-slate-800'
+                          <div className={`w-full max-w-[360px] bg-white dark:bg-[#18110E] border ${bubbleRadius} p-2 shadow-xs ${
+                            isMine ? 'border-blue-200/80 dark:border-blue-900/60' : 'border-[#E2E8F0] dark:border-[#2F211A]'
                           }`}>
+                            {!isMine && isFirstInGroup && (
+                              <div className="flex items-center gap-1.5 px-1 py-1 mb-1">
+                                <span className="text-xs font-bold text-[#1E40AF] dark:text-[#D4A373]">
+                                  {msg.senderName}
+                                </span>
+                              </div>
+                            )}
                             <video
                               controls
                               src={msg.attachment.dataUrl || msg.attachment.url}
                               className="w-full max-h-64 object-contain rounded-xl bg-black"
                             />
                             {msg.text && !msg.text.startsWith('Shared an operational attachment') && (
-                              <p className="text-xs text-[#0F172A] dark:text-slate-200 px-1 pt-2">
+                              <p className="text-xs text-[#0F172A] dark:text-[#F3EAE4] px-1 pt-2">
                                 {renderMessageContent(msg.text, false)}
                               </p>
                             )}
-                            <div className="flex items-center justify-between px-1 pt-1.5 text-[11px] text-[#64748B] dark:text-slate-400">
+                            <div className="flex items-center justify-between px-1 pt-1.5 text-[11px] text-[#64748B] dark:text-[#A8988B]">
                               <span>{msg.attachment.name}</span>
                               <span>{formatMsgTime(msg.timestamp)}</span>
                             </div>
                           </div>
                         ) : isAudio && msg.attachment ? (
                           /* 3. AUDIO / VOICE PLAYER CARD */
-                          <div className={`w-full max-w-[340px] bg-white dark:bg-[#1E293B] border rounded-2xl p-3 shadow-xs ${
-                            isMine ? 'border-blue-200/80 dark:border-blue-900/60' : 'border-[#E2E8F0] dark:border-slate-800'
+                          <div className={`w-full max-w-[340px] bg-white dark:bg-[#18110E] border ${bubbleRadius} p-3 shadow-xs ${
+                            isMine ? 'border-blue-200/80 dark:border-blue-900/60' : 'border-[#E2E8F0] dark:border-[#2F211A]'
                           }`}>
+                            {!isMine && isFirstInGroup && (
+                              <div className="flex items-center gap-1.5 px-1 py-0.5 mb-1.5">
+                                <span className="text-xs font-bold text-[#1E40AF] dark:text-[#D4A373]">
+                                  {msg.senderName}
+                                </span>
+                              </div>
+                            )}
                             <div className="flex items-center gap-2 mb-2">
-                              <Volume2 className="w-4 h-4 text-[#2563EB]" />
-                              <span className="text-xs font-semibold text-[#0F172A] dark:text-slate-100 truncate">{msg.attachment.name}</span>
+                              <Volume2 className="w-4 h-4 text-[#2563EB] dark:text-[#D4A373]" />
+                              <span className="text-xs font-semibold text-[#0F172A] dark:text-[#F3EAE4] truncate">{msg.attachment.name}</span>
                             </div>
                             <audio controls src={msg.attachment.dataUrl || msg.attachment.url} className="w-full h-8" />
                           </div>
                         ) : msg.attachment ? (
                           /* 4. DOCUMENT CARD (PDF, Excel, Reports) */
                           <div
-                            className={`w-full max-w-[380px] bg-white dark:bg-[#1E293B] border rounded-2xl p-4 shadow-xs hover:shadow-sm transition-all duration-150 ${
+                            className={`w-full max-w-[380px] bg-white dark:bg-[#18110E] border ${bubbleRadius} p-4 shadow-xs hover:shadow-sm transition-all duration-150 ${
                               isMine
                                 ? 'border-blue-200/80 dark:border-blue-900/60'
-                                : 'border-[#E2E8F0] dark:border-slate-800'
+                                : 'border-[#E2E8F0] dark:border-[#2F211A]'
                             }`}
                           >
                             {msg.replyTo && (
-                              <div className="mb-2.5 p-2 bg-slate-50 dark:bg-[#0B0F17] border-l-2 border-[#2563EB] rounded-r text-xs">
-                                <span className="font-bold text-[#2563EB] dark:text-blue-400 block text-[11px]">
+                              <div className="mb-2.5 p-2 bg-slate-50 dark:bg-[#140E0B] border-l-2 border-[#2563EB] dark:border-[#D4A373] rounded-r text-xs">
+                                <span className="font-bold text-[#2563EB] dark:text-[#D4A373] block text-[11px]">
                                   {msg.replyTo.senderName}
                                 </span>
-                                <span className="text-[#64748B] dark:text-slate-400 truncate block">
+                                <span className="text-[#64748B] dark:text-[#A8988B] truncate block">
                                   {msg.replyTo.text}
                                 </span>
                               </div>
                             )}
 
-                            {!isMine && (
-                              <div className="flex items-center gap-1.5 mb-2.5 pb-2 border-b border-slate-100 dark:border-slate-800">
-                                <span className="text-xs font-bold text-[#2563EB] dark:text-blue-400">
+                            {!isMine && isFirstInGroup && (
+                              <div className="flex items-center gap-1.5 mb-2.5 pb-2 border-b border-slate-100 dark:border-[#2F211A]">
+                                <span className="text-xs font-bold text-[#1E40AF] dark:text-[#D4A373]">
                                   {msg.senderName}
                                 </span>
-                                <span className="text-[10px] text-[#64748B] dark:text-slate-400">shared an operational document</span>
+                                <span className="text-[10px] text-[#64748B] dark:text-[#A8988B]">shared an operational document</span>
                               </div>
                             )}
 
@@ -1344,10 +1427,10 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                                     {badge.icon}
                                   </div>
                                   <div className="min-w-0 flex-1">
-                                    <h5 className="text-xs sm:text-sm font-bold text-[#0F172A] dark:text-slate-100 truncate" title={msg.attachment.name}>
+                                    <h5 className="text-xs sm:text-sm font-bold text-[#0F172A] dark:text-[#F3EAE4] truncate" title={msg.attachment.name}>
                                       {msg.attachment.name}
                                     </h5>
-                                    <p className="text-[11px] text-[#64748B] dark:text-slate-400 flex items-center gap-1 mt-0.5">
+                                    <p className="text-[11px] text-[#64748B] dark:text-[#A8988B] flex items-center gap-1 mt-0.5">
                                       <span>{badge.label}</span>
                                       <span>•</span>
                                       <span className="font-mono">{msg.attachment.size || 'Attached file'}</span>
@@ -1358,12 +1441,12 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                             })()}
 
                             {msg.text && !msg.text.startsWith('Shared an operational attachment') && (
-                              <p className="text-xs text-[#0F172A] dark:text-slate-200 mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-800 leading-relaxed whitespace-pre-wrap">
+                              <p className="text-xs text-[#0F172A] dark:text-[#F3EAE4] mt-2.5 pt-2 border-t border-slate-100 dark:border-[#2F211A] leading-relaxed whitespace-pre-wrap">
                                 {renderMessageContent(msg.text, false)}
                               </p>
                             )}
 
-                            <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
+                            <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-[#2F211A] flex items-center justify-between gap-2">
                               <div className="flex items-center gap-1.5">
                                 <button
                                   type="button"
@@ -1385,7 +1468,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                                       e.stopPropagation();
                                       handlePreviewFile(msg.attachment!);
                                     }}
-                                    className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-[#64748B] dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-1 transition-colors cursor-pointer"
+                                    className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-[#64748B] dark:text-[#A8988B] hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#251A14] flex items-center gap-1 transition-colors cursor-pointer"
                                     title="Preview document"
                                   >
                                     <Eye className="w-3.5 h-3.5" />
@@ -1394,7 +1477,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                                 )}
                               </div>
 
-                              <div className="flex items-center gap-1 text-[11px] text-[#64748B] dark:text-slate-400">
+                              <div className="flex items-center gap-1 text-[11px] text-[#64748B] dark:text-[#A8988B]">
                                 <span>{formatMsgTime(msg.timestamp)}</span>
                                 {isMine && (
                                   msg.status === 'read' ? (
@@ -1403,7 +1486,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                                       <span className="text-[10px]">Seen</span>
                                     </span>
                                   ) : (
-                                    <span title="Delivered" className="text-[#64748B] dark:text-slate-400 flex items-center gap-0.5 ml-1">
+                                    <span title="Delivered" className="text-[#64748B] dark:text-[#A8988B] flex items-center gap-0.5 ml-1">
                                       <CheckCheck className="w-3.5 h-3.5" />
                                       <span className="text-[10px]">Delivered</span>
                                     </span>
@@ -1413,21 +1496,21 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                             </div>
                           </div>
                         ) : (
-                          /* 5. TEXT MESSAGE BUBBLE */
+                          /* 5. TEXT MESSAGE BUBBLE - PROFESSIONAL UI / UX GESTALT */
                           <div
-                            className={`px-4 py-3 shadow-xs transition-all duration-150 ${
+                            className={`px-4 py-2.5 shadow-xs transition-all duration-150 ${bubbleRadius} ${
                               isMine
-                                ? 'bg-[#2563EB] dark:bg-[#1E293B] dark:border dark:border-blue-500/40 text-white dark:text-slate-100 rounded-2xl rounded-br-xs'
-                                : 'bg-white dark:bg-[#181B22] border border-[#E2E8F0] dark:border-slate-800 text-[#0F172A] dark:text-slate-100 rounded-2xl rounded-bl-xs'
+                                ? 'bg-gradient-to-r from-[#1E40AF] to-[#2563EB] dark:from-[#1E3A8A] dark:to-[#172554] dark:border dark:border-blue-500/40 text-white'
+                                : 'bg-white dark:bg-[#18110E] border border-slate-200/90 dark:border-[#2F211A] text-slate-800 dark:text-[#F3EAE4]'
                             }`}
                           >
                             {msg.replyTo && (
                               <div className={`mb-1.5 p-1.5 rounded-lg border-l-2 text-xs ${
                                 isMine
-                                  ? 'bg-white/15 dark:bg-[#0B0F17] border-white dark:border-blue-400 text-blue-100 dark:text-slate-200'
-                                  : 'bg-slate-100 dark:bg-[#0B0F17] border-[#2563EB] text-[#64748B] dark:text-slate-400'
+                                  ? 'bg-white/15 dark:bg-[#140E0B] border-white dark:border-blue-400 text-blue-100 dark:text-blue-200'
+                                  : 'bg-slate-100 dark:bg-[#140E0B] border-[#2563EB] dark:border-[#D4A373] text-[#64748B] dark:text-[#A8988B]'
                               }`}>
-                                <span className={`font-bold block text-[11px] ${isMine ? 'text-white dark:text-blue-300' : 'text-[#2563EB] dark:text-blue-400'}`}>
+                                <span className={`font-bold block text-[11px] ${isMine ? 'text-white dark:text-blue-300' : 'text-[#2563EB] dark:text-[#D4A373]'}`}>
                                   {msg.replyTo.senderName}
                                 </span>
                                 <span className="truncate block opacity-90">
@@ -1436,22 +1519,22 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                               </div>
                             )}
 
-                            {!isMine && (
+                            {!isMine && isFirstInGroup && (
                               <div className="flex items-center gap-1.5 mb-1">
-                                <span className="text-xs font-bold text-[#2563EB] dark:text-blue-400">
+                                <span className="text-xs font-bold text-[#1E40AF] dark:text-[#D4A373]">
                                   {msg.senderName}
                                 </span>
                               </div>
                             )}
 
-                            <p className={`text-xs sm:text-sm leading-relaxed whitespace-pre-wrap font-normal ${
-                              isMine ? 'text-white dark:text-slate-100' : 'text-[#0F172A] dark:text-slate-100'
+                            <p className={`text-[13.5px] sm:text-[14px] leading-relaxed whitespace-pre-wrap font-normal ${
+                              isMine ? 'text-white' : 'text-slate-800 dark:text-[#F3EAE4]'
                             }`}>
                               {renderMessageContent(msg.text, isMine)}
                             </p>
 
-                            <div className={`flex items-center justify-end gap-1 text-[11px] mt-1 ${
-                              isMine ? 'text-blue-100/90 dark:text-slate-400 font-medium' : 'text-[#64748B] dark:text-slate-400'
+                            <div className={`flex items-center justify-end gap-1 text-[10.5px] sm:text-[11px] mt-1 ${
+                              isMine ? 'text-blue-100/90 dark:text-blue-200/80 font-medium' : 'text-[#64748B] dark:text-[#8C7A70]'
                             }`}>
                               <span>{formatMsgTime(msg.timestamp)}</span>
                               {isMine && (
@@ -1461,7 +1544,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                                     <span className="text-[10px]">Seen</span>
                                   </span>
                                 ) : (
-                                  <span title="Delivered" className="text-blue-100/80 dark:text-slate-400 flex items-center gap-0.5 ml-1">
+                                  <span title="Delivered" className="text-blue-100/80 dark:text-blue-200/60 flex items-center gap-0.5 ml-1">
                                     <CheckCheck className="w-3.5 h-3.5" />
                                     <span className="text-[10px]">Delivered</span>
                                   </span>
@@ -1477,15 +1560,15 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                             onClick={(e) => e.stopPropagation()}
                             className={`absolute z-30 ${
                               isMine ? 'right-0' : 'left-0'
-                            } -top-16 bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-slate-700 shadow-xl rounded-2xl p-1.5 flex flex-col gap-1 min-w-[260px] animate-in fade-in zoom-in-95 duration-150`}
+                            } -top-16 bg-white dark:bg-[#1A120E] border border-slate-200 dark:border-[#38261E] shadow-xl rounded-2xl p-1.5 flex flex-col gap-1 min-w-[260px] animate-in fade-in zoom-in-95 duration-150`}
                           >
-                            <div className="flex items-center justify-between gap-1 px-1 py-1 border-b border-slate-100 dark:border-slate-800">
+                            <div className="flex items-center justify-between gap-1 px-1 py-1 border-b border-slate-100 dark:border-[#2F211A]">
                               {COMMON_EMOJIS.map((emoji) => (
                                 <button
                                   key={emoji}
                                   type="button"
                                   onClick={() => handleReactionClick(msg.id, emoji)}
-                                  className="text-base hover:scale-130 transition-transform p-1 cursor-pointer rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+                                  className="text-base hover:scale-130 transition-transform p-1 cursor-pointer rounded-lg hover:bg-slate-100 dark:hover:bg-[#261C16]"
                                   title={`React with ${emoji}`}
                                 >
                                   {emoji}
@@ -1493,7 +1576,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                               ))}
                             </div>
 
-                            <div className="flex items-center justify-around gap-1 pt-1 text-xs font-semibold text-[#0F172A] dark:text-slate-200">
+                            <div className="flex items-center justify-around gap-1 pt-1 text-xs font-semibold text-[#0F172A] dark:text-[#F3EAE4]">
                               <button
                                 type="button"
                                 onClick={() => {
@@ -1501,7 +1584,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                                   setActiveMenuMessageId(null);
                                   textareaRef.current?.focus();
                                 }}
-                                className="flex-1 py-1 px-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950/60 hover:text-[#2563EB] dark:hover:text-blue-400 flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                                className="flex-1 py-1 px-2 rounded-lg hover:bg-blue-50 dark:hover:bg-[#2A1D17] hover:text-[#2563EB] dark:hover:text-[#D4A373] flex items-center justify-center gap-1 transition-colors cursor-pointer"
                               >
                                 <CornerUpLeft className="w-3.5 h-3.5" />
                                 <span>Reply</span>
@@ -1510,7 +1593,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                               <button
                                 type="button"
                                 onClick={() => handleStartSelection(msg.id)}
-                                className="flex-1 py-1 px-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950/60 hover:text-[#2563EB] dark:hover:text-blue-400 flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                                className="flex-1 py-1 px-2 rounded-lg hover:bg-blue-50 dark:hover:bg-[#2A1D17] hover:text-[#2563EB] dark:hover:text-[#D4A373] flex items-center justify-center gap-1 transition-colors cursor-pointer"
                               >
                                 <CheckSquare className="w-3.5 h-3.5" />
                                 <span>Select</span>
@@ -1519,7 +1602,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                               <button
                                 type="button"
                                 onClick={() => handleCopyMessage(msg.text)}
-                                className="flex-1 py-1 px-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center gap-1 transition-colors cursor-pointer text-[#64748B] dark:text-slate-400"
+                                className="flex-1 py-1 px-2 rounded-lg hover:bg-slate-100 dark:hover:bg-[#261C16] flex items-center justify-center gap-1 transition-colors cursor-pointer text-[#64748B] dark:text-[#A8988B] dark:hover:text-white"
                               >
                                 <Copy className="w-3.5 h-3.5" />
                                 <span>Copy</span>
@@ -1541,8 +1624,8 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                                 onClick={() => handleReactionClick(msg.id, emoji)}
                                 className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold border transition-all cursor-pointer ${
                                   hasReacted
-                                    ? 'bg-blue-50 dark:bg-blue-950/60 border-blue-300 dark:border-blue-800 text-[#2563EB] dark:text-blue-300 shadow-2xs'
-                                    : 'bg-white dark:bg-[#1E293B] border-[#E2E8F0] dark:border-slate-800 text-[#64748B] dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700 hover:text-[#0F172A] dark:hover:text-slate-100'
+                                    ? 'bg-blue-50 dark:bg-[#2A1D17] border-blue-300 dark:border-[#5A4032] text-[#2563EB] dark:text-[#D4A373] shadow-2xs'
+                                    : 'bg-white dark:bg-[#18110E] border-slate-200 dark:border-[#2F211A] text-[#64748B] dark:text-[#A8988B] hover:border-slate-300 dark:hover:border-[#38261E] hover:text-[#0F172A] dark:hover:text-[#F3EAE4] dark:hover:bg-[#251A14]'
                                 }`}
                               >
                                 <span>{emoji}</span>
@@ -1559,12 +1642,12 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                       <button
                         type="button"
                         onClick={() => handleToggleSelectMessage(msg.id)}
-                        className="mt-2.5 text-[#2563EB] dark:text-blue-400 cursor-pointer p-0.5"
+                        className="mb-2 text-[#2563EB] dark:text-[#D4A373] cursor-pointer p-0.5"
                       >
                         {isSelected ? (
-                          <CheckSquare className="w-5 h-5 fill-blue-600 text-white dark:fill-blue-500" />
+                          <CheckSquare className="w-5 h-5 fill-blue-600 text-white dark:fill-[#D4A373] dark:text-[#100B09]" />
                         ) : (
-                          <Square className="w-5 h-5 text-slate-300 dark:text-slate-600" />
+                          <Square className="w-5 h-5 text-slate-300 dark:text-[#5A4032]" />
                         )}
                       </button>
                     )}

@@ -482,6 +482,27 @@ html.dark [role="dialog"] button[class*="dark:bg-[#0F172A]"]:hover {
   transform: translateY(-1px) !important;
 }
 
+/* ============================================================== */
+/* DARK THEME HOVER SANITATION: ZERO WHITE ON HOVER               */
+/* ============================================================== */
+html.dark [class*="hover:bg-white"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-slate-50"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-slate-100"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-slate-200"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-[#F8FAFC]"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-gray-50"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-gray-100"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-zinc-50"]:hover:not([class*="dark:hover:bg-"]),
+html.dark [class*="hover:bg-zinc-100"]:hover:not([class*="dark:hover:bg-"]) {
+  background-color: #261C16 !important;
+  color: #FFFFFF !important;
+}
+
+html.dark [class*="hover:bg-white/"]:hover {
+  background-color: rgba(212, 163, 115, 0.18) !important;
+}
+
+
 /* 3. Success & Positive Action Buttons (Approval, Sync, Verification) */
 html.dark main button[class*="bg-emerald"],
 html.dark main button[class*="bg-green"],
