@@ -687,7 +687,7 @@ export default function UserManagement({
                     return (
                       <tr
                         key={u.id}
-                        className={`transition-colors duration-150 hover:bg-blue-50/20 dark:hover:bg-[#182234]/70 ${
+                        className={`${
                           idx % 2 === 1 ? 'bg-slate-50/40 dark:bg-[#182234]/30' : 'bg-white dark:bg-[#1E293B]'
                         }`}
                       >

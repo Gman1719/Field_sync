@@ -664,7 +664,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
                     return (
                       <tr
                         key={citizen.clientRecordId || citizen.id || idx}
-                        className={`transition-colors duration-150 hover:bg-blue-50/40 dark:hover:bg-blue-950/20 ${
+                        className={`${
                           idx % 2 === 1 ? 'bg-slate-50/40 dark:bg-[#182234]/30' : 'bg-white dark:bg-[#1E293B]'
                         }`}
                       >

@@ -273,9 +273,28 @@ html.dark table thead th {
   border-color: #2F221B !important;
 }
 
+/* ============================================================== */
+/* Table Rows: Zero Mouse Hover Effects (Visual Stability)        */
+/* ============================================================== */
+table tbody tr,
+table tbody tr:hover,
+html.dark table tbody tr:hover,
+[data-theme='dark'] table tbody tr:hover,
+table tbody tr[class*="hover:"]:hover,
+html.dark table tbody tr[class*="hover:"]:hover,
+[data-theme='dark'] table tbody tr[class*="hover:"]:hover {
+  background-color: inherit;
+  transition: none !important;
+  transform: none !important;
+}
+
 html.dark table tbody tr {
-  background-color: #1A1310;
+  background-color: #1A1310 !important;
   border-color: #261B15 !important;
+}
+
+html.dark table tbody tr:hover {
+  background-color: #1A1310 !important;
 }
 
 html.dark table tbody tr:nth-child(even),
@@ -284,8 +303,31 @@ html.dark table tbody tr[class*="bg-slate-50"] {
   background-color: #140E0C !important;
 }
 
-html.dark table tbody tr:hover {
-  background-color: rgba(212, 163, 115, 0.1) !important;
+html.dark table tbody tr:nth-child(even):hover,
+html.dark table tbody tr.bg-slate-50\/40:hover,
+html.dark table tbody tr[class*="bg-slate-50"]:hover {
+  background-color: #140E0C !important;
+}
+
+/* Light Theme Stable Rows */
+table tbody tr {
+  background-color: #FFFFFF;
+}
+
+table tbody tr:hover {
+  background-color: #FFFFFF !important;
+}
+
+table tbody tr:nth-child(even),
+table tbody tr.bg-slate-50\/40,
+table tbody tr[class*="bg-slate-50"] {
+  background-color: #F8FAFC !important;
+}
+
+table tbody tr:nth-child(even):hover,
+table tbody tr.bg-slate-50\/40:hover,
+table tbody tr[class*="bg-slate-50"]:hover {
+  background-color: #F8FAFC !important;
 }
 
 /* Borders across Main Content Area */
