@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { MapPin, ShieldAlert, CheckCircle2, History, ArrowRight, Building } from 'lucide-react';
+import { MapPin, ShieldAlert, CheckCircle2, ArrowRight, Building } from 'lucide-react';
 import Modal from '../ui/Modal';
 import Button from '../ui/Button';
 import Badge from '../ui/Badge';
@@ -111,17 +111,6 @@ export default function UserReassignModal({ user, isOpen, onClose, onUserUpdated
           <Badge variant={user.role === 'supervisor' ? 'info' : 'neutral'} className="capitalize text-xs font-semibold">
             {user.role?.replace('_', ' ')}
           </Badge>
-        </div>
-
-        {/* Historical Integrity Guarantee Callout */}
-        <div className="p-3 bg-blue-50/70 dark:bg-[#0F172A] border border-blue-200/80 dark:border-blue-900/50 rounded-xl flex items-start gap-2.5 text-xs text-blue-900 dark:text-blue-200">
-          <History className="w-4 h-4 text-[#2563EB] dark:text-[#60A5FA] shrink-0 mt-0.5" />
-          <div>
-            <span className="font-bold block mb-0.5 text-[#0F172A] dark:text-[#F8FAFC]">Historical Data Preserved</span>
-            <p className="text-blue-800/90 dark:text-blue-300/90 leading-relaxed text-[11px]">
-              Reassigning updates the active field operational boundary. All past citizen registrations and daily reports remain permanently tied to original locations in the national audit registry.
-            </p>
-          </div>
         </div>
 
         {/* Current Station vs New Station */}

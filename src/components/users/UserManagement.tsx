@@ -729,85 +729,57 @@ export default function UserManagement({
                       >
                         {/* 1. Name & ID */}
                         <td className="py-3 pl-4 sm:pl-6 pr-3 whitespace-nowrap">
-                          <p className="font-bold text-slate-900 dark:text-[#F8FAFC]">
+                          <p className="font-bold text-black dark:text-white text-sm">
                             {u.name}
                           </p>
-                          <p className="text-[11px] text-slate-400 dark:text-slate-500 font-mono">
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
                             {u.employeeId}
                           </p>
                         </td>
 
-                        {/* 2. Role Badge */}
+                        {/* 2. Role (No flags) */}
                         <td className="py-3 px-3 whitespace-nowrap">
-                          {u.role === 'manager' && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
-                              <ShieldCheck className="w-3 h-3 text-indigo-600 dark:text-indigo-400" />
-                              Manager
-                            </span>
-                          )}
-                          {u.role === 'supervisor' && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 dark:bg-blue-950/80 text-[#2563EB] dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                              <Building className="w-3 h-3 text-[#2563EB] dark:text-blue-400" />
-                              Supervisor
-                            </span>
-                          )}
-                          {u.role === 'field_officer' && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-teal-50 dark:bg-teal-950/80 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800">
-                              <User className="w-3 h-3 text-teal-600 dark:text-teal-400" />
-                              Field Officer
-                            </span>
-                          )}
-                          {u.role !== 'manager' && u.role !== 'supervisor' && u.role !== 'field_officer' && (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 capitalize">
-                              {u.role?.replace('_', ' ')}
-                            </span>
-                          )}
+                          <span className="text-xs font-semibold text-black dark:text-white capitalize">
+                            {u.role?.replace('_', ' ')}
+                          </span>
                         </td>
 
                         {/* 3. Contact */}
                         <td className="py-3 px-3">
-                          <p className="text-xs font-medium text-slate-800 dark:text-slate-200 truncate max-w-[150px]" title={u.email}>
+                          <p className="text-xs font-medium text-black dark:text-white truncate max-w-[150px]" title={u.email}>
                             {u.email}
                           </p>
-                          <p className="text-[11px] text-slate-400 dark:text-slate-500 font-mono mt-0.5">
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">
                             {u.phone || '—'}
                           </p>
                         </td>
 
                         {/* 4. Region */}
                         <td className="py-3 px-3 whitespace-nowrap">
-                          <span className="text-xs font-medium text-slate-800 dark:text-slate-200">
+                          <span className="text-xs font-medium text-black dark:text-white">
                             {u.role === 'manager' ? 'National' : (u.region || '—')}
                           </span>
                         </td>
 
                         {/* 5. Zone */}
                         <td className="py-3 px-3 whitespace-nowrap">
-                          <span className="text-xs text-slate-600 dark:text-slate-300">
+                          <span className="text-xs text-black dark:text-white">
                             {u.role === 'manager' ? 'All Zones' : (u.zone || '—')}
                           </span>
                         </td>
 
                         {/* 6. Woreda */}
                         <td className="py-3 px-3 whitespace-nowrap">
-                          <span className="text-xs text-slate-600 dark:text-slate-300">
+                          <span className="text-xs text-black dark:text-white">
                             {u.role === 'manager' || u.role === 'supervisor' ? 'All Woredas' : (u.woreda || '—')}
                           </span>
                         </td>
 
-                        {/* 7. Status */}
+                        {/* 7. Status (No flags) */}
                         <td className="py-3 px-3 text-center whitespace-nowrap">
-                          {isActive ? (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                              Active
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-50 dark:bg-rose-950/80 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
-                              <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
-                              Inactive
-                            </span>
-                          )}
+                          <span className="text-xs font-semibold text-black dark:text-white">
+                            {isActive ? 'Active' : 'Inactive'}
+                          </span>
                         </td>
 
                         {/* 8. Actions (Detail only) */}
@@ -1003,6 +975,7 @@ export default function UserManagement({
         onResetPassword={(u) => {
           handleResetPassword(u);
         }}
+        onUserUpdated={handleUserUpdated}
       />
 
       {/* 7. User Edit Modal */}

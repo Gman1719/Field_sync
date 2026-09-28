@@ -3,13 +3,15 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import {
-  User, Mail, Phone, ShieldCheck, MapPin, Building,
-  Edit3, Power, RefreshCw, Copy, Check
+  User, Mail, Phone, ShieldCheck, MapPin, Building2,
+  Edit3, Power, RefreshCw, Copy, Check, CheckCircle2, ChevronRight, KeyRound
 } from 'lucide-react';
 import Modal from '../ui/Modal';
-import Badge from '../ui/Badge';
 import Button from '../ui/Button';
 import { API_BASE } from '../../config/api';
+import { db } from '../../services/database';
+import { offlineDb } from '../../db/offlineDb';
+import { ActivityLogger } from '../../services/activityLogger';
 
 interface UserDetailsModalProps {
   user: any;
@@ -20,7 +22,14 @@ interface UserDetailsModalProps {
   onChangeRole?: (user: any) => void;
   onToggleStatus?: (user: any) => Promise<void> | void;
   onResetPassword?: (user: any) => void;
+  onUserUpdated?: (user?: any) => void;
 }
+
+const AVAILABLE_ROLES = [
+  { id: 'field_officer', label: 'Field Officer', desc: 'Frontline citizen registration & woreda field intake' },
+  { id: 'supervisor', label: 'Supervisor', desc: 'Zonal operations coordination & field officer oversight' },
+  { id: 'manager', label: 'Manager', desc: 'National command authority & complete administration' },
+];
 
 export default function UserDetailsModal({
   user,
@@ -31,19 +40,28 @@ export default function UserDetailsModal({
   onChangeRole,
   onToggleStatus,
   onResetPassword,
+  onUserUpdated,
 }: UserDetailsModalProps) {
   const [userDetails, setUserDetails] = useState(user);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [isTogglingStatus, setIsTogglingStatus] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
+  // In-modal Role Change State
+  const [showRoleSelector, setShowRoleSelector] = useState(false);
+  const [selectedRole, setSelectedRole] = useState(user?.role?.toLowerCase() || 'field_officer');
+  const [isUpdatingRole, setIsUpdatingRole] = useState(false);
+
   useEffect(() => {
     if (!isOpen || !user?.id) {
       setUserDetails(user);
+      setShowRoleSelector(false);
       return;
     }
 
     setUserDetails(user);
+    setSelectedRole(user.role?.toLowerCase() || 'field_officer');
+    setShowRoleSelector(false);
 
     // Fetch full profile and live data from backend API
     const fetchFullDetails = async () => {
@@ -59,6 +77,9 @@ export default function UserDetailsModal({
           const resData = await res.json();
           if (resData.success && resData.data) {
             setUserDetails((prev: any) => ({ ...prev, ...resData.data }));
+            if (resData.data.role) {
+              setSelectedRole(resData.data.role.toLowerCase());
+            }
           }
         }
       } catch (err: any) {
@@ -89,7 +110,6 @@ export default function UserDetailsModal({
     setIsTogglingStatus(true);
     try {
       await onToggleStatus(current);
-      // Immediately reflect local toggle
       setUserDetails((prev: any) => ({
         ...prev,
         status: isActive ? 'inactive' : 'active',
@@ -102,6 +122,77 @@ export default function UserDetailsModal({
     }
   };
 
+  const handleSaveRole = async () => {
+    if (selectedRole === (current.role || '').toLowerCase()) {
+      setShowRoleSelector(false);
+      return;
+    }
+
+    setIsUpdatingRole(true);
+    let updated = {
+      ...current,
+      role: selectedRole,
+      updatedAt: new Date().toISOString(),
+    };
+
+    try {
+      const token = localStorage.getItem('fieldsync_token');
+      if (navigator.onLine && token) {
+        try {
+          const res = await fetch(`${API_BASE}/users/${current.id}/role`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ role: selectedRole.toUpperCase() }),
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            if (data.success && (data.user || data.data)) {
+              updated = { ...updated, ...(data.user || data.data) };
+            }
+          }
+        } catch (netErr: any) {
+          console.warn('Backend API role update unreachable, applying locally:', netErr.message);
+        }
+      }
+
+      // Persist in local IndexedDB
+      try {
+        await db.users.put(updated);
+      } catch (_e) {
+        try { await db.users.update(current.id, updated); } catch (_inner) {}
+      }
+      try {
+        await offlineDb.users.put(updated);
+      } catch (_e) {}
+
+      // Log activity
+      try {
+        await ActivityLogger.log('USER_ROLE_CHANGED', `Changed role for ${current.fullName || current.name} to ${selectedRole}`, {
+          officerId: 'manager',
+          relatedRecordId: current.id,
+          metadata: { newRole: selectedRole },
+        });
+      } catch (_logErr) {}
+
+      setUserDetails(updated);
+      setShowRoleSelector(false);
+      toast.success(`Role updated to ${selectedRole.replace('_', ' ')} successfully`);
+      if (onUserUpdated) onUserUpdated(updated);
+    } catch (err: any) {
+      console.error('Role update error:', err);
+      toast.error('Failed to change role: ' + (err.message || 'Unknown error'));
+    } finally {
+      setIsUpdatingRole(false);
+    }
+  };
+
+  const fullName = [current.firstName, current.middleName, current.lastName].filter(Boolean).join(' ') || current.fullName || current.name;
+  const initial = (current.firstName?.[0] || fullName?.[0] || 'U').toUpperCase();
+
   return (
     <Modal
       isOpen={isOpen}
@@ -109,87 +200,108 @@ export default function UserDetailsModal({
       title="Staff Account & Profile Details"
       size="lg"
     >
-      <div className="space-y-5">
-        {/* 1. Profile Header Banner */}
-        <div className="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            {current.profilePhotoUrl ? (
-              <img
-                src={current.profilePhotoUrl}
-                alt={current.fullName || current.name}
-                className="w-14 h-14 rounded-2xl object-cover border border-slate-200 dark:border-slate-700 shadow-xs"
-              />
-            ) : (
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-700 to-blue-500 text-white flex items-center justify-center font-bold text-xl shadow-xs shrink-0">
-                {(current.firstName?.[0] || current.fullName?.[0] || current.name?.[0] || 'U').toUpperCase()}
+      <div className="space-y-6">
+        {/* 1. Hero Profile Banner */}
+        <div className="relative overflow-hidden p-5 sm:p-6 bg-gradient-to-br from-slate-50 via-white to-blue-50/30 dark:from-slate-800/90 dark:via-slate-800 dark:to-slate-900 border border-slate-200/90 dark:border-slate-700/80 rounded-2xl shadow-xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+            <div className="flex items-center gap-4">
+              {current.profilePhotoUrl ? (
+                <img
+                  src={current.profilePhotoUrl}
+                  alt={fullName}
+                  className="w-16 h-16 rounded-2xl object-cover border-2 border-white dark:border-slate-700 shadow-md ring-2 ring-blue-500/20"
+                />
+              ) : (
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-blue-500 text-white flex items-center justify-center font-extrabold text-2xl shadow-md shadow-blue-500/20 ring-2 ring-white dark:ring-slate-700 shrink-0">
+                  {initial}
+                </div>
+              )}
+              <div className="min-w-0">
+                <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white tracking-tight truncate">
+                  {fullName}
+                </h3>
+                <div className="flex items-center gap-2 mt-1 flex-wrap">
+                  <span className="inline-flex items-center gap-1 font-mono text-[11px] text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md border border-slate-200/60 dark:border-slate-700">
+                    <span>ID:</span>
+                    <span className="font-semibold text-slate-700 dark:text-slate-200">{current.employeeId || current.id}</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => copyToClipboard(current.employeeId || current.id, 'Employee ID')}
+                    className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 p-0.5"
+                    title="Copy ID"
+                  >
+                    {copiedField === 'Employee ID' ? <Check className="w-3 h-3 text-blue-600" /> : <Copy className="w-3 h-3" />}
+                  </button>
+                </div>
+                <div className="flex items-center gap-2 mt-2.5">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200/80 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800 capitalize shadow-2xs">
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    {current.role?.replace('_', ' ')}
+                  </span>
+                  <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold shadow-2xs ${
+                    isActive
+                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/80 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800'
+                      : 'bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700'
+                  }`}>
+                    <span className={`w-2 h-2 rounded-full ${isActive ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
+                    {isActive ? 'ACTIVE ACCOUNT' : 'INACTIVE'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {loadingDetails && (
+              <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xs px-3 py-1.5 rounded-xl border border-slate-200/60 dark:border-slate-700 self-start sm:self-center shadow-2xs">
+                <RefreshCw className="w-3.5 h-3.5 animate-spin text-blue-600 dark:text-blue-400" />
+                <span>Syncing live stats...</span>
               </div>
             )}
-            <div className="min-w-0">
-              <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100 truncate">
-                {current.fullName || current.name}
-              </h3>
-              <p className="text-xs font-mono text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-0.5">
-                <span>Employee ID:</span>
-                <span className="font-semibold text-slate-700 dark:text-slate-300">{current.employeeId || current.id}</span>
-              </p>
-              <div className="flex items-center gap-2 mt-2">
-                <Badge
-                  variant={current.role === 'manager' ? 'primary' : current.role === 'supervisor' ? 'info' : 'neutral'}
-                  className="capitalize font-semibold text-xs"
-                >
-                  {current.role?.replace('_', ' ')}
-                </Badge>
-                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                  isActive
-                    ? 'bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800'
-                    : 'bg-slate-100 text-slate-600 border border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'
-                }`}>
-                  <span className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-blue-600 dark:bg-blue-400' : 'bg-slate-400'}`} />
-                  {isActive ? 'ACTIVE ACCOUNT' : 'INACTIVE'}
-                </span>
-              </div>
-            </div>
           </div>
-
-          {loadingDetails && (
-            <div className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500 self-start sm:self-center">
-              <RefreshCw className="w-3.5 h-3.5 animate-spin text-blue-600 dark:text-blue-400" />
-              <span>Syncing profile...</span>
-            </div>
-          )}
         </div>
 
         {/* 2. Personal & Contact Information */}
-        <div className="space-y-2.5">
-          <h4 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-            <User className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-            Personal & Contact Information
-          </h4>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-            <div className="p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl">
-              <span className="text-slate-500 dark:text-slate-400 block text-[11px] mb-1">Full Name</span>
-              <span className="font-semibold text-slate-800 dark:text-slate-100">
-                {[current.firstName, current.middleName, current.lastName].filter(Boolean).join(' ') || current.name}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 pb-1 border-b border-slate-100 dark:border-slate-800">
+            <div className="w-6 h-6 rounded-lg bg-blue-100 dark:bg-blue-950/60 flex items-center justify-center text-blue-600 dark:text-blue-400">
+              <User className="w-3.5 h-3.5" />
+            </div>
+            <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+              Personal & Contact Information
+            </h4>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+            {/* Full Name */}
+            <div className="p-4 bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 rounded-2xl shadow-2xs hover:border-slate-300 transition-all">
+              <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-1">Full Legal Name</span>
+              <span className="font-bold text-sm text-slate-900 dark:text-white block leading-snug">
+                {fullName}
               </span>
             </div>
-            <div className="p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl flex items-center justify-between">
+
+            {/* Email Address */}
+            <div className="p-4 bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 rounded-2xl shadow-2xs hover:border-slate-300 transition-all flex items-center justify-between">
               <div className="min-w-0 pr-2">
-                <span className="text-slate-500 dark:text-slate-400 block text-[11px] mb-1">Email Address</span>
-                <span className="font-semibold text-slate-800 dark:text-slate-100 truncate block">{current.email}</span>
+                <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-1">Email Address</span>
+                <span className="font-bold text-sm text-slate-900 dark:text-white truncate block">
+                  {current.email}
+                </span>
               </div>
               <button
                 type="button"
                 onClick={() => copyToClipboard(current.email, 'Email')}
-                className="p-1 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-700 transition-colors shrink-0"
                 title="Copy email"
               >
-                {copiedField === 'Email' ? <Check className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" /> : <Copy className="w-3.5 h-3.5" />}
+                {copiedField === 'Email' ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
               </button>
             </div>
-            <div className="p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl flex items-center justify-between">
+
+            {/* Phone Number */}
+            <div className="p-4 bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 rounded-2xl shadow-2xs hover:border-slate-300 transition-all flex items-center justify-between">
               <div className="min-w-0 pr-2">
-                <span className="text-slate-500 dark:text-slate-400 block text-[11px] mb-1">Phone Number</span>
-                <span className="font-semibold text-slate-800 dark:text-slate-100 font-mono">
+                <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-1">Phone Number</span>
+                <span className="font-bold text-sm text-slate-900 dark:text-white font-mono block">
                   {current.phoneNumber || current.phone || 'Not provided'}
                 </span>
               </div>
@@ -197,10 +309,10 @@ export default function UserDetailsModal({
                 <button
                   type="button"
                   onClick={() => copyToClipboard(current.phoneNumber || current.phone, 'Phone')}
-                  className="p-1 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-700 transition-colors shrink-0"
                   title="Copy phone"
                 >
-                  {copiedField === 'Phone' ? <Check className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copiedField === 'Phone' ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
                 </button>
               )}
             </div>
@@ -208,39 +320,70 @@ export default function UserDetailsModal({
         </div>
 
         {/* 3. Ethiopian Administrative Hierarchy Location */}
-        <div className="space-y-2.5">
-          <h4 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-            <MapPin className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-            Ethiopian Administrative Hierarchy
-          </h4>
-          <div className="p-4 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-xs">
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 pb-1 border-b border-slate-100 dark:border-slate-800">
+            <div className="w-6 h-6 rounded-lg bg-indigo-100 dark:bg-indigo-950/60 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+              <MapPin className="w-3.5 h-3.5" />
+            </div>
+            <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+              Ethiopian Administrative Hierarchy
+            </h4>
+          </div>
+
+          <div className="p-4 bg-slate-50/80 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/80 rounded-2xl space-y-3">
             {current.role === 'manager' ? (
-              <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300 font-semibold py-1">
-                <Building className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                <span>Organization-wide Coverage (National / Federal Democratic Republic of Ethiopia)</span>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg">
-                  <span className="text-slate-500 dark:text-slate-400 text-[11px] block">Region</span>
-                  <span className="font-bold text-slate-800 dark:text-slate-100">{current.region || current.regionName || 'Unassigned'}</span>
-                </div>
-                <div className="p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg">
-                  <span className="text-slate-500 dark:text-slate-400 text-[11px] block">Zone / Sub-City</span>
-                  <span className="font-bold text-slate-800 dark:text-slate-100">{current.zone || current.zoneName || 'Unassigned'}</span>
-                </div>
-                <div className="p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg">
-                  <span className="text-slate-500 dark:text-slate-400 text-[11px] block">Woreda / Station</span>
-                  <span className="font-bold text-slate-800 dark:text-slate-100">
-                    {current.role === 'supervisor' ? 'All Woredas in Zone' : (current.woreda || current.woredaName || 'Unassigned')}
+              <div className="flex items-center gap-3 p-3.5 bg-white dark:bg-slate-800 rounded-xl border border-slate-200/80 dark:border-slate-700 shadow-2xs">
+                <Building2 className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" />
+                <div>
+                  <span className="text-sm font-bold text-slate-900 dark:text-white block">
+                    National Operational Scope
+                  </span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">
+                    Federal Democratic Republic of Ethiopia (Organization-wide Authority)
                   </span>
                 </div>
-                {current.role === 'field_officer' && (
-                  <div className="p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg sm:col-span-3 flex items-center justify-between">
-                    <span className="text-slate-500 dark:text-slate-400 font-medium">Direct Assigned Supervisor:</span>
-                    <span className="font-bold text-blue-600 dark:text-blue-400">
-                      {current.supervisorName || current.supervisorId || 'Unassigned'}
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="p-3.5 bg-white dark:bg-slate-800 rounded-xl border border-slate-200/80 dark:border-slate-700 shadow-2xs">
+                    <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-0.5">Region</span>
+                    <span className="text-sm font-bold text-slate-900 dark:text-white">
+                      {current.region || current.regionName || 'Unassigned'}
                     </span>
+                  </div>
+                  <div className="p-3.5 bg-white dark:bg-slate-800 rounded-xl border border-slate-200/80 dark:border-slate-700 shadow-2xs">
+                    <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-0.5">Zone / Sub-City</span>
+                    <span className="text-sm font-bold text-slate-900 dark:text-white">
+                      {current.zone || current.zoneName || 'Unassigned'}
+                    </span>
+                  </div>
+                  <div className="p-3.5 bg-white dark:bg-slate-800 rounded-xl border border-slate-200/80 dark:border-slate-700 shadow-2xs">
+                    <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-0.5">Woreda / Station</span>
+                    <span className="text-sm font-bold text-slate-900 dark:text-white">
+                      {current.role === 'supervisor' ? 'All Woredas in Zone' : (current.woreda || current.woredaName || 'Unassigned')}
+                    </span>
+                  </div>
+                </div>
+
+                {current.role === 'field_officer' && (
+                  <div className="p-3.5 bg-white dark:bg-slate-800 rounded-xl border border-slate-200/80 dark:border-slate-700 shadow-2xs flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/60 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                        <User className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block">Direct Assigned Supervisor</span>
+                        <span className="text-sm font-bold text-slate-900 dark:text-white">
+                          {current.supervisorName || current.supervisorId || 'Unassigned'}
+                        </span>
+                      </div>
+                    </div>
+                    {current.supervisorName && (
+                      <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2.5 py-1 rounded-full border border-blue-200 dark:border-blue-900/60">
+                        Zonal Supervisor
+                      </span>
+                    )}
                   </div>
                 )}
               </div>
@@ -248,40 +391,120 @@ export default function UserDetailsModal({
           </div>
         </div>
 
-        {/* 4. Manager-Only Administrative Actions */}
+        {/* 4. In-Modal Change Role Panel (Expanded when Change Role clicked) */}
+        {showRoleSelector && (
+          <div className="p-5 bg-gradient-to-br from-blue-50/50 via-white to-indigo-50/30 dark:from-slate-800 dark:via-slate-800 dark:to-slate-900 rounded-2xl border-2 border-blue-500/60 shadow-md space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center">
+                  <ShieldCheck className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                    Change Operational Role
+                  </h4>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    Select new functional authority for this staff member
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowRoleSelector(false)}
+                className="text-xs font-bold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
+              >
+                Dismiss
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {AVAILABLE_ROLES.map((r) => {
+                const isSelected = selectedRole === r.id;
+                return (
+                  <button
+                    key={r.id}
+                    type="button"
+                    onClick={() => setSelectedRole(r.id)}
+                    className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
+                      isSelected
+                        ? 'border-blue-600 bg-white dark:bg-slate-800 shadow-sm ring-2 ring-blue-500/20'
+                        : 'border-slate-200 dark:border-slate-700 bg-white/70 dark:bg-slate-800/60 hover:border-slate-300 dark:hover:border-slate-600'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className={`text-xs font-bold ${isSelected ? 'text-blue-600 dark:text-blue-400' : 'text-slate-900 dark:text-white'}`}>
+                        {r.label}
+                      </span>
+                      {isSelected && <CheckCircle2 className="w-4 h-4 text-blue-600 dark:text-blue-400" />}
+                    </div>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
+                      {r.desc}
+                    </p>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="flex justify-end gap-2.5 pt-2 border-t border-slate-200/70 dark:border-slate-700/70">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setShowRoleSelector(false)}
+                className="font-semibold text-xs px-4"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                variant="primary"
+                loading={isUpdatingRole}
+                onClick={handleSaveRole}
+                className="font-bold bg-[#2563EB] hover:bg-blue-700 text-white text-xs px-5 shadow-xs"
+              >
+                Confirm Role Change
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* 5. Manager-Only Administrative Actions */}
         {(onEdit || onReassign || onChangeRole || onToggleStatus || onResetPassword) && (
-          <div className="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3">
-            <h4 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Manager Actions
+          <div className="p-4 sm:p-5 bg-slate-50/80 dark:bg-slate-800/50 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 space-y-3.5">
+            <h4 className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+              <span>Manager Administrative Actions</span>
             </h4>
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2.5">
               {onEdit && (
                 <button
                   type="button"
                   onClick={() => onEdit(current)}
-                  className="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer"
+                  className="px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/60 shadow-2xs hover:shadow-xs transition-all flex items-center gap-2 cursor-pointer"
                 >
                   <Edit3 className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                   <span>Edit Profile</span>
                 </button>
               )}
-              {onChangeRole && (
-                <button
-                  type="button"
-                  onClick={() => onChangeRole(current)}
-                  className="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer"
-                >
-                  <ShieldCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                  <span>Change Role</span>
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={() => {
+                  if (onChangeRole) {
+                    onChangeRole(current);
+                  } else {
+                    setShowRoleSelector(prev => !prev);
+                  }
+                }}
+                className="px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/60 shadow-2xs hover:shadow-xs transition-all flex items-center gap-2 cursor-pointer"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                <span>Change Role</span>
+              </button>
               {onReassign && current.role !== 'manager' && (
                 <button
                   type="button"
                   onClick={() => onReassign(current)}
-                  className="px-3.5 py-2 rounded-xl text-xs font-bold text-blue-600 dark:text-blue-400 bg-white dark:bg-slate-800 border border-blue-200 dark:border-blue-900/60 hover:border-blue-300 dark:hover:border-blue-700 shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer"
+                  className="px-3.5 py-2.5 rounded-xl text-xs font-bold text-blue-700 dark:text-blue-300 bg-white dark:bg-slate-800 border border-blue-200 dark:border-blue-900/60 hover:bg-blue-50/50 dark:hover:bg-blue-950/30 shadow-2xs hover:shadow-xs transition-all flex items-center gap-2 cursor-pointer"
                 >
-                  <MapPin className="w-3.5 h-3.5" />
+                  <MapPin className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                   <span>Change Location</span>
                 </button>
               )}
@@ -289,9 +512,9 @@ export default function UserDetailsModal({
                 <button
                   type="button"
                   onClick={() => onResetPassword(current)}
-                  className="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer"
+                  className="px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/60 shadow-2xs hover:shadow-xs transition-all flex items-center gap-2 cursor-pointer"
                 >
-                  <RefreshCw className="w-3.5 h-3.5 text-amber-500" />
+                  <KeyRound className="w-3.5 h-3.5 text-amber-500" />
                   <span>Reset Password</span>
                 </button>
               )}
@@ -300,10 +523,10 @@ export default function UserDetailsModal({
                   type="button"
                   onClick={handleStatusToggle}
                   disabled={isTogglingStatus}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-bold bg-white dark:bg-slate-800 border shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50 ${
+                  className={`px-3.5 py-2.5 rounded-xl text-xs font-bold border transition-all flex items-center gap-2 cursor-pointer shadow-2xs hover:shadow-xs disabled:opacity-50 ${
                     isActive
-                      ? 'text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-900/60 hover:bg-rose-50/50 dark:hover:bg-rose-950/30'
-                      : 'text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-900/60 hover:bg-blue-50/50 dark:hover:bg-blue-950/30'
+                      ? 'text-rose-600 dark:text-rose-400 bg-white dark:bg-slate-800 border-rose-200 dark:border-rose-900/60 hover:bg-rose-50 dark:hover:bg-rose-950/40'
+                      : 'text-emerald-700 dark:text-emerald-300 bg-white dark:bg-slate-800 border-emerald-200 dark:border-emerald-900/60 hover:bg-emerald-50 dark:hover:bg-emerald-950/40'
                   }`}
                 >
                   <Power className="w-3.5 h-3.5" />
@@ -315,8 +538,8 @@ export default function UserDetailsModal({
         )}
 
         {/* Footer */}
-        <div className="flex justify-end pt-3 border-t border-slate-200 dark:border-slate-700">
-          <Button variant="secondary" onClick={onClose} className="font-semibold px-6">
+        <div className="flex justify-end pt-3 border-t border-slate-200/80 dark:border-slate-700/80">
+          <Button variant="secondary" onClick={onClose} className="font-semibold px-6 text-sm">
             Close Profile
           </Button>
         </div>
