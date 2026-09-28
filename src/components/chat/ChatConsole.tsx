@@ -39,6 +39,27 @@ interface ChatConsoleProps {
 
 const COMMON_EMOJIS = ['👍', '❤️', '✅', '🎯', '⚠️', '🚀', '🔥', '👏'];
 
+// Telegram-style quick reaction emojis with scrollable drawer
+const TELEGRAM_QUICK_REACTIONS = [
+  '🔥', '👏', '😢', '😁', '❤️',
+  '👍', '👎', '🎉', '🤩', '😮',
+  '🙏', '💯', '🚀', '😍', '🤔',
+  '💪', '⚡', '✨', '💩', '🥳'
+];
+
+// Helper to detect if a message contains only emoji characters
+function isOnlyEmojis(text?: string | null): boolean {
+  if (!text) return false;
+  const trimmed = text.trim();
+  if (!trimmed) return false;
+  try {
+    const emojiRegex = /^(\p{Extended_Pictographic}|\p{Emoji_Presentation}|\p{Emoji_Modifier_Base}|\p{Emoji_Modifier}|\u200d|\ufe0f|\s)+$/u;
+    return emojiRegex.test(trimmed);
+  } catch {
+    return false;
+  }
+}
+
 const EMOJI_CATEGORIES = [
   {
     name: 'Quick Reactions',
@@ -191,6 +212,42 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
   // Multi-message selection mode
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedMessageIds, setSelectedMessageIds] = useState<Set<string>>(new Set());
+
+  // Telegram-style hover-to-react vertical capsule state (triggers after hover duration)
+  const [hoveredMessageId, setHoveredMessageId] = useState<string | null>(null);
+  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleMessageMouseEnter = (msgId: string) => {
+    if (isSelectionMode) return;
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    hoverTimeoutRef.current = setTimeout(() => {
+      setHoveredMessageId(msgId);
+    }, 1200); // Deliberate hover delay (1200ms) before displaying emoji capsule
+  };
+
+  const handleMessageMouseLeave = () => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    hoverTimeoutRef.current = setTimeout(() => {
+      setHoveredMessageId(null);
+    }, 450); // Generous grace period to move into the floating vertical reaction bar
+  };
+
+  const handlePillMouseEnter = () => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+  };
+
+  const handlePillMouseLeave = () => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    hoverTimeoutRef.current = setTimeout(() => {
+      setHoveredMessageId(null);
+    }, 350);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    };
+  }, []);
 
   // Lightbox modal for high-res photo/video viewing
   const [lightboxMedia, setLightboxMedia] = useState<{
@@ -604,7 +661,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
             className={`underline hover:opacity-85 break-all font-medium inline-flex items-center gap-0.5 ${
-              isMine ? 'text-white dark:text-blue-300 underline decoration-white/70 dark:decoration-blue-400' : 'text-[#2563EB] dark:text-blue-400'
+              isMine ? 'text-blue-600 dark:text-[#64B5F6] underline decoration-blue-500/60 dark:decoration-[#64B5F6]/70' : 'text-[#2563EB] dark:text-[#64B5F6]'
             }`}
           >
             <span>{part}</span>
@@ -622,21 +679,21 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
     if (ext === 'pdf' || fileType?.includes('pdf')) {
       return {
         label: 'PDF Document',
-        icon: <FileText className="w-5 h-5 text-rose-600 dark:text-rose-400" />,
-        bg: 'bg-rose-50 dark:bg-rose-950/40 border-rose-100 dark:border-rose-900/50 text-rose-700 dark:text-rose-300',
+        icon: <FileText className="w-5 h-5 text-rose-600 dark:text-rose-300" />,
+        bg: 'bg-rose-50 dark:bg-rose-500/25 border-rose-100 dark:border-rose-400/30 text-rose-700 dark:text-rose-200',
       };
     }
     if (['xls', 'xlsx', 'csv'].includes(ext)) {
       return {
         label: 'Data Spreadsheet',
-        icon: <FileSpreadsheet className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />,
-        bg: 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-100 dark:border-emerald-900/50 text-emerald-700 dark:text-emerald-300',
+        icon: <FileSpreadsheet className="w-5 h-5 text-emerald-600 dark:text-emerald-300" />,
+        bg: 'bg-emerald-50 dark:bg-emerald-500/25 border-emerald-100 dark:border-emerald-400/30 text-emerald-700 dark:text-emerald-200',
       };
     }
     return {
       label: 'Field Document',
-      icon: <FileText className="w-5 h-5 text-[#2563EB] dark:text-blue-400" />,
-      bg: 'bg-blue-50 dark:bg-blue-950/40 border-blue-100 dark:border-blue-900/50 text-blue-700 dark:text-blue-300',
+      icon: <FileText className="w-5 h-5 text-[#2563EB] dark:text-blue-300" />,
+      bg: 'bg-blue-50 dark:bg-blue-500/25 border-blue-100 dark:border-blue-400/30 text-blue-700 dark:text-blue-200',
     };
   };
 
@@ -927,7 +984,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
       {/* ============================================================== */}
       {/* MAIN CHAT CONVERSATION WORKSPACE                               */}
       {/* ============================================================== */}
-      <div className="flex-1 flex flex-col min-w-0 bg-[#F8FAFC] dark:bg-[#100B09] transition-colors">
+      <div className="flex-1 flex flex-col min-w-0 bg-[#F8FAFC] dark:bg-[#0E1621] transition-colors">
         
         {/* Sticky Header or Multi-Select Action Bar */}
         {isSelectionMode ? (
@@ -1175,6 +1232,9 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                 /\.(mp3|wav|ogg|m4a)$/i.test(msg.attachment.name)
               );
 
+              // Detect if message is pure emoji content without attachment or reply
+              const isEmojiOnly = isOnlyEmojis(msg.text) && !msg.attachment && !msg.replyTo;
+
               return (
                 <React.Fragment key={msg.id}>
                   {showDateHeader && (
@@ -1235,9 +1295,11 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
 
                     <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} max-w-[85%] sm:max-w-[70%]`}>
                       
-                      {/* Message Container with Click-to-Open Action Menu */}
+                      {/* Message Container with Click-to-Open & Hover Action Menu */}
                       <div
                         data-message-menu={msg.id}
+                        onMouseEnter={() => handleMessageMouseEnter(msg.id)}
+                        onMouseLeave={handleMessageMouseLeave}
                         onClick={(e) => {
                           if (isSelectionMode) {
                             handleToggleSelectMessage(msg.id);
@@ -1252,16 +1314,38 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                           isSelected ? 'ring-2 ring-[#2563EB] dark:ring-[#D4A373] rounded-2xl' : ''
                         }`}
                       >
+                        {/* Telegram-style Vertical Hover Reaction Capsule (White in white theme, dark in dark theme) */}
+                        {hoveredMessageId === msg.id && !isSelectionMode && (
+                          <div
+                            onMouseEnter={handlePillMouseEnter}
+                            onMouseLeave={handlePillMouseLeave}
+                            onClick={(e) => e.stopPropagation()}
+                            className={`absolute z-40 ${
+                              isMine ? 'right-full mr-2.5 before:-right-4' : 'left-full ml-2.5 before:-left-4'
+                            } before:absolute before:inset-y-0 before:w-5 before:content-[''] top-1/2 -translate-y-1/2 max-h-56 sm:max-h-64 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] overscroll-contain bg-white/95 dark:bg-[#17212B]/95 backdrop-blur-md border border-slate-200/90 dark:border-[#2B394A] shadow-2xl rounded-3xl py-2 px-1 flex flex-col items-center gap-2 animate-in fade-in zoom-in-95 duration-200 select-none`}
+                          >
+                            {TELEGRAM_QUICK_REACTIONS.map((emoji) => (
+                              <button
+                                key={emoji}
+                                type="button"
+                                onClick={() => {
+                                  handleReactionClick(msg.id, emoji);
+                                  setHoveredMessageId(null);
+                                }}
+                                className="w-10 h-10 shrink-0 flex items-center justify-center text-2xl sm:text-[26px] hover:scale-130 active:scale-110 transition-all duration-150 rounded-full hover:bg-slate-100 dark:hover:bg-white/15 cursor-pointer"
+                                title={`React with ${emoji}`}
+                              >
+                                <span>{emoji}</span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
                         {/* 1. VISUAL PHOTO / IMAGE CARD */}
                         {isImage && msg.attachment ? (
-                          <div className={`w-full max-w-[360px] bg-white dark:bg-[#18110E] border ${bubbleRadius} p-2 shadow-xs hover:shadow-md transition-all ${
-                            isMine
-                              ? 'border-blue-200/80 dark:border-blue-900/60'
-                              : 'border-[#E2E8F0] dark:border-[#2F211A]'
-                          }`}>
+                          <div className={`w-full max-w-[360px] bg-white dark:bg-[#2B5278] border border-slate-200/90 dark:border-[#38628B] text-slate-900 dark:text-white ${bubbleRadius} p-2 shadow-xs hover:shadow-md transition-all`}>
                             {!isMine && isFirstInGroup && (
                               <div className="flex items-center gap-1.5 px-1 py-1 mb-1">
-                                <span className="text-xs font-bold text-[#1E40AF] dark:text-[#D4A373]">
+                                <span className="text-xs font-bold text-[#1E40AF] dark:text-[#93C5FD]">
                                   {msg.senderName}
                                 </span>
                               </div>
@@ -1293,7 +1377,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                                       e.stopPropagation();
                                       handleDownloadFile(msg.attachment!);
                                     }}
-                                    className="p-1.5 rounded-lg bg-white/20 hover:bg-[#D4A373]/30 backdrop-blur-md text-white transition-colors cursor-pointer"
+                                    className="p-1.5 rounded-lg bg-white/20 hover:bg-white/30 backdrop-blur-md text-white transition-colors cursor-pointer"
                                     title="Download photo"
                                   >
                                     <Download className="w-3.5 h-3.5" />
@@ -1308,7 +1392,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                                         size: msg.attachment!.size,
                                       });
                                     }}
-                                    className="p-1.5 rounded-lg bg-white/20 hover:bg-[#D4A373]/30 backdrop-blur-md text-white transition-colors cursor-pointer"
+                                    className="p-1.5 rounded-lg bg-white/20 hover:bg-white/30 backdrop-blur-md text-white transition-colors cursor-pointer"
                                     title="Expand full screen"
                                   >
                                     <Maximize2 className="w-3.5 h-3.5" />
@@ -1319,24 +1403,24 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
 
                             {/* Optional Text Caption */}
                             {msg.text && !msg.text.startsWith('Shared an operational attachment') && (
-                              <p className="text-xs text-[#0F172A] dark:text-[#F3EAE4] px-1 pt-2 leading-relaxed whitespace-pre-wrap">
+                              <p className="text-xs text-slate-900 dark:text-white px-1 pt-2 leading-relaxed whitespace-pre-wrap">
                                 {renderMessageContent(msg.text, false)}
                               </p>
                             )}
 
                             {/* Footer Timestamp & Delivery Status */}
-                            <div className="flex items-center justify-between px-1 pt-2 text-[11px] text-[#64748B] dark:text-[#A8988B]">
+                            <div className="flex items-center justify-between px-1 pt-2 text-[11px] text-slate-500 dark:text-[#93C5FD]/80">
                               <span className="font-mono text-[10px]">{msg.attachment.size}</span>
                               <div className="flex items-center gap-1">
                                 <span>{formatMsgTime(msg.timestamp)}</span>
                                 {isMine && (
                                   msg.status === 'read' ? (
-                                    <span title="Seen" className="text-emerald-600 dark:text-emerald-400 flex items-center gap-0.5 font-medium ml-1">
+                                    <span title="Seen" className="text-blue-600 dark:text-[#60A5FA] flex items-center gap-0.5 font-medium ml-1">
                                       <CheckCheck className="w-3.5 h-3.5" />
                                       <span className="text-[10px]">Seen</span>
                                     </span>
                                   ) : (
-                                    <span title="Delivered" className="text-[#64748B] dark:text-[#A8988B] flex items-center gap-0.5 ml-1">
+                                    <span title="Delivered" className="text-slate-400 dark:text-[#93C5FD]/70 flex items-center gap-0.5 ml-1">
                                       <CheckCheck className="w-3.5 h-3.5" />
                                       <span className="text-[10px]">Delivered</span>
                                     </span>
@@ -1347,12 +1431,10 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                           </div>
                         ) : isVideo && msg.attachment ? (
                           /* 2. VIDEO PLAYER CARD */
-                          <div className={`w-full max-w-[360px] bg-white dark:bg-[#18110E] border ${bubbleRadius} p-2 shadow-xs ${
-                            isMine ? 'border-blue-200/80 dark:border-blue-900/60' : 'border-[#E2E8F0] dark:border-[#2F211A]'
-                          }`}>
+                          <div className={`w-full max-w-[360px] bg-white dark:bg-[#2B5278] border border-slate-200/90 dark:border-[#38628B] text-slate-900 dark:text-white ${bubbleRadius} p-2 shadow-xs`}>
                             {!isMine && isFirstInGroup && (
                               <div className="flex items-center gap-1.5 px-1 py-1 mb-1">
-                                <span className="text-xs font-bold text-[#1E40AF] dark:text-[#D4A373]">
+                                <span className="text-xs font-bold text-[#1E40AF] dark:text-[#93C5FD]">
                                   {msg.senderName}
                                 </span>
                               </div>
@@ -1363,59 +1445,53 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                               className="w-full max-h-64 object-contain rounded-xl bg-black"
                             />
                             {msg.text && !msg.text.startsWith('Shared an operational attachment') && (
-                              <p className="text-xs text-[#0F172A] dark:text-[#F3EAE4] px-1 pt-2">
+                              <p className="text-xs text-slate-900 dark:text-white px-1 pt-2">
                                 {renderMessageContent(msg.text, false)}
                               </p>
                             )}
-                            <div className="flex items-center justify-between px-1 pt-1.5 text-[11px] text-[#64748B] dark:text-[#A8988B]">
+                            <div className="flex items-center justify-between px-1 pt-1.5 text-[11px] text-slate-500 dark:text-[#93C5FD]/80">
                               <span>{msg.attachment.name}</span>
                               <span>{formatMsgTime(msg.timestamp)}</span>
                             </div>
                           </div>
                         ) : isAudio && msg.attachment ? (
                           /* 3. AUDIO / VOICE PLAYER CARD */
-                          <div className={`w-full max-w-[340px] bg-white dark:bg-[#18110E] border ${bubbleRadius} p-3 shadow-xs ${
-                            isMine ? 'border-blue-200/80 dark:border-blue-900/60' : 'border-[#E2E8F0] dark:border-[#2F211A]'
-                          }`}>
+                          <div className={`w-full max-w-[340px] bg-white dark:bg-[#2B5278] border border-slate-200/90 dark:border-[#38628B] text-slate-900 dark:text-white ${bubbleRadius} p-3 shadow-xs`}>
                             {!isMine && isFirstInGroup && (
                               <div className="flex items-center gap-1.5 px-1 py-0.5 mb-1.5">
-                                <span className="text-xs font-bold text-[#1E40AF] dark:text-[#D4A373]">
+                                <span className="text-xs font-bold text-[#1E40AF] dark:text-[#93C5FD]">
                                   {msg.senderName}
                                 </span>
                               </div>
                             )}
                             <div className="flex items-center gap-2 mb-2">
-                              <Volume2 className="w-4 h-4 text-[#2563EB] dark:text-[#D4A373]" />
-                              <span className="text-xs font-semibold text-[#0F172A] dark:text-[#F3EAE4] truncate">{msg.attachment.name}</span>
+                              <Volume2 className="w-4 h-4 text-blue-600 dark:text-[#64B5F6]" />
+                              <span className="text-xs font-semibold text-slate-900 dark:text-white truncate">{msg.attachment.name}</span>
                             </div>
                             <audio controls src={msg.attachment.dataUrl || msg.attachment.url} className="w-full h-8" />
                           </div>
                         ) : msg.attachment ? (
                           /* 4. DOCUMENT CARD (PDF, Excel, Reports) */
                           <div
-                            className={`w-full max-w-[380px] bg-white dark:bg-[#18110E] border ${bubbleRadius} p-4 shadow-xs hover:shadow-sm transition-all duration-150 ${
-                              isMine
-                                ? 'border-blue-200/80 dark:border-blue-900/60'
-                                : 'border-[#E2E8F0] dark:border-[#2F211A]'
-                            }`}
+                            className={`w-full max-w-[380px] bg-white dark:bg-[#2B5278] border border-slate-200/90 dark:border-[#38628B] text-slate-900 dark:text-white ${bubbleRadius} p-4 shadow-xs hover:shadow-sm transition-all duration-150`}
                           >
                             {msg.replyTo && (
-                              <div className="mb-2.5 p-2 bg-slate-50 dark:bg-[#140E0B] border-l-2 border-[#2563EB] dark:border-[#D4A373] rounded-r text-xs">
-                                <span className="font-bold text-[#2563EB] dark:text-[#D4A373] block text-[11px]">
+                              <div className="mb-2.5 p-2 bg-slate-50 dark:bg-black/30 border-l-2 border-blue-600 dark:border-[#64B5F6] rounded-r text-xs">
+                                <span className="font-bold text-blue-700 dark:text-[#64B5F6] block text-[11px]">
                                   {msg.replyTo.senderName}
                                 </span>
-                                <span className="text-[#64748B] dark:text-[#A8988B] truncate block">
+                                <span className="text-slate-600 dark:text-blue-100 truncate block">
                                   {msg.replyTo.text}
                                 </span>
                               </div>
                             )}
 
                             {!isMine && isFirstInGroup && (
-                              <div className="flex items-center gap-1.5 mb-2.5 pb-2 border-b border-slate-100 dark:border-[#2F211A]">
-                                <span className="text-xs font-bold text-[#1E40AF] dark:text-[#D4A373]">
+                              <div className="flex items-center gap-1.5 mb-2.5 pb-2 border-b border-slate-100 dark:border-[#38628B]/60">
+                                <span className="text-xs font-bold text-[#1E40AF] dark:text-[#93C5FD]">
                                   {msg.senderName}
                                 </span>
-                                <span className="text-[10px] text-[#64748B] dark:text-[#A8988B]">shared an operational document</span>
+                                <span className="text-[10px] text-slate-500 dark:text-[#93C5FD]/80">shared an operational document</span>
                               </div>
                             )}
 
@@ -1427,10 +1503,10 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                                     {badge.icon}
                                   </div>
                                   <div className="min-w-0 flex-1">
-                                    <h5 className="text-xs sm:text-sm font-bold text-[#0F172A] dark:text-[#F3EAE4] truncate" title={msg.attachment.name}>
+                                    <h5 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate" title={msg.attachment.name}>
                                       {msg.attachment.name}
                                     </h5>
-                                    <p className="text-[11px] text-[#64748B] dark:text-[#A8988B] flex items-center gap-1 mt-0.5">
+                                    <p className="text-[11px] text-slate-500 dark:text-[#93C5FD]/80 flex items-center gap-1 mt-0.5">
                                       <span>{badge.label}</span>
                                       <span>•</span>
                                       <span className="font-mono">{msg.attachment.size || 'Attached file'}</span>
@@ -1441,12 +1517,12 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                             })()}
 
                             {msg.text && !msg.text.startsWith('Shared an operational attachment') && (
-                              <p className="text-xs text-[#0F172A] dark:text-[#F3EAE4] mt-2.5 pt-2 border-t border-slate-100 dark:border-[#2F211A] leading-relaxed whitespace-pre-wrap">
+                              <p className="text-xs text-slate-900 dark:text-white mt-2.5 pt-2 border-t border-slate-100 dark:border-[#38628B]/60 leading-relaxed whitespace-pre-wrap">
                                 {renderMessageContent(msg.text, false)}
                               </p>
                             )}
 
-                            <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-[#2F211A] flex items-center justify-between gap-2">
+                            <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-[#38628B]/60 flex items-center justify-between gap-2">
                               <div className="flex items-center gap-1.5">
                                 <button
                                   type="button"
@@ -1454,21 +1530,21 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                                     e.stopPropagation();
                                     handleDownloadFile(msg.attachment!);
                                   }}
-                                  className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#2563EB] hover:bg-blue-700 text-white flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+                                  className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
                                   title={`Download ${msg.attachment.name}`}
                                 >
                                   <Download className="w-3.5 h-3.5" />
                                   <span>Download</span>
                                 </button>
 
-                                {msg.attachment.dataUrl && (
+                                {(msg.attachment.dataUrl || msg.attachment.url) && (
                                   <button
                                     type="button"
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       handlePreviewFile(msg.attachment!);
                                     }}
-                                    className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-[#64748B] dark:text-[#A8988B] hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#251A14] flex items-center gap-1 transition-colors cursor-pointer"
+                                    className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
                                     title="Preview document"
                                   >
                                     <Eye className="w-3.5 h-3.5" />
@@ -1477,16 +1553,16 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                                 )}
                               </div>
 
-                              <div className="flex items-center gap-1 text-[11px] text-[#64748B] dark:text-[#A8988B]">
+                              <div className="flex items-center gap-1 text-[11px] text-slate-500 dark:text-[#93C5FD]/80">
                                 <span>{formatMsgTime(msg.timestamp)}</span>
                                 {isMine && (
                                   msg.status === 'read' ? (
-                                    <span title="Seen" className="text-emerald-600 dark:text-emerald-400 flex items-center gap-0.5 font-medium ml-1">
+                                    <span title="Seen" className="text-blue-600 dark:text-[#60A5FA] flex items-center gap-0.5 font-medium ml-1">
                                       <CheckCheck className="w-3.5 h-3.5" />
                                       <span className="text-[10px]">Seen</span>
                                     </span>
                                   ) : (
-                                    <span title="Delivered" className="text-[#64748B] dark:text-[#A8988B] flex items-center gap-0.5 ml-1">
+                                    <span title="Delivered" className="text-slate-400 dark:text-[#93C5FD]/70 flex items-center gap-0.5 ml-1">
                                       <CheckCheck className="w-3.5 h-3.5" />
                                       <span className="text-[10px]">Delivered</span>
                                     </span>
@@ -1495,22 +1571,39 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                               </div>
                             </div>
                           </div>
+                        ) : isEmojiOnly ? (
+                          /* EMOJI-ONLY TELEGRAM STYLE (Image 1 reference: No bubble card, big emoji, floating timestamp pill) */
+                          <div className="relative inline-flex items-end gap-2.5 py-1 px-1">
+                            <span className="text-6xl sm:text-7xl leading-none select-none filter drop-shadow-sm transition-transform duration-200 hover:scale-105 inline-block">
+                              {msg.text}
+                            </span>
+                            <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-900/60 dark:bg-black/60 backdrop-blur-md text-white text-[10.5px] font-mono shadow-xs select-none mb-1">
+                              <span>{formatMsgTime(msg.timestamp)}</span>
+                              {isMine && (
+                                msg.status === 'read' ? (
+                                  <CheckCheck className="w-3.5 h-3.5 text-blue-400" />
+                                ) : (
+                                  <Check className="w-3.5 h-3.5 text-white/80" />
+                                )
+                              )}
+                            </div>
+                          </div>
                         ) : (
-                          /* 5. TEXT MESSAGE BUBBLE - PROFESSIONAL UI / UX GESTALT */
+                          /* 5. TEXT MESSAGE BUBBLE - CLEAN WHITE IN LIGHT THEME, #2B5278 IN DARK THEME FOR ALL (MATCHING IMAGES) */
                           <div
-                            className={`px-4 py-2.5 shadow-xs transition-all duration-150 ${bubbleRadius} ${
+                            className={`px-4 py-2.5 shadow-2xs transition-all duration-150 ${bubbleRadius} ${
                               isMine
-                                ? 'bg-gradient-to-r from-[#1E40AF] to-[#2563EB] dark:from-[#1E3A8A] dark:to-[#172554] dark:border dark:border-blue-500/40 text-white'
-                                : 'bg-white dark:bg-[#18110E] border border-slate-200/90 dark:border-[#2F211A] text-slate-800 dark:text-[#F3EAE4]'
+                                ? 'bg-white dark:bg-[#2B5278] border border-slate-200/90 dark:border-[#38628B] text-slate-900 dark:text-white'
+                                : 'bg-white dark:bg-[#2B5278] border border-slate-200/90 dark:border-[#38628B] text-slate-900 dark:text-white'
                             }`}
                           >
                             {msg.replyTo && (
                               <div className={`mb-1.5 p-1.5 rounded-lg border-l-2 text-xs ${
                                 isMine
-                                  ? 'bg-white/15 dark:bg-[#140E0B] border-white dark:border-blue-400 text-blue-100 dark:text-blue-200'
-                                  : 'bg-slate-100 dark:bg-[#140E0B] border-[#2563EB] dark:border-[#D4A373] text-[#64748B] dark:text-[#A8988B]'
+                                  ? 'bg-slate-50 dark:bg-black/30 border-blue-600 dark:border-[#64B5F6] text-slate-700 dark:text-blue-100'
+                                  : 'bg-slate-100 dark:bg-black/30 border-[#2563EB] dark:border-[#64B5F6] text-[#64748B] dark:text-blue-100'
                               }`}>
-                                <span className={`font-bold block text-[11px] ${isMine ? 'text-white dark:text-blue-300' : 'text-[#2563EB] dark:text-[#D4A373]'}`}>
+                                <span className={`font-bold block text-[11px] ${isMine ? 'text-blue-700 dark:text-[#64B5F6]' : 'text-[#2563EB] dark:text-[#64B5F6]'}`}>
                                   {msg.replyTo.senderName}
                                 </span>
                                 <span className="truncate block opacity-90">
@@ -1521,30 +1614,28 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
 
                             {!isMine && isFirstInGroup && (
                               <div className="flex items-center gap-1.5 mb-1">
-                                <span className="text-xs font-bold text-[#1E40AF] dark:text-[#D4A373]">
+                                <span className="text-xs font-bold text-[#1E40AF] dark:text-[#93C5FD]">
                                   {msg.senderName}
                                 </span>
                               </div>
                             )}
 
-                            <p className={`text-[13.5px] sm:text-[14px] leading-relaxed whitespace-pre-wrap font-normal ${
-                              isMine ? 'text-white' : 'text-slate-800 dark:text-[#F3EAE4]'
-                            }`}>
+                            <p className="text-[13.5px] sm:text-[14px] leading-relaxed whitespace-pre-wrap font-normal text-slate-900 dark:text-white">
                               {renderMessageContent(msg.text, isMine)}
                             </p>
 
                             <div className={`flex items-center justify-end gap-1 text-[10.5px] sm:text-[11px] mt-1 ${
-                              isMine ? 'text-blue-100/90 dark:text-blue-200/80 font-medium' : 'text-[#64748B] dark:text-[#8C7A70]'
+                              isMine ? 'text-slate-400 dark:text-[#93C5FD]/80 font-medium' : 'text-[#64748B] dark:text-[#93C5FD]/80'
                             }`}>
                               <span>{formatMsgTime(msg.timestamp)}</span>
                               {isMine && (
                                 msg.status === 'read' ? (
-                                  <span title="Read / Seen" className="text-emerald-300 dark:text-emerald-400 flex items-center gap-0.5 font-medium ml-1">
+                                  <span title="Read / Seen" className="text-blue-600 dark:text-[#60A5FA] flex items-center gap-0.5 font-medium ml-1">
                                     <CheckCheck className="w-3.5 h-3.5" />
                                     <span className="text-[10px]">Seen</span>
                                   </span>
                                 ) : (
-                                  <span title="Delivered" className="text-blue-100/80 dark:text-blue-200/60 flex items-center gap-0.5 ml-1">
+                                  <span title="Delivered" className="text-slate-400 dark:text-[#93C5FD]/70 flex items-center gap-0.5 ml-1">
                                     <CheckCheck className="w-3.5 h-3.5" />
                                     <span className="text-[10px]">Delivered</span>
                                   </span>
@@ -1624,8 +1715,8 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                                 onClick={() => handleReactionClick(msg.id, emoji)}
                                 className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold border transition-all cursor-pointer ${
                                   hasReacted
-                                    ? 'bg-blue-50 dark:bg-[#2A1D17] border-blue-300 dark:border-[#5A4032] text-[#2563EB] dark:text-[#D4A373] shadow-2xs'
-                                    : 'bg-white dark:bg-[#18110E] border-slate-200 dark:border-[#2F211A] text-[#64748B] dark:text-[#A8988B] hover:border-slate-300 dark:hover:border-[#38261E] hover:text-[#0F172A] dark:hover:text-[#F3EAE4] dark:hover:bg-[#251A14]'
+                                    ? 'bg-blue-50 dark:bg-[#1E3A5F] border-blue-300 dark:border-[#3E70A6] text-[#2563EB] dark:text-[#93C5FD] shadow-2xs'
+                                    : 'bg-white dark:bg-[#182635] border-slate-200 dark:border-[#2A3F54] text-slate-800 dark:text-white hover:border-slate-300 dark:hover:border-[#385472] dark:hover:bg-[#203244]'
                                 }`}
                               >
                                 <span>{emoji}</span>

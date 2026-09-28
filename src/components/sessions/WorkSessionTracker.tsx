@@ -30,7 +30,7 @@ interface WorkSessionTrackerProps {
 }
 
 export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }: WorkSessionTrackerProps) {
-  const internalInfo = useScreenTime(user);
+  const internalInfo = useScreenTime(passedInfo ? null : user);
   const screenTime = passedInfo || internalInfo;
 
   const {
@@ -191,15 +191,15 @@ export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }:
       </div>
 
       {/* Main Action / Telemetry Card */}
-      {!isSessionActive && trackingStatus !== 'FINALIZED' ? (
-        // NOT STARTED STATE: Prompt to start session
+      {!isSessionActive ? (
+        // NOT STARTED OR FINALIZED STATE: Prompt to start session / new session
         <div className="p-8 rounded-2xl border bg-white dark:bg-[#14161D] border-slate-200 dark:border-[#272A35] shadow-xs text-center">
           <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-[#3B82F6] flex items-center justify-center border border-blue-100 dark:border-blue-900/50 shadow-inner">
             <Sparkles className="w-8 h-8" />
           </div>
 
           <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-[#F4F4F5]">
-            Ready to start today's work session?
+            {trackingStatus === 'FINALIZED' ? 'Ready to start a new work session?' : "Ready to start today's work session?"}
           </h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto mt-2">
             Click Start Work Session below. Screen time counts continuously while you remain on the
@@ -228,7 +228,7 @@ export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }:
               disabled={isStarting}
               className="py-3 px-8 rounded-xl font-semibold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 dark:bg-[#3B82F6] dark:hover:bg-blue-500 shadow-lg shadow-blue-500/25 transition-all text-sm sm:text-base cursor-pointer disabled:opacity-50"
             >
-              {isStarting ? 'Starting Session...' : 'Start Work Session'}
+              {isStarting ? 'Starting Session...' : (trackingStatus === 'FINALIZED' ? 'Start New Work Session' : 'Start Work Session')}
             </button>
           </div>
         </div>

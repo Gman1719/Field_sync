@@ -4,7 +4,7 @@ import {
   UserPlus, User, Phone, MapPin, Calendar, Heart,
   ShieldCheck, AlertCircle, CheckCircle2, RotateCcw,
   Wifi, WifiOff, FileCheck, Mail, ArrowRight, Copy, Check,
-  Sparkles, ExternalLink
+  Sparkles, ExternalLink, ChevronDown
 } from 'lucide-react';
 import { offlineDb } from '../../db/offlineDb';
 import { API_BASE } from '../../config/api';
@@ -319,6 +319,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
 
       // Step A: Save locally to Dexie IndexedDB
       await offlineDb.citizens.put(finalRecord);
+      window.dispatchEvent(new CustomEvent('citizen-registered', { detail: finalRecord }));
 
       // Step B: Record Activity Log locally
       await offlineDb.activityLogs.put({
@@ -682,6 +683,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
         </Card>
 
         {/* Section 3: Address & Location (Cascading Ethiopian Hierarchy) */}
+        {/* Section 3: Address & Location (Cascading Ethiopian Hierarchy) */}
         <Card className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl shadow-xs overflow-hidden">
           <CardHeader className="p-5 border-b border-[#E2E8F0] dark:border-[#334155] bg-slate-50/50 dark:bg-[#182234]">
             <div className="flex items-center gap-2.5">
@@ -695,95 +697,116 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
               </div>
             </div>
           </CardHeader>
-          <CardContent className="p-5 space-y-4">
+          <CardContent className="p-5 sm:p-6 space-y-5">
+            {/* 4 Cascading Dropdowns in a Balanced, Clean Grid with Guaranteed Equal Height */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Region */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-[#CBD5E1] uppercase tracking-wider mb-1.5">
-                  Region / Chartered City <span className="text-rose-500">*</span>
-                </label>
-                <select
-                  value={regionId}
-                  onChange={(e) => setRegionId(e.target.value)}
-                  disabled={isLoadingLocations}
-                  className="w-full h-11 px-3.5 rounded-xl border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-[#3B82F6] transition-all disabled:bg-slate-100 font-medium cursor-pointer"
-                  required
-                >
-                  <option value="">Select Region</option>
-                  {regions.map((r) => (
-                    <option key={r.id} value={r.id}>
-                      {r.name}
-                    </option>
-                  ))}
-                </select>
+              <div className="flex flex-col">
+                <div className="h-6 flex items-center justify-between mb-1.5">
+                  <label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-[#F5EBE1] flex items-center gap-1">
+                    Region / City <span className="text-[#DC2626] dark:text-[#F43F5E]">*</span>
+                  </label>
+                </div>
+                <div className="relative">
+                  <select
+                    value={regionId}
+                    onChange={(e) => setRegionId(e.target.value)}
+                    disabled={isLoadingLocations}
+                    className="w-full h-11 pl-3.5 pr-10 rounded-xl border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-[#3B82F6] hover:border-slate-400 dark:hover:border-slate-600 transition-all disabled:bg-slate-100 dark:disabled:bg-[#1E293B]/50 disabled:text-slate-400 font-medium cursor-pointer shadow-xs"
+                    required
+                  >
+                    <option value="">Select Region</option>
+                    {regions.map((r) => (
+                      <option key={r.id} value={r.id}>
+                        {r.name}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="w-4 h-4 pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
+                </div>
               </div>
 
               {/* Zone */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-[#CBD5E1] uppercase tracking-wider mb-1.5">
-                  Administrative Zone / Sub-City <span className="text-rose-500">*</span>
-                </label>
-                <select
-                  value={zoneId}
-                  onChange={(e) => setZoneId(e.target.value)}
-                  disabled={!regionId || zones.length === 0}
-                  className="w-full h-11 px-3.5 rounded-xl border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-[#3B82F6] transition-all disabled:bg-slate-100 font-medium cursor-pointer"
-                  required
-                >
-                  <option value="">{regionId ? 'Select Zone' : 'Choose Region First'}</option>
-                  {zones.map((z) => (
-                    <option key={z.id} value={z.id}>
-                      {z.name}
-                    </option>
-                  ))}
-                </select>
+              <div className="flex flex-col">
+                <div className="h-6 flex items-center justify-between mb-1.5">
+                  <label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-[#F5EBE1] flex items-center gap-1">
+                    Zone / Sub-City <span className="text-[#DC2626] dark:text-[#F43F5E]">*</span>
+                  </label>
+                </div>
+                <div className="relative">
+                  <select
+                    value={zoneId}
+                    onChange={(e) => setZoneId(e.target.value)}
+                    disabled={!regionId || zones.length === 0}
+                    className="w-full h-11 pl-3.5 pr-10 rounded-xl border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-[#3B82F6] hover:border-slate-400 dark:hover:border-slate-600 transition-all disabled:bg-slate-100 dark:disabled:bg-[#1E293B]/50 disabled:text-slate-400 font-medium cursor-pointer shadow-xs"
+                    required
+                  >
+                    <option value="">{regionId ? 'Select Zone' : 'Choose Region First'}</option>
+                    {zones.map((z) => (
+                      <option key={z.id} value={z.id}>
+                        {z.name}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="w-4 h-4 pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
+                </div>
               </div>
 
               {/* Woreda */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-[#CBD5E1] uppercase tracking-wider mb-1.5">
-                  Woreda Station <span className="text-rose-500">*</span>
-                </label>
-                <select
-                  value={woredaId}
-                  onChange={(e) => setWoredaId(e.target.value)}
-                  disabled={!zoneId || woredas.length === 0}
-                  className="w-full h-11 px-3.5 rounded-xl border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-[#3B82F6] transition-all disabled:bg-slate-100 font-medium cursor-pointer"
-                  required
-                >
-                  <option value="">{zoneId ? 'Select Woreda' : 'Choose Zone First'}</option>
-                  {woredas.map((w) => (
-                    <option key={w.id} value={w.id}>
-                      {w.name}
-                    </option>
-                  ))}
-                </select>
+              <div className="flex flex-col">
+                <div className="h-6 flex items-center justify-between mb-1.5">
+                  <label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-[#F5EBE1] flex items-center gap-1">
+                    Woreda Station <span className="text-[#DC2626] dark:text-[#F43F5E]">*</span>
+                  </label>
+                </div>
+                <div className="relative">
+                  <select
+                    value={woredaId}
+                    onChange={(e) => setWoredaId(e.target.value)}
+                    disabled={!zoneId || woredas.length === 0}
+                    className="w-full h-11 pl-3.5 pr-10 rounded-xl border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-[#3B82F6] hover:border-slate-400 dark:hover:border-slate-600 transition-all disabled:bg-slate-100 dark:disabled:bg-[#1E293B]/50 disabled:text-slate-400 font-medium cursor-pointer shadow-xs"
+                    required
+                  >
+                    <option value="">{zoneId ? 'Select Woreda' : 'Choose Zone First'}</option>
+                    {woredas.map((w) => (
+                      <option key={w.id} value={w.id}>
+                        {w.name}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="w-4 h-4 pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
+                </div>
               </div>
 
               {/* Kebele */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-[#CBD5E1] uppercase tracking-wider mb-1.5">
-                  Kebele Unit <span className="text-rose-500">*</span>
-                </label>
-                <select
-                  value={kebeleId}
-                  onChange={(e) => setKebeleId(e.target.value)}
-                  disabled={!woredaId || kebeles.length === 0}
-                  className="w-full h-11 px-3.5 rounded-xl border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-[#3B82F6] transition-all disabled:bg-slate-100 font-medium cursor-pointer"
-                  required
-                >
-                  <option value="">{woredaId ? 'Select Kebele' : 'Choose Woreda First'}</option>
-                  {kebeles.map((k) => (
-                    <option key={k.id} value={k.id}>
-                      {k.name}
-                    </option>
-                  ))}
-                </select>
+              <div className="flex flex-col">
+                <div className="h-6 flex items-center justify-between mb-1.5">
+                  <label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-[#F5EBE1] flex items-center gap-1">
+                    Kebele Unit <span className="text-[#DC2626] dark:text-[#F43F5E]">*</span>
+                  </label>
+                </div>
+                <div className="relative">
+                  <select
+                    value={kebeleId}
+                    onChange={(e) => setKebeleId(e.target.value)}
+                    disabled={!woredaId || kebeles.length === 0}
+                    className="w-full h-11 pl-3.5 pr-10 rounded-xl border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-[#3B82F6] hover:border-slate-400 dark:hover:border-slate-600 transition-all disabled:bg-slate-100 dark:disabled:bg-[#1E293B]/50 disabled:text-slate-400 font-medium cursor-pointer shadow-xs"
+                    required
+                  >
+                    <option value="">{woredaId ? 'Select Kebele' : 'Choose Woreda First'}</option>
+                    {kebeles.map((k) => (
+                      <option key={k.id} value={k.id}>
+                        {k.name}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="w-4 h-4 pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
+                </div>
               </div>
             </div>
 
             {/* Village / Community (Required) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="pt-2">
               <Input
                 label="Village or Community Name"
                 value={village}

@@ -7,10 +7,12 @@ import {
   Award, ShieldCheck, MapPin, CheckCircle2, AlertCircle,
   Eye, Phone, Mail, Clock, Building, User, ChevronRight,
   AlertTriangle, Filter, RefreshCw, LayoutGrid, List,
-  Smartphone, Activity, CheckCircle, HelpCircle
+  Smartphone, Activity, CheckCircle, HelpCircle,
+  Copy, Check
 } from 'lucide-react';
 import { getToday } from '../../utils/helpers';
 import { formatEthiopianPhone } from '../../utils/phoneUtils';
+import { offlineDb } from '../../db/offlineDb';
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
 import StatCard from '../ui/StatCard';
@@ -55,6 +57,62 @@ export default function TeamManagement({
   const [selectedTeam, setSelectedTeam] = useState<any>(null);
   const [selectedOfficer, setSelectedOfficer] = useState<any>(null);
   const [liveOfficerData, setLiveOfficerData] = useState<any[]>([]);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [localCitizens, setLocalCitizens] = useState<any[]>([]);
+
+  const copyToClipboard = (text: string, label: string) => {
+    if (!text) return;
+    navigator.clipboard.writeText(text);
+    setCopiedField(label);
+    setTimeout(() => setCopiedField(null), 2000);
+  };
+
+  // Synchronize local IndexedDB citizens for 100% accurate live registration numbers
+  React.useEffect(() => {
+    let isMounted = true;
+    const loadLocalCitizens = async () => {
+      try {
+        const records = await offlineDb.citizens.toArray();
+        if (isMounted) {
+          setLocalCitizens(records || []);
+        }
+      } catch (err) {
+        console.error('Failed to load local citizens in TeamManagement:', err);
+      }
+    };
+    loadLocalCitizens();
+
+    const handleDataChange = () => {
+      loadLocalCitizens();
+    };
+
+    window.addEventListener('citizen-registered', handleDataChange);
+    window.addEventListener('force-sync', handleDataChange);
+    window.addEventListener('storage', handleDataChange);
+
+    return () => {
+      isMounted = false;
+      window.removeEventListener('citizen-registered', handleDataChange);
+      window.removeEventListener('force-sync', handleDataChange);
+      window.removeEventListener('storage', handleDataChange);
+    };
+  }, []);
+
+  // Merge local IndexedDB records with server citizens without duplicates
+  const allCitizensList = useMemo(() => {
+    const map = new Map<string, any>();
+    (localCitizens || []).forEach((c) => {
+      const id = c.clientRecordId || c.id || c.nationalId;
+      if (id) map.set(id, c);
+    });
+    (citizens || []).forEach((c: any) => {
+      const id = c.clientRecordId || c.id || c.nationalId;
+      if (id && !map.has(id)) {
+        map.set(id, c);
+      }
+    });
+    return Array.from(map.values());
+  }, [localCitizens, citizens]);
 
   React.useEffect(() => {
     if (!isSupervisor) return;
@@ -230,7 +288,7 @@ export default function TeamManagement({
         name: `${sup.zone || sup.region || 'Zonal'} Operations Team`,
         region: sup.region || 'Organization-wide',
         zone: sup.zone || 'Zonal Jurisdiction',
-        woreda: sup.woreda || 'All Woredas in Zone',
+        woreda: sup.woreda || '',
         supervisor: sup,
         officers: teamOfficers,
         stats: {
@@ -293,22 +351,61 @@ export default function TeamManagement({
   // Today string
   const todayStr = getToday();
 
-  // Helper for officer stats
+  // Helper for officer stats strictly matching all real database records
   const getOfficerStats = (officer: any) => {
-    const fromProps = citizens.filter((c: any) =>
-      c.registeredById === officer.id ||
-      c.registeredBy === officer.id ||
-      (officer.employeeId && (c.registeredBy === officer.employeeId || c.registeredById === officer.employeeId))
-    ).length;
+    const offId = String(officer.id || '').trim();
+    const offEmpId = String(officer.employeeId || '').trim();
+    const offName = (officer.name || officer.fullName || '').toLowerCase().trim();
 
-    const fromOfficerObj =
+    const officerCitizens = allCitizensList.filter((c: any) => {
+      const regById = String(c.registeredById || '').trim();
+      const regBy = String(c.registeredBy || '').trim();
+      const regByEmp = String(c.registeredByEmployeeId || '').trim();
+      const cOffId = String(c.officerId || '').trim();
+      const cUserId = String(c.userId || '').trim();
+      const regByName = (c.registeredByName || c.officerName || '').toLowerCase().trim();
+
+      const idMatch =
+        (offId && (regById === offId || regBy === offId || cOffId === offId || cUserId === offId)) ||
+        (offEmpId && (regByEmp === offEmpId || regById === offEmpId || regBy === offEmpId || cOffId === offEmpId));
+
+      const nameMatch = Boolean(offName && regByName && regByName === offName);
+
+      return Boolean(idMatch || nameMatch);
+    });
+
+    const fromOfficerObj = Number(
       officer.registeredCitizensCount ??
       officer._count?.registeredCitizens ??
       officer.stats?.totalCitizensRegistered ??
       officer.stats?.citizenCount ??
-      0;
+      0
+    );
 
-    const regCount = Math.max(fromProps, fromOfficerObj);
+    const fromOfficerTodayObj = Number(
+      officer.todayRegistrationsCount ??
+      officer.todayRegistrations ??
+      officer.stats?.todayCitizensRegistered ??
+      officer.stats?.todayCount ??
+      0
+    );
+
+    const regCount = Math.max(officerCitizens.length, fromOfficerObj);
+
+    // Filter registrations recorded today
+    const todayMatches = officerCitizens.filter((c: any) => {
+      const ts = c.registrationTimestamp || c.createdAt || c.registrationDate || c.date || '';
+      if (!ts) return false;
+      if (typeof ts === 'string' && ts.startsWith(todayStr)) return true;
+      try {
+        const d = new Date(ts);
+        return d.toISOString().startsWith(todayStr) || d.toLocaleDateString() === new Date().toLocaleDateString();
+      } catch {
+        return false;
+      }
+    });
+
+    const todayRegCount = Math.max(todayMatches.length, fromOfficerTodayObj);
 
     const todayReport = reports.find((r: any) =>
       (r.employeeId === officer.employeeId || r.officerId === officer.id || r.userId === officer.id) &&
@@ -319,7 +416,173 @@ export default function TeamManagement({
       (l: any) => (l.employeeId === officer.employeeId || l.userId === officer.id) && l.status === 'online'
     );
 
-    return { regCount, todayReport, isOnline };
+    return { regCount, todayRegCount, todayReport, isOnline };
+  };
+
+  const renderOfficerDetailModal = () => {
+    if (!selectedOfficer) return null;
+    const { regCount, todayRegCount } = getOfficerStats(selectedOfficer);
+    const initials = ((selectedOfficer.name || selectedOfficer.fullName || 'FO')[0] || 'O').toUpperCase();
+    const directSupervisor =
+      selectedOfficer.supervisorName ||
+      selectedOfficer.supervisor?.name ||
+      selectedTeam?.supervisor?.name ||
+      (users.find((u: any) => u.id === selectedOfficer.supervisorId || u.id === selectedOfficer.assignedSupervisorId)?.name) ||
+      'Zonal Field Supervisor';
+
+    const officerId = selectedOfficer.employeeId || selectedOfficer.id || 'N/A';
+
+    return (
+      <Modal
+        isOpen={!!selectedOfficer}
+        onClose={() => setSelectedOfficer(null)}
+        title="Field Officer Profile & Operational Information"
+        size="lg"
+      >
+        <div className="space-y-5 text-xs">
+          {/* 1. Profile Header Banner */}
+          <div className="p-4 sm:p-5 bg-slate-50 dark:bg-[#1E222D] rounded-2xl border border-[#E2E8F0] dark:border-[#272A35] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4 min-w-0">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#1E3A8A] to-[#2563EB] text-white flex items-center justify-center font-extrabold text-xl shadow-md shrink-0">
+                {initials}
+              </div>
+              <div className="min-w-0">
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white truncate">
+                  {selectedOfficer.name || selectedOfficer.fullName}
+                </h3>
+                <div className="flex flex-wrap items-center gap-2 mt-1">
+                  <span className="text-xs font-mono font-bold text-[#2563EB] dark:text-[#60A5FA] bg-blue-50 dark:bg-blue-950/60 border border-blue-200/60 dark:border-blue-900/60 px-2 py-0.5 rounded-md">
+                    ID: {officerId}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => copyToClipboard(officerId, 'ID')}
+                    className="text-xs font-semibold text-slate-500 hover:text-[#2563EB] dark:hover:text-[#60A5FA] px-1.5 py-0.5 rounded bg-white dark:bg-[#14161D] border border-slate-200 dark:border-[#272A35] transition-colors cursor-pointer"
+                    title="Copy Officer ID"
+                  >
+                    {copiedField === 'ID' ? 'Copied' : 'Copy ID'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 2. Personal & Contact Information */}
+          <div className="space-y-2.5">
+            <h4 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+              <User className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#60A5FA]" />
+              Personal & Contact Details
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+              <div className="p-3 bg-white dark:bg-[#14161D] border border-[#E2E8F0] dark:border-[#272A35] rounded-xl">
+                <span className="text-slate-400 dark:text-slate-500 block text-[11px] mb-1">Ethiopian Name</span>
+                <span className="font-semibold text-slate-900 dark:text-white">
+                  {[selectedOfficer.firstName, selectedOfficer.middleName, selectedOfficer.lastName].filter(Boolean).join(' ') || selectedOfficer.name || selectedOfficer.fullName}
+                </span>
+              </div>
+              <div className="p-3 bg-white dark:bg-[#14161D] border border-[#E2E8F0] dark:border-[#272A35] rounded-xl flex items-center justify-between">
+                <div className="min-w-0 pr-2">
+                  <span className="text-slate-400 dark:text-slate-500 block text-[11px] mb-1">Phone Number</span>
+                  <span className="font-semibold text-slate-900 dark:text-white font-mono truncate block">
+                    {formatEthiopianPhone(selectedOfficer.phone) || 'Not provided'}
+                  </span>
+                </div>
+                {selectedOfficer.phone && (
+                  <button
+                    type="button"
+                    onClick={() => copyToClipboard(selectedOfficer.phone, 'Phone')}
+                    className="p-1 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#1E222D] transition-colors cursor-pointer"
+                    title="Copy Phone"
+                  >
+                    {copiedField === 'Phone' ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                  </button>
+                )}
+              </div>
+              <div className="p-3 bg-white dark:bg-[#14161D] border border-[#E2E8F0] dark:border-[#272A35] rounded-xl flex items-center justify-between">
+                <div className="min-w-0 pr-2">
+                  <span className="text-slate-400 dark:text-slate-500 block text-[11px] mb-1">Email Address</span>
+                  <span className="font-semibold text-slate-900 dark:text-white truncate block">
+                    {selectedOfficer.email || 'Not provided'}
+                  </span>
+                </div>
+                {selectedOfficer.email && (
+                  <button
+                    type="button"
+                    onClick={() => copyToClipboard(selectedOfficer.email, 'Email')}
+                    className="p-1 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#1E222D] transition-colors cursor-pointer"
+                    title="Copy Email"
+                  >
+                    {copiedField === 'Email' ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* 3. Jurisdictional & Administrative Station */}
+          <div className="space-y-2.5">
+            <h4 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+              <MapPin className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#60A5FA]" />
+              Administrative Deployment & Hierarchy
+            </h4>
+            <div className="p-4 bg-slate-50 dark:bg-[#1E222D] border border-[#E2E8F0] dark:border-[#272A35] rounded-xl">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="p-2.5 bg-white dark:bg-[#14161D] border border-[#E2E8F0] dark:border-[#272A35] rounded-lg">
+                  <span className="text-slate-400 dark:text-slate-500 text-[11px] block">Region</span>
+                  <span className="font-bold text-slate-900 dark:text-white">{selectedOfficer.region || selectedTeam?.region || 'Unassigned'}</span>
+                </div>
+                <div className="p-2.5 bg-white dark:bg-[#14161D] border border-[#E2E8F0] dark:border-[#272A35] rounded-lg">
+                  <span className="text-slate-400 dark:text-slate-500 text-[11px] block">Zone / Sub-City</span>
+                  <span className="font-bold text-slate-900 dark:text-white">{selectedOfficer.zone || selectedTeam?.zone || 'Unassigned'}</span>
+                </div>
+                <div className="p-2.5 bg-white dark:bg-[#14161D] border border-[#E2E8F0] dark:border-[#272A35] rounded-lg">
+                  <span className="text-slate-400 dark:text-slate-500 text-[11px] block">Woreda / Field Station</span>
+                  <span className="font-bold text-slate-900 dark:text-white">{selectedOfficer.woreda || 'Assigned Station'}</span>
+                </div>
+                <div className="p-2.5 bg-white dark:bg-[#14161D] border border-[#E2E8F0] dark:border-[#272A35] rounded-lg sm:col-span-3 flex items-center justify-between">
+                  <div>
+                    <span className="text-slate-400 dark:text-slate-500 text-[11px] block">Direct Assigned Lead Supervisor</span>
+                    <span className="font-bold text-[#2563EB] dark:text-[#60A5FA]">
+                      {directSupervisor}
+                    </span>
+                  </div>
+                  <Badge variant="neutral" className="text-[10px]">Supervisor Lead</Badge>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 4. Operational Telemetry & Metrics */}
+          <div className="space-y-2.5">
+            <h4 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+              <Activity className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#60A5FA]" />
+              Operational Telemetry & Performance
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="p-3.5 rounded-xl border border-blue-100 dark:border-blue-900/50 bg-blue-50/50 dark:bg-blue-950/20">
+                <span className="text-[10px] text-blue-700 dark:text-[#60A5FA] font-bold uppercase block">
+                  Total Registrations
+                </span>
+                <span className="text-2xl font-black text-blue-800 dark:text-blue-300 font-mono mt-1 block">
+                  {regCount}
+                </span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 block">citizen registered</span>
+              </div>
+
+              <div className="p-3.5 rounded-xl border border-emerald-100 dark:border-emerald-900/50 bg-emerald-50/50 dark:bg-emerald-950/20">
+                <span className="text-[10px] text-emerald-700 dark:text-[#34D399] font-bold uppercase block">
+                  Today's Registrations
+                </span>
+                <span className="text-2xl font-black text-emerald-800 dark:text-emerald-300 font-mono mt-1 block">
+                  {todayRegCount}
+                </span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 block">citizen registered today</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Modal>
+    );
   };
 
   // ==========================================
@@ -709,65 +972,7 @@ export default function TeamManagement({
         )}
 
         {/* Officer Detail Modal */}
-        {selectedOfficer && (
-          <Modal
-            isOpen={!!selectedOfficer}
-            onClose={() => setSelectedOfficer(null)}
-            title={`Officer Detail — ${selectedOfficer.name || selectedOfficer.fullName}`}
-            size="md"
-          >
-            <div className="space-y-4 text-xs">
-              <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#1E222D] border border-slate-200 dark:border-[#272A35] flex items-center justify-between">
-                <div>
-                  <h4 className="font-bold text-sm text-slate-900 dark:text-white">
-                    {selectedOfficer.name || selectedOfficer.fullName}
-                  </h4>
-                  <p className="text-[11px] text-slate-400 font-mono mt-0.5">
-                    ID: {selectedOfficer.id || selectedOfficer.employeeId} • Role: Field Officer
-                  </p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
-                    <MapPin className="w-3.5 h-3.5 text-blue-500" />
-                    <span>{[selectedOfficer.region, selectedOfficer.zone, selectedOfficer.woreda].filter(Boolean).filter((s: string) => s !== 'Unassigned').join(' > ') || 'Operational Unit'}</span>
-                  </p>
-                </div>
-
-                <Badge
-                  variant={selectedOfficer.status === 'active' ? 'success' : 'neutral'}
-                  className="capitalize text-xs font-semibold"
-                >
-                  {selectedOfficer.status || 'Active'}
-                </Badge>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 rounded-xl border border-slate-200 dark:border-[#272A35]">
-                  <span className="text-[10px] text-slate-400 font-bold uppercase block">Phone</span>
-                  <span className="text-xs font-mono font-semibold text-slate-800 dark:text-slate-200 mt-0.5 block">
-                    {formatEthiopianPhone(selectedOfficer.phone) || 'N/A'}
-                  </span>
-                </div>
-                <div className="p-3 rounded-xl border border-slate-200 dark:border-[#272A35]">
-                  <span className="text-[10px] text-slate-400 font-bold uppercase block">Email</span>
-                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 mt-0.5 block truncate">
-                    {selectedOfficer.email || 'N/A'}
-                  </span>
-                </div>
-              </div>
-
-              <div className="p-4 rounded-xl bg-blue-50/60 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/50 flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] uppercase font-bold text-blue-600 dark:text-[#3B82F6]">
-                    Cumulative Citizens Registered
-                  </span>
-                  <span className="text-xl font-black text-blue-700 dark:text-blue-300 font-mono block mt-0.5">
-                    {getOfficerStats(selectedOfficer).regCount}
-                  </span>
-                </div>
-                <UserCheck className="w-8 h-8 text-blue-500/40" />
-              </div>
-            </div>
-          </Modal>
-        )}
+        {renderOfficerDetailModal()}
       </div>
     );
   }
@@ -891,14 +1096,12 @@ export default function TeamManagement({
                 ) : (
                   <div className="space-y-1.5 max-h-52 overflow-y-auto pr-1">
                     {team.officers.map((officer: any) => {
-                      const { regCount, isOnline } = getOfficerStats(officer);
+                      const { isOnline } = getOfficerStats(officer);
                       const initials = ((officer.name || officer.fullName || 'FO')[0] || 'O').toUpperCase();
                       return (
                         <div
                           key={officer.id || officer.employeeId}
-                          onClick={() => setSelectedOfficer(officer)}
-                          className="p-2 rounded-xl bg-slate-50 dark:bg-[#1E222D] border border-slate-100 dark:border-[#272A35] hover:border-blue-300 dark:hover:border-blue-700/60 hover:bg-blue-50/40 dark:hover:bg-blue-950/20 transition-all flex items-center justify-between cursor-pointer group"
-                          title="Click to view officer detail"
+                          className="p-2 rounded-xl bg-slate-50 dark:bg-[#1E222D] border border-slate-100 dark:border-[#272A35] flex items-center justify-between"
                         >
                           <div className="flex items-center gap-2 min-w-0">
                             <div className="relative shrink-0">
@@ -912,20 +1115,13 @@ export default function TeamManagement({
                               />
                             </div>
                             <div className="min-w-0">
-                              <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 block truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                              <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 block truncate">
                                 {officer.name || officer.fullName}
                               </span>
                               <span className="text-[10px] text-slate-400 font-mono block truncate">
                                 {officer.employeeId || officer.id} • {officer.woreda || officer.zone || 'Field'}
                               </span>
                             </div>
-                          </div>
-
-                          <div className="flex items-center gap-1.5 shrink-0">
-                            <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 bg-white dark:bg-[#14161D] px-1.5 py-0.5 rounded border border-slate-200 dark:border-[#272A35]">
-                              {regCount} regs
-                            </span>
-                            <Eye className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 transition-colors" />
                           </div>
                         </div>
                       );
@@ -970,7 +1166,7 @@ export default function TeamManagement({
                 <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-1">
                   <MapPin className="w-3.5 h-3.5 text-blue-500" />
                   <span>
-                    {[selectedTeam.region, selectedTeam.zone, selectedTeam.woreda]
+                    {[selectedTeam.region, selectedTeam.zone, (selectedTeam.woreda && selectedTeam.woreda !== 'All Woredas in Zone' ? selectedTeam.woreda : null)]
                       .filter(Boolean)
                       .filter((s: string) => s !== 'Unassigned')
                       .join(' > ') || 'Operational Unit'}
@@ -983,7 +1179,7 @@ export default function TeamManagement({
             </div>
 
             {/* Quick Metrics Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="p-3 rounded-xl border border-slate-200 dark:border-[#272A35] bg-white dark:bg-[#14161D]">
                 <span className="text-[10px] text-slate-400 font-bold uppercase block">Total Officers</span>
                 <span className="text-lg font-black text-slate-900 dark:text-white font-mono mt-0.5 block">
@@ -1000,12 +1196,6 @@ export default function TeamManagement({
                 <span className="text-[10px] text-blue-600 dark:text-blue-400 font-bold uppercase block">Active Status</span>
                 <span className="text-lg font-black text-blue-600 dark:text-blue-400 font-mono mt-0.5 block">
                   {selectedTeam.stats.activeOfficers}
-                </span>
-              </div>
-              <div className="p-3 rounded-xl border border-slate-200 dark:border-[#272A35] bg-white dark:bg-[#14161D]">
-                <span className="text-[10px] text-purple-600 dark:text-purple-400 font-bold uppercase block">Total Registered</span>
-                <span className="text-lg font-black text-purple-600 dark:text-purple-400 font-mono mt-0.5 block">
-                  {selectedTeam.stats.totalRegistrations}
                 </span>
               </div>
             </div>
@@ -1133,71 +1323,8 @@ export default function TeamManagement({
         </Modal>
       )}
 
-      {/* Officer Detail Modal for Manager */}
-      {selectedOfficer && (
-        <Modal
-          isOpen={!!selectedOfficer}
-          onClose={() => setSelectedOfficer(null)}
-          title={`Officer Detail — ${selectedOfficer.name || selectedOfficer.fullName}`}
-          size="md"
-        >
-          <div className="space-y-4 text-xs">
-            <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#1E222D] border border-slate-200 dark:border-[#272A35] flex items-center justify-between">
-              <div>
-                <h4 className="font-bold text-sm text-slate-900 dark:text-white">
-                  {selectedOfficer.name || selectedOfficer.fullName}
-                </h4>
-                <p className="text-[11px] text-slate-400 font-mono mt-0.5">
-                  ID: {selectedOfficer.id || selectedOfficer.employeeId} • Role: Field Officer
-                </p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
-                  <MapPin className="w-3.5 h-3.5 text-blue-500" />
-                  <span>
-                    {[selectedOfficer.region, selectedOfficer.zone, selectedOfficer.woreda]
-                      .filter(Boolean)
-                      .filter((s: string) => s !== 'Unassigned')
-                      .join(' > ') || 'Operational Unit'}
-                  </span>
-                </p>
-              </div>
-
-              <Badge
-                variant={selectedOfficer.status === 'active' ? 'success' : 'neutral'}
-                className="capitalize text-xs font-semibold"
-              >
-                {selectedOfficer.status || 'Active'}
-              </Badge>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="p-3 rounded-xl border border-slate-200 dark:border-[#272A35]">
-                <span className="text-[10px] text-slate-400 font-bold uppercase block">Phone</span>
-                <span className="text-xs font-mono font-semibold text-slate-800 dark:text-slate-200 mt-0.5 block">
-                  {formatEthiopianPhone(selectedOfficer.phone) || 'N/A'}
-                </span>
-              </div>
-              <div className="p-3 rounded-xl border border-slate-200 dark:border-[#272A35]">
-                <span className="text-[10px] text-slate-400 font-bold uppercase block">Email</span>
-                <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 mt-0.5 block truncate">
-                  {selectedOfficer.email || 'N/A'}
-                </span>
-              </div>
-            </div>
-
-            <div className="p-4 rounded-xl bg-blue-50/60 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/50 flex items-center justify-between">
-              <div>
-                <span className="text-[10px] uppercase font-bold text-blue-600 dark:text-[#3B82F6]">
-                  Cumulative Citizens Registered
-                </span>
-                <span className="text-xl font-black text-blue-700 dark:text-blue-300 font-mono block mt-0.5">
-                  {getOfficerStats(selectedOfficer).regCount}
-                </span>
-              </div>
-              <UserCheck className="w-8 h-8 text-blue-500/40" />
-            </div>
-          </div>
-        </Modal>
-      )}
+      {/* Officer Detail Modal */}
+      {renderOfficerDetailModal()}
     </div>
   );
 }

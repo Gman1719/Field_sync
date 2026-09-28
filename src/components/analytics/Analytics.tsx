@@ -425,6 +425,7 @@ export default function Analytics({ user, setActiveTab }: AnalyticsProps) {
                           tickLine={false}
                         />
                         <Tooltip
+                          cursor={false}
                           formatter={(value: any, name: any, props: any) => [
                             `${Number(value).toLocaleString()} citizens (${props.payload.percentage}%)`,
                             `${props.payload.group}`
@@ -499,6 +500,7 @@ export default function Analytics({ user, setActiveTab }: AnalyticsProps) {
                           tickLine={false}
                         />
                         <Tooltip
+                          cursor={false}
                           formatter={(value: any, name: any, props: any) => [
                             `${Number(value).toLocaleString()} citizens (${props.payload.percentage}%)`,
                             `${props.payload.name} (${props.payload.parentLocation})`
@@ -664,6 +666,7 @@ export default function Analytics({ user, setActiveTab }: AnalyticsProps) {
                         width={130}
                       />
                       <Tooltip
+                        cursor={false}
                         formatter={(value: any, name: any, props: any) => [
                           `${Number(value).toLocaleString()} citizens`,
                           `${props.payload.name} (${props.payload.woreda})`
@@ -680,6 +683,7 @@ export default function Analytics({ user, setActiveTab }: AnalyticsProps) {
                         dataKey="registrations"
                         name="Recorded Registrations"
                         fill="#2563EB"
+                        activeBar={{ fill: '#1D4ED8', stroke: '#60A5FA', strokeWidth: 1 }}
                         radius={[0, 6, 6, 0]}
                         barSize={18}
                       />

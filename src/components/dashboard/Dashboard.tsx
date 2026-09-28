@@ -15,6 +15,7 @@ import toast from 'react-hot-toast';
 import { API_BASE } from '../../config/api';
 import { offlineDb } from '../../db/offlineDb';
 import { getToday } from '../../utils/helpers';
+import { getZonedTimeComponents } from '../../config/workingHours';
 import StatCard from '../ui/StatCard';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
 import Badge from '../ui/Badge';
@@ -27,9 +28,12 @@ const GENDER_COLORS = { 'MALE': '#1E3A8A', 'FEMALE': '#EC4899', 'OTHER': '#8B5CF
 
 const CustomTooltip: any = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
+    const fullDate = payload[0]?.payload?.fullDate;
     return (
       <div className="bg-white dark:bg-[#1E293B] p-3 rounded-xl border border-slate-200 dark:border-[#334155] shadow-modal text-xs font-sans text-slate-800 dark:text-[#F8FAFC]">
-        <p className="font-semibold text-slate-900 dark:text-white mb-1">{label}</p>
+        <p className="font-semibold text-slate-900 dark:text-white mb-1">
+          {fullDate ? `Date: ${fullDate}` : label}
+        </p>
         {payload.map((entry: any, index: number) => (
           <p key={index} className="flex items-center gap-1.5 py-0.5" style={{ color: entry.color }}>
             <span className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
@@ -98,19 +102,48 @@ export default function Dashboard({
   setActiveTab
 }: DashboardProps) {
   // ===== LIVE TELEMETRY STATE =====
-  const [telemetryData, setTelemetryData] = useState(null);
+  const [telemetryData, setTelemetryData] = useState<any>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [lastRefreshed, setLastRefreshed] = useState(null);
+  const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
   const [isLiveConnected, setIsLiveConnected] = useState(true);
 
+  // ===== REAL DATABASE OFFLINE STORE STATE =====
+  const [localCitizens, setLocalCitizens] = useState<any[]>([]);
+  const [localReports, setLocalReports] = useState<any[]>([]);
+  const [localLogs, setLocalLogs] = useState<any[]>([]);
+  const [localSessions, setLocalSessions] = useState<any[]>([]);
+  const [localUsers, setLocalUsers] = useState<any[]>([]);
+
   // ===== OFFICER DRILLDOWN MODAL STATE =====
-  const [selectedOfficerId, setSelectedOfficerId] = useState(null);
-  const [officerDetail, setOfficerDetail] = useState(null);
+  const [selectedOfficerId, setSelectedOfficerId] = useState<string | null>(null);
+  const [officerDetail, setOfficerDetail] = useState<any>(null);
   const [isLoadingOfficer, setIsLoadingOfficer] = useState(false);
+
+  // Direct asynchronous query to IndexedDB (offlineDb)
+  const loadLocalDatabase = useCallback(async () => {
+    try {
+      const [citizensList, reportsList, logsList, sessionsList, usersList] = await Promise.all([
+        offlineDb.citizens.toArray(),
+        offlineDb.dailyWorkReports.toArray(),
+        offlineDb.activityLogs.reverse().limit(15).toArray(),
+        offlineDb.workSessions.toArray(),
+        offlineDb.users.toArray()
+      ]);
+      setLocalCitizens(citizensList || []);
+      setLocalReports(reportsList || []);
+      setLocalLogs(logsList || []);
+      setLocalSessions(sessionsList || []);
+      setLocalUsers(usersList || []);
+    } catch (err) {
+      console.error('Failed to load local Dexie database:', err);
+    }
+  }, []);
 
   // Fetch overview telemetry from backend API with Dexie fallback
   const fetchTelemetryOverview = useCallback(async (isManual = false) => {
     if (isManual) setIsRefreshing(true);
+    await loadLocalDatabase();
+
     const token = localStorage.getItem('fieldsync_token');
 
     try {
@@ -131,47 +164,50 @@ export default function Dashboard({
         }
       }
       throw new Error('Server unreachable or unauthorized');
-    } catch (err) {
+    } catch (err: any) {
       console.warn('Analytics API unreachable, computing offline fallback from IndexedDB:', err.message);
       setIsLiveConnected(false);
       setLastRefreshed(new Date());
 
       // Dexie Offline Fallback
       try {
-        const localCitizens = await offlineDb.citizens.toArray();
-        const localReports = await offlineDb.dailyWorkReports.toArray();
-        const localSessions = await offlineDb.workSessions.toArray();
-        const localLogs = await offlineDb.activityLogs.reverse().limit(10).toArray();
+        const dbCitizens = await offlineDb.citizens.toArray();
+        const dbReports = await offlineDb.dailyWorkReports.toArray();
+        const dbSessions = await offlineDb.workSessions.toArray();
+        const dbLogs = await offlineDb.activityLogs.reverse().limit(15).toArray();
 
-        const todayStr = getToday();
-        const todayRegs = localCitizens.filter(c => (c.registrationTimestamp || '').slice(0, 10) === todayStr).length;
-        const syncedRegs = localCitizens.filter(c => c.syncStatus === 'SYNCED').length;
-        const pendingRegs = localCitizens.filter(c => c.syncStatus !== 'SYNCED').length;
+        const { dateStr: todayStr } = getZonedTimeComponents();
+        const todayRegs = dbCitizens.filter(c => {
+          const ts = c.registrationTimestamp || c.createdAt || c.registrationDate || '';
+          return ts.slice(0, 10) === todayStr;
+        }).length;
+        const syncedRegs = dbCitizens.filter(c => c.syncStatus === 'SYNCED' || c.synced).length;
+        const pendingRegs = dbCitizens.filter(c => c.syncStatus !== 'SYNCED' && !c.synced).length;
 
-        const totalScreenSecs = localSessions.reduce((sum, s) => sum + (s.durationSeconds || 0), 0);
-        const todayScreenSecs = localSessions
+        const totalScreenSecs = dbSessions.reduce((sum, s) => sum + (s.durationSeconds || 0), 0);
+        const todayScreenSecs = dbSessions
           .filter(s => s.reportDate === todayStr)
           .reduce((sum, s) => sum + (s.durationSeconds || 0), 0);
 
-        const formatSecs = (secs) => {
+        const formatSecs = (secs: number) => {
           const h = Math.floor(secs / 3600);
           const m = Math.floor((secs % 3600) / 60);
           const s = secs % 60;
           return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
         };
 
-        const todayReports = localReports.filter(r => r.reportDate === todayStr);
+        const todayReportsList = dbReports.filter(r => (r.reportDate || '').slice(0, 10) === todayStr);
 
         setTelemetryData({
           citizens: {
-            total: localCitizens.length,
+            total: dbCitizens.length,
             today: todayRegs,
-            thisWeek: localCitizens.length,
+            thisWeek: dbCitizens.length,
             synced: syncedRegs,
             pending: pendingRegs,
             genderDistribution: [
-              { gender: 'MALE', count: localCitizens.filter(c => c.gender === 'MALE').length },
-              { gender: 'FEMALE', count: localCitizens.filter(c => c.gender === 'FEMALE').length }
+              { gender: 'MALE', count: dbCitizens.filter(c => (c.gender || '').toUpperCase() === 'MALE').length },
+              { gender: 'FEMALE', count: dbCitizens.filter(c => (c.gender || '').toUpperCase() === 'FEMALE').length }
             ],
             geographicDistribution: []
           },
@@ -180,13 +216,13 @@ export default function Dashboard({
             totalScreenTimeFormatted: formatSecs(totalScreenSecs),
             todayScreenTimeSeconds: todayScreenSecs,
             todayScreenTimeFormatted: formatSecs(todayScreenSecs),
-            todaySessionsCount: localSessions.filter(s => s.reportDate === todayStr).length,
-            totalSessionsCount: localSessions.length,
+            todaySessionsCount: dbSessions.filter(s => s.reportDate === todayStr).length,
+            totalSessionsCount: dbSessions.length,
           },
           compliance: {
-            reportsSubmittedToday: todayReports.length,
+            reportsSubmittedToday: todayReportsList.length,
             totalAssignedStaff: 1,
-            complianceRatePercentage: todayReports.length > 0 ? 100 : 0,
+            complianceRatePercentage: todayReportsList.length > 0 ? 100 : 0,
             urgentRoadblocksCount: 0,
             urgentRoadblocks: [],
           },
@@ -196,11 +232,11 @@ export default function Dashboard({
             approved: 0,
             total: 0
           },
-          recentActivity: localLogs.map(l => ({
+          recentActivity: dbLogs.map(l => ({
             id: l.id,
             eventType: l.eventType,
             description: l.description,
-            officerName: 'Field Officer',
+            officerName: l.officerName || 'Field Officer',
             deviceTimestamp: l.deviceTimestamp,
             syncStatus: l.syncStatus
           })),
@@ -212,19 +248,41 @@ export default function Dashboard({
     } finally {
       setIsRefreshing(false);
     }
-  }, []);
+  }, [loadLocalDatabase]);
 
-  // Polling on mount
+  // Real-time reactive updates: listen to local events and poll
   useEffect(() => {
     fetchTelemetryOverview(false);
+
+    const handleDataChanged = () => {
+      loadLocalDatabase();
+      fetchTelemetryOverview(false);
+    };
+
+    window.addEventListener('citizen-registered', handleDataChanged);
+    window.addEventListener('daily-report-submitted', handleDataChanged);
+    window.addEventListener('activity-logged', handleDataChanged);
+    window.addEventListener('force-sync', handleDataChanged);
+    window.addEventListener('fieldsync-status-updated', handleDataChanged);
+    window.addEventListener('notifications-updated', handleDataChanged);
+
     const interval = setInterval(() => {
       fetchTelemetryOverview(false);
-    }, 60000); // refresh every minute
-    return () => clearInterval(interval);
-  }, [fetchTelemetryOverview]);
+    }, 15000);
+
+    return () => {
+      window.removeEventListener('citizen-registered', handleDataChanged);
+      window.removeEventListener('daily-report-submitted', handleDataChanged);
+      window.removeEventListener('activity-logged', handleDataChanged);
+      window.removeEventListener('force-sync', handleDataChanged);
+      window.removeEventListener('fieldsync-status-updated', handleDataChanged);
+      window.removeEventListener('notifications-updated', handleDataChanged);
+      clearInterval(interval);
+    };
+  }, [fetchTelemetryOverview, loadLocalDatabase]);
 
   // Fetch individual officer drilldown
-  const handleOpenOfficerDrilldown = async (officerId) => {
+  const handleOpenOfficerDrilldown = async (officerId: string) => {
     setSelectedOfficerId(officerId);
     setOfficerDetail(null);
     setIsLoadingOfficer(true);
@@ -247,10 +305,14 @@ export default function Dashboard({
       throw new Error('Unable to fetch officer drilldown');
     } catch (e) {
       console.warn('Officer drilldown fallback:', e);
-      // Fallback from passed props
-      const foundUser = (users || []).find(u => u.id === officerId || u.employeeId === officerId);
-      const officerCitizens = (citizens || []).filter(c => c.registeredById === officerId || c.registeredBy === officerId);
-      const officerReports = (reports || []).filter(r => r.officerId === officerId || r.employeeId === officerId);
+      // Fallback from local data
+      const allUsers = localUsers.length > 0 ? localUsers : (users || []);
+      const allCitizens = localCitizens.length > 0 ? localCitizens : (citizens || []);
+      const allReports = localReports.length > 0 ? localReports : (reports || []);
+
+      const foundUser = allUsers.find(u => u.id === officerId || u.employeeId === officerId);
+      const officerCitizensList = allCitizens.filter(c => c.registeredById === officerId || c.registeredBy === officerId);
+      const officerReportsList = allReports.filter(r => r.officerId === officerId || r.employeeId === officerId);
 
       setOfficerDetail({
         officer: {
@@ -263,20 +325,20 @@ export default function Dashboard({
           supervisorName: 'Supervisor'
         },
         metrics: {
-          citizensRegistered: officerCitizens.length,
+          citizensRegistered: officerCitizensList.length,
           totalSessions: 1,
           totalScreenTimeSeconds: 0,
           totalScreenTimeFormatted: '00:00:00',
-          reportsCount: officerReports.length,
+          reportsCount: officerReportsList.length,
         },
-        recentReports: officerReports.slice(0, 5).map(r => ({
+        recentReports: officerReportsList.slice(0, 5).map(r => ({
           id: r.id,
           reportDate: r.reportDate || getToday(),
-          citizenCountLocal: r.registrationsCount || 0,
-          citizenCountServerConfirmed: r.registrationsCount || 0,
-          screenTimeSeconds: 0,
-          screenTimeFormatted: '00:00:00',
-          syncStatus: r.synced ? 'SYNCED' : 'PENDING'
+          citizenCountLocal: r.citizenCountLocal || r.registrationsCount || 0,
+          citizenCountServerConfirmed: r.citizenCountServerConfirmed || r.registrationsCount || 0,
+          screenTimeSeconds: r.screenTimeSeconds || 0,
+          screenTimeFormatted: r.screenTimeFormatted || '00:00:00',
+          syncStatus: r.syncStatus || (r.synced ? 'SYNCED' : 'PENDING')
         }))
       });
     } finally {
@@ -284,42 +346,134 @@ export default function Dashboard({
     }
   };
 
-  // COMPUTED TELEMETRY & DISPLAY DERIVATIONS
+  // ============================================================
+  // COMPUTED TELEMETRY & DISPLAY DERIVATIONS FROM REAL DATABASE
+  // ============================================================
 
-  // Key metrics
-  const totalCitizens = telemetryData?.citizens?.total ?? citizens.length;
-  const todayCitizens = telemetryData?.citizens?.today ?? 0;
-  const syncedCitizens = telemetryData?.citizens?.synced ?? citizens.filter(c => c.synced).length;
-  const pendingCitizens = telemetryData?.citizens?.pending ?? citizens.filter(c => !c.synced).length;
+  // Normalized local date string for today (e.g. "2026-09-28")
+  const todayStr = useMemo(() => getZonedTimeComponents().dateStr, []);
 
-  const todayScreenTimeFormatted = telemetryData?.telemetry?.todayScreenTimeFormatted || '00:00:00';
+  // Safe helper to extract YYYY-MM-DD from any timestamp using local timezone
+  const getCitizenDateStr = useCallback((c: any): string => {
+    const ts = c.registrationTimestamp || c.createdAt || c.registrationDate || '';
+    if (!ts) return '';
+    if (typeof ts === 'string') {
+      if (ts.length >= 10 && /^\d{4}-\d{2}-\d{2}/.test(ts)) {
+        try {
+          const zoned = getZonedTimeComponents(new Date(ts));
+          return zoned.dateStr;
+        } catch {
+          return ts.slice(0, 10);
+        }
+      }
+    }
+    return '';
+  }, []);
+
+  // Effective real datasets: prioritize local Dexie store, fallback to props
+  const effectiveCitizens = useMemo(() => {
+    return localCitizens.length > 0 ? localCitizens : (citizens || []);
+  }, [localCitizens, citizens]);
+
+  const effectiveReports = useMemo(() => {
+    return localReports.length > 0 ? localReports : (reports || []);
+  }, [localReports, reports]);
+
+  const effectiveLogs = useMemo(() => {
+    return localLogs.length > 0 ? localLogs : (telemetryData?.recentActivity || []);
+  }, [localLogs, telemetryData]);
+
+  // Filter citizens for current field officer
+  const officerCitizens = useMemo(() => {
+    if (!isOfficer) return effectiveCitizens;
+    const filtered = effectiveCitizens.filter(c => {
+      const idMatch =
+        c.registeredById === user?.id ||
+        c.registeredById === user?.employeeId ||
+        c.registeredBy === user?.id ||
+        c.registeredBy === user?.employeeId ||
+        c.registeredByName === user?.fullName ||
+        c.registeredByName === user?.name ||
+        (c as any).officerId === user?.id;
+      return idMatch;
+    });
+    // Fallback: If officer filter returns 0 but records exist on this offline officer's terminal
+    return filtered.length > 0 ? filtered : effectiveCitizens;
+  }, [effectiveCitizens, isOfficer, user]);
+
+  // Key metrics calculated directly from real database records
+  const targetCitizens = isOfficer ? officerCitizens : effectiveCitizens;
+  const totalCitizens = targetCitizens.length;
+  const todayCitizens = targetCitizens.filter(c => getCitizenDateStr(c) === todayStr).length;
+  const syncedCitizens = targetCitizens.filter(c => c.syncStatus === 'SYNCED' || c.synced).length;
+  const pendingCitizens = targetCitizens.filter(c => c.syncStatus !== 'SYNCED' && !c.synced).length;
+
+  // Real today report for this officer
+  const todayReport = useMemo(() => {
+    return effectiveReports.find(r => {
+      const dateMatch = (r.reportDate || '').slice(0, 10) === todayStr;
+      if (!dateMatch) return false;
+      if (!isOfficer) return true;
+      return (
+        r.officerId === user?.id ||
+        r.officerId === user?.employeeId ||
+        r.employeeId === user?.id ||
+        r.employeeId === user?.employeeId ||
+        !r.officerId
+      );
+    });
+  }, [effectiveReports, todayStr, isOfficer, user]);
+
+  const isReportSubmittedToday = Boolean(todayReport);
+  const reportsToday = effectiveReports.filter(r => (r.reportDate || '').slice(0, 10) === todayStr).length;
+
+  const todayScreenTimeFormatted = telemetryData?.telemetry?.todayScreenTimeFormatted || todayReport?.screenTimeFormatted || '00:00:00';
   const totalScreenTimeFormatted = telemetryData?.telemetry?.totalScreenTimeFormatted || '00:00:00';
-  const totalSessionsCount = telemetryData?.telemetry?.totalSessionsCount || 0;
+  const totalSessionsCount = telemetryData?.telemetry?.totalSessionsCount || localSessions.length;
 
-  const complianceRate = telemetryData?.compliance?.complianceRatePercentage ?? 100;
-  const reportsToday = telemetryData?.compliance?.reportsSubmittedToday ?? 0;
   const totalStaff = telemetryData?.compliance?.totalAssignedStaff ?? (teamMembers.length || 1);
+  const complianceRate = reportsToday > 0 ? Math.min(100, Math.round((reportsToday / (totalStaff || 1)) * 100)) : 0;
 
   const urgentRoadblocks = telemetryData?.compliance?.urgentRoadblocks || [];
   const pendingDuplicates = telemetryData?.duplicates?.pending ?? 0;
 
-  const recentActivityStream = telemetryData?.recentActivity || [];
+  // Live activity stream from real activity logs
+  const recentActivityStream = useMemo(() => {
+    if (effectiveLogs.length > 0) {
+      return effectiveLogs.map(l => ({
+        id: l.id || Math.random().toString(),
+        eventType: l.eventType || 'LOG',
+        description: l.description || 'System operational event',
+        officerName: l.officerName || user?.fullName || user?.name || 'Field Officer',
+        deviceTimestamp: l.deviceTimestamp || new Date().toISOString(),
+        syncStatus: l.syncStatus || 'SYNCED'
+      }));
+    }
+    return [];
+  }, [effectiveLogs, user]);
 
-  // Chart: 7-Day Trend
+  // Chart 1: 7-Day Velocity Chart (Aggregated accurately from real database records)
   const registrationTrendData = useMemo(() => {
-    const today = new Date();
     const data = [];
     for (let i = 6; i >= 0; i--) {
-      const d = new Date(today);
+      const d = new Date();
       d.setDate(d.getDate() - i);
-      const dateStr = d.toISOString().slice(0, 10);
-      const count = (citizens || []).filter(c => (c.registrationDate || c.registrationTimestamp || '').slice(0, 10) === dateStr).length;
-      data.push({ date: dateStr.slice(5), fullDate: dateStr, value: count });
+      const dateStr = getZonedTimeComponents(d).dateStr;
+      const count = targetCitizens.filter(c => getCitizenDateStr(c) === dateStr).length;
+      data.push({
+        date: dateStr.slice(5), // "MM-DD" e.g. "09-28"
+        fullDate: dateStr,
+        value: count
+      });
     }
     return data;
-  }, [citizens]);
+  }, [targetCitizens, getCitizenDateStr]);
 
-  // Chart: Geographic Distribution (by Region)
+  const total7DayVelocity = useMemo(() => {
+    return registrationTrendData.reduce((sum, item) => sum + item.value, 0);
+  }, [registrationTrendData]);
+
+  // Chart 2: Geographic Distribution by Region (Aggregated from real database records)
   const geographicData = useMemo(() => {
     const map: Record<string, number> = {};
     const normalizeRegion = (raw?: string) => {
@@ -333,28 +487,28 @@ export default function Dashboard({
       if (lower === 'central') return 'Addis Ababa';
       return clean;
     };
-    (citizens || []).forEach(c => {
-      const reg = normalizeRegion(c.region || (c as any).regionName);
+    targetCitizens.forEach(c => {
+      const reg = normalizeRegion(c.regionName || c.region);
       map[reg] = (map[reg] || 0) + 1;
     });
     return Object.entries(map).map(([name, count]) => ({ name, count }));
-  }, [citizens]);
+  }, [targetCitizens]);
 
-  // Chart: Gender Breakdown
+  // Chart 3: Gender Breakdown (Aggregated from real database records)
   const genderData = useMemo(() => {
-    if (telemetryData?.citizens?.genderDistribution?.length > 0) {
-      return telemetryData.citizens.genderDistribution.map(g => ({
-        name: g.gender,
-        value: g.count
-      }));
-    }
-    const male = (citizens || []).filter(c => (c.gender || '').toUpperCase() === 'MALE').length;
-    const female = (citizens || []).filter(c => (c.gender || '').toUpperCase() === 'FEMALE').length;
+    const male = targetCitizens.filter(c => (c.gender || '').toUpperCase() === 'MALE').length;
+    const female = targetCitizens.filter(c => (c.gender || '').toUpperCase() === 'FEMALE').length;
+    const other = targetCitizens.filter(c => {
+      const g = (c.gender || '').toUpperCase();
+      return g && g !== 'MALE' && g !== 'FEMALE';
+    }).length;
+    const total = male + female + other;
     return [
-      { name: 'MALE', value: male },
-      { name: 'FEMALE', value: female }
+      { name: 'MALE', value: male, percent: total > 0 ? Math.round((male / total) * 100) : 0 },
+      { name: 'FEMALE', value: female, percent: total > 0 ? Math.round((female / total) * 100) : 0 },
+      ...(other > 0 ? [{ name: 'OTHER', value: other, percent: total > 0 ? Math.round((other / total) * 100) : 0 }] : [])
     ].filter(d => d.value > 0);
-  }, [telemetryData, citizens]);
+  }, [targetCitizens]);
 
   // Team Leaderboard
   const teamLeaderboard = useMemo(() => {
@@ -597,77 +751,137 @@ export default function Dashboard({
       )}
 
       {/* ============================================================
-          FIELD OFFICER DASHBOARD VIEW
+          FIELD OFFICER DASHBOARD VIEW: QUICK ACTION BUTTONS & METRICS
          ============================================================ */}
       {isOfficer && (
         <>
-          {/* Quick Action Shortcuts */}
+          {/* Quick Action Shortcuts: Redesigned with Balanced Visual Hierarchy & Tactile Feedback */}
           {setActiveTab && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Card
-                hover
+              {/* Button 1: Register Citizen */}
+              <div
                 onClick={() => setActiveTab('register')}
-                className="p-5 cursor-pointer bg-gradient-to-r from-blue-900 to-blue-800 text-white border-0 shadow-md group"
+                className="group relative cursor-pointer overflow-hidden rounded-2xl bg-white dark:bg-[#1E293B] p-5 border border-blue-200/90 dark:border-blue-900/60 shadow-xs hover:shadow-md hover:border-blue-500 dark:hover:border-blue-400 hover:-translate-y-0.5 transition-all duration-200"
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3.5">
-                    <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center text-white backdrop-blur-xs">
+                {/* Visual accent top line */}
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-500" />
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-4 min-w-0">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/25 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform duration-200">
                       <UserPlus className="w-6 h-6" />
                     </div>
-                    <div>
-                      <h4 className="font-semibold text-base text-white">Register Citizen</h4>
-                      <p className="text-xs text-blue-200 mt-0.5">Record offline citizen profile</p>
+                    <div className="min-w-0">
+                      <h4 className="font-bold text-base text-slate-900 dark:text-white tracking-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                        Register Citizen
+                      </h4>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                        Register a new citizen record, online or offline.
+                      </p>
                     </div>
                   </div>
-                  <ArrowRight className="w-5 h-5 text-blue-200 group-hover:translate-x-1 transition-transform" />
+                  <div className="w-9 h-9 rounded-full bg-blue-50 dark:bg-blue-950/70 text-blue-600 dark:text-blue-400 group-hover:bg-blue-600 group-hover:text-white flex items-center justify-center flex-shrink-0 transition-all duration-200 group-hover:translate-x-1 shadow-2xs">
+                    <ArrowRight className="w-4 h-4" />
+                  </div>
                 </div>
-              </Card>
+              </div>
 
-              <Card
-                hover
+              {/* Button 2: Daily Work Report */}
+              <div
                 onClick={() => setActiveTab('report_new')}
-                className="p-5 cursor-pointer bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-[#334155] shadow-subtle group hover:border-blue-300 dark:hover:border-blue-500"
+                className={`group relative cursor-pointer overflow-hidden rounded-2xl bg-white dark:bg-[#1E293B] p-5 border shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 ${
+                  isReportSubmittedToday
+                    ? 'border-emerald-200/90 dark:border-emerald-900/60 hover:border-emerald-500 dark:hover:border-emerald-400'
+                    : 'border-indigo-200/90 dark:border-indigo-900/60 hover:border-indigo-500 dark:hover:border-indigo-400'
+                }`}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3.5">
-                    <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-[#1E3A8A] dark:text-[#60A5FA] flex items-center justify-center">
-                      <FilePlus2 className="w-6 h-6" />
+                {/* Visual accent top line */}
+                <div
+                  className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${
+                    isReportSubmittedToday
+                      ? 'from-emerald-500 via-teal-500 to-emerald-600'
+                      : 'from-indigo-600 via-purple-600 to-indigo-500'
+                  }`}
+                />
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-4 min-w-0">
+                    <div
+                      className={`w-12 h-12 rounded-xl text-white shadow-md flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform duration-200 ${
+                        isReportSubmittedToday
+                          ? 'bg-gradient-to-tr from-emerald-600 to-teal-600 shadow-emerald-500/25'
+                          : 'bg-gradient-to-tr from-indigo-600 to-purple-600 shadow-indigo-500/25'
+                      }`}
+                    >
+                      {isReportSubmittedToday ? (
+                        <CheckCircle2 className="w-6 h-6" />
+                      ) : (
+                        <FilePlus2 className="w-6 h-6" />
+                      )}
                     </div>
-                    <div>
-                      <h4 className="font-semibold text-base text-slate-900 dark:text-white">Submit Daily Report</h4>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Finalize screen time & submit work log</p>
+                    <div className="min-w-0">
+                      <h4
+                        className={`font-bold text-base text-slate-900 dark:text-white tracking-tight transition-colors ${
+                          isReportSubmittedToday
+                            ? 'group-hover:text-emerald-600 dark:group-hover:text-emerald-400'
+                            : 'group-hover:text-indigo-600 dark:group-hover:text-indigo-400'
+                        }`}
+                      >
+                        Daily Work Report
+                      </h4>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                        View and manage your report for today.
+                      </p>
                     </div>
                   </div>
-                  <ArrowRight className="w-5 h-5 text-slate-400 group-hover:translate-x-1 group-hover:text-[#1E3A8A] dark:group-hover:text-[#60A5FA] transition-all" />
+                  <div
+                    className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-200 group-hover:translate-x-1 shadow-2xs ${
+                      isReportSubmittedToday
+                        ? 'bg-emerald-50 dark:bg-emerald-950/70 text-emerald-600 dark:text-emerald-400 group-hover:bg-emerald-600 group-hover:text-white'
+                        : 'bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white'
+                    }`}
+                  >
+                    <ArrowRight className="w-4 h-4" />
+                  </div>
                 </div>
-              </Card>
+              </div>
             </div>
           )}
 
-          {/* Officer Key Metrics */}
+          {/* Officer Key Metrics: Direct Database Real Values */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <StatCard
               title="My Registrations"
               value={totalCitizens}
               subtitle={`${todayCitizens} registered today`}
               icon={Users}
-              iconColor="text-blue-700"
-              iconBg="bg-blue-50"
+              iconColor="text-blue-700 dark:text-blue-400"
+              iconBg="bg-blue-50 dark:bg-blue-950/80"
+              badge={`${syncedCitizens} Synced`}
+              badgeColor="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-800"
             />
             <StatCard
               title="Today's Report Status"
-              value={reportsToday > 0 ? 'SUBMITTED' : 'PENDING'}
-              subtitle={reportsToday > 0 ? 'Daily report submitted' : 'Pending submission'}
-              icon={FileText}
-              iconColor="text-indigo-700"
-              iconBg="bg-indigo-50"
+              value={isReportSubmittedToday ? 'SUBMITTED' : 'PENDING'}
+              subtitle={
+                isReportSubmittedToday
+                  ? 'Daily work report submitted for today'
+                  : 'Pending submission at shift completion'
+              }
+              icon={isReportSubmittedToday ? CalendarCheck : FileText}
+              iconColor={isReportSubmittedToday ? 'text-emerald-700 dark:text-emerald-400' : 'text-indigo-700 dark:text-indigo-400'}
+              iconBg={isReportSubmittedToday ? 'bg-emerald-50 dark:bg-emerald-950/80' : 'bg-indigo-50 dark:bg-indigo-950/80'}
+              badge={isReportSubmittedToday ? 'Shift Logged ✓' : 'Action Required'}
+              badgeColor={
+                isReportSubmittedToday
+                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-800'
+                  : 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/80 dark:text-amber-300 dark:border-amber-800'
+              }
             />
           </div>
         </>
       )}
 
       {/* ============================================================
-          INTERACTIVE CHARTS & VISUAL TELEMETRY
+          INTERACTIVE CHARTS & VISUAL TELEMETRY (REAL DATABASE SOURCES)
          ============================================================ */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* 7-Day Velocity Chart */}
@@ -710,6 +924,12 @@ export default function Dashboard({
         <ChartWrapper
           title="Geographic Distribution by Region"
           subtitle="Citizen registration density across administrative regions"
+          rightElement={
+            <div className="flex items-center gap-1.5 bg-teal-50 dark:bg-teal-950/60 border border-teal-200/80 dark:border-teal-900/60 px-2.5 py-1 rounded-full text-xs font-semibold text-teal-700 dark:text-teal-300">
+              <MapPin className="w-3.5 h-3.5" />
+              <span>{geographicData.length} Active Regions</span>
+            </div>
+          }
         >
           {geographicData.length === 0 ? (
             <div className="h-full flex items-center justify-center text-xs text-slate-400">
@@ -735,9 +955,15 @@ export default function Dashboard({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Demographics / Gender Card */}
         <Card className="flex flex-col">
-          <CardHeader>
-            <CardTitle>Demographic Distribution</CardTitle>
-            <CardDescription>Gender breakdown of registered citizens</CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Demographic Distribution</CardTitle>
+              <CardDescription>Gender breakdown of registered citizens</CardDescription>
+            </div>
+            <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-full text-xs font-semibold text-slate-700 dark:text-slate-300">
+              <Users className="w-3.5 h-3.5" />
+              <span>{totalCitizens} Total</span>
+            </div>
           </CardHeader>
           <CardContent className="flex-1 flex flex-col justify-center items-center">
             {genderData.length === 0 ? (
@@ -766,15 +992,16 @@ export default function Dashboard({
                   </PieChart>
                 </ResponsiveContainer>
 
-                <div className="flex items-center justify-center gap-6 mt-2 text-xs">
-                  {genderData.map((g, i) => (
+                <div className="flex items-center justify-center gap-6 mt-3 text-xs">
+                  {genderData.map((g: any, i) => (
                     <div key={i} className="flex items-center gap-1.5">
                       <span
                         className="w-3 h-3 rounded-full"
                         style={{ backgroundColor: GENDER_COLORS[g.name] || CHART_COLORS[i % CHART_COLORS.length] }}
                       />
-                      <span className="font-medium text-slate-700 capitalize">{g.name.toLowerCase()}:</span>
-                      <span className="font-bold text-slate-900">{g.value}</span>
+                      <span className="font-medium text-slate-700 dark:text-slate-300 capitalize">{g.name.toLowerCase()}:</span>
+                      <span className="font-bold text-slate-900 dark:text-white">{g.value}</span>
+                      <span className="text-[11px] text-slate-400 dark:text-slate-500">({g.percent}%)</span>
                     </div>
                   ))}
                 </div>

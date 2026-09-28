@@ -477,59 +477,38 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
                   </div>
 
                   <div className="shrink-0">
-                    {isSynced ? (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                        Synced to Cloud
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
-                        <Clock className="w-3.5 h-3.5 text-amber-500" />
-                        Pending Sync
-                      </span>
-                    )}
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                      {isSynced ? 'Synced to Cloud' : 'Pending Sync'}
+                    </span>
                   </div>
                 </div>
 
                 {/* 2 Clean Telemetry Metric Tiles */}
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="p-4 bg-white dark:bg-[#1E293B] rounded-xl border border-[#E2E8F0] dark:border-[#334155] shadow-xs flex items-center justify-between">
-                    <div>
-                      <span className="text-[11px] text-slate-400 dark:text-slate-500 uppercase font-bold block mb-1">
-                        Citizens Registered
-                      </span>
-                      <span className="text-2xl font-black text-[#2563EB] dark:text-[#60A5FA] font-mono block">
-                        {inspectReport.citizenCountLocal || 0}
-                      </span>
-                    </div>
-                    <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-[#2563EB] dark:text-[#60A5FA] flex items-center justify-center shrink-0">
-                      <Users className="w-5 h-5" />
-                    </div>
+                  <div className="p-4 bg-white dark:bg-[#1E293B] rounded-xl border border-[#E2E8F0] dark:border-[#334155] shadow-xs">
+                    <span className="text-[11px] text-slate-400 dark:text-slate-500 uppercase font-bold block mb-1">
+                      Citizens Registered
+                    </span>
+                    <span className="text-2xl font-black text-slate-900 dark:text-white font-mono block">
+                      {inspectReport.citizenCountLocal || 0}
+                    </span>
                   </div>
 
-                  <div className="p-4 bg-white dark:bg-[#1E293B] rounded-xl border border-[#E2E8F0] dark:border-[#334155] shadow-xs flex items-center justify-between">
-                    <div>
-                      <span className="text-[11px] text-slate-400 dark:text-slate-500 uppercase font-bold block mb-1">
-                        Screen Time
-                      </span>
-                      <span className="text-2xl font-black text-indigo-600 dark:text-indigo-400 font-mono block">
-                        {inspectReport.screenTimeFormatted || formatTime(inspectReport.screenTimeSeconds)}
-                      </span>
-                    </div>
-                    <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
-                      <Clock className="w-5 h-5" />
-                    </div>
+                  <div className="p-4 bg-white dark:bg-[#1E293B] rounded-xl border border-[#E2E8F0] dark:border-[#334155] shadow-xs">
+                    <span className="text-[11px] text-slate-400 dark:text-slate-500 uppercase font-bold block mb-1">
+                      Screen Time
+                    </span>
+                    <span className="text-2xl font-black text-slate-900 dark:text-white font-mono block">
+                      {inspectReport.screenTimeFormatted || formatTime(inspectReport.screenTimeSeconds)}
+                    </span>
                   </div>
                 </div>
 
                 {/* Section 1: Work Summary & Narrative */}
                 <div className="p-3.5 bg-white dark:bg-[#1E293B] rounded-xl border border-[#E2E8F0] dark:border-[#334155] shadow-2xs space-y-1.5">
-                  <div className="flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-[#2563EB] dark:text-[#60A5FA]" />
-                    <h4 className="font-extrabold text-slate-900 dark:text-[#F8FAFC] text-xs uppercase tracking-wider">
-                      Daily Work Summary & Completed Deliverables
-                    </h4>
-                  </div>
+                  <h4 className="font-extrabold text-slate-900 dark:text-[#F8FAFC] text-xs uppercase tracking-wider">
+                    Daily Work Summary & Completed Deliverables
+                  </h4>
                   <div className="p-2.5 bg-slate-50 dark:bg-[#0F172A] rounded-lg border border-slate-100 dark:border-slate-800 text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap font-medium">
                     {details.summary || 'No narrative provided'}
                   </div>
@@ -538,13 +517,10 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
                 {/* Section 2: Roadblocks & Challenges (if recorded) */}
                 {details.challenges && (
                   <div className="p-3.5 bg-white dark:bg-[#1E293B] rounded-xl border border-[#E2E8F0] dark:border-[#334155] shadow-2xs space-y-1.5">
-                    <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
-                      <AlertCircle className="w-4 h-4" />
-                      <h4 className="font-extrabold text-slate-900 dark:text-[#F8FAFC] text-xs uppercase tracking-wider">
-                        Roadblocks & Operational Challenges
-                      </h4>
-                    </div>
-                    <div className="p-2.5 bg-amber-50/50 dark:bg-[#0F172A] rounded-lg border border-amber-200/50 dark:border-amber-900/40 text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap font-medium">
+                    <h4 className="font-extrabold text-slate-900 dark:text-[#F8FAFC] text-xs uppercase tracking-wider">
+                      Roadblocks & Operational Challenges
+                    </h4>
+                    <div className="p-2.5 bg-slate-50 dark:bg-[#0F172A] rounded-lg border border-slate-100 dark:border-slate-800 text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap font-medium">
                       {details.challenges}
                     </div>
                   </div>
@@ -553,24 +529,18 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
                 {/* Section 3: Resources & Tomorrow's Strategy Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   <div className="p-3 bg-white dark:bg-[#1E293B] rounded-xl border border-[#E2E8F0] dark:border-[#334155] shadow-2xs space-y-1">
-                    <div className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400">
-                      <Wrench className="w-3.5 h-3.5 text-blue-500" />
-                      <h4 className="font-extrabold text-slate-900 dark:text-[#F8FAFC] text-[11px] uppercase tracking-wider">
-                        Resources & Logistics
-                      </h4>
-                    </div>
+                    <h4 className="font-extrabold text-slate-900 dark:text-[#F8FAFC] text-[11px] uppercase tracking-wider">
+                      Resources & Logistics
+                    </h4>
                     <div className="p-2 bg-slate-50 dark:bg-[#0F172A] rounded-lg border border-slate-100 dark:border-slate-800 text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
                       {details.resources || 'Standard field kit'}
                     </div>
                   </div>
 
                   <div className="p-3 bg-white dark:bg-[#1E293B] rounded-xl border border-[#E2E8F0] dark:border-[#334155] shadow-2xs space-y-1">
-                    <div className="flex items-center gap-1.5 text-indigo-600 dark:text-indigo-400">
-                      <ArrowRight className="w-3.5 h-3.5 text-indigo-500" />
-                      <h4 className="font-extrabold text-slate-900 dark:text-[#F8FAFC] text-[11px] uppercase tracking-wider">
-                        Tomorrow's Priorities
-                      </h4>
-                    </div>
+                    <h4 className="font-extrabold text-slate-900 dark:text-[#F8FAFC] text-[11px] uppercase tracking-wider">
+                      Tomorrow's Priorities
+                    </h4>
                     <div className="p-2 bg-slate-50 dark:bg-[#0F172A] rounded-lg border border-slate-100 dark:border-slate-800 text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
                       {details.nextDayPlan || 'Continue scheduled intake'}
                     </div>

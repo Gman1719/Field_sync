@@ -457,7 +457,7 @@ export default function ActivityTimeline({ user }) {
 
                         {/* Event Type */}
                         <td className="py-3.5 px-4 whitespace-nowrap">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold border ${meta.bgClass}`}>
+                          <span className="font-semibold text-xs text-slate-800 dark:text-slate-200">
                             {meta.label}
                           </span>
                         </td>

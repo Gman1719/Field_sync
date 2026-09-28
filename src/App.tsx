@@ -59,6 +59,9 @@ function AppContent() {
   const handleLogout = async () => {
     if (user) {
       appData.addAuditLog('User Logout', { email: user.email });
+      if (screenTimeInfo?.pauseAndSaveOnLogout) {
+        await screenTimeInfo.pauseAndSaveOnLogout();
+      }
     }
     setAuthView('landing');
     setSelectedDemoRole(null);

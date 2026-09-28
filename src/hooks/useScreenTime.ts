@@ -24,6 +24,7 @@ export interface ScreenTimeHookResult {
   activeWorkArea: string;            // current active tab/route
   startWorkSession: () => Promise<void>;
   finalizeWorkSession: () => Promise<void>;
+  pauseAndSaveOnLogout: () => Promise<void>;
   isTabActive: boolean;
   isWorkingHours: boolean;
   isLunch: boolean;
@@ -78,6 +79,9 @@ export function useScreenTime(user: any): ScreenTimeHookResult {
   const activeWorkAreaRef = useRef<string>(activeWorkArea);
   const verificationPendingRef = useRef<boolean>(false);
   const tabActiveRef = useRef<boolean>(true);
+  const isWindowFocusedRef = useRef<boolean>(
+    typeof document !== 'undefined' && typeof document.hasFocus === 'function' ? document.hasFocus() : true
+  );
   const pageTimesRef = useRef<Record<string, number>>({});
 
   useEffect(() => {
@@ -96,6 +100,22 @@ export function useScreenTime(user: any): ScreenTimeHookResult {
   activeWorkAreaRef.current = activeWorkArea;
   verificationPendingRef.current = isVerificationPending;
   tabActiveRef.current = isTabActive;
+
+  // Reusable helper to persist screen time to Dexie & localStorage immediately
+  const persistCurrentScreenTime = useCallback(() => {
+    if (!officerId || counterRef.current <= 0) return;
+    const { dateStr } = getZonedTimeComponents();
+    const screenTimeId = `st_${officerId}_${dateStr}`;
+    try {
+      localStorage.setItem(`fieldsync_screentime_${officerId}_${dateStr}`, String(counterRef.current));
+      offlineDb.dailyScreenTimes?.update(screenTimeId, {
+        totalEligibleSeconds: counterRef.current,
+        status: statusRef.current === 'FINALIZED' ? 'FINALIZED' : 'NOT_TRACKING',
+        lastActivityAt: new Date().toISOString(),
+        syncStatus: 'PENDING',
+      }).catch(() => {});
+    } catch {}
+  }, [officerId]);
 
   // 1. Listen for active tab changes across the application
   useEffect(() => {
@@ -119,17 +139,68 @@ export function useScreenTime(user: any): ScreenTimeHookResult {
     return () => window.removeEventListener('verification-modal-state', handleVerificationStatus);
   }, []);
 
-  // 3. User activity listeners (inactivity timeout)
+  // 3. User activity, focus/blur, media watching & window minimize detection
   useEffect(() => {
     const recordActivity = () => {
       lastActiveTimestampRef.current = Date.now();
     };
 
-    const updateVisibility = () => {
-      const active = document.visibilityState === 'visible' && document.hasFocus();
-      setIsTabActive(active);
-      tabActiveRef.current = active;
-      if (active) recordActivity();
+    const handleBlur = () => {
+      isWindowFocusedRef.current = false;
+      tabActiveRef.current = false;
+      setIsTabActive(false);
+
+      // Immediately set status to paused so header and UI reflect pause without waiting for interval
+      if (sessionActiveRef.current && statusRef.current === 'TRACKING') {
+        setTrackingStatus('NOT_TRACKING');
+        statusRef.current = 'NOT_TRACKING';
+        setStatusMessage('Page Inactive / Minimized — Paused');
+      }
+
+      persistCurrentScreenTime();
+    };
+
+    const handleFocus = () => {
+      const isVisible = typeof document !== 'undefined' && document.visibilityState === 'visible' && !document.hidden;
+      const hasFocus = typeof document !== 'undefined' && typeof document.hasFocus === 'function' ? document.hasFocus() : true;
+
+      if (isVisible && hasFocus) {
+        isWindowFocusedRef.current = true;
+        tabActiveRef.current = true;
+        setIsTabActive(true);
+        recordActivity();
+
+        const wh = evaluateWorkingHours();
+        if (
+          sessionActiveRef.current &&
+          statusRef.current !== 'FINALIZED' &&
+          wh.isWorkingHours &&
+          !wh.isLunch &&
+          !verificationPendingRef.current
+        ) {
+          setTrackingStatus('TRACKING');
+          statusRef.current = 'TRACKING';
+          setStatusMessage('Actively Counting');
+        }
+      } else {
+        handleBlur();
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      const isDocHidden = typeof document !== 'undefined' && (document.hidden || document.visibilityState !== 'visible');
+      if (isDocHidden) {
+        handleBlur();
+      } else {
+        // When coming back, ensure window focus has settled
+        setTimeout(() => {
+          if (typeof document !== 'undefined' && document.hasFocus && document.hasFocus()) {
+            handleFocus();
+          } else {
+            handleBlur();
+          }
+        }, 30);
+      }
     };
 
     window.addEventListener('mousemove', recordActivity, { passive: true });
@@ -138,11 +209,20 @@ export function useScreenTime(user: any): ScreenTimeHookResult {
     window.addEventListener('scroll', recordActivity, { passive: true });
     window.addEventListener('touchstart', recordActivity, { passive: true });
 
-    document.addEventListener('visibilitychange', updateVisibility);
-    window.addEventListener('focus', updateVisibility);
-    window.addEventListener('blur', updateVisibility);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+    window.addEventListener('blur', handleBlur);
+    window.addEventListener('pagehide', handleBlur);
+    window.addEventListener('pageshow', handleFocus);
 
-    updateVisibility();
+    // Initial check on mount
+    if (typeof document !== 'undefined') {
+      if (document.hidden || document.visibilityState !== 'visible' || (document.hasFocus && !document.hasFocus())) {
+        isWindowFocusedRef.current = false;
+        tabActiveRef.current = false;
+        setIsTabActive(false);
+      }
+    }
 
     return () => {
       window.removeEventListener('mousemove', recordActivity);
@@ -150,11 +230,33 @@ export function useScreenTime(user: any): ScreenTimeHookResult {
       window.removeEventListener('click', recordActivity);
       window.removeEventListener('scroll', recordActivity);
       window.removeEventListener('touchstart', recordActivity);
-      document.removeEventListener('visibilitychange', updateVisibility);
-      window.removeEventListener('focus', updateVisibility);
-      window.removeEventListener('blur', updateVisibility);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('blur', handleBlur);
+      window.removeEventListener('pagehide', handleBlur);
+      window.removeEventListener('pageshow', handleFocus);
     };
-  }, []);
+  }, [officerId, persistCurrentScreenTime]);
+
+  // Handle window beforeunload / tab close: save screen time
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (officerId && counterRef.current > 0) {
+        const { dateStr } = getZonedTimeComponents();
+        const screenTimeId = `st_${officerId}_${dateStr}`;
+        try {
+          localStorage.setItem(`fieldsync_screentime_${officerId}_${dateStr}`, String(counterRef.current));
+          offlineDb.dailyScreenTimes?.update(screenTimeId, {
+            totalEligibleSeconds: counterRef.current,
+            lastActivityAt: new Date().toISOString(),
+          }).catch(() => {});
+        } catch {}
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [officerId]);
 
   // 4. Load initial state for today from Dexie / server
   useEffect(() => {
@@ -179,7 +281,12 @@ export function useScreenTime(user: any): ScreenTimeHookResult {
             .first();
         }
 
-        // B. Check today's workSession in Dexie
+        // B. Check localStorage fallback for cached seconds today
+        const cachedSecsStr = localStorage.getItem(`fieldsync_screentime_${officerId}_${dateStr}`);
+        const cachedSecs = cachedSecsStr ? parseInt(cachedSecsStr, 10) : 0;
+        const totalSavedSeconds = Math.max(localScreenTime?.totalEligibleSeconds || 0, cachedSecs || 0);
+
+        // C. Check today's latest workSession in Dexie
         const localSession = await offlineDb.workSessions
           .where('officerId')
           .equals(officerId)
@@ -187,43 +294,81 @@ export function useScreenTime(user: any): ScreenTimeHookResult {
           .reverse()
           .first();
 
-        // Check if report already submitted (finalized)
+        // 1. If an active, unended session exists, it resumes counting from totalSavedSeconds!
+        if (localSession && !localSession.endedAt) {
+          setIsSessionActive(true);
+          sessionActiveRef.current = true;
+          setSessionStartedAt(localSession.startedAt);
+          setScreenTimeCounter(totalSavedSeconds);
+          counterRef.current = totalSavedSeconds;
+          setTrackingStatus('TRACKING');
+          statusRef.current = 'TRACKING';
+          setStatusMessage('Work Session Active');
+          return;
+        }
+
+        // 2. If report already submitted today, keep finalized with 0 counter
         const dailyReport = await offlineDb.dailyWorkReports
           .where('officerId')
           .equals(officerId)
-          .filter((r) => r.reportDate === dateStr)
+          .filter((r) => r.reportDate === dateStr && !!r.submittedAt)
           .first();
 
-        if (dailyReport || localScreenTime?.status === 'FINALIZED') {
+        if (dailyReport) {
           setIsSessionActive(false);
+          sessionActiveRef.current = false;
           setTrackingStatus('FINALIZED');
-          setStatusMessage('Finalized (Daily Report Submitted)');
-          setScreenTimeCounter(localScreenTime?.totalEligibleSeconds || 0);
+          statusRef.current = 'FINALIZED';
+          setStatusMessage('Session Finalized');
+          setScreenTimeCounter(0);
+          counterRef.current = 0;
           setSessionStartedAt(localSession?.startedAt || null);
           return;
         }
 
-        if (localSession && !localSession.endedAt) {
-          // Session is actively started
+        // 3. If a session was started today, not submitted, and user logged out & logged back in:
+        if (localSession && totalSavedSeconds > 0) {
           setIsSessionActive(true);
+          sessionActiveRef.current = true;
           setSessionStartedAt(localSession.startedAt);
-          setScreenTimeCounter(localScreenTime?.totalEligibleSeconds || 0);
+          setScreenTimeCounter(totalSavedSeconds);
+          counterRef.current = totalSavedSeconds;
           setTrackingStatus('TRACKING');
+          statusRef.current = 'TRACKING';
           setStatusMessage('Work Session Active');
-        } else {
-          // Session not yet started today
-          setIsSessionActive(false);
-          setTrackingStatus('NOT_STARTED');
-          setStatusMessage('Work Session Not Started');
-          setScreenTimeCounter(localScreenTime?.totalEligibleSeconds || 0);
-          setSessionStartedAt(null);
+          return;
         }
+
+        // 4. Otherwise session not yet started today
+        setIsSessionActive(false);
+        sessionActiveRef.current = false;
+        setTrackingStatus('NOT_STARTED');
+        statusRef.current = 'NOT_STARTED';
+        setStatusMessage('Work Session Not Started');
+        setScreenTimeCounter(totalSavedSeconds);
+        counterRef.current = totalSavedSeconds;
+        setSessionStartedAt(null);
       } catch (err) {
         console.error('Error loading today screen-time state:', err);
       }
     };
 
     loadTodayState();
+
+    return () => {
+      // Cleanup on unmount or user change: cache current screen time
+      if (officerId && counterRef.current > 0) {
+        const { dateStr } = getZonedTimeComponents();
+        const screenTimeId = `st_${officerId}_${dateStr}`;
+        try {
+          localStorage.setItem(`fieldsync_screentime_${officerId}_${dateStr}`, String(counterRef.current));
+          offlineDb.dailyScreenTimes?.update(screenTimeId, {
+            totalEligibleSeconds: counterRef.current,
+            lastActivityAt: new Date().toISOString(),
+          }).catch(() => {});
+        } catch {}
+      }
+    };
   }, [officerId, isOfficer]);
 
   // 5. Start Work Session function (Explicit Officer Action)
@@ -259,19 +404,22 @@ export function useScreenTime(user: any): ScreenTimeHookResult {
           date: dateStr,
           startedAt: existing?.startedAt || nowIso,
           finalizedAt: null,
-          totalEligibleSeconds: existing?.totalEligibleSeconds || 0,
+          totalEligibleSeconds: 0,
           status: 'TRACKING',
           lastActivityAt: nowIso,
           lastSyncedAt: null,
           syncStatus: 'PENDING',
         };
         await offlineDb.dailyScreenTimes.put(newScreenTime);
-        setScreenTimeCounter(newScreenTime.totalEligibleSeconds);
+        setScreenTimeCounter(0);
+        counterRef.current = 0;
       }
 
       setIsSessionActive(true);
+      sessionActiveRef.current = true;
       setSessionStartedAt(nowIso);
       setTrackingStatus('TRACKING');
+      statusRef.current = 'TRACKING';
       setStatusMessage('Work Session Active');
 
       // 3. Notify server if online
@@ -330,9 +478,40 @@ export function useScreenTime(user: any): ScreenTimeHookResult {
 
       setIsSessionActive(false);
       setTrackingStatus('FINALIZED');
-      setStatusMessage('Finalized (Daily Report Submitted)');
+      setStatusMessage('Session Finalized');
+      setScreenTimeCounter(0);
+      counterRef.current = 0;
     } catch (e) {
       console.error('Failed to finalize work session:', e);
+    }
+  }, [officerId]);
+
+  // 7. Explicit pause and save when user logs out
+  const pauseAndSaveOnLogout = useCallback(async () => {
+    if (!officerId) return;
+
+    isWindowFocusedRef.current = false;
+    tabActiveRef.current = false;
+    setIsTabActive(false);
+    setTrackingStatus('NOT_TRACKING');
+    statusRef.current = 'NOT_TRACKING';
+
+    const { dateStr } = getZonedTimeComponents();
+    const screenTimeId = `st_${officerId}_${dateStr}`;
+    const currentSecs = counterRef.current;
+
+    try {
+      localStorage.setItem(`fieldsync_screentime_${officerId}_${dateStr}`, String(currentSecs));
+      if (offlineDb.dailyScreenTimes) {
+        await offlineDb.dailyScreenTimes.update(screenTimeId, {
+          totalEligibleSeconds: currentSecs,
+          status: 'NOT_TRACKING',
+          lastActivityAt: new Date().toISOString(),
+          syncStatus: 'PENDING',
+        });
+      }
+    } catch (e) {
+      console.warn('Failed to save screen time on logout:', e);
     }
   }, [officerId]);
 
@@ -359,17 +538,38 @@ export function useScreenTime(user: any): ScreenTimeHookResult {
         return;
       }
 
-      // Check Tab/Window Visibility & Focus
-      const isVisibleAndFocused = tabActiveRef.current;
+      // Live, real-time verification of document visibility and window focus
+      const isDocHidden = typeof document !== 'undefined' && (document.hidden || document.visibilityState !== 'visible');
+      const hasDocFocus = typeof document !== 'undefined' && typeof document.hasFocus === 'function' ? document.hasFocus() : false;
+
+      // Update refs to match live browser state
+      if (isDocHidden || !hasDocFocus) {
+        isWindowFocusedRef.current = false;
+        tabActiveRef.current = false;
+        setIsTabActive(false);
+      } else {
+        isWindowFocusedRef.current = true;
+        tabActiveRef.current = true;
+        setIsTabActive(true);
+      }
+
+      const isLiveActive = !isDocHidden && hasDocFocus && isWindowFocusedRef.current && tabActiveRef.current;
+
+      // User activity safeguard (pause if inactive for > 5 minutes)
+      const nowMs = Date.now();
+      const isUserActive = (nowMs - lastActiveTimestampRef.current) < INACTIVITY_TIMEOUT_MS;
 
       // Condition:
-      // Once started, never pause until daily report is submitted,
-      // EXCEPT when the officer minimizes the page, switches to another tab,
-      // or during lunch (12:30-13:30) / outside working hours.
+      // Once started, count ONLY when:
+      // 1. Within official working hours (08:30-12:30, 13:30-17:30)
+      // 2. Not during lunch break (12:30-13:30)
+      // 3. Page is visible AND window is actively focused (pauses on minimize, tab switch, or when viewing other media/windows)
+      // 4. User is active (not idle > 5 mins)
       const shouldCount =
         wh.isWorkingHours &&
         !wh.isLunch &&
-        isVisibleAndFocused;
+        isLiveActive &&
+        isUserActive;
 
       if (shouldCount) {
         if (statusRef.current !== 'TRACKING') {
@@ -412,8 +612,10 @@ export function useScreenTime(user: any): ScreenTimeHookResult {
             setStatusMessage('Lunch Break (12:30–13:30) — Paused');
           } else if (!wh.isWorkingHours) {
             setStatusMessage('Outside Working Hours — Paused');
-          } else if (!isVisibleAndFocused) {
+          } else if (!isLiveActive) {
             setStatusMessage('Page Inactive / Minimized — Paused');
+          } else if (!isUserActive) {
+            setStatusMessage('User Inactive — Paused');
           } else {
             setStatusMessage('Paused');
           }
@@ -478,6 +680,7 @@ export function useScreenTime(user: any): ScreenTimeHookResult {
     activeWorkArea,
     startWorkSession,
     finalizeWorkSession,
+    pauseAndSaveOnLogout,
     isTabActive,
     isWorkingHours,
     isLunch,

@@ -641,7 +641,19 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs sm:text-sm">
+              <table className="w-full table-fixed min-w-[1180px] text-left text-xs sm:text-sm">
+                <colgroup>
+                  <col style={{ width: '220px' }} />
+                  <col style={{ width: '160px' }} />
+                  <col style={{ width: '90px' }} />
+                  <col style={{ width: '80px' }} />
+                  <col style={{ width: '120px' }} />
+                  <col style={{ width: '160px' }} />
+                  <col style={{ width: '140px' }} />
+                  <col style={{ width: '140px' }} />
+                  <col style={{ width: '110px' }} />
+                  <col style={{ width: '90px' }} />
+                </colgroup>
                 <thead>
                   <tr className="bg-slate-50/90 dark:bg-[#0F172A] border-b border-[#E2E8F0] dark:border-[#334155] text-xs font-bold text-slate-600 dark:text-slate-200 uppercase tracking-wider">
                     <th className="py-4 pl-4 sm:pl-6 pr-3">Citizen Name & 12-Digit ID</th>
@@ -794,9 +806,6 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
           size="lg"
         >
           <div className="space-y-5">
-            {/* Top Accent Bar */}
-            <div className="h-1.5 w-full -mt-2 rounded-full bg-gradient-to-r from-emerald-500 via-amber-400 to-red-500 opacity-90" />
-
             {/* Profile Overview Card */}
             <div className="p-4 sm:p-5 bg-slate-50 dark:bg-[#0F172A] rounded-2xl border border-[#E2E8F0] dark:border-[#334155] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-4 min-w-0">

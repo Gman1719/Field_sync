@@ -150,7 +150,7 @@ export default function Login({
                     placeholder="name@fieldsync.com"
                     required
                     autoComplete="email"
-                    className="w-full h-14 pl-14 pr-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0B101D] text-slate-900 dark:text-white text-base sm:text-lg placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-4 focus:ring-blue-500/15 dark:focus:ring-blue-400/20 focus:border-[#2563EB] dark:focus:border-blue-400 transition-all shadow-xs"
+                    className="w-full h-14 pl-14 pr-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#1E293B] text-slate-900 dark:text-white text-base sm:text-lg placeholder-slate-400 dark:placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/15 dark:focus:ring-blue-400/20 focus:border-[#2563EB] dark:focus:border-blue-400 transition-all shadow-xs"
                   />
                 </div>
               </div>
@@ -170,7 +170,7 @@ export default function Login({
                     placeholder="Enter your password"
                     required
                     autoComplete="current-password"
-                    className="w-full h-14 pl-14 pr-14 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0B101D] text-slate-900 dark:text-white text-base sm:text-lg placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-4 focus:ring-blue-500/15 dark:focus:ring-blue-400/20 focus:border-[#2563EB] dark:focus:border-blue-400 transition-all shadow-xs"
+                    className="w-full h-14 pl-14 pr-14 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#1E293B] text-slate-900 dark:text-white text-base sm:text-lg placeholder-slate-400 dark:placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/15 dark:focus:ring-blue-400/20 focus:border-[#2563EB] dark:focus:border-blue-400 transition-all shadow-xs"
                   />
                   <button
                     type="button"
@@ -188,7 +188,7 @@ export default function Login({
                     type="checkbox"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B101D] text-[#2563EB] focus:ring-blue-500 dark:focus:ring-blue-400 w-5 h-5 cursor-pointer"
+                    className="rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-[#1E293B] text-[#2563EB] focus:ring-blue-500 dark:focus:ring-blue-400 w-5 h-5 cursor-pointer"
                   />
                   <span>Remember this device</span>
                 </label>

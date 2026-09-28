@@ -11,6 +11,7 @@ import { offlineDb } from '../../db/offlineDb';
 import { API_BASE } from '../../config/api';
 import ActivityLogger from '../../services/activityLogger';
 import SessionTracker from '../../services/sessionTracker';
+import { getZonedTimeComponents } from '../../config/workingHours';
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
 import Button from '../ui/Button';
@@ -20,13 +21,25 @@ import Textarea from '../ui/Textarea';
 import StatCard from '../ui/StatCard';
 import Modal from '../ui/Modal';
 
-export default function DailyWorkReportView({ user, addNotification, setActiveTab }) {
+interface DailyWorkReportViewProps {
+  user: any;
+  addNotification?: (notif: any) => void;
+  setActiveTab?: (tab: string) => void;
+  screenTimeInfo?: any;
+}
+
+export default function DailyWorkReportView({
+  user,
+  addNotification,
+  setActiveTab,
+  screenTimeInfo,
+}: DailyWorkReportViewProps) {
   const role = (user?.role || '').toLowerCase();
   const isOfficer = role === 'field_officer';
   const isSupervisor = role === 'supervisor';
   const isManager = role === 'manager';
 
-  const todayStr = new Date().toISOString().split('T')[0];
+  const { dateStr: todayStr } = getZonedTimeComponents();
 
   // Officer States
   const [todayReport, setTodayReport] = useState(null);
@@ -55,9 +68,9 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
 
   // Supervisor & Manager States
   const [teamReports, setTeamReports] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedOfficerId, setSelectedOfficerId] = useState('');
+  const [officersList, setOfficersList] = useState<{ id: string; name: string }[]>([]);
   const [selectedDate, setSelectedDate] = useState(todayStr);
-  const [filterUrgentOnly, setFilterUrgentOnly] = useState(false);
   const [inspectModalReport, setInspectModalReport] = useState(null);
 
   // Format seconds helper
@@ -72,40 +85,44 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
   const computeDailyMetrics = async () => {
     setIsLoading(true);
     try {
-      // Check if report already submitted for today
+      // Check if report already submitted for today by this specific officer
+      const officerId = user?.id || user?.employeeId || 'officer';
       const existingReport = await offlineDb.dailyWorkReports
         .where('reportDate')
         .equals(todayStr)
+        .filter((r) => r.officerId === officerId)
         .first();
 
       if (existingReport) {
         setTodayReport(existingReport);
-
-        // Populate structured fields
-        let structured: Record<string, any> = {};
-        if (existingReport.comments) {
-          try {
-            structured = JSON.parse(existingReport.comments);
-          } catch {
-            structured = { summary: existingReport.comments };
-          }
-        }
-        setForm({
-          summary: existingReport.summary || structured.summary || existingReport.comments || '',
-          achievements: existingReport.achievements || structured.achievements || '',
-          challenges: existingReport.challenges || structured.challenges || '',
-          resources: existingReport.resources || structured.resources || '',
-          nextDayPlan: existingReport.nextDayPlan || structured.nextDayPlan || '',
-          isUrgent: Boolean(existingReport.isUrgent ?? structured.isUrgent),
-          urgentReason: existingReport.urgentReason || structured.urgentReason || '',
-        });
       }
 
-      // 1. Citizens registered today
+      // 1. Citizens registered today by this officer
       const allCitizens = await offlineDb.citizens.toArray();
       const todayCitizens = allCitizens.filter((c) => {
-        const date = (c.registrationTimestamp || c.createdAt || '').slice(0, 10);
-        return date === todayStr;
+        const isThisOfficer =
+          !isOfficer ||
+          c.registeredById === officerId ||
+          c.registeredById === user?.id ||
+          c.registeredById === user?.employeeId ||
+          c.registeredBy === officerId ||
+          c.registeredBy === user?.id ||
+          c.registeredBy === user?.employeeId ||
+          c.registeredByName === user?.fullName ||
+          c.registeredByName === user?.name ||
+          (c as any).officerId === officerId;
+
+        if (!isThisOfficer) return false;
+
+        const ts = c.registrationTimestamp || c.createdAt || c.registrationDate || '';
+        if (!ts) return false;
+        if (ts.startsWith(todayStr)) return true;
+        try {
+          const zoned = getZonedTimeComponents(new Date(ts));
+          return zoned.dateStr === todayStr;
+        } catch {
+          return false;
+        }
       });
       setLocalCitizenCount(todayCitizens.length);
       setServerCitizenCount(todayCitizens.filter((c) => c.syncStatus === 'SYNCED').length);
@@ -113,8 +130,15 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
       // 2. Activities recorded today
       const allActivities = await offlineDb.activityLogs.toArray();
       const todayActivities = allActivities.filter((a) => {
-        const date = (a.deviceTimestamp || '').slice(0, 10);
-        return date === todayStr;
+        const ts = a.deviceTimestamp || '';
+        if (!ts) return false;
+        if (ts.startsWith(todayStr)) return true;
+        try {
+          const zoned = getZonedTimeComponents(new Date(ts));
+          return zoned.dateStr === todayStr;
+        } catch {
+          return false;
+        }
       });
       setTodayActivityCount(todayActivities.length);
 
@@ -126,9 +150,59 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
 
       setTodaySessionCount(allSessions.length);
 
-      // Use SessionTracker for accurate accumulated screen time
-      const accumulatedSecs = await SessionTracker.getAccumulatedScreenTime(user?.id || 'officer', todayStr);
-      setTodayScreenTimeSecs(accumulatedSecs);
+      // Use SessionTracker and screenTimeInfo for accurate accumulated screen time
+      let liveSecs = screenTimeInfo?.screenTimeCounter || 0;
+
+      if (!liveSecs && offlineDb.dailyScreenTimes) {
+        try {
+          const st = await offlineDb.dailyScreenTimes
+            .where('officerId')
+            .equals(officerId)
+            .filter((r) => r.date === todayStr)
+            .first();
+          if (st?.totalEligibleSeconds) {
+            liveSecs = st.totalEligibleSeconds;
+          }
+        } catch {}
+      }
+
+      let accumulatedSecs = 0;
+      try {
+        accumulatedSecs = await SessionTracker.getAccumulatedScreenTime(officerId, todayStr);
+      } catch {}
+
+      const bestSecs = Math.max(
+        liveSecs,
+        existingReport?.screenTimeSeconds || 0,
+        accumulatedSecs || 0
+      );
+      setTodayScreenTimeSecs(bestSecs);
+
+      // Auto-heal existing report if it was submitted with 0 screen time while active telemetry exists
+      if (existingReport) {
+        if ((!existingReport.screenTimeSeconds || existingReport.screenTimeSeconds === 0) && bestSecs > 0) {
+          existingReport.screenTimeSeconds = bestSecs;
+          existingReport.screenTimeFormatted = formatTime(bestSecs);
+          await offlineDb.dailyWorkReports.put(existingReport);
+
+          // Stop running counter if finalized report already exists
+          if (screenTimeInfo?.finalizeWorkSession && screenTimeInfo?.trackingStatus !== 'FINALIZED') {
+            await screenTimeInfo.finalizeWorkSession();
+          }
+
+          const authToken = localStorage.getItem('fieldsync_token');
+          if (navigator.onLine && authToken) {
+            fetch(`${API_BASE}/reports/daily`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${authToken}`,
+              },
+              body: JSON.stringify(existingReport),
+            }).catch(() => {});
+          }
+        }
+      }
 
       // 4. Pending sync queue
       const pendingItems = await offlineDb.syncQueue
@@ -151,6 +225,7 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
   const loadSupervisorManagerReports = async () => {
     setIsLoading(true);
     try {
+      let reportsData: any[] = [];
       const authToken = localStorage.getItem('fieldsync_token');
       if (navigator.onLine && authToken) {
         try {
@@ -160,8 +235,8 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
           if (res.ok) {
             const data = await res.json();
             if (data.success && Array.isArray(data.data)) {
-              setTeamReports(data.data);
-              return;
+              reportsData = data.data;
+              setTeamReports(reportsData);
             }
           }
         } catch (apiErr) {
@@ -169,9 +244,43 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
         }
       }
 
-      // Offline fallback: load from IndexedDB
-      const localReports = await offlineDb.dailyWorkReports.orderBy('reportDate').reverse().toArray();
-      setTeamReports(localReports);
+      if (reportsData.length === 0) {
+        // Offline fallback: load from IndexedDB
+        reportsData = await offlineDb.dailyWorkReports.orderBy('reportDate').reverse().toArray();
+        setTeamReports(reportsData);
+      }
+
+      // Collect list of officers for the supervisor dropdown
+      const officerMap = new Map<string, string>();
+      try {
+        const allDbUsers = await offlineDb.users.toArray();
+        allDbUsers
+          .filter((u) => u.role === 'field_officer' && (!isSupervisor || u.supervisorId === user?.id))
+          .forEach((u) => officerMap.set(u.id, u.fullName || (u as any).name || u.email));
+      } catch {}
+
+      if (navigator.onLine && authToken && officerMap.size === 0) {
+        try {
+          const uRes = await fetch(`${API_BASE}/users`, {
+            headers: { Authorization: `Bearer ${authToken}` },
+          });
+          if (uRes.ok) {
+            const uData = await uRes.json();
+            const uList = Array.isArray(uData) ? uData : (uData.data || []);
+            uList
+              .filter((u: any) => u.role === 'field_officer' && (!isSupervisor || u.supervisorId === user?.id))
+              .forEach((u: any) => officerMap.set(u.id, u.fullName || u.name || u.email));
+          }
+        } catch {}
+      }
+
+      reportsData.forEach((r: any) => {
+        if (r.officerId && !officerMap.has(r.officerId)) {
+          officerMap.set(r.officerId, r.officerName || r.officerEmail || 'Field Officer');
+        }
+      });
+
+      setOfficersList(Array.from(officerMap.entries()).map(([id, name]) => ({ id, name })));
     } catch (err) {
       console.error('Failed to load supervisor/manager reports:', err);
     } finally {
@@ -182,19 +291,19 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
   useEffect(() => {
     if (isOfficer) {
       computeDailyMetrics();
+      const handleCitizenRegistered = () => {
+        computeDailyMetrics();
+      };
+      window.addEventListener('citizen-registered', handleCitizenRegistered);
+      return () => window.removeEventListener('citizen-registered', handleCitizenRegistered);
     } else {
       loadSupervisorManagerReports();
     }
-  }, [todayStr, isOfficer]);
+  }, [todayStr, isOfficer, user?.id]);
 
   // 3. Submit Daily Report & Finalize Screen Time
   const handleSubmitReport = async (e) => {
     e.preventDefault();
-
-    if (todayReport) {
-      toast.error("You reported today's report already!");
-      return;
-    }
 
     if (!form.summary.trim()) {
       toast.error('Please enter a summary of today’s field operations');
@@ -208,17 +317,71 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
 
     setIsSubmitting(true);
     try {
-      const officerId = user?.id || 'officer';
+      const officerId = user?.id || user?.employeeId || 'officer';
       const submittedAt = new Date().toISOString();
 
       // Step 1: Strictly finalize daily screen-time telemetry
-      const { finalizedScreenTimeSeconds, sessionCount } = await SessionTracker.finalizeDailyScreenTime(
-        officerId,
-        todayStr
+      let activeScreenSecs = screenTimeInfo?.screenTimeCounter || 0;
+
+      // Check Dexie dailyScreenTimes
+      if (offlineDb.dailyScreenTimes) {
+        try {
+          const st = await offlineDb.dailyScreenTimes
+            .where('officerId')
+            .equals(officerId)
+            .filter((r) => r.date === todayStr)
+            .first();
+          if (st?.totalEligibleSeconds) {
+            activeScreenSecs = Math.max(activeScreenSecs, st.totalEligibleSeconds);
+          }
+        } catch {}
+      }
+
+      // Check SessionTracker as well
+      let trackerSecs = 0;
+      let sessionCount = 0;
+      try {
+        const trackerRes = await SessionTracker.finalizeDailyScreenTime(officerId, todayStr);
+        trackerSecs = trackerRes.finalizedScreenTimeSeconds || 0;
+        sessionCount = trackerRes.sessionCount || 0;
+      } catch {}
+
+      const finalScreenTime = Math.max(
+        activeScreenSecs,
+        todayScreenTimeSecs,
+        trackerSecs,
+        todayReport?.screenTimeSeconds || 0
       );
 
-      const finalScreenTime = finalizedScreenTimeSeconds || todayScreenTimeSecs;
-      const finalSessions = sessionCount || todaySessionCount;
+      const finalSessions = sessionCount || todaySessionCount || 1;
+
+      // Crucial: Finalize work session via useScreenTime hook to immediately stop header timer
+      if (screenTimeInfo?.finalizeWorkSession) {
+        try {
+          await screenTimeInfo.finalizeWorkSession();
+        } catch (fErr) {
+          console.warn('finalizeWorkSession error:', fErr);
+        }
+      }
+
+      // Update offlineDb.dailyScreenTimes to FINALIZED
+      if (offlineDb.dailyScreenTimes) {
+        try {
+          const screenTimeId = `st_${officerId}_${todayStr}`;
+          await offlineDb.dailyScreenTimes.put({
+            id: screenTimeId,
+            officerId,
+            date: todayStr,
+            totalEligibleSeconds: finalScreenTime,
+            status: 'FINALIZED',
+            finalizedAt: submittedAt,
+            lastActivityAt: submittedAt,
+            syncStatus: 'PENDING',
+          });
+        } catch (stPutErr) {
+          console.warn('dailyScreenTimes put error:', stPutErr);
+        }
+      }
 
       // Step 2: Build structured data
       const structuredData = {
@@ -261,6 +424,7 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
 
       // Step 3: Save locally to Dexie (locks the report)
       await offlineDb.dailyWorkReports.put(reportPayload as any);
+      window.dispatchEvent(new CustomEvent('daily-report-submitted', { detail: reportPayload }));
 
       // Step 4: Record in local Activity Log
       await (ActivityLogger.log as any)(
@@ -314,8 +478,20 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
       }
 
       setTodayReport(reportPayload);
-      setTodayScreenTimeSecs(finalScreenTime);
+      setTodayScreenTimeSecs(0);
+      setLocalCitizenCount(0);
       setTodaySessionCount(finalSessions);
+
+      // Clear the inputted data from the fields after the report is submitted
+      setForm({
+        summary: '',
+        achievements: '',
+        challenges: '',
+        resources: '',
+        nextDayPlan: '',
+        isUrgent: false,
+        urgentReason: '',
+      });
 
       if (isSyncedServer) {
         toast.success('Daily Work Report submitted & synchronized with Central Database!');
@@ -325,7 +501,7 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
 
       if (addNotification) {
         addNotification({
-          title: 'Daily Report Submitted & Finalized',
+          title: todayReport ? 'Daily Report Updated' : 'Daily Report Submitted & Finalized',
           message: `Official report for ${todayStr} recorded (${reportPayload.syncStatus}) with ${formatTime(finalScreenTime)} finalized screen time.`,
           type: 'success',
         });
@@ -370,37 +546,22 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
     if (selectedDate) {
       result = result.filter((r) => r.reportDate === selectedDate);
     }
-    if (filterUrgentOnly) {
-      result = result.filter((r) => {
-        const details = getStructuredDetails(r);
-        return details.isUrgent;
-      });
-    }
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(
-        (r) =>
-          (r.officerName || '').toLowerCase().includes(q) ||
-          (r.officerWoreda || '').toLowerCase().includes(q) ||
-          (r.officerEmail || '').toLowerCase().includes(q) ||
-          (r.comments || '').toLowerCase().includes(q)
-      );
+    if (selectedOfficerId) {
+      result = result.filter((r) => r.officerId === selectedOfficerId);
     }
     return result;
-  }, [teamReports, selectedDate, filterUrgentOnly, searchQuery]);
+  }, [teamReports, selectedDate, selectedOfficerId]);
 
   // Aggregate stats for Supervisor/Manager
   const supervisorStats = useMemo(() => {
     const totalReports = filteredTeamReports.length;
     const totalCitizens = filteredTeamReports.reduce((sum, r) => sum + (r.citizenCountLocal || 0), 0);
     const totalSecs = filteredTeamReports.reduce((sum, r) => sum + (r.screenTimeSeconds || 0), 0);
-    const urgentCount = filteredTeamReports.filter((r) => getStructuredDetails(r).isUrgent).length;
 
     return {
       totalReports,
       totalCitizens,
       totalScreenTimeFormatted: formatTime(totalSecs),
-      urgentCount,
     };
   }, [filteredTeamReports]);
 
@@ -429,7 +590,7 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
         </div>
 
         {/* Aggregate KPI Stat Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <StatCard
             title="Reports Filed"
             value={supervisorStats.totalReports}
@@ -447,12 +608,6 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
             value={supervisorStats.totalScreenTimeFormatted}
             icon={Smartphone}
             color="indigo"
-          />
-          <StatCard
-            title="Urgent Roadblocks"
-            value={supervisorStats.urgentCount}
-            icon={AlertTriangle}
-            color={supervisorStats.urgentCount > 0 ? 'red' : 'amber'}
           />
         </div>
 
@@ -480,30 +635,21 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
             >
               All Dates
             </button>
-
-            <label className="flex items-center gap-2 cursor-pointer bg-slate-50 dark:bg-[#0F172A] px-3 py-1.5 rounded-lg border border-slate-200 dark:border-[#334155] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-              <input
-                type="checkbox"
-                checked={filterUrgentOnly}
-                onChange={(e) => setFilterUrgentOnly(e.target.checked)}
-                className="rounded border-slate-300 dark:border-slate-600 text-red-600 focus:ring-red-500 w-3.5 h-3.5 bg-white dark:bg-slate-800"
-              />
-              <span className="font-semibold text-red-700 dark:text-red-400 flex items-center gap-1">
-                <AlertTriangle className="w-3.5 h-3.5" />
-                Urgent Roadblocks Only
-              </span>
-            </label>
           </div>
 
-          <div className="relative w-full md:w-64">
-            <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search officer, woreda, notes..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 border border-slate-200 dark:border-[#334155] bg-white dark:bg-[#0F172A] rounded-lg text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]"
-            />
+          <div className="w-full md:w-64">
+            <select
+              value={selectedOfficerId}
+              onChange={(e) => setSelectedOfficerId(e.target.value)}
+              className="w-full px-3 py-1.5 border border-slate-200 dark:border-[#334155] bg-white dark:bg-[#0F172A] rounded-lg text-xs font-medium text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]"
+            >
+              <option value="">Filter by Officer (All Officers)</option>
+              {officersList.map((off) => (
+                <option key={off.id} value={off.id}>
+                  {off.name}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
@@ -548,16 +694,9 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
                           <span className="text-slate-400 text-xs">•</span>
                           <span className="text-slate-500 dark:text-slate-400 font-mono text-xs">{report.reportDate}</span>
 
-                          {details.isUrgent && (
-                            <Badge variant="danger" className="animate-pulse">
-                              <AlertTriangle className="w-3 h-3 mr-1" />
-                              URGENT ESCALATION
-                            </Badge>
-                          )}
-
-                          <Badge variant={report.syncStatus === 'SYNCED' ? 'success' : 'warning'}>
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
                             {report.syncStatus === 'SYNCED' ? 'Synced' : 'Pending Sync'}
-                          </Badge>
+                          </span>
                         </div>
 
                         <p className="text-xs text-slate-700 dark:text-slate-300 line-clamp-2">
@@ -568,8 +707,7 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
                         <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400 pt-1">
                           <span>
                             Citizens:{' '}
-                            <strong className="text-slate-800 dark:text-slate-200">{report.citizenCountLocal}</strong>{' '}
-                            <span className="text-[10px] text-emerald-600 dark:text-emerald-400">({report.citizenCountServerConfirmed} confirmed)</span>
+                            <strong className="text-slate-800 dark:text-slate-200">{report.citizenCountLocal}</strong>
                           </span>
                           <span>•</span>
                           <span>
@@ -632,88 +770,65 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
               const details = getStructuredDetails(inspectModalReport);
               return (
                 <div className="space-y-4 text-xs text-slate-700 dark:text-slate-300">
-                  {/* Urgent Alert Banner if flagged */}
-                  {details.isUrgent && (
-                    <div className="p-4 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 rounded-xl text-red-900 dark:text-red-200 space-y-1">
-                      <div className="flex items-center gap-2 font-bold text-sm text-red-700 dark:text-red-400">
-                        <AlertTriangle className="w-4 h-4 text-red-600 dark:text-red-400" />
-                        Officer Flagged Urgent Roadblock
-                      </div>
-                      <p className="text-xs font-medium text-red-800 dark:text-red-200">
-                        {details.urgentReason || 'Immediate supervisor attention required for field operations.'}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Telemetry & Verified Verification Grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3.5 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155]">
+                  {/* Telemetry Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155]">
                     <div className="space-y-0.5">
-                      <span className="text-[10px] text-slate-400 uppercase font-semibold block">Citizens Registered</span>
-                      <span className="text-sm font-bold text-slate-800 dark:text-slate-200">{inspectModalReport.citizenCountLocal} Citizens</span>
-                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400 block">({inspectModalReport.citizenCountServerConfirmed} Server Confirmed)</span>
+                      <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-semibold block">Citizens Registered</span>
+                      <span className="text-sm font-bold text-slate-900 dark:text-slate-100">{inspectModalReport.citizenCountLocal} Citizens</span>
                     </div>
                     <div className="space-y-0.5">
-                      <span className="text-[10px] text-slate-400 uppercase font-semibold block">Screen-Time Finalized</span>
-                      <span className="text-sm font-bold text-indigo-700 dark:text-indigo-400">
+                      <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-semibold block">Screen Time</span>
+                      <span className="text-sm font-bold text-slate-900 dark:text-slate-100">
                         {inspectModalReport.screenTimeFormatted || formatTime(inspectModalReport.screenTimeSeconds)}
                       </span>
-                      <span className="text-[10px] text-slate-400 block">{inspectModalReport.sessionCount} Work Sessions</span>
                     </div>
                     <div className="space-y-0.5">
-                      <span className="text-[10px] text-slate-400 uppercase font-semibold block">Activity Events</span>
-                      <span className="text-sm font-bold text-amber-700 dark:text-amber-400">{inspectModalReport.activityCount} Logged</span>
-                      <span className="text-[10px] text-slate-400 block">Verified Detail</span>
-                    </div>
-                    <div className="space-y-0.5">
-                      <span className="text-[10px] text-slate-400 uppercase font-semibold block">Sync Status</span>
-                      <Badge variant={inspectModalReport.syncStatus === 'SYNCED' ? 'success' : 'warning'} className="mt-1">
-                        {inspectModalReport.syncStatus === 'SYNCED' ? 'Synced with Central DB' : 'Saved Locally'}
-                      </Badge>
+                      <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-semibold block">Sync Status</span>
+                      <div>
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                          {inspectModalReport.syncStatus === 'SYNCED' ? 'Synced with Central DB' : 'Saved Locally'}
+                        </span>
+                      </div>
                     </div>
                   </div>
 
                   {/* Section 1: Executive Work Narrative */}
                   <div className="p-3.5 bg-white dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155] space-y-1">
-                    <div className="flex items-center gap-1.5 font-bold text-slate-900 dark:text-[#F8FAFC] text-xs">
-                      <FileText className="w-3.5 h-3.5 text-[#1E3A8A] dark:text-blue-400" />
+                    <h4 className="font-bold text-slate-900 dark:text-[#F8FAFC] text-xs">
                       Work Summary & Narrative
-                    </div>
+                    </h4>
                     <p className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">{details.summary}</p>
                   </div>
 
                   {/* Section 2: Key Achievements */}
                   <div className="p-3.5 bg-white dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155] space-y-1">
-                    <div className="flex items-center gap-1.5 font-bold text-slate-900 dark:text-[#F8FAFC] text-xs">
-                      <Award className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                    <h4 className="font-bold text-slate-900 dark:text-[#F8FAFC] text-xs">
                       Key Achievements & Milestones
-                    </div>
+                    </h4>
                     <p className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">{details.achievements}</p>
                   </div>
 
                   {/* Section 3: Roadblocks & Challenges */}
                   <div className="p-3.5 bg-white dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155] space-y-1">
-                    <div className="flex items-center gap-1.5 font-bold text-slate-900 dark:text-[#F8FAFC] text-xs">
-                      <AlertCircle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                    <h4 className="font-bold text-slate-900 dark:text-[#F8FAFC] text-xs">
                       Roadblocks & Field Challenges
-                    </div>
+                    </h4>
                     <p className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">{details.challenges}</p>
                   </div>
 
                   {/* Section 4: Resources Used & Needed */}
                   <div className="p-3.5 bg-white dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155] space-y-1">
-                    <div className="flex items-center gap-1.5 font-bold text-slate-900 dark:text-[#F8FAFC] text-xs">
-                      <Wrench className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                    <h4 className="font-bold text-slate-900 dark:text-[#F8FAFC] text-xs">
                       Resources Used & Needed for Next Shift
-                    </div>
+                    </h4>
                     <p className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">{details.resources}</p>
                   </div>
 
                   {/* Section 5: Tomorrow's Priorities */}
                   <div className="p-3.5 bg-white dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155] space-y-1">
-                    <div className="flex items-center gap-1.5 font-bold text-slate-900 dark:text-[#F8FAFC] text-xs">
-                      <ArrowRight className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                    <h4 className="font-bold text-slate-900 dark:text-[#F8FAFC] text-xs">
                       Tomorrow's Strategy & Target Kebeles
-                    </div>
+                    </h4>
                     <p className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">{details.nextDayPlan}</p>
                   </div>
                 </div>
@@ -765,8 +880,8 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
             Citizens Registered
           </span>
           <div className="flex items-baseline gap-1.5">
-            <span className="text-xl sm:text-2xl font-black text-[#2563EB] dark:text-[#60A5FA] font-mono leading-none">
-              {localCitizenCount}
+            <span className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white font-mono leading-none">
+              {todayReport && !screenTimeInfo?.isSessionActive ? 0 : localCitizenCount}
             </span>
             <span className="text-xs text-slate-500 dark:text-[#A8988B] font-semibold">Today</span>
           </div>
@@ -775,10 +890,14 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
         {/* Metric 2: Screen Time Telemetry */}
         <div className="p-3.5 sm:p-4">
           <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-[#BFA89B] uppercase tracking-wider block mb-1">
-            {todayReport ? 'Finalized Screen Time' : 'Recorded Screen Time'}
+            {todayReport && !screenTimeInfo?.isSessionActive
+              ? 'Finalized Screen Time'
+              : 'Recorded Screen Time'}
           </span>
-          <span className="text-xl sm:text-2xl font-black text-indigo-600 dark:text-indigo-400 font-mono leading-none block">
-            {formatTime(todayScreenTimeSecs)}
+          <span className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white font-mono leading-none block">
+            {todayReport && !screenTimeInfo?.isSessionActive
+              ? '00:00:00'
+              : (screenTimeInfo?.screenTimeDisplay || formatTime(screenTimeInfo?.screenTimeCounter || todayScreenTimeSecs || 0))}
           </span>
         </div>
 
@@ -920,7 +1039,7 @@ export default function DailyWorkReportView({ user, addNotification, setActiveTa
               className="w-full text-base font-bold py-3.5 rounded-xl shadow-md shadow-blue-600/20"
             >
               <Send className="w-5 h-5 mr-2" />
-              Send Daily Report
+              Submit Daily Report
             </Button>
           </Card>
         </div>

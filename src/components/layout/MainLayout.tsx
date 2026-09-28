@@ -211,6 +211,7 @@ export default function MainLayout({
               user={user}
               addNotification={addNotification}
               setActiveTab={setActiveTab}
+              screenTimeInfo={screenTimeInfo}
             />
           )}
 

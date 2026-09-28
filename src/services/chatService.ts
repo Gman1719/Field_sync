@@ -165,32 +165,49 @@ export async function addMessageReaction(messageId: string, emoji: string, userI
   if (!msg) return;
 
   const normUserId = normalizeUserId(userId);
-  const currentReactions = msg.reactions || {};
-  const userList = currentReactions[emoji] || [];
+  const currentReactions: Record<string, string[]> = { ...(msg.reactions || {}) };
 
-  let updatedList: string[];
-  if (userList.includes(normUserId)) {
-    updatedList = userList.filter((u) => u !== normUserId);
-  } else {
-    updatedList = [...userList, normUserId];
+  // Check if this user already reacted with any emoji on this message
+  let previousEmoji: string | null = null;
+  for (const [e, users] of Object.entries(currentReactions)) {
+    if (Array.isArray(users) && users.includes(normUserId)) {
+      previousEmoji = e;
+      break;
+    }
   }
 
-  const updatedReactions = { ...currentReactions };
-  if (updatedList.length > 0) {
-    updatedReactions[emoji] = updatedList;
+  if (previousEmoji === emoji) {
+    // User clicked the same emoji again -> remove reaction (toggle off)
+    const filtered = (currentReactions[emoji] || []).filter((u) => u !== normUserId);
+    if (filtered.length > 0) {
+      currentReactions[emoji] = filtered;
+    } else {
+      delete currentReactions[emoji];
+    }
   } else {
-    delete updatedReactions[emoji];
+    // If user previously reacted with a different emoji, remove their previous reaction
+    if (previousEmoji && currentReactions[previousEmoji]) {
+      const prevFiltered = currentReactions[previousEmoji].filter((u) => u !== normUserId);
+      if (prevFiltered.length > 0) {
+        currentReactions[previousEmoji] = prevFiltered;
+      } else {
+        delete currentReactions[previousEmoji];
+      }
+    }
+    // Add user to the new emoji (enforces only one emoji per user per message)
+    const currentList = currentReactions[emoji] || [];
+    currentReactions[emoji] = [...currentList, normUserId];
   }
 
   await offlineDb.chatMessages.update(messageId, {
-    reactions: updatedReactions,
+    reactions: currentReactions,
   });
 
   if (typeof window !== 'undefined') {
-    window.dispatchEvent(new CustomEvent('fieldsync-chat-reaction', { detail: { messageId, reactions: updatedReactions } }));
+    window.dispatchEvent(new CustomEvent('fieldsync-chat-reaction', { detail: { messageId, reactions: currentReactions } }));
     if (broadcastChannel) {
       try {
-        broadcastChannel.postMessage({ type: 'REACTION_UPDATE', messageId, reactions: updatedReactions });
+        broadcastChannel.postMessage({ type: 'REACTION_UPDATE', messageId, reactions: currentReactions });
       } catch (_e) {}
     }
     try {
