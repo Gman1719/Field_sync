@@ -12,7 +12,6 @@ import {
 } from 'lucide-react';
 import { getToday } from '../../utils/helpers';
 import { formatEthiopianPhone } from '../../utils/phoneUtils';
-import { offlineDb } from '../../db/offlineDb';
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
 import StatCard from '../ui/StatCard';
@@ -58,7 +57,6 @@ export default function TeamManagement({
   const [selectedOfficer, setSelectedOfficer] = useState<any>(null);
   const [liveOfficerData, setLiveOfficerData] = useState<any[]>([]);
   const [copiedField, setCopiedField] = useState<string | null>(null);
-  const [localCitizens, setLocalCitizens] = useState<any[]>([]);
 
   const copyToClipboard = (text: string, label: string) => {
     if (!text) return;
@@ -66,53 +64,6 @@ export default function TeamManagement({
     setCopiedField(label);
     setTimeout(() => setCopiedField(null), 2000);
   };
-
-  // Synchronize local IndexedDB citizens for 100% accurate live registration numbers
-  React.useEffect(() => {
-    let isMounted = true;
-    const loadLocalCitizens = async () => {
-      try {
-        const records = await offlineDb.citizens.toArray();
-        if (isMounted) {
-          setLocalCitizens(records || []);
-        }
-      } catch (err) {
-        console.error('Failed to load local citizens in TeamManagement:', err);
-      }
-    };
-    loadLocalCitizens();
-
-    const handleDataChange = () => {
-      loadLocalCitizens();
-    };
-
-    window.addEventListener('citizen-registered', handleDataChange);
-    window.addEventListener('force-sync', handleDataChange);
-    window.addEventListener('storage', handleDataChange);
-
-    return () => {
-      isMounted = false;
-      window.removeEventListener('citizen-registered', handleDataChange);
-      window.removeEventListener('force-sync', handleDataChange);
-      window.removeEventListener('storage', handleDataChange);
-    };
-  }, []);
-
-  // Merge local IndexedDB records with server citizens without duplicates
-  const allCitizensList = useMemo(() => {
-    const map = new Map<string, any>();
-    (localCitizens || []).forEach((c) => {
-      const id = c.clientRecordId || c.id || c.nationalId;
-      if (id) map.set(id, c);
-    });
-    (citizens || []).forEach((c: any) => {
-      const id = c.clientRecordId || c.id || c.nationalId;
-      if (id && !map.has(id)) {
-        map.set(id, c);
-      }
-    });
-    return Array.from(map.values());
-  }, [localCitizens, citizens]);
 
   React.useEffect(() => {
     if (!isSupervisor) return;
@@ -351,61 +302,22 @@ export default function TeamManagement({
   // Today string
   const todayStr = getToday();
 
-  // Helper for officer stats strictly matching all real database records
+  // Helper for officer stats
   const getOfficerStats = (officer: any) => {
-    const offId = String(officer.id || '').trim();
-    const offEmpId = String(officer.employeeId || '').trim();
-    const offName = (officer.name || officer.fullName || '').toLowerCase().trim();
+    const fromProps = citizens.filter((c: any) =>
+      c.registeredById === officer.id ||
+      c.registeredBy === officer.id ||
+      (officer.employeeId && (c.registeredBy === officer.employeeId || c.registeredById === officer.employeeId))
+    ).length;
 
-    const officerCitizens = allCitizensList.filter((c: any) => {
-      const regById = String(c.registeredById || '').trim();
-      const regBy = String(c.registeredBy || '').trim();
-      const regByEmp = String(c.registeredByEmployeeId || '').trim();
-      const cOffId = String(c.officerId || '').trim();
-      const cUserId = String(c.userId || '').trim();
-      const regByName = (c.registeredByName || c.officerName || '').toLowerCase().trim();
-
-      const idMatch =
-        (offId && (regById === offId || regBy === offId || cOffId === offId || cUserId === offId)) ||
-        (offEmpId && (regByEmp === offEmpId || regById === offEmpId || regBy === offEmpId || cOffId === offEmpId));
-
-      const nameMatch = Boolean(offName && regByName && regByName === offName);
-
-      return Boolean(idMatch || nameMatch);
-    });
-
-    const fromOfficerObj = Number(
+    const fromOfficerObj =
       officer.registeredCitizensCount ??
       officer._count?.registeredCitizens ??
       officer.stats?.totalCitizensRegistered ??
       officer.stats?.citizenCount ??
-      0
-    );
+      0;
 
-    const fromOfficerTodayObj = Number(
-      officer.todayRegistrationsCount ??
-      officer.todayRegistrations ??
-      officer.stats?.todayCitizensRegistered ??
-      officer.stats?.todayCount ??
-      0
-    );
-
-    const regCount = Math.max(officerCitizens.length, fromOfficerObj);
-
-    // Filter registrations recorded today
-    const todayMatches = officerCitizens.filter((c: any) => {
-      const ts = c.registrationTimestamp || c.createdAt || c.registrationDate || c.date || '';
-      if (!ts) return false;
-      if (typeof ts === 'string' && ts.startsWith(todayStr)) return true;
-      try {
-        const d = new Date(ts);
-        return d.toISOString().startsWith(todayStr) || d.toLocaleDateString() === new Date().toLocaleDateString();
-      } catch {
-        return false;
-      }
-    });
-
-    const todayRegCount = Math.max(todayMatches.length, fromOfficerTodayObj);
+    const regCount = Math.max(fromProps, fromOfficerObj);
 
     const todayReport = reports.find((r: any) =>
       (r.employeeId === officer.employeeId || r.officerId === officer.id || r.userId === officer.id) &&
@@ -416,12 +328,12 @@ export default function TeamManagement({
       (l: any) => (l.employeeId === officer.employeeId || l.userId === officer.id) && l.status === 'online'
     );
 
-    return { regCount, todayRegCount, todayReport, isOnline };
+    return { regCount, todayReport, isOnline };
   };
 
   const renderOfficerDetailModal = () => {
     if (!selectedOfficer) return null;
-    const { regCount, todayRegCount } = getOfficerStats(selectedOfficer);
+    const { regCount, isOnline } = getOfficerStats(selectedOfficer);
     const initials = ((selectedOfficer.name || selectedOfficer.fullName || 'FO')[0] || 'O').toUpperCase();
     const directSupervisor =
       selectedOfficer.supervisorName ||
@@ -429,6 +341,11 @@ export default function TeamManagement({
       selectedTeam?.supervisor?.name ||
       (users.find((u: any) => u.id === selectedOfficer.supervisorId || u.id === selectedOfficer.assignedSupervisorId)?.name) ||
       'Zonal Field Supervisor';
+
+    const officerReportsCount = (reports || []).filter((r: any) => {
+      const offId = String(selectedOfficer.id || selectedOfficer.employeeId || '');
+      return String(r.officerId || r.userId || r.employeeId || '') === offId;
+    }).length;
 
     const officerId = selectedOfficer.employeeId || selectedOfficer.id || 'N/A';
 
@@ -462,6 +379,17 @@ export default function TeamManagement({
                   >
                     {copiedField === 'ID' ? 'Copied' : 'Copy ID'}
                   </button>
+                </div>
+                <div className="flex items-center gap-2 mt-2">
+                  <Badge variant="primary" className="text-[10px] font-semibold">
+                    Field Officer
+                  </Badge>
+                  <Badge variant={isOnline ? 'success' : 'neutral'} dot className="text-[10px] font-semibold">
+                    {isOnline ? 'ONLINE NOW' : 'OFFLINE'}
+                  </Badge>
+                  <Badge variant={selectedOfficer.status === 'active' ? 'success' : 'neutral'} className="text-[10px] font-semibold">
+                    {selectedOfficer.status ? String(selectedOfficer.status).toUpperCase() : 'ACTIVE'}
+                  </Badge>
                 </div>
               </div>
             </div>
@@ -558,7 +486,7 @@ export default function TeamManagement({
               <Activity className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#60A5FA]" />
               Operational Telemetry & Performance
             </h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="p-3.5 rounded-xl border border-blue-100 dark:border-blue-900/50 bg-blue-50/50 dark:bg-blue-950/20">
                 <span className="text-[10px] text-blue-700 dark:text-[#60A5FA] font-bold uppercase block">
                   Total Registrations
@@ -566,17 +494,30 @@ export default function TeamManagement({
                 <span className="text-2xl font-black text-blue-800 dark:text-blue-300 font-mono mt-1 block">
                   {regCount}
                 </span>
-                <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 block">citizen registered</span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 block">Citizens enrolled</span>
               </div>
 
-              <div className="p-3.5 rounded-xl border border-emerald-100 dark:border-emerald-900/50 bg-emerald-50/50 dark:bg-emerald-950/20">
-                <span className="text-[10px] text-emerald-700 dark:text-[#34D399] font-bold uppercase block">
-                  Today's Registrations
+              <div className="p-3.5 rounded-xl border border-slate-200 dark:border-[#272A35] bg-white dark:bg-[#14161D]">
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase block">
+                  Daily Shift Reports
                 </span>
-                <span className="text-2xl font-black text-emerald-800 dark:text-emerald-300 font-mono mt-1 block">
-                  {todayRegCount}
+                <span className="text-2xl font-black text-slate-900 dark:text-white font-mono mt-1 block">
+                  {officerReportsCount}
                 </span>
-                <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 block">citizen registered today</span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 block">Submitted logs</span>
+              </div>
+
+              <div className="p-3.5 rounded-xl border border-slate-200 dark:border-[#272A35] bg-white dark:bg-[#14161D]">
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase block">
+                  Sync & Connectivity
+                </span>
+                <div className="flex items-center gap-1.5 mt-1.5">
+                  <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-500' : 'bg-slate-400'}`} />
+                  <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                    {isOnline ? 'Online Synced' : 'Offline Mode'}
+                  </span>
+                </div>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 block">FieldSync Telemetry</span>
               </div>
             </div>
           </div>

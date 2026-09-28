@@ -24,6 +24,7 @@ import TempPasswordModal from './TempPasswordModal';
 import UserDetailsModal from './UserDetailsModal';
 import UserEditModal from './UserEditModal';
 import UserReassignModal from './UserReassignModal';
+import UserRoleModal from './UserRoleModal';
 
 export default function UserManagement({
   users = [],
@@ -35,6 +36,7 @@ export default function UserManagement({
   const [selectedUserDetails, setSelectedUserDetails] = useState(null);
   const [selectedUserEdit, setSelectedUserEdit] = useState(null);
   const [selectedUserReassign, setSelectedUserReassign] = useState(null);
+  const [selectedUserRole, setSelectedUserRole] = useState(null);
   const [tempPasswordModalData, setTempPasswordModalData] = useState(null);
 
   // Filters & Search
@@ -341,43 +343,78 @@ export default function UserManagement({
 
   // 7. Handle Status Toggle
   const handleToggleStatus = async (user) => {
-    const newStatus = user.status === 'active' ? 'inactive' : 'active';
+    const isCurrentlyActive = user.status === 'active' || user.isActive;
+    const newStatus = isCurrentlyActive ? 'inactive' : 'active';
     const actionName = newStatus === 'active' ? 'activate' : 'deactivate';
+    const displayName = user.fullName || user.name || 'User';
 
-    if (!window.confirm(`Are you sure you want to ${actionName} ${user.name}'s account?`)) {
+    if (!window.confirm(`Are you sure you want to ${actionName} ${displayName}'s account?`)) {
       return;
     }
 
+    let updated = {
+      ...user,
+      status: newStatus,
+      isActive: newStatus === 'active',
+      updatedAt: new Date().toISOString()
+    };
+
     try {
       const token = localStorage.getItem('fieldsync_token');
-      const response = await fetch(`${API_BASE}/users/${user.id}/status`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({ status: newStatus }),
-      });
+      if (navigator.onLine && token) {
+        try {
+          const response = await fetch(`${API_BASE}/users/${user.id}/status`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ status: newStatus, isActive: newStatus === 'active' }),
+          });
 
-      const resData = await response.json();
-      if (!response.ok || !resData.success) {
-        throw new Error(resData.error || `Failed to ${actionName} user`);
+          if (response.ok) {
+            const resData = await response.json();
+            if (resData.success && (resData.user || resData.data)) {
+              updated = { ...updated, ...(resData.user || resData.data) };
+            }
+          }
+        } catch (netErr: any) {
+          console.warn('Backend API status update failed, saving locally:', netErr.message);
+        }
       }
 
-      const updated = resData.user || resData.data;
-      await db.users.update(user.id, updated);
+      // Update Dexie database
+      try {
+        await db.users.put(updated);
+        await offlineDb.users.put(updated);
+      } catch (_dbErr) {
+        try {
+          await db.users.update(user.id, updated);
+        } catch (_e) {}
+      }
+
+      // Update state
       if (setUsers) {
-        setUsers(prev => prev.map(u => u.id === user.id ? updated : u));
+        setUsers((prev: any[]) => prev.map(u => u.id === user.id ? updated : u));
       }
       if (selectedUserDetails && selectedUserDetails.id === user.id) {
         setSelectedUserDetails(updated);
       }
 
+      // Log activity
+      try {
+        await ActivityLogger.log('USER_STATUS_CHANGE', `${actionName.toUpperCase()} account for ${displayName}`, {
+          officerId: 'manager',
+          relatedRecordId: user.id,
+          metadata: { status: newStatus }
+        });
+      } catch (_e) {}
+
       toast.success(`User ${actionName}d successfully`);
       fetchStats();
-    } catch (err) {
+    } catch (err: any) {
       console.error('Status toggle error:', err);
-      toast.error('Failed to change status: ' + err.message);
+      toast.error('Failed to change status: ' + (err.message || 'Unknown error'));
     }
   };
 
@@ -675,7 +712,6 @@ export default function UserManagement({
                     <th className="py-3.5 px-3">Region</th>
                     <th className="py-3.5 px-3">Zone</th>
                     <th className="py-3.5 px-3">Woreda</th>
-                    <th className="py-3.5 px-3">Supervisor</th>
                     <th className="py-3.5 px-3 text-center">Status</th>
                     <th className="py-3.5 pr-4 sm:pr-6 pl-3 text-right">Actions</th>
                   </tr>
@@ -759,24 +795,7 @@ export default function UserManagement({
                           </span>
                         </td>
 
-                        {/* 7. Supervisor */}
-                        <td className="py-3 px-3 whitespace-nowrap">
-                          {u.role === 'field_officer' ? (
-                            u.supervisorName || u.supervisorId ? (
-                              <span className="text-xs font-medium text-slate-800 dark:text-slate-200">
-                                {u.supervisorName || u.supervisorId}
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
-                                Unassigned
-                              </span>
-                            )
-                          ) : (
-                            <span className="text-xs text-slate-400 dark:text-slate-500">—</span>
-                          )}
-                        </td>
-
-                        {/* 8. Status */}
+                        {/* 7. Status */}
                         <td className="py-3 px-3 text-center whitespace-nowrap">
                           {isActive ? (
                             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
@@ -791,60 +810,15 @@ export default function UserManagement({
                           )}
                         </td>
 
-                        {/* 9. Actions */}
+                        {/* 8. Actions (Detail only) */}
                         <td className="py-3 pr-4 sm:pr-6 pl-3 text-right whitespace-nowrap">
-                          <div className="flex items-center justify-end gap-1">
-                            <button
-                              type="button"
-                              onClick={() => setSelectedUserDetails(u)}
-                              className="p-2 rounded-xl text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#0F172A] border border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-all cursor-pointer"
-                              title="View Details"
-                            >
-                              <Eye className="w-4 h-4" />
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={() => setSelectedUserEdit(u)}
-                              className="p-2 rounded-xl text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#0F172A] border border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-all cursor-pointer"
-                              title="Edit Profile"
-                            >
-                              <Edit3 className="w-4 h-4" />
-                            </button>
-
-                            {u.role !== 'manager' && (
-                              <button
-                                type="button"
-                                onClick={() => setSelectedUserReassign(u)}
-                                className="p-2 rounded-xl text-[#2563EB] dark:text-[#60A5FA] hover:bg-blue-50 dark:hover:bg-blue-950/50 border border-transparent hover:border-blue-200 dark:hover:border-blue-900 transition-all cursor-pointer"
-                                title="Reassign Workstation"
-                              >
-                                <MapPin className="w-4 h-4" />
-                              </button>
-                            )}
-
-                            <button
-                              type="button"
-                              onClick={() => handleResetPassword(u)}
-                              className="p-2 rounded-xl text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/50 border border-transparent hover:border-amber-200 dark:hover:border-amber-900 transition-all cursor-pointer"
-                              title="Reset Password"
-                            >
-                              <KeyRound className="w-4 h-4" />
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={() => handleToggleStatus(u)}
-                              className={`p-2 rounded-xl transition-all cursor-pointer ${
-                                isActive
-                                  ? 'text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50'
-                                  : 'text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/50'
-                              }`}
-                              title={isActive ? 'Deactivate Account' : 'Activate Account'}
-                            >
-                              <Power className="w-4 h-4" />
-                            </button>
-                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setSelectedUserDetails(u)}
+                            className="px-3 py-1.5 rounded-xl text-xs font-bold bg-[#2563EB] hover:bg-blue-700 text-white transition-all cursor-pointer shadow-xs"
+                          >
+                            Detail
+                          </button>
                         </td>
                       </tr>
                     );
@@ -1019,6 +993,10 @@ export default function UserManagement({
           setSelectedUserDetails(null);
           setSelectedUserReassign(u);
         }}
+        onChangeRole={(u) => {
+          setSelectedUserDetails(null);
+          setSelectedUserRole(u);
+        }}
         onToggleStatus={(u) => {
           handleToggleStatus(u);
         }}
@@ -1043,7 +1021,15 @@ export default function UserManagement({
         onUserUpdated={handleUserUpdated}
       />
 
-      {/* 9. Temporary Password Modal */}
+      {/* 9. User Role Modal */}
+      <UserRoleModal
+        user={selectedUserRole}
+        isOpen={Boolean(selectedUserRole)}
+        onClose={() => setSelectedUserRole(null)}
+        onUserUpdated={handleUserUpdated}
+      />
+
+      {/* 10. Temporary Password Modal */}
       {tempPasswordModalData && (
         <TempPasswordModal
           userName={tempPasswordModalData.userName}

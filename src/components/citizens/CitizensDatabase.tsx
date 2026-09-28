@@ -641,19 +641,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full table-fixed min-w-[1180px] text-left text-xs sm:text-sm">
-                <colgroup>
-                  <col style={{ width: '220px' }} />
-                  <col style={{ width: '160px' }} />
-                  <col style={{ width: '90px' }} />
-                  <col style={{ width: '80px' }} />
-                  <col style={{ width: '120px' }} />
-                  <col style={{ width: '160px' }} />
-                  <col style={{ width: '140px' }} />
-                  <col style={{ width: '140px' }} />
-                  <col style={{ width: '110px' }} />
-                  <col style={{ width: '90px' }} />
-                </colgroup>
+              <table className="w-full text-left text-xs sm:text-sm">
                 <thead>
                   <tr className="bg-slate-50/90 dark:bg-[#0F172A] border-b border-[#E2E8F0] dark:border-[#334155] text-xs font-bold text-slate-600 dark:text-slate-200 uppercase tracking-wider">
                     <th className="py-4 pl-4 sm:pl-6 pr-3">Citizen Name & 12-Digit ID</th>
