@@ -13,7 +13,7 @@ export function Table({
   ...props
 }: TableHTMLAttributes<HTMLTableElement>) {
   return (
-    <div className="w-full overflow-x-auto rounded-xl border border-slate-200 dark:border-[#334155] bg-white dark:bg-[#1E293B] shadow-subtle transition-colors duration-200">
+    <div className="w-full overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-subtle transition-colors duration-200">
       <table className={`w-full text-left text-sm text-slate-700 dark:text-slate-200 ${className}`} {...props}>
         {children}
       </table>
@@ -28,7 +28,7 @@ export function TableHeader({
 }: HTMLAttributes<HTMLTableSectionElement>) {
   return (
     <thead
-      className={`bg-slate-50/90 dark:bg-[#0F172A] border-b border-slate-200 dark:border-[#334155] text-xs uppercase font-bold text-slate-600 dark:text-slate-200 tracking-wider ${className}`}
+      className={`bg-slate-50/90 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 text-xs uppercase font-bold text-slate-600 dark:text-slate-200 tracking-wider ${className}`}
       {...props}
     >
       {children}

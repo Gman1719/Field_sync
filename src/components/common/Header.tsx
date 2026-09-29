@@ -143,12 +143,12 @@ export default function Header({
   };
 
   return (
-    <header className="h-16 bg-white dark:bg-[#0F172A] border-b border-slate-200 dark:border-[#334155] sticky top-0 z-30 px-4 sm:px-6 flex items-center justify-between shadow-xs transition-colors duration-200">
+    <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-30 px-4 sm:px-6 flex items-center justify-between shadow-xs transition-colors duration-200">
       <div className="flex items-center gap-3 min-w-0">
         <button
           type="button"
           onClick={() => setIsMobileOpen && setIsMobileOpen(true)}
-          className="lg:hidden p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#1E293B] rounded-lg transition-colors"
+          className="lg:hidden p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
           title="Open Menu"
         >
           <Menu className="w-5 h-5" />
@@ -180,14 +180,14 @@ export default function Header({
           <div
             className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono font-medium border shadow-xs ${
               isScreenTimeRunning
-                ? 'bg-blue-50 text-[#2563EB] border-blue-200 dark:bg-blue-950/60 dark:text-[#60A5FA] dark:border-blue-900/60'
+                ? 'bg-blue-50 text-[#2563EB] border-blue-200 dark:bg-blue-950/60 dark:text-blue-400 dark:border-blue-900/60'
                 : 'bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'
             }`}
             title="Today's Cumulative Screen Time"
           >
             <Clock
               className={`w-3.5 h-3.5 ${
-                isScreenTimeRunning ? 'text-[#2563EB] dark:text-[#60A5FA] animate-pulse' : 'text-slate-400 dark:text-slate-500'
+                isScreenTimeRunning ? 'text-[#2563EB] dark:text-blue-400 animate-pulse' : 'text-slate-400 dark:text-slate-500'
               }`}
             />
             <span className="font-semibold">{screenTimeDisplay || '00:00:00'}</span>
@@ -199,7 +199,7 @@ export default function Header({
           onClick={toggleTheme}
           aria-label="Toggle color theme"
           title={theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
-          className="p-2 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#1E293B] rounded-lg transition-colors cursor-pointer"
+          className="p-2 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
         >
           {theme === 'dark' ? (
             <Sun className="w-4 h-4 text-amber-400" />
@@ -212,7 +212,7 @@ export default function Header({
           <button
             type="button"
             onClick={() => setShowLangMenu(!showLangMenu)}
-            className="p-2 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#1E293B] rounded-lg transition-colors flex items-center gap-1 text-xs font-medium cursor-pointer"
+            className="p-2 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-1 text-xs font-medium cursor-pointer"
             title="Change Language"
           >
             <Globe className="w-4 h-4 text-slate-500 dark:text-slate-400" />
@@ -221,10 +221,10 @@ export default function Header({
 
           {showLangMenu && (
             <div
-              className="absolute right-0 mt-2 w-44 bg-white dark:bg-[#1E293B] rounded-xl shadow-modal border border-slate-200 dark:border-[#334155] py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150"
+              className="absolute right-0 mt-2 w-44 bg-white dark:bg-slate-800 rounded-xl shadow-modal border border-slate-200 dark:border-slate-700 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150"
               onMouseLeave={() => setShowLangMenu(false)}
             >
-              <div className="px-3 py-1.5 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider border-b border-slate-100 dark:border-[#334155]">
+              <div className="px-3 py-1.5 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider border-b border-slate-100 dark:border-slate-700">
                 Select Language
               </div>
               {Object.entries((userLanguages as Record<string, any>) || {}).map(([code, lang]: [string, any]) => (
@@ -235,9 +235,9 @@ export default function Header({
                     changeUserLanguage(code);
                     setShowLangMenu(false);
                   }}
-                  className={`w-full px-3 py-2 text-left text-xs flex items-center justify-between hover:bg-slate-50 dark:hover:bg-[#1E293B] transition-colors ${
+                  className={`w-full px-3 py-2 text-left text-xs flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors ${
                     currentUserLanguage === code
-                      ? 'text-[#2563EB] dark:text-[#60A5FA] font-semibold bg-blue-50/50 dark:bg-blue-950/40'
+                      ? 'text-[#2563EB] dark:text-blue-400 font-semibold bg-blue-50/50 dark:bg-blue-950/40'
                       : 'text-slate-700 dark:text-slate-300'
                   }`}
                 >
@@ -246,7 +246,7 @@ export default function Header({
                     <span>{lang.nativeName}</span>
                   </span>
                   {currentUserLanguage === code && (
-                    <Check className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#60A5FA]" />
+                    <Check className="w-3.5 h-3.5 text-[#2563EB] dark:text-blue-400" />
                   )}
                 </button>
               ))}
@@ -258,7 +258,7 @@ export default function Header({
           <button
             type="button"
             onClick={() => setShowNotifications(!showNotifications)}
-            className="p-2 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#1E293B] rounded-lg transition-colors relative cursor-pointer"
+            className="p-2 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors relative cursor-pointer"
             title="Notifications"
           >
             <Bell className="w-4 h-4 text-slate-500 dark:text-slate-400" />
@@ -271,10 +271,10 @@ export default function Header({
 
           {showNotifications && (
             <div
-              className="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-[#1E293B] rounded-2xl shadow-2xl border border-slate-200 dark:border-[#334155] py-0 z-50 animate-in fade-in zoom-in-95 duration-150 overflow-hidden"
+              className="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 py-0 z-50 animate-in fade-in zoom-in-95 duration-150 overflow-hidden"
               onMouseLeave={() => setShowNotifications(false)}
             >
-              <div className="px-4 py-3 bg-slate-50/80 dark:bg-[#1E293B] border-b border-slate-100 dark:border-[#334155] flex items-center justify-between">
+              <div className="px-4 py-3 bg-slate-50/80 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-bold text-slate-900 dark:text-white">Notifications</span>
                   {liveUnreadCount > 0 && (
@@ -287,7 +287,7 @@ export default function Header({
                   <button
                     type="button"
                     onClick={handleMarkAllHeader}
-                    className="text-[11px] text-[#2563EB] dark:text-[#60A5FA] hover:underline font-semibold"
+                    className="text-[11px] text-[#2563EB] dark:text-blue-400 hover:underline font-semibold"
                   >
                     Mark all read
                   </button>
@@ -310,7 +310,7 @@ export default function Header({
                       <div
                         key={n.id}
                         onClick={() => handleItemClick(n)}
-                        className={`p-3.5 text-left text-xs cursor-pointer hover:bg-slate-50 dark:hover:bg-[#1E293B] transition-colors ${
+                        className={`p-3.5 text-left text-xs cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors ${
                           isUnread ? 'bg-blue-50/40 dark:bg-blue-950/20' : 'text-slate-600 dark:text-slate-300'
                         }`}
                       >
@@ -348,14 +348,14 @@ export default function Header({
                 )}
               </div>
 
-              <div className="p-2.5 border-t border-slate-100 dark:border-[#334155] bg-slate-50 dark:bg-[#1E293B]/70 flex items-center justify-center">
+              <div className="p-2.5 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/70 flex items-center justify-center">
                 <button
                   type="button"
                   onClick={() => {
                     setShowNotifications(false);
                     if (setActiveTab) setActiveTab('notifications');
                   }}
-                  className="w-full py-1.5 text-center text-xs font-semibold text-[#2563EB] dark:text-[#60A5FA] hover:text-blue-800 dark:hover:text-blue-300 hover:bg-blue-50/60 dark:hover:bg-blue-950/40 rounded-lg transition-colors flex items-center justify-center gap-1 cursor-pointer"
+                  className="w-full py-1.5 text-center text-xs font-semibold text-[#2563EB] dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-blue-50/60 dark:hover:bg-blue-950/40 rounded-lg transition-colors flex items-center justify-center gap-1 cursor-pointer"
                 >
                   <span>Open Notification Center</span>
                   <ChevronRight className="w-3.5 h-3.5" />
@@ -369,7 +369,7 @@ export default function Header({
           <button
             type="button"
             onClick={() => setShowUserMenu(!showUserMenu)}
-            className="flex items-center gap-2.5 p-1.5 hover:bg-slate-100 dark:hover:bg-[#1E293B] rounded-xl transition-colors cursor-pointer"
+            className="flex items-center gap-2.5 p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
           >
             <div className="w-9 h-9 rounded-full bg-[#2563EB] text-white font-bold text-sm flex items-center justify-center shadow-xs overflow-hidden">
               {(user?.profilePhotoUrl || (user?.id ? localStorage.getItem(`fieldsync_avatar_${user.id}`) : null)) ? (
@@ -391,13 +391,13 @@ export default function Header({
 
           {showUserMenu && (
             <div
-              className="absolute right-0 mt-2 w-56 bg-white dark:bg-[#1E293B] rounded-xl shadow-modal border border-slate-200 dark:border-[#334155] py-2 z-50 animate-in fade-in zoom-in-95 duration-150"
+              className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-modal border border-slate-200 dark:border-slate-700 py-2 z-50 animate-in fade-in zoom-in-95 duration-150"
               onMouseLeave={() => setShowUserMenu(false)}
             >
-              <div className="px-4 py-2.5 border-b border-slate-100 dark:border-[#334155]">
+              <div className="px-4 py-2.5 border-b border-slate-100 dark:border-slate-700">
                 <p className="text-sm font-bold text-slate-900 dark:text-white truncate">{user?.name || 'User'}</p>
                 <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{user?.email || ''}</p>
-                <span className="inline-block mt-1 text-xs uppercase font-bold tracking-wider text-[#2563EB] dark:text-[#60A5FA] bg-blue-50 dark:bg-blue-950/70 px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">
+                <span className="inline-block mt-1 text-xs uppercase font-bold tracking-wider text-[#2563EB] dark:text-blue-400 bg-blue-50 dark:bg-blue-950/70 px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">
                   {user?.role?.replace('_', ' ') || 'Staff'}
                 </span>
               </div>
@@ -409,9 +409,9 @@ export default function Header({
                     if (setActiveTab) setActiveTab('profile');
                     setShowUserMenu(false);
                   }}
-                  className="w-full px-3 py-2 text-left text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#1E293B] rounded-lg flex items-center gap-2.5 transition-colors cursor-pointer"
+                  className="w-full px-3 py-2 text-left text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg flex items-center gap-2.5 transition-colors cursor-pointer"
                 >
-                  <User className="w-4 h-4 text-[#2563EB] dark:text-[#60A5FA]" />
+                  <User className="w-4 h-4 text-[#2563EB] dark:text-blue-400" />
                   My Profile
                 </button>
                 <button
@@ -420,7 +420,7 @@ export default function Header({
                     if (setActiveTab) setActiveTab('profile_security');
                     setShowUserMenu(false);
                   }}
-                  className="w-full px-3 py-2 text-left text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#1E293B] rounded-lg flex items-center gap-2.5 transition-colors cursor-pointer"
+                  className="w-full px-3 py-2 text-left text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg flex items-center gap-2.5 transition-colors cursor-pointer"
                 >
                   <KeyRound className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                   Change Password

@@ -60,9 +60,9 @@ export default function ForceChangePassword({ onSetPassword, userName, userEmail
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0F172A] flex flex-col justify-center py-12 sm:px-6 lg:px-8 transition-colors">
+    <div className="min-h-screen bg-[#F8FAFC] dark:bg-slate-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8 transition-colors">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white dark:bg-[#1E293B] py-8 px-6 sm:px-8 shadow-card rounded-2xl border border-slate-200/90 dark:border-slate-700 space-y-6">
+        <div className="bg-white dark:bg-slate-800 py-8 px-6 sm:px-8 shadow-card rounded-2xl border border-slate-200/90 dark:border-slate-700 space-y-6">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-[#1E3A8A] dark:text-blue-400 flex items-center justify-center">
               <KeyRound className="w-6 h-6" />
@@ -96,7 +96,7 @@ export default function ForceChangePassword({ onSetPassword, userName, userEmail
                   onChange={(e) => { setCurrentPassword(e.target.value); setError(''); }}
                   placeholder="Enter the temporary password given by manager"
                   required
-                  className="w-full h-11 px-3.5 pr-11 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] dark:focus:border-blue-500 transition-all"
+                  className="w-full h-11 px-3.5 pr-11 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-[#F8FAFC] text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] dark:focus:border-blue-500 transition-all"
                 />
                 <button
                   type="button"
@@ -131,7 +131,7 @@ export default function ForceChangePassword({ onSetPassword, userName, userEmail
             </div>
 
             {/* Password Criteria Checklist */}
-            <div className="p-3.5 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-100 dark:border-slate-700 space-y-2 text-xs">
+            <div className="p-3.5 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-700 space-y-2 text-xs">
               <span className="font-semibold text-slate-700 dark:text-slate-300 block mb-1">Password Requirements:</span>
               <div className={`flex items-center gap-2 ${hasMinLength ? 'text-emerald-700 dark:text-emerald-400 font-medium' : 'text-slate-400 dark:text-slate-500'}`}>
                 <Check className={`w-3.5 h-3.5 ${hasMinLength ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-300 dark:text-slate-600'}`} />

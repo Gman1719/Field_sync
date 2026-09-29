@@ -102,7 +102,7 @@ export default function MainLayout({
   } = screenTimeInfo || {};
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] font-sans antialiased flex flex-col transition-colors duration-200">
+    <div className="min-h-screen bg-[#F8FAFC] dark:bg-slate-900 text-slate-900 dark:text-[#F8FAFC] font-sans antialiased flex flex-col transition-colors duration-200">
       <Toaster
         position="top-right"
         toastOptions={{
@@ -401,12 +401,12 @@ export default function MainLayout({
               onClick={() => setShowSyncLog(false)}
             >
               <div
-                className="bg-white dark:bg-gradient-to-b dark:from-[#1C1410] dark:to-[#140E0B] rounded-2xl sm:rounded-3xl max-w-lg w-full shadow-[0_25px_60px_-15px_rgba(15,23,42,0.18),0_0_1px_1px_rgba(15,23,42,0.06)] dark:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85),inset_0_1px_0_0_rgba(255,255,255,0.08)] border border-slate-200/90 dark:border-[#38261E] overflow-hidden animate-in zoom-in-95 duration-200"
+                className="bg-white dark:bg-gradient-to-b dark:from-slate-900 dark:to-slate-900 rounded-2xl sm:rounded-3xl max-w-lg w-full shadow-[0_25px_60px_-15px_rgba(15,23,42,0.18),0_0_1px_1px_rgba(15,23,42,0.06)] dark:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85),inset_0_1px_0_0_rgba(255,255,255,0.08)] border border-slate-200/90 dark:border-slate-700 overflow-hidden animate-in zoom-in-95 duration-200"
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="px-6 py-5 border-b border-slate-100 dark:border-[#2C1D16] flex items-center justify-between">
+                <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
                   <div className="flex items-center gap-2.5 text-slate-900 dark:text-white font-bold text-base tracking-tight">
-                    <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-[#2563EB] dark:text-[#60A5FA] flex items-center justify-center shrink-0">
+                    <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-[#2563EB] dark:text-blue-400 flex items-center justify-center shrink-0">
                       <RefreshCw className="w-4 h-4" />
                     </div>
                     <span>Sync Activity Log</span>
@@ -414,18 +414,18 @@ export default function MainLayout({
                   <button
                     type="button"
                     aria-label="Close dialog"
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 dark:text-[#A8988B] dark:hover:text-white bg-slate-100/70 hover:bg-slate-200/80 dark:bg-[#251A14] dark:hover:bg-[#34241C] border border-transparent dark:border-[#38261E] transition-all duration-150"
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white bg-slate-100/70 hover:bg-slate-200/80 dark:bg-slate-800 dark:hover:bg-slate-700 border border-transparent dark:border-slate-700 transition-all duration-150"
                     onClick={() => setShowSyncLog(false)}
                   >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
-                <div className="p-6 max-h-96 overflow-y-auto font-mono text-xs text-slate-700 dark:text-[#E8DDD7] space-y-2">
+                <div className="p-6 max-h-96 overflow-y-auto font-mono text-xs text-slate-700 dark:text-slate-300 space-y-2">
                   {syncLog.length === 0 ? (
-                    <div className="text-center py-8 text-slate-400 dark:text-[#A8988B] font-sans">No sync activity recorded yet</div>
+                    <div className="text-center py-8 text-slate-400 dark:text-slate-400 font-sans">No sync activity recorded yet</div>
                   ) : (
                     syncLog.map((log, i) => (
-                      <div key={i} className="p-3 bg-slate-50/80 dark:bg-[#17100D] rounded-xl border border-slate-200/80 dark:border-[#2F211A] break-words">
+                      <div key={i} className="p-3 bg-slate-50/80 dark:bg-slate-800 rounded-xl border border-slate-200/80 dark:border-slate-700/60 break-words">
                         {log}
                       </div>
                     ))

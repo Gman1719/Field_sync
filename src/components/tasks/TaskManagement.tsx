@@ -198,7 +198,7 @@ export default function TaskManagement({ user, addNotification }) {
   return (
     <div className="space-y-6">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-[#1E293B] p-6 rounded-2xl border border-slate-200 dark:border-[#334155] shadow-card">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-card">
         <div>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-[#1E3A8A] text-white flex items-center justify-center shadow-xs">
@@ -263,7 +263,7 @@ export default function TaskManagement({ user, addNotification }) {
       </div>
 
       {/* Status Filter Tabs */}
-      <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-[#0F172A] rounded-xl max-w-fit text-xs font-semibold border border-transparent dark:border-[#334155]">
+      <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-900 rounded-xl max-w-fit text-xs font-semibold border border-transparent dark:border-slate-700">
         {[
           { key: 'ALL', label: 'All Tasks' },
           { key: 'ASSIGNED', label: 'Assigned' },
@@ -277,7 +277,7 @@ export default function TaskManagement({ user, addNotification }) {
             onClick={() => setFilterStatus(tab.key)}
             className={`py-1.5 px-3 rounded-lg transition-all ${
               filterStatus === tab.key
-                ? 'bg-white dark:bg-[#1E293B] text-[#1E3A8A] dark:text-blue-400 shadow-xs'
+                ? 'bg-white dark:bg-slate-800 text-[#1E3A8A] dark:text-blue-400 shadow-xs'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
@@ -321,7 +321,7 @@ export default function TaskManagement({ user, addNotification }) {
             const target = assignment.targetCount ?? 0;
 
             return (
-              <Card key={assignment.id} className="border border-slate-200/90 dark:border-[#334155] shadow-card hover:border-slate-300 dark:hover:border-slate-600 transition-all">
+              <Card key={assignment.id} className="border border-slate-200/90 dark:border-slate-700 shadow-card hover:border-slate-300 dark:hover:border-slate-600 transition-all">
                 <CardContent className="p-5 space-y-4">
                   {/* Top Bar: Title & Status Badge */}
                   <div className="flex items-start justify-between gap-3">
@@ -355,7 +355,7 @@ export default function TaskManagement({ user, addNotification }) {
                   </div>
 
                   {/* Progress Bar & Target Count */}
-                  <div className="space-y-1.5 p-3 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-100 dark:border-[#334155]">
+                  <div className="space-y-1.5 p-3 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-700">
                     <div className="flex items-center justify-between text-xs font-semibold">
                       <span className="text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
                         <Target className="w-3.5 h-3.5 text-[#1E3A8A] dark:text-blue-400" />
@@ -397,7 +397,7 @@ export default function TaskManagement({ user, addNotification }) {
                     </div>
 
                     {!isOfficer && (
-                      <div className="col-span-2 flex items-center gap-1.5 text-slate-700 dark:text-slate-300 font-medium pt-1 border-t border-slate-100 dark:border-[#334155]">
+                      <div className="col-span-2 flex items-center gap-1.5 text-slate-700 dark:text-slate-300 font-medium pt-1 border-t border-slate-100 dark:border-slate-700">
                         <User className="w-3.5 h-3.5 text-[#1E3A8A] dark:text-blue-400 shrink-0" />
                         <span>Officer: {assignment.officerName || 'Field Officer'}</span>
                       </div>
@@ -406,7 +406,7 @@ export default function TaskManagement({ user, addNotification }) {
 
                   {/* Field Officer Interactive Action Controls */}
                   {isOfficer && !isCompleted && (
-                    <div className="pt-2 border-t border-slate-100 dark:border-[#334155] flex items-center justify-end gap-2">
+                    <div className="pt-2 border-t border-slate-100 dark:border-slate-700 flex items-center justify-end gap-2">
                       {isAssigned && (
                         <Button
                           type="button"
@@ -466,7 +466,7 @@ export default function TaskManagement({ user, addNotification }) {
                   )}
 
                   {isCompleted && (
-                    <div className="pt-2 border-t border-slate-100 dark:border-[#334155] flex items-center justify-center text-xs font-semibold text-emerald-700 dark:text-emerald-400 gap-1.5">
+                    <div className="pt-2 border-t border-slate-100 dark:border-slate-700 flex items-center justify-center text-xs font-semibold text-emerald-700 dark:text-emerald-400 gap-1.5">
                       <Award className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                       <span>Mission Successfully Completed & Reported</span>
                     </div>

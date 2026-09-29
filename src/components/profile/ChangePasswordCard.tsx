@@ -142,7 +142,7 @@ export default function ChangePasswordCard({ user, onPasswordChanged }) {
   };
 
   return (
-    <Card className="border border-slate-200 dark:border-[#334155]">
+    <Card className="border border-slate-200 dark:border-slate-700">
       <CardHeader>
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-[#1E3A8A] dark:text-blue-400 flex items-center justify-center font-bold">
@@ -178,7 +178,7 @@ export default function ChangePasswordCard({ user, onPasswordChanged }) {
                 onChange={(e) => { setCurrentPassword(e.target.value); setError(''); }}
                 placeholder="Enter current password"
                 required
-                className="w-full h-10 px-3.5 pr-10 rounded-lg border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] placeholder:text-slate-400 dark:placeholder:text-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]"
+                className="w-full h-10 px-3.5 pr-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-[#F8FAFC] placeholder:text-slate-400 dark:placeholder:text-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]"
               />
               <button
                 type="button"
@@ -203,7 +203,7 @@ export default function ChangePasswordCard({ user, onPasswordChanged }) {
                 onChange={(e) => { setNewPassword(e.target.value); setError(''); }}
                 placeholder="Create a strong password"
                 required
-                className="w-full h-10 px-3.5 pr-10 rounded-lg border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] placeholder:text-slate-400 dark:placeholder:text-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]"
+                className="w-full h-10 px-3.5 pr-10 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-[#F8FAFC] placeholder:text-slate-400 dark:placeholder:text-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]"
               />
               <button
                 type="button"
@@ -218,7 +218,7 @@ export default function ChangePasswordCard({ user, onPasswordChanged }) {
 
           {/* Real-time Checklist */}
           {newPassword && (
-            <div className="p-3 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155] text-xs space-y-1.5 animate-in fade-in duration-150">
+            <div className="p-3 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 text-xs space-y-1.5 animate-in fade-in duration-150">
               <span className="font-semibold text-slate-600 dark:text-slate-300 block text-[11px] mb-1">
                 Password Security Criteria:
               </span>
@@ -258,7 +258,7 @@ export default function ChangePasswordCard({ user, onPasswordChanged }) {
               onChange={(e) => { setConfirmPassword(e.target.value); setError(''); }}
               placeholder="Confirm your new password"
               required
-              className="w-full h-10 px-3.5 rounded-lg border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] placeholder:text-slate-400 dark:placeholder:text-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]"
+              className="w-full h-10 px-3.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-[#F8FAFC] placeholder:text-slate-400 dark:placeholder:text-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]"
             />
           </div>
 

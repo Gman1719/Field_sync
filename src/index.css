@@ -20,11 +20,12 @@
 }
 
 .dark, [data-theme='dark'] {
-  --color-app-bg: #18110D;
-  --color-card-bg: #251B15;
-  --color-text-main: #FFF8F0;
-  --color-text-muted: #BFA89B;
-  --color-border: #3A281E;
+  --color-app-bg: #0B0F19;
+  --color-card-bg: #1E293B;
+  --color-card-inset: #0F172A;
+  --color-text-main: #F8FAFC;
+  --color-text-muted: #CBD5E1;
+  --color-border: #334155;
   color-scheme: dark;
 }
 
@@ -55,55 +56,6 @@
   ::selection {
     background-color: #2563EB;
     color: #ffffff;
-  }
-
-  /* Universal Button Visibility and Readability */
-  button,
-  [role="button"],
-  .btn {
-    font-size: 0.9375rem; /* 15px */
-    font-weight: 600;
-    line-height: 1.25rem;
-  }
-
-  button.text-xs,
-  button[class*="text-xs"],
-  .btn.text-xs,
-  [role="button"].text-xs {
-    font-size: 0.9375rem !important; /* 15px */
-    font-weight: 600 !important;
-  }
-
-  /* Universal minimum readable typography floor */
-  .text-\[10px\],
-  .text-\[9px\],
-  .text-\[8px\],
-  [class*="text-[10px]"],
-  [class*="text-[9px]"],
-  [class*="text-[8px]"] {
-    font-size: 0.875rem !important; /* 14px */
-    line-height: 1.35rem !important;
-  }
-
-  .text-\[11px\],
-  .text-\[12px\],
-  [class*="text-[11px]"],
-  [class*="text-[12px]"] {
-    font-size: 0.9375rem !important; /* 15px */
-    line-height: 1.4rem !important;
-  }
-
-  /* Form control readability & consistency across all pages */
-  input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
-  select,
-  textarea {
-    font-size: 0.9375rem !important; /* 15px */
-  }
-
-  /* Language-specific typography enhancement for Ge'ez script */
-  [lang="am"], [lang="ti"], .font-ethiopia {
-    font-family: 'Noto Sans Ethiopic', 'Inter', sans-serif;
-    line-height: 1.65;
   }
 
   /* Custom subtle scrollbars */
@@ -142,174 +94,175 @@
     transition: background-color 5000s ease-in-out 0s;
   }
 
-  /* Enterprise Table Header Polish - Guarantees High-Contrast, Readable Headers Across All Pages */
+  /* Enterprise Table Header Polish - Light Mode */
   table thead {
     background-color: #F8FAFC;
     border-bottom: 1px solid #E2E8F0;
   }
   table thead th {
-    font-size: 0.8125rem !important; /* ~13px */
+    font-size: 0.75rem !important;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: #475569;
+    color: #64748B;
     padding-top: 0.75rem;
     padding-bottom: 0.75rem;
   }
 
-  table tbody td {
-    font-size: 0.9375rem !important; /* 15px */
-  }
-
   .dark table thead,
   [data-theme='dark'] table thead {
-    background-color: #0a1c25 !important;
-    border-bottom: 1px solid #153847 !important;
+    background-color: #1E293B !important;
+    border-bottom: 1px solid #334155 !important;
   }
   .dark table thead tr,
   [data-theme='dark'] table thead tr {
-    background-color: #0a1c25 !important;
-    border-color: #153847 !important;
+    background-color: #1E293B !important;
+    border-color: #334155 !important;
   }
   .dark table thead th,
   [data-theme='dark'] table thead th {
-    background-color: #0a1c25 !important;
-    color: #c5dce4 !important;
-    border-color: #153847 !important;
+    background-color: #1E293B !important;
+    color: #94A3B8 !important;
+    border-color: #334155 !important;
+    font-size: 0.75rem !important;
   }
 }
 
 /* ============================================================== */
-/* Sidebar Navigation: Preserved Sleek Dark Shell                 */
+/* Sidebar Navigation: Professional Slate Dark                    */
 /* ============================================================== */
 html.dark aside,
 html[data-theme='dark'] aside {
-  background-color: #061318 !important;
-  border-right-color: #153847 !important;
-}
-
-html.dark aside .bg-\[\#0F172A\],
-html.dark aside [class*="bg-[#0F172A]"] {
-  background-color: #061318 !important;
-}
-
-html.dark aside .border-slate-100,
-html.dark aside [class*="border-[#334155]"] {
-  border-color: #153847 !important;
-}
-
-html.dark aside [class*="bg-[#1E293B]"] {
-  background-color: #0c222c !important;
+  background-color: #0F172A !important;
+  border-right-color: #1E293B !important;
 }
 
 /* Header Navigation Bar */
 html.dark header,
 html[data-theme='dark'] header {
-  background-color: #0a1820 !important;
-  border-bottom-color: #153847 !important;
-}
-
-html.dark header .bg-\[\#0F172A\],
-html.dark header [class*="bg-[#0F172A]"] {
-  background-color: #0a1820 !important;
-}
-
-html.dark header [class*="border-[#334155]"] {
-  border-color: #153847 !important;
+  background-color: #0F172A !important;
+  border-bottom-color: #1E293B !important;
 }
 
 /* ============================================================== */
-/* Main Content Area: Luxury Espresso Noir & Coffee Obsidian      */
+/* Main Content Area: Professional Slate Dark Background          */
 /* ============================================================== */
 html.dark,
 html[data-theme='dark'] {
-  background-color: #100C0A !important;
+  background-color: #0B0F19 !important;
   color-scheme: dark;
 }
 
 html.dark body,
 html[data-theme='dark'] body {
-  background-color: #100C0A !important;
-  color: #FFFFFF !important;
+  background-color: #0B0F19 !important;
+  color: #F8FAFC !important;
 }
 
-/* Base App Layout Canvas */
 html.dark .min-h-screen,
 html[data-theme='dark'] .min-h-screen,
 html.dark main,
 html.dark .lg\:pl-64 {
-  background-color: #100C0A !important;
-}
-
-/* Cards, Modals, Panels, Dialogs, Stat Cards */
-html.dark main .bg-\[\#1E293B\],
-html.dark main [class*="bg-[#1E293B]"],
-html.dark [role="dialog"] .bg-\[\#1E293B\],
-html.dark [role="dialog"] [class*="bg-[#1E293B]"],
-html.dark [role="dialog"] .bg-\[\#0F172A\],
-html.dark [role="dialog"] [class*="bg-[#0F172A]"],
-html.dark .modal-content,
-html.dark [class*="bg-[#181B22]"] {
-  background: linear-gradient(180deg, #1C1512 0%, #17110F 100%) !important;
-  border-color: #2F221B !important;
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4), inset 0 1px 0 0 rgba(255, 255, 255, 0.04) !important;
-}
-
-/* Card Headers, Secondary Sections, Sub-panels */
-html.dark main .bg-\[\#182234\],
-html.dark main [class*="bg-[#182234]"],
-html.dark [role="dialog"] .bg-\[\#182234\],
-html.dark [role="dialog"] [class*="bg-[#182234]"],
-html.dark [role="dialog"] .bg-slate-50,
-html.dark [role="dialog"] [class*="bg-slate-50"],
-html.dark [role="dialog"] [class*="bg-slate-50/"] {
-  background-color: #140E0C !important;
-  border-color: #2F221B !important;
-}
-
-/* Table Headers & Rows in Main Content Area */
-html.dark table thead,
-html.dark table thead tr,
-html.dark table thead th {
-  background-color: #140E0C !important;
-  color: #FFFFFF !important;
-  border-color: #2F221B !important;
+  background-color: #0B0F19 !important;
 }
 
 /* ============================================================== */
-/* Table Rows: Zero Mouse Hover Effects (Visual Stability)        */
+/* Universal Card Elevation in Dark Mode                          */
 /* ============================================================== */
-table tbody tr,
-table tbody tr:hover,
-html.dark table tbody tr:hover,
-[data-theme='dark'] table tbody tr:hover,
-table tbody tr[class*="hover:"]:hover,
-html.dark table tbody tr[class*="hover:"]:hover,
-[data-theme='dark'] table tbody tr[class*="hover:"]:hover {
-  background-color: inherit;
-  transition: none !important;
-  transform: none !important;
+
+/* Elevate white/light cards in dark mode to clean Slate-800 surfaces */
+html.dark .bg-white:not(input):not(select):not(textarea),
+html[data-theme='dark'] .bg-white:not(input):not(select):not(textarea) {
+  background-color: #1E293B !important;
 }
 
+/* Any cards previously marked with dark:bg-slate-900 are lifted to #1E293B */
+html.dark .dark\:bg-slate-900:not(body):not(main):not(.min-h-screen):not(input):not(select):not(textarea):not(thead):not(tr):not(th),
+html[data-theme='dark'] .dark\:bg-slate-900:not(body):not(main):not(.min-h-screen):not(input):not(select):not(textarea):not(thead):not(tr):not(th) {
+  background-color: #1E293B !important;
+}
+
+/* Rounded containers and cards get crisp slate-700 borders */
+html.dark .rounded-2xl.border,
+html.dark .rounded-xl.border,
+html[data-theme='dark'] .rounded-2xl.border,
+html[data-theme='dark'] .rounded-xl.border {
+  border-color: #334155 !important;
+}
+
+/* Inner inset sub-containers (e.g. supervisor boxes, officer rows, stat widgets) */
+html.dark .bg-slate-50:not(input):not(select):not(textarea),
+html[data-theme='dark'] .bg-slate-50:not(input):not(select):not(textarea) {
+  background-color: #0F172A !important;
+  border-color: #334155 !important;
+}
+
+/* Upgrade faint/semi-transparent borders to crisp #334155 */
+html.dark [class*="border-slate-700/"],
+html.dark [class*="border-slate-800/"],
+html[data-theme='dark'] [class*="border-slate-700/"],
+html[data-theme='dark'] [class*="border-slate-800/"] {
+  border-color: #334155 !important;
+}
+
+/* Universal Text Visibility in Dark Mode */
+html.dark .text-slate-900,
+html[data-theme='dark'] .text-slate-900 {
+  color: #F8FAFC !important;
+}
+
+html.dark .text-slate-800,
+html[data-theme='dark'] .text-slate-800 {
+  color: #F1F5F9 !important;
+}
+
+html.dark .text-slate-700,
+html[data-theme='dark'] .text-slate-700 {
+  color: #E2E8F0 !important;
+}
+
+/* Elevate murky slate-500/slate-600 to easily readable slate-400 and slate-300 */
+html.dark .text-slate-600,
+html[data-theme='dark'] .text-slate-600 {
+  color: #CBD5E1 !important;
+}
+
+html.dark .text-slate-500,
+html.dark .dark\:text-slate-500,
+html.dark .dark\:text-slate-600,
+html[data-theme='dark'] .text-slate-500,
+html[data-theme='dark'] .dark\:text-slate-500,
+html[data-theme='dark'] .dark\:text-slate-600 {
+  color: #94A3B8 !important;
+}
+
+html.dark .text-slate-400,
+html.dark .dark\:text-slate-400,
+html[data-theme='dark'] .text-slate-400,
+html[data-theme='dark'] .dark\:text-slate-400 {
+  color: #CBD5E1 !important;
+}
+
+/* ============================================================== */
+/* Table Rows: Professional Slate Dark                            */
+/* ============================================================== */
 html.dark table tbody tr {
-  background-color: #1A1310 !important;
-  border-color: #261B15 !important;
+  background-color: #1E293B !important;
+  border-color: #334155 !important;
 }
 
 html.dark table tbody tr:hover {
-  background-color: #1A1310 !important;
+  background-color: #273549 !important;
 }
 
 html.dark table tbody tr:nth-child(even),
 html.dark table tbody tr.bg-slate-50\/40,
 html.dark table tbody tr[class*="bg-slate-50"] {
-  background-color: #140E0C !important;
+  background-color: #162032 !important;
 }
 
-html.dark table tbody tr:nth-child(even):hover,
-html.dark table tbody tr.bg-slate-50\/40:hover,
-html.dark table tbody tr[class*="bg-slate-50"]:hover {
-  background-color: #140E0C !important;
+html.dark table tbody tr:nth-child(even):hover {
+  background-color: #243144 !important;
 }
 
 /* Light Theme Stable Rows */
@@ -318,7 +271,7 @@ table tbody tr {
 }
 
 table tbody tr:hover {
-  background-color: #FFFFFF !important;
+  background-color: #F8FAFC !important;
 }
 
 table tbody tr:nth-child(even),
@@ -327,337 +280,29 @@ table tbody tr[class*="bg-slate-50"] {
   background-color: #F8FAFC !important;
 }
 
-table tbody tr:nth-child(even):hover,
-table tbody tr.bg-slate-50\/40:hover,
-table tbody tr[class*="bg-slate-50"]:hover {
-  background-color: #F8FAFC !important;
-}
-
-/* Borders across Main Content Area */
-html.dark main .border-\[\#334155\],
-html.dark main [class*="border-[#334155]"],
-html.dark main [class*="border-[#2D3748]"],
-html.dark main [class*="border-[#272A35]"],
-html.dark main [class*="border-[#E2E8F0]"],
-html.dark main .border-slate-700,
-html.dark main .border-slate-800,
-html.dark main .divide-\[\#334155\] > *,
-html.dark main .divide-\[\#272A35\] > *,
-html.dark [role="dialog"] [class*="border-[#334155]"],
-html.dark [role="dialog"] [class*="border-[#272A35]"],
-html.dark [role="dialog"] [class*="border-[#E2E8F0]"],
-html.dark [role="dialog"] [class*="border-slate-200"],
-html.dark [role="dialog"] [class*="border-slate-100"],
-html.dark [role="dialog"] [class*="border-slate-700"],
-html.dark [role="dialog"] [class*="border-slate-800"] {
-  border-color: #2F221B !important;
-}
-
-/* Typography in Main Content Area (High Contrast, Radiant & Clear) */
-html.dark main .text-\[\#F8FAFC\],
-html.dark main [class*="text-[#F8FAFC]"],
-html.dark [role="dialog"] .text-\[\#F8FAFC\],
-html.dark [role="dialog"] [class*="text-[#F8FAFC]"],
-html.dark main h1,
-html.dark main h2,
-html.dark main h3,
-html.dark main h4,
-html.dark main .font-bold,
-html.dark main .font-extrabold,
-html.dark main .font-black {
-  color: #FFFFFF !important;
-}
-
-html.dark main .text-\[\#94A3B8\],
-html.dark main [class*="text-[#94A3B8]"],
-html.dark [role="dialog"] .text-\[\#94A3B8\],
-html.dark [role="dialog"] [class*="text-[#94A3B8]"],
-html.dark main p,
-html.dark main span.text-slate-500 {
-  color: #E0D4CA !important;
-}
-
-html.dark main .text-\[\#CBD5E1\],
-html.dark main [class*="text-[#CBD5E1]"],
-html.dark [role="dialog"] .text-\[\#CBD5E1\],
-html.dark [role="dialog"] [class*="text-[#CBD5E1]"],
-html.dark main label {
-  color: #F5EBE1 !important;
-  font-weight: 700 !important;
-}
-
-html.dark main .text-slate-400,
-html.dark [role="dialog"] .text-slate-400 {
-  color: #D4C4B8 !important;
-}
-
-/* High-Contrast Vibrant Metrics & Highlights */
-html.dark main .text-\[\#60A5FA\],
-html.dark main [class*="text-[#60A5FA]"] {
-  color: #F59E0B !important;
-}
-
 /* ============================================================== */
-/* UI Psychology Compliant Button Architecture (Dark Coffee Theme) */
+/* Form Controls: Inputs, Textareas, Selects                     */
 /* ============================================================== */
-
-/* 1. Primary Action Buttons (Anchors of Progress & Direct Intent) */
-html.dark main button[class*="bg-[#2563EB]"],
-html.dark main button[class*="bg-blue-600"],
-html.dark main button[class*="bg-blue-500"],
-html.dark main button[class*="bg-[#1E3A8A]"],
-html.dark main .bg-\[\#2563EB\],
-html.dark main button[type="submit"]:not([class*="bg-slate"]):not([class*="bg-rose"]):not([class*="bg-red"]),
-html.dark [role="dialog"] button[class*="bg-[#2563EB]"],
-html.dark [role="dialog"] button[class*="bg-blue-600"],
-html.dark [role="dialog"] button[type="submit"]:not([class*="bg-slate"]):not([class*="bg-rose"]):not([class*="bg-red"]),
-html.dark table td button[class*="bg-[#2563EB]"],
-html.dark table td button[class*="bg-blue"] {
-  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%) !important;
-  color: #FFFFFF !important;
-  font-weight: 700 !important;
-  border: 1px solid rgba(147, 197, 253, 0.35) !important;
-  box-shadow: 0 4px 14px -1px rgba(37, 99, 235, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
-  cursor: pointer !important;
-  transition: all 0.15s ease-in-out !important;
-}
-
-html.dark main button[class*="bg-[#2563EB]"]:hover,
-html.dark main button[class*="bg-blue-600"]:hover,
-html.dark main button[class*="bg-blue-500"]:hover,
-html.dark main button[class*="bg-[#1E3A8A]"]:hover,
-html.dark main .bg-\[\#2563EB\]:hover,
-html.dark main button[type="submit"]:not([class*="bg-slate"]):not([class*="bg-rose"]):not([class*="bg-red"]):hover,
-html.dark [role="dialog"] button[class*="bg-[#2563EB]"]:hover,
-html.dark [role="dialog"] button[class*="bg-blue-600"]:hover,
-html.dark [role="dialog"] button[type="submit"]:not([class*="bg-slate"]):not([class*="bg-rose"]):not([class*="bg-red"]):hover,
-html.dark table td button[class*="bg-[#2563EB]"]:hover,
-html.dark table td button[class*="bg-blue"]:hover {
-  background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%) !important;
-  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
-  border-color: rgba(191, 219, 254, 0.55) !important;
-  transform: translateY(-1px) !important;
-}
-
-/* 2. Secondary, Filter, Reset & Modal Cancel Buttons (Warm Roasted Espresso) */
-html.dark main button[class*="bg-slate-100"],
-html.dark main button[class*="bg-slate-50"],
-html.dark main button.bg-white:not([class*="bg-blue"]):not([class*="bg-emerald"]):not([class*="bg-rose"]):not([class*="bg-red"]),
-html.dark main button[class*="bg-[#0F172A]"],
-html.dark main button[class*="dark:bg-[#0F172A]"],
-html.dark main button[class*="dark:bg-[#1E293B]"],
-html.dark main button[class*="dark:bg-[#1E222D]"],
-html.dark main button[class*="dark:bg-[#14161D]"],
-html.dark [role="dialog"] button[class*="bg-slate-100"],
-html.dark [role="dialog"] button[class*="bg-slate-50"],
-html.dark [role="dialog"] button.bg-white:not([class*="bg-blue"]):not([class*="bg-emerald"]):not([class*="bg-rose"]):not([class*="bg-red"]),
-html.dark [role="dialog"] button[class*="dark:bg-[#1E293B]"],
-html.dark [role="dialog"] button[class*="dark:bg-[#0F172A]"] {
-  background: linear-gradient(180deg, #261C16 0%, #1E1511 100%) !important;
-  color: #FFF8F0 !important;
-  border: 1px solid #463327 !important;
-  font-weight: 600 !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
-  cursor: pointer !important;
-  transition: all 0.15s ease-in-out !important;
-}
-
-html.dark main button[class*="bg-slate-100"]:hover,
-html.dark main button[class*="bg-slate-50"]:hover,
-html.dark main button.bg-white:hover,
-html.dark main button[class*="bg-[#0F172A]"]:hover,
-html.dark main button[class*="dark:bg-[#0F172A]"]:hover,
-html.dark main button[class*="dark:bg-[#1E293B]"]:hover,
-html.dark main button[class*="dark:bg-[#1E222D]"]:hover,
-html.dark main button[class*="dark:bg-[#14161D]"]:hover,
-html.dark [role="dialog"] button[class*="bg-slate-100"]:hover,
-html.dark [role="dialog"] button[class*="bg-slate-50"]:hover,
-html.dark [role="dialog"] button.bg-white:hover,
-html.dark [role="dialog"] button[class*="dark:bg-[#1E293B]"]:hover,
-html.dark [role="dialog"] button[class*="dark:bg-[#0F172A]"]:hover {
-  background: linear-gradient(180deg, #35251E 0%, #2A1D17 100%) !important;
-  border-color: #D4A373 !important;
-  color: #FFFFFF !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(212, 163, 115, 0.3) !important;
-  transform: translateY(-1px) !important;
-}
-
-/* ============================================================== */
-/* DARK THEME HOVER SANITATION: ZERO WHITE ON HOVER               */
-/* ============================================================== */
-html.dark [class*="hover:bg-white"]:hover:not([class*="dark:hover:bg-"]),
-html.dark [class*="hover:bg-slate-50"]:hover:not([class*="dark:hover:bg-"]),
-html.dark [class*="hover:bg-slate-100"]:hover:not([class*="dark:hover:bg-"]),
-html.dark [class*="hover:bg-slate-200"]:hover:not([class*="dark:hover:bg-"]),
-html.dark [class*="hover:bg-[#F8FAFC]"]:hover:not([class*="dark:hover:bg-"]),
-html.dark [class*="hover:bg-gray-50"]:hover:not([class*="dark:hover:bg-"]),
-html.dark [class*="hover:bg-gray-100"]:hover:not([class*="dark:hover:bg-"]),
-html.dark [class*="hover:bg-zinc-50"]:hover:not([class*="dark:hover:bg-"]),
-html.dark [class*="hover:bg-zinc-100"]:hover:not([class*="dark:hover:bg-"]) {
-  background-color: #261C16 !important;
-  color: #FFFFFF !important;
-}
-
-html.dark [class*="hover:bg-white/"]:hover {
-  background-color: rgba(212, 163, 115, 0.18) !important;
-}
-
-
-/* 3. Success & Positive Action Buttons (Approval, Sync, Verification) */
-html.dark main button[class*="bg-emerald"],
-html.dark main button[class*="bg-green"],
-html.dark [role="dialog"] button[class*="bg-emerald"],
-html.dark [role="dialog"] button[class*="bg-green"] {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
-  color: #FFFFFF !important;
-  font-weight: 700 !important;
-  border: 1px solid rgba(110, 231, 183, 0.35) !important;
-  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
-  cursor: pointer !important;
-}
-
-html.dark main button[class*="bg-emerald"]:hover,
-html.dark main button[class*="bg-green"]:hover,
-html.dark [role="dialog"] button[class*="bg-emerald"]:hover,
-html.dark [role="dialog"] button[class*="bg-green"]:hover {
-  background: linear-gradient(135deg, #10B981 0%, #059669 100%) !important;
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5) !important;
-  transform: translateY(-1px) !important;
-}
-
-/* 4. Danger & Destructive Action Buttons (Caution, Deactivate, Revoke) */
-html.dark main button[class*="bg-rose"],
-html.dark main button[class*="bg-red"],
-html.dark [role="dialog"] button[class*="bg-rose"],
-html.dark [role="dialog"] button[class*="bg-red"] {
-  background: linear-gradient(135deg, #E11D48 0%, #BE123C 100%) !important;
-  color: #FFFFFF !important;
-  font-weight: 700 !important;
-  border: 1px solid rgba(253, 164, 175, 0.35) !important;
-  box-shadow: 0 4px 14px rgba(225, 29, 72, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
-  cursor: pointer !important;
-}
-
-html.dark main button[class*="bg-rose"]:hover,
-html.dark main button[class*="bg-red"]:hover,
-html.dark [role="dialog"] button[class*="bg-rose"]:hover,
-html.dark [role="dialog"] button[class*="bg-red"]:hover {
-  background: linear-gradient(135deg, #F43F5E 0%, #E11D48 100%) !important;
-  box-shadow: 0 6px 20px rgba(244, 63, 94, 0.55) !important;
-  transform: translateY(-1px) !important;
-}
-
-/* 5. Outline Buttons in Dark Theme */
-html.dark main button[class*="border-2"][class*="text-[#2563EB]"],
-html.dark main button[class*="dark:border-[#D4A373]"] {
-  background-color: rgba(212, 163, 115, 0.08) !important;
-  border: 1.5px solid #D4A373 !important;
-  color: #F5D0A9 !important;
-  font-weight: 700 !important;
-}
-
-html.dark main button[class*="border-2"][class*="text-[#2563EB]"]:hover,
-html.dark main button[class*="dark:border-[#D4A373]"]:hover {
-  background-color: rgba(212, 163, 115, 0.18) !important;
-  border-color: #F59E0B !important;
-  color: #FFFFFF !important;
-  transform: translateY(-1px) !important;
-}
-
-/* 6. Table Row Action Buttons ("Details", "Detail") */
-html.dark table td button[class*="px-4"],
-html.dark table td button[class*="px-3.5"]:not([class*="p-1"]):not([class*="p-2"]) {
-  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%) !important;
-  color: #FFFFFF !important;
-  font-weight: 700 !important;
-  border: 1px solid rgba(147, 197, 253, 0.35) !important;
-  box-shadow: 0 3px 10px rgba(37, 99, 235, 0.35) !important;
-  border-radius: 0.75rem !important;
-  cursor: pointer !important;
-}
-
-html.dark table td button[class*="px-4"]:hover,
-html.dark table td button[class*="px-3.5"]:not([class*="p-1"]):not([class*="p-2"]):hover {
-  background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%) !important;
-  box-shadow: 0 5px 16px rgba(37, 99, 235, 0.5) !important;
-  transform: translateY(-1px) !important;
-}
-
-/* 7. Table Icon Utility Buttons (Eye, Edit, Key, Power, Email) */
-html.dark table td button.p-2,
-html.dark table td button.p-1\.5,
-html.dark table td button.p-1 {
-  background: transparent !important;
-  border-color: transparent !important;
-  box-shadow: none !important;
-}
-
-html.dark table td button.p-2:hover,
-html.dark table td button.p-1\.5:hover,
-html.dark table td button.p-1:hover {
-  background-color: #261C16 !important;
-  border-color: #463327 !important;
-  color: #FFFFFF !important;
-  transform: none !important;
-}
-
-/* 8. Table Text Utility Buttons ("Copy", "✕", etc.) */
-html.dark table td button[class*="text-\[11px\]"],
-html.dark table td button[title*="Copy"],
-html.dark table td button.text-xs:not([class*="px-3"]):not([class*="px-4"]) {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  color: #93C5FD !important;
-}
-
-html.dark table td button[class*="text-\[11px\]"]:hover,
-html.dark table td button[title*="Copy"]:hover,
-html.dark table td button.text-xs:not([class*="px-3"]):not([class*="px-4"]):hover {
-  color: #FBBF24 !important;
-  background: transparent !important;
-}
-
-/* 9. Internal sub-panels and inputs with old navy converted to espresso */
-html.dark main .bg-\[\#0F172A\],
-html.dark main [class*="bg-[#0F172A]"],
-html.dark main [class*="bg-[#1E222D]"],
-html.dark main [class*="bg-[#14161D]"],
-html.dark [role="dialog"] .bg-\[\#0F172A\],
-html.dark [role="dialog"] [class*="bg-[#0F172A]"] {
-  background-color: #140E0C !important;
-  border-color: #2F221B !important;
-}
-
-/* ============================================================== */
-/* Form Controls: Inputs, Textareas, Selects (Both Themes)       */
-/* Meets WCAG 2.1 SC 1.4.11 (3:1 contrast), Norman Affordance,    */
-/* and Gestalt Law of Common Region                              */
-/* ============================================================== */
-
-/* Universal Form Control Ergonomics */
 input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="submit"]):not([type="button"]):not([class*="bg-transparent"]),
 select:not([class*="bg-transparent"]),
 textarea:not([class*="bg-transparent"]) {
-  font-size: 0.9375rem !important; /* 15px */
-  line-height: 1.55 !important;
-  border-radius: 0.75rem !important; /* 12px */
+  font-size: 0.875rem !important;
+  border-radius: 0.5rem !important;
   transition: all 0.15s ease-in-out !important;
 }
 
-/* Light Theme: Clean, High-Contrast Crisp Boundaries */
 input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="submit"]):not([type="button"]):not([class*="bg-transparent"]),
 select:not([class*="bg-transparent"]),
 textarea:not([class*="bg-transparent"]) {
   background-color: #FFFFFF;
-  border: 1.5px solid #CBD5E1;
+  border: 1px solid #CBD5E1;
   color: #0F172A;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="submit"]):not([type="button"]):not([class*="bg-transparent"])::placeholder,
 textarea:not([class*="bg-transparent"])::placeholder {
-  color: #64748B !important;
+  color: #94A3B8 !important;
   opacity: 1 !important;
 }
 
@@ -671,80 +316,53 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="
 select:not([class*="bg-transparent"]):focus,
 textarea:not([class*="bg-transparent"]):focus {
   border-color: #2563EB !important;
-  box-shadow: 0 0 0 3.5px rgba(37, 99, 235, 0.18) !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
   outline: none !important;
 }
 
-/* Dark Theme Form Controls: High-Affordance Recessed Well & Roasted Bronze Frame */
+/* Dark Theme Form Controls: Sleek Slate */
 html.dark main input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="submit"]):not([type="button"]):not([class*="bg-transparent"]),
 html.dark main select:not([class*="bg-transparent"]),
 html.dark main textarea:not([class*="bg-transparent"]),
 html.dark [role="dialog"] input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="submit"]):not([type="button"]):not([class*="bg-transparent"]),
 html.dark [role="dialog"] select:not([class*="bg-transparent"]),
 html.dark [role="dialog"] textarea:not([class*="bg-transparent"]) {
-  background-color: #231914 !important;
-  border: 1.5px solid #5A4032 !important;
-  color: #FFFFFF !important;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.45), 0 1px 0 rgba(255, 255, 255, 0.04) !important;
-  border-radius: 0.75rem !important;
+  background-color: #1E293B !important;
+  border: 1px solid #334155 !important;
+  color: #F1F5F9 !important;
+  box-shadow: none !important;
+  border-radius: 0.5rem !important;
 }
 
-/* High-Legibility, Professional Placeholder in Dark Theme */
 html.dark main input::placeholder,
 html.dark main textarea::placeholder,
 html.dark [role="dialog"] input::placeholder,
 html.dark [role="dialog"] textarea::placeholder,
 html.dark ::placeholder {
-  color: #BFA89B !important;
+  color: #64748B !important;
   opacity: 1 !important;
   font-weight: 400 !important;
 }
 
-/* Responsive Hover State in Dark Theme */
-html.dark main input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="submit"]):not([type="button"]):hover,
+html.dark main input:hover,
 html.dark main select:hover,
 html.dark main textarea:hover,
 html.dark [role="dialog"] input:hover,
 html.dark [role="dialog"] select:hover,
 html.dark [role="dialog"] textarea:hover {
-  border-color: #9E7254 !important;
-  background-color: #281D17 !important;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(158, 114, 84, 0.2) !important;
+  border-color: #475569 !important;
 }
 
-/* Active Focus State in Dark Theme (Luminous Sapphire Indicator) */
 html.dark main input:focus,
 html.dark main select:focus,
 html.dark main textarea:focus,
 html.dark [role="dialog"] input:focus,
 html.dark [role="dialog"] select:focus,
 html.dark [role="dialog"] textarea:focus {
-  background-color: #2A1E18 !important;
+  background-color: #1E293B !important;
   border-color: #3B82F6 !important;
-  box-shadow: 0 0 0 3.5px rgba(59, 130, 246, 0.3), inset 0 1px 2px rgba(0, 0, 0, 0.25) !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;
   outline: none !important;
-}
-
-/* Warm Caramel Highlight Badges */
-html.dark main [class*="bg-blue-950"],
-html.dark main [class*="bg-blue-900\/60"] {
-  background-color: rgba(212, 163, 115, 0.15) !important;
-  color: #FBBF24 !important;
-}
-
-html.dark main [class*="border-blue-900"],
-html.dark main [class*="border-blue-800"] {
-  border-color: rgba(212, 163, 115, 0.35) !important;
-}
-
-/* Custom Coffee Scrollbars */
-.dark ::-webkit-scrollbar-thumb,
-[data-theme='dark'] ::-webkit-scrollbar-thumb {
-  background: #36261E !important;
-}
-.dark ::-webkit-scrollbar-thumb:hover,
-[data-theme='dark'] ::-webkit-scrollbar-thumb:hover {
-  background: #4D372A !important;
 }
 
 /* ============================================================== */
@@ -778,10 +396,8 @@ html.dark main [class*="border-blue-800"] {
 }
 
 /* ============================================================== */
-/* Modern Enterprise Modal Design Tokens                          */
+/* Modal Scrollbars                                               */
 /* ============================================================== */
-
-/* Slender, modern scrollbars for modal scrollable wells */
 [role="dialog"] ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -797,10 +413,10 @@ html.dark main [class*="border-blue-800"] {
   background: #94A3B8;
 }
 html.dark [role="dialog"] ::-webkit-scrollbar-thumb {
-  background: #3E2B20;
+  background: #334155;
 }
 html.dark [role="dialog"] ::-webkit-scrollbar-thumb:hover {
-  background: #5A4032;
+  background: #475569;
 }
 
 /* Frosted glass backdrop blur support */

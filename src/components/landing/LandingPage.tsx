@@ -95,7 +95,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
           </div>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-8 text-[15px] font-semibold text-[#475569] dark:text-[#CBD5E1]">
+          <nav className="hidden md:flex items-center gap-8 text-[15px] font-semibold text-[#475569] dark:text-slate-300">
             <a href="#built-for-field" className="hover:text-[#2563EB] dark:hover:text-[#60A5FA] transition-colors">
               Features
             </a>
@@ -123,7 +123,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
               onClick={toggleTheme}
               aria-label="Toggle color theme"
               title={theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
-              className="p-2.5 rounded-xl text-[#475569] dark:text-[#CBD5E1] hover:text-[#0F172A] dark:hover:text-white bg-[#F1F5F9] dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] transition-all cursor-pointer"
+              className="p-2.5 rounded-xl text-[#475569] dark:text-slate-300 hover:text-[#0F172A] dark:hover:text-white bg-[#F1F5F9] dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 transition-all cursor-pointer"
             >
               {theme === 'dark' ? (
                 <Sun className="w-4 h-4 text-amber-400" />
@@ -143,7 +143,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-xl text-[#64748B] dark:text-[#94A3B8] hover:text-[#0F172A] dark:hover:text-white bg-[#F1F5F9] dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] cursor-pointer"
+              className="md:hidden p-2 rounded-xl text-[#64748B] dark:text-[#94A3B8] hover:text-[#0F172A] dark:hover:text-white bg-[#F1F5F9] dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 cursor-pointer"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -254,7 +254,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                 <p className="animate-hero-desc1 font-medium text-[#1E293B] dark:text-[#E2E8F0]">
                   <strong className="font-extrabold text-[#0F172A] dark:text-white">FieldSync</strong> is an offline-first citizen registration platform built for field teams working in remote and low-connectivity areas.
                 </p>
-                <p className="animate-hero-desc2 text-[#334155] dark:text-[#CBD5E1]">
+                <p className="animate-hero-desc2 text-[#334155] dark:text-slate-300">
                   Field officers can register citizens, securely store records on their devices, and automatically synchronize data with the central system when connectivity is restored.
                 </p>
               </div>
@@ -276,7 +276,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#0F172A] dark:text-[#F8FAFC]">
               Built for the Field
             </h2>
-            <p className="mt-4 text-[#334155] dark:text-[#CBD5E1] text-lg sm:text-xl font-medium leading-relaxed">
+            <p className="mt-4 text-[#334155] dark:text-slate-300 text-lg sm:text-xl font-medium leading-relaxed">
               Core system capabilities designed for frontline reliability in remote operations.
             </p>
           </div>
@@ -286,13 +286,13 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
             {/* Feature 1: Offline-First Mode */}
             <div className="p-6 sm:p-7 rounded-2xl bg-[#F8FAFC] dark:bg-[#0B0F17] border border-[#E2E8F0] dark:border-[#1F2937] shadow-xs hover:shadow-lg transition-all duration-200 flex flex-col justify-between">
               <div>
-                <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/80 text-[#2563EB] dark:text-[#60A5FA] flex items-center justify-center mb-5 shadow-xs">
+                <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/80 text-[#2563EB] dark:text-blue-400 flex items-center justify-center mb-5 shadow-xs">
                   <WifiOff className="w-6 h-6" />
                 </div>
                 <h3 className="text-xl sm:text-2xl font-bold text-[#0F172A] dark:text-[#F8FAFC] mb-2.5">
                   Offline-First Mode
                 </h3>
-                <p className="text-base text-[#334155] dark:text-[#CBD5E1] leading-relaxed">
+                <p className="text-base text-[#334155] dark:text-slate-300 leading-relaxed">
                   Continue registering citizens even when there is no internet connection.
                 </p>
               </div>
@@ -307,7 +307,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                 <h3 className="text-xl sm:text-2xl font-bold text-[#0F172A] dark:text-[#F8FAFC] mb-2.5">
                   Secure Local Storage
                 </h3>
-                <p className="text-base text-[#334155] dark:text-[#CBD5E1] leading-relaxed">
+                <p className="text-base text-[#334155] dark:text-slate-300 leading-relaxed">
                   Records are safely stored on the device until synchronization becomes available.
                 </p>
               </div>
@@ -322,7 +322,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                 <h3 className="text-xl sm:text-2xl font-bold text-[#0F172A] dark:text-[#F8FAFC] mb-2.5">
                   Duplicate Prevention
                 </h3>
-                <p className="text-base text-[#334155] dark:text-[#CBD5E1] leading-relaxed">
+                <p className="text-base text-[#334155] dark:text-slate-300 leading-relaxed">
                   Built-in validation helps detect repeated or conflicting registrations before records are saved.
                 </p>
               </div>
@@ -337,7 +337,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                 <h3 className="text-xl sm:text-2xl font-bold text-[#0F172A] dark:text-[#F8FAFC] mb-2.5">
                   Automatic Synchronization
                 </h3>
-                <p className="text-base text-[#334155] dark:text-[#CBD5E1] leading-relaxed">
+                <p className="text-base text-[#334155] dark:text-slate-300 leading-relaxed">
                   When connectivity returns, pending records are securely synchronized with the central system.
                 </p>
               </div>
@@ -357,7 +357,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#0F172A] dark:text-[#F8FAFC]">
               How FieldSync Works
             </h2>
-            <p className="mt-4 text-[#334155] dark:text-[#CBD5E1] text-lg sm:text-xl font-medium leading-relaxed">
+            <p className="mt-4 text-[#334155] dark:text-slate-300 text-lg sm:text-xl font-medium leading-relaxed">
               A dependable workflow designed for remote field environments.
             </p>
           </div>
@@ -366,13 +366,13 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
             
             {/* Step 1: Register Offline */}
             <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-[#111827] border border-[#E2E8F0] dark:border-[#1F2937] shadow-xs hover:shadow-lg transition-all duration-200">
-              <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/70 text-[#2563EB] dark:text-[#60A5FA] flex items-center justify-center border border-blue-100 dark:border-blue-900/40 mb-4 shadow-2xs">
+              <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/70 text-[#2563EB] dark:text-blue-400 flex items-center justify-center border border-blue-100 dark:border-blue-900/40 mb-4 shadow-2xs">
                 <WifiOff className="w-6 h-6" />
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-[#0F172A] dark:text-[#F8FAFC] mb-2.5 tracking-tight">
                 01 — Register Offline
               </h3>
-              <p className="text-base text-[#334155] dark:text-[#CBD5E1] leading-relaxed">
+              <p className="text-base text-[#334155] dark:text-slate-300 leading-relaxed">
                 Field officers can register citizens from remote locations without requiring a continuous internet connection.
               </p>
             </div>
@@ -385,7 +385,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
               <h3 className="text-xl sm:text-2xl font-bold text-[#0F172A] dark:text-[#F8FAFC] mb-2.5 tracking-tight">
                 02 — Store Securely
               </h3>
-              <p className="text-base text-[#334155] dark:text-[#CBD5E1] leading-relaxed">
+              <p className="text-base text-[#334155] dark:text-slate-300 leading-relaxed">
                 Registration data is securely stored on the field device while the officer continues working offline.
               </p>
             </div>
@@ -398,7 +398,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
               <h3 className="text-xl sm:text-2xl font-bold text-[#0F172A] dark:text-[#F8FAFC] mb-2.5 tracking-tight">
                 03 — Sync Automatically
               </h3>
-              <p className="text-base text-[#334155] dark:text-[#CBD5E1] leading-relaxed">
+              <p className="text-base text-[#334155] dark:text-slate-300 leading-relaxed">
                 When an internet connection becomes available, pending records are automatically synchronized with the central system.
               </p>
             </div>
@@ -411,7 +411,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
               <h3 className="text-xl sm:text-2xl font-bold text-[#0F172A] dark:text-[#F8FAFC] mb-2.5 tracking-tight">
                 04 — Verify & Monitor
               </h3>
-              <p className="text-base text-[#334155] dark:text-[#CBD5E1] leading-relaxed">
+              <p className="text-base text-[#334155] dark:text-slate-300 leading-relaxed">
                 Supervisors and managers can review registrations, monitor field activity, and track synchronization status.
               </p>
             </div>
@@ -430,7 +430,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#0F172A] dark:text-[#F8FAFC]">
               Built for Real Field Conditions
             </h2>
-            <p className="mt-4 text-[#334155] dark:text-[#CBD5E1] text-lg sm:text-xl font-medium leading-relaxed">
+            <p className="mt-4 text-[#334155] dark:text-slate-300 text-lg sm:text-xl font-medium leading-relaxed">
               Technology designed around the challenges of field work.
             </p>
           </div>
@@ -439,14 +439,14 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
             
             {/* Condition 1 */}
             <div className="p-6 sm:p-7 rounded-2xl bg-[#F8FAFC] dark:bg-[#0B0F17] border border-[#E2E8F0] dark:border-[#1F2937] shadow-xs hover:shadow-lg transition-all duration-200 flex items-start gap-5">
-              <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/80 text-[#2563EB] dark:text-[#60A5FA] flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+              <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/80 text-[#2563EB] dark:text-blue-400 flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
                 <WifiOff className="w-6 h-6" />
               </div>
               <div>
                 <h3 className="text-xl sm:text-2xl font-bold text-[#0F172A] dark:text-[#F8FAFC] mb-2">
                   No Internet? Keep Working.
                 </h3>
-                <p className="text-base text-[#334155] dark:text-[#CBD5E1] leading-relaxed">
+                <p className="text-base text-[#334155] dark:text-slate-300 leading-relaxed">
                   Field officers can continue registering citizens in remote areas with limited or no connectivity.
                 </p>
               </div>
@@ -461,7 +461,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                 <h3 className="text-xl sm:text-2xl font-bold text-[#0F172A] dark:text-[#F8FAFC] mb-2">
                   Prevent Duplicate Records
                 </h3>
-                <p className="text-base text-[#334155] dark:text-[#CBD5E1] leading-relaxed">
+                <p className="text-base text-[#334155] dark:text-slate-300 leading-relaxed">
                   Validation and cross-checking help identify duplicate or conflicting citizen registrations.
                 </p>
               </div>
@@ -476,7 +476,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                 <h3 className="text-xl sm:text-2xl font-bold text-[#0F172A] dark:text-[#F8FAFC] mb-2">
                   Never Lose Field Work
                 </h3>
-                <p className="text-base text-[#334155] dark:text-[#CBD5E1] leading-relaxed">
+                <p className="text-base text-[#334155] dark:text-slate-300 leading-relaxed">
                   Offline records remain available on the device until they can be securely synchronized with the central system.
                 </p>
               </div>
@@ -491,7 +491,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                 <h3 className="text-xl sm:text-2xl font-bold text-[#0F172A] dark:text-[#F8FAFC] mb-2">
                   Know What Is Happening
                 </h3>
-                <p className="text-base text-[#334155] dark:text-[#CBD5E1] leading-relaxed">
+                <p className="text-base text-[#334155] dark:text-slate-300 leading-relaxed">
                   Supervisors and managers can monitor registration progress, field activity, and synchronization status.
                 </p>
               </div>
@@ -511,7 +511,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#0F172A] dark:text-[#F8FAFC]">
               One Platform. Three Roles.
             </h2>
-            <p className="mt-4 text-[#334155] dark:text-[#CBD5E1] text-lg sm:text-xl font-medium leading-relaxed">
+            <p className="mt-4 text-[#334155] dark:text-slate-300 text-lg sm:text-xl font-medium leading-relaxed">
               Dedicated tools for every level of field operations.
             </p>
           </div>
@@ -521,14 +521,14 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
             {/* Role 1: Field Officer */}
             <div className="bg-white dark:bg-[#111827] rounded-2xl border border-[#E2E8F0] dark:border-[#1F2937] p-6 sm:p-7 flex flex-col justify-between shadow-xs hover:shadow-lg transition-all duration-200">
               <div>
-                <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/80 text-[#2563EB] dark:text-[#60A5FA] flex items-center justify-center mb-4 shadow-xs">
+                <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/80 text-[#2563EB] dark:text-blue-400 flex items-center justify-center mb-4 shadow-xs">
                   <Smartphone className="w-6 h-6" />
                 </div>
 
                 <h3 className="text-xl sm:text-2xl font-bold text-[#0F172A] dark:text-[#F8FAFC]">
                   Field Officer
                 </h3>
-                <p className="text-base text-[#334155] dark:text-[#CBD5E1] leading-relaxed mt-2 mb-5">
+                <p className="text-base text-[#334155] dark:text-slate-300 leading-relaxed mt-2 mb-5">
                   Register citizens, capture required information, and continue working offline from the field.
                 </p>
 
@@ -570,7 +570,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                 <h3 className="text-xl sm:text-2xl font-bold text-[#0F172A] dark:text-[#F8FAFC]">
                   Zonal Supervisor
                 </h3>
-                <p className="text-base text-[#334155] dark:text-[#CBD5E1] leading-relaxed mt-2 mb-5">
+                <p className="text-base text-[#334155] dark:text-slate-300 leading-relaxed mt-2 mb-5">
                   Review registrations, monitor assigned field officers, verify records, and track activity across the zone.
                 </p>
 
@@ -612,7 +612,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                 <h3 className="text-xl sm:text-2xl font-bold text-[#0F172A] dark:text-[#F8FAFC]">
                   National Manager
                 </h3>
-                <p className="text-base text-[#334155] dark:text-[#CBD5E1] leading-relaxed mt-2 mb-5">
+                <p className="text-base text-[#334155] dark:text-slate-300 leading-relaxed mt-2 mb-5">
                   Monitor national operations, compare regions and zones, and oversee registration activity across the system.
                 </p>
 
@@ -658,7 +658,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#0F172A] dark:text-[#F8FAFC]">
               Field Operations Across Ethiopia
             </h2>
-            <p className="mt-4 text-[#334155] dark:text-[#CBD5E1] text-lg sm:text-xl font-medium leading-relaxed">
+            <p className="mt-4 text-[#334155] dark:text-slate-300 text-lg sm:text-xl font-medium leading-relaxed">
               A connected view of national field registration activity.
             </p>
           </div>
@@ -667,13 +667,13 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
             
             {/* Stat 1: 14 Regions */}
             <div className="p-6 sm:p-7 rounded-2xl bg-[#F8FAFC] dark:bg-[#0B0F17] border border-[#E2E8F0] dark:border-[#1F2937] shadow-xs hover:shadow-lg transition-all duration-200 text-center">
-              <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/80 text-[#2563EB] dark:text-[#60A5FA] flex items-center justify-center mx-auto mb-4 shadow-xs">
+              <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/80 text-[#2563EB] dark:text-blue-400 flex items-center justify-center mx-auto mb-4 shadow-xs">
                 <Globe className="w-6 h-6" />
               </div>
               <div className="text-4xl sm:text-5xl font-black text-[#0F172A] dark:text-white tracking-tight">
                 {telemetry.counts.regions || 14}
               </div>
-              <p className="mt-2.5 text-sm sm:text-base font-extrabold uppercase tracking-wide text-[#1E293B] dark:text-[#CBD5E1]">
+              <p className="mt-2.5 text-sm sm:text-base font-extrabold uppercase tracking-wide text-[#1E293B] dark:text-slate-300">
                 Regions
               </p>
             </div>
@@ -686,7 +686,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
               <div className="text-4xl sm:text-5xl font-black text-[#0F172A] dark:text-white tracking-tight">
                 {telemetry.counts.zones || 107}
               </div>
-              <p className="mt-2.5 text-sm sm:text-base font-extrabold uppercase tracking-wide text-[#1E293B] dark:text-[#CBD5E1]">
+              <p className="mt-2.5 text-sm sm:text-base font-extrabold uppercase tracking-wide text-[#1E293B] dark:text-slate-300">
                 Zones
               </p>
             </div>
@@ -699,7 +699,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
               <div className="text-4xl sm:text-5xl font-black text-[#0F172A] dark:text-white tracking-tight">
                 {telemetry.counts.woredas || 929}
               </div>
-              <p className="mt-2.5 text-sm sm:text-base font-extrabold uppercase tracking-wide text-[#1E293B] dark:text-[#CBD5E1]">
+              <p className="mt-2.5 text-sm sm:text-base font-extrabold uppercase tracking-wide text-[#1E293B] dark:text-slate-300">
                 Districts
               </p>
             </div>
@@ -712,7 +712,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
               <div className="text-4xl sm:text-5xl font-black text-[#0F172A] dark:text-white tracking-tight">
                 {telemetry.counts.citizens || 14}
               </div>
-              <p className="mt-2.5 text-sm sm:text-base font-extrabold uppercase tracking-wide text-[#1E293B] dark:text-[#CBD5E1]">
+              <p className="mt-2.5 text-sm sm:text-base font-extrabold uppercase tracking-wide text-[#1E293B] dark:text-slate-300">
                 Registered Citizens
               </p>
             </div>
@@ -725,7 +725,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
               <div className="text-4xl sm:text-5xl font-black text-[#0F172A] dark:text-white tracking-tight">
                 {telemetry.counts.users || 19}
               </div>
-              <p className="mt-2.5 text-sm sm:text-base font-extrabold uppercase tracking-wide text-[#1E293B] dark:text-[#CBD5E1]">
+              <p className="mt-2.5 text-sm sm:text-base font-extrabold uppercase tracking-wide text-[#1E293B] dark:text-slate-300">
                 Field Staff
               </p>
             </div>
@@ -747,7 +747,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                 <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#0F172A] dark:text-[#F8FAFC] tracking-tight leading-tight">
                   Security Built Into Every Registration
                 </h2>
-                <p className="text-[#334155] dark:text-[#CBD5E1] text-lg sm:text-xl font-medium leading-relaxed mt-3">
+                <p className="text-[#334155] dark:text-slate-300 text-lg sm:text-xl font-medium leading-relaxed mt-3">
                   Protecting citizen information from the field device to the central system.
                 </p>
               </div>
@@ -764,7 +764,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                     <h4 className="text-lg font-bold text-[#0F172A] dark:text-[#F8FAFC]">
                       Role-Based Access
                     </h4>
-                    <p className="text-sm sm:text-base text-[#334155] dark:text-[#CBD5E1] mt-1.5 leading-relaxed">
+                    <p className="text-sm sm:text-base text-[#334155] dark:text-slate-300 mt-1.5 leading-relaxed">
                       Users only access the information and actions permitted by their assigned role.
                     </p>
                   </div>
@@ -779,7 +779,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                     <h4 className="text-lg font-bold text-[#0F172A] dark:text-[#F8FAFC]">
                       Secure Local Storage
                     </h4>
-                    <p className="text-sm sm:text-base text-[#334155] dark:text-[#CBD5E1] mt-1.5 leading-relaxed">
+                    <p className="text-sm sm:text-base text-[#334155] dark:text-slate-300 mt-1.5 leading-relaxed">
                       Offline records are protected while stored on field devices.
                     </p>
                   </div>
@@ -787,14 +787,14 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
 
                 {/* 3. Activity History */}
                 <div className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-[#111827] border border-[#E2E8F0] dark:border-[#1F2937] shadow-xs hover:shadow-lg transition-all duration-200 flex items-start gap-4">
-                  <div className="w-11 h-11 rounded-xl bg-blue-50 dark:bg-blue-950/80 text-[#2563EB] dark:text-[#60A5FA] flex items-center justify-center shrink-0 shadow-xs">
+                  <div className="w-11 h-11 rounded-xl bg-blue-50 dark:bg-blue-950/80 text-[#2563EB] dark:text-blue-400 flex items-center justify-center shrink-0 shadow-xs">
                     <Activity className="w-5 h-5" />
                   </div>
                   <div>
                     <h4 className="text-lg font-bold text-[#0F172A] dark:text-[#F8FAFC]">
                       Activity History
                     </h4>
-                    <p className="text-sm sm:text-base text-[#334155] dark:text-[#CBD5E1] mt-1.5 leading-relaxed">
+                    <p className="text-sm sm:text-base text-[#334155] dark:text-slate-300 mt-1.5 leading-relaxed">
                       Registration and review activities are recorded to provide a clear operational history.
                     </p>
                   </div>
@@ -809,7 +809,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                     <h4 className="text-lg font-bold text-[#0F172A] dark:text-[#F8FAFC]">
                       Protected Synchronization
                     </h4>
-                    <p className="text-sm sm:text-base text-[#334155] dark:text-[#CBD5E1] mt-1.5 leading-relaxed">
+                    <p className="text-sm sm:text-base text-[#334155] dark:text-slate-300 mt-1.5 leading-relaxed">
                       Records are securely transferred and validated when synchronized with the central system.
                     </p>
                   </div>
@@ -824,7 +824,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                     <h4 className="text-lg font-bold text-[#0F172A] dark:text-[#F8FAFC]">
                       Geographic Access Control
                     </h4>
-                    <p className="text-sm sm:text-base text-[#334155] dark:text-[#CBD5E1] mt-1.5 leading-relaxed">
+                    <p className="text-sm sm:text-base text-[#334155] dark:text-slate-300 mt-1.5 leading-relaxed">
                       Field personnel can be restricted to their assigned operational areas.
                     </p>
                   </div>
@@ -835,7 +835,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
 
             {/* Right Column: Secure by Design Card (Continuous Protection Active removed) */}
             <div className="lg:col-span-5 bg-white dark:bg-[#111827] rounded-2xl p-7 sm:p-9 border border-[#E2E8F0] dark:border-[#1F2937] shadow-xs hover:shadow-lg transition-all duration-200 text-center space-y-6">
-              <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl bg-blue-50 dark:bg-blue-950/80 text-[#2563EB] dark:text-[#60A5FA] flex items-center justify-center mx-auto shadow-xs">
+              <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl bg-blue-50 dark:bg-blue-950/80 text-[#2563EB] dark:text-blue-400 flex items-center justify-center mx-auto shadow-xs">
                 <Shield className="w-9 h-9 sm:w-10 sm:h-10" />
               </div>
 
@@ -843,7 +843,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                 <h3 className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] dark:text-white">
                   Secure by Design
                 </h3>
-                <p className="text-base sm:text-lg text-[#334155] dark:text-[#CBD5E1] mt-3 leading-relaxed">
+                <p className="text-base sm:text-lg text-[#334155] dark:text-slate-300 mt-3 leading-relaxed">
                   FieldSync is designed with privacy, controlled access, secure data handling, and operational accountability at every stage of the registration process.
                 </p>
               </div>
@@ -863,7 +863,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
             Ready to Connect Your Field Operations?
           </h2>
 
-          <p className="mt-5 text-lg sm:text-xl text-[#334155] dark:text-[#CBD5E1] max-w-2xl mx-auto leading-relaxed">
+          <p className="mt-5 text-lg sm:text-xl text-[#334155] dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
             Give your field teams the tools to register citizens securely — online or offline.
           </p>
 
@@ -891,7 +891,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
             {/* Brand Column */}
             <div className="col-span-2 space-y-4">
               <div className="flex items-center gap-2.5 text-[#0F172A] dark:text-white font-extrabold text-xl tracking-tight">
-                <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/80 text-[#2563EB] dark:text-[#60A5FA] flex items-center justify-center shadow-xs">
+                <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/80 text-[#2563EB] dark:text-blue-400 flex items-center justify-center shadow-xs">
                   <Radio className="w-4.5 h-4.5" />
                 </div>
                 <span>FieldSync</span>
@@ -993,7 +993,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
             <p>© 2026 FieldSync. National Citizen Registration & Field Operations Platform.</p>
             <button
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-slate-200/60 dark:hover:bg-slate-800 font-semibold text-xs text-[#475569] dark:text-[#CBD5E1] hover:text-[#2563EB] dark:hover:text-[#60A5FA] transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-slate-200/60 dark:hover:bg-slate-800 font-semibold text-xs text-[#475569] dark:text-slate-300 hover:text-[#2563EB] dark:hover:text-[#60A5FA] transition-colors cursor-pointer"
             >
               <span>Back to top</span>
               <ArrowUp className="w-3.5 h-3.5" />

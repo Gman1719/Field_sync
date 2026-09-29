@@ -570,7 +570,7 @@ export default function DailyWorkReportView({
     return (
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-[#1E293B] p-6 rounded-2xl border border-slate-200 dark:border-[#334155] shadow-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-[#1E3A8A] text-white flex items-center justify-center shadow-xs">
               <FileText className="w-5 h-5" />
@@ -612,7 +612,7 @@ export default function DailyWorkReportView({
         </div>
 
         {/* Filter Controls */}
-        <div className="bg-white dark:bg-[#1E293B] p-4 rounded-2xl border border-slate-200 dark:border-[#334155] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 text-xs">
+        <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 text-xs">
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-slate-400" />
@@ -620,7 +620,7 @@ export default function DailyWorkReportView({
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                className="px-3 py-1.5 border border-slate-200 dark:border-[#334155] bg-white dark:bg-[#0F172A] rounded-lg text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]"
+                className="px-3 py-1.5 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-lg text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]"
               />
             </div>
 
@@ -630,7 +630,7 @@ export default function DailyWorkReportView({
               className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition-all cursor-pointer ${
                 !selectedDate
                   ? 'bg-[#2563EB] text-white border-[#2563EB] shadow-xs'
-                  : 'bg-white dark:bg-[#261C16] text-slate-600 dark:text-[#FFF8F0] border-slate-200 dark:border-[#463327] hover:bg-slate-50 dark:hover:bg-[#34241C] dark:hover:border-[#D4A373] dark:hover:text-white'
+                  : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-100 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 dark:hover:border-blue-400 dark:hover:text-white'
               }`}
             >
               All Dates
@@ -641,7 +641,7 @@ export default function DailyWorkReportView({
             <select
               value={selectedOfficerId}
               onChange={(e) => setSelectedOfficerId(e.target.value)}
-              className="w-full px-3 py-1.5 border border-slate-200 dark:border-[#334155] bg-white dark:bg-[#0F172A] rounded-lg text-xs font-medium text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]"
+              className="w-full px-3 py-1.5 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]"
             >
               <option value="">Filter by Officer (All Officers)</option>
               {officersList.map((off) => (
@@ -771,7 +771,7 @@ export default function DailyWorkReportView({
               return (
                 <div className="space-y-4 text-xs text-slate-700 dark:text-slate-300">
                   {/* Telemetry Grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155]">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
                     <div className="space-y-0.5">
                       <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-semibold block">Citizens Registered</span>
                       <span className="text-sm font-bold text-slate-900 dark:text-slate-100">{inspectModalReport.citizenCountLocal} Citizens</span>
@@ -793,7 +793,7 @@ export default function DailyWorkReportView({
                   </div>
 
                   {/* Section 1: Executive Work Narrative */}
-                  <div className="p-3.5 bg-white dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155] space-y-1">
+                  <div className="p-3.5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 space-y-1">
                     <h4 className="font-bold text-slate-900 dark:text-[#F8FAFC] text-xs">
                       Work Summary & Narrative
                     </h4>
@@ -801,7 +801,7 @@ export default function DailyWorkReportView({
                   </div>
 
                   {/* Section 2: Key Achievements */}
-                  <div className="p-3.5 bg-white dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155] space-y-1">
+                  <div className="p-3.5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 space-y-1">
                     <h4 className="font-bold text-slate-900 dark:text-[#F8FAFC] text-xs">
                       Key Achievements & Milestones
                     </h4>
@@ -809,7 +809,7 @@ export default function DailyWorkReportView({
                   </div>
 
                   {/* Section 3: Roadblocks & Challenges */}
-                  <div className="p-3.5 bg-white dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155] space-y-1">
+                  <div className="p-3.5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 space-y-1">
                     <h4 className="font-bold text-slate-900 dark:text-[#F8FAFC] text-xs">
                       Roadblocks & Field Challenges
                     </h4>
@@ -817,7 +817,7 @@ export default function DailyWorkReportView({
                   </div>
 
                   {/* Section 4: Resources Used & Needed */}
-                  <div className="p-3.5 bg-white dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155] space-y-1">
+                  <div className="p-3.5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 space-y-1">
                     <h4 className="font-bold text-slate-900 dark:text-[#F8FAFC] text-xs">
                       Resources Used & Needed for Next Shift
                     </h4>
@@ -825,7 +825,7 @@ export default function DailyWorkReportView({
                   </div>
 
                   {/* Section 5: Tomorrow's Priorities */}
-                  <div className="p-3.5 bg-white dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155] space-y-1">
+                  <div className="p-3.5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 space-y-1">
                     <h4 className="font-bold text-slate-900 dark:text-[#F8FAFC] text-xs">
                       Tomorrow's Strategy & Target Kebeles
                     </h4>
@@ -844,7 +844,7 @@ export default function DailyWorkReportView({
   return (
     <div className="space-y-5">
       {/* 1. Consolidated Header & Action Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-[#1E293B] p-5 rounded-2xl border border-[#E2E8F0] dark:border-[#334155] shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-slate-800 p-5 rounded-2xl border border-[#E2E8F0] dark:border-slate-700 shadow-xs">
         <div>
           <div className="flex flex-wrap items-center gap-2.5">
             <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-[#F8FAFC] tracking-tight">
@@ -863,7 +863,7 @@ export default function DailyWorkReportView({
               variant="outline"
               size="md"
               onClick={() => setActiveTab('my_reports')}
-              className="h-10 px-4 rounded-xl border-[#E2E8F0] dark:border-[#334155] text-[#2563EB] dark:text-[#60A5FA] font-bold text-sm dark:hover:bg-[#0F172A]"
+              className="h-10 px-4 rounded-xl border-[#E2E8F0] dark:border-slate-700 text-[#2563EB] dark:text-blue-400 font-bold text-sm dark:hover:bg-[#0F172A]"
             >
               <FileText className="w-4 h-4 mr-2" />
               View My Reports
@@ -873,23 +873,23 @@ export default function DailyWorkReportView({
       </div>
 
       {/* 2. Compact Overview & Metadata Bar (Top Deck Ribbon: 4-Column Unified Block) */}
-      <div className="bg-white dark:bg-[#1E293B] rounded-2xl border border-[#E2E8F0] dark:border-[#334155] shadow-xs overflow-hidden grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-100 dark:divide-slate-800">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl border border-[#E2E8F0] dark:border-slate-700 shadow-xs overflow-hidden grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-100 dark:divide-slate-800">
         {/* Metric 1: Citizens Registered */}
         <div className="p-3.5 sm:p-4">
-          <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-[#BFA89B] uppercase tracking-wider block mb-1">
+          <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">
             Citizens Registered
           </span>
           <div className="flex items-baseline gap-1.5">
             <span className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white font-mono leading-none">
               {todayReport && !screenTimeInfo?.isSessionActive ? 0 : localCitizenCount}
             </span>
-            <span className="text-xs text-slate-500 dark:text-[#A8988B] font-semibold">Today</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold">Today</span>
           </div>
         </div>
 
         {/* Metric 2: Screen Time Telemetry */}
         <div className="p-3.5 sm:p-4">
-          <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-[#BFA89B] uppercase tracking-wider block mb-1">
+          <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">
             {todayReport && !screenTimeInfo?.isSessionActive
               ? 'Finalized Screen Time'
               : 'Recorded Screen Time'}
@@ -903,14 +903,14 @@ export default function DailyWorkReportView({
 
         {/* Metric 3: Reporting Officer */}
         <div className="p-3.5 sm:p-4">
-          <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-[#BFA89B] uppercase tracking-wider block mb-1">
+          <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">
             Reporting Officer
           </span>
-          <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-[#FFFFFF] truncate block leading-snug">
+          <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate block leading-snug">
             {user?.fullName || user?.name || user?.email || 'Field Staff'}
           </span>
           {user?.employeeId && (
-            <span className="text-[11px] font-mono text-slate-500 dark:text-[#A8988B]">
+            <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400">
               ({user.employeeId})
             </span>
           )}
@@ -918,10 +918,10 @@ export default function DailyWorkReportView({
 
         {/* Metric 4: Report Date */}
         <div className="p-3.5 sm:p-4">
-          <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-[#BFA89B] uppercase tracking-wider block mb-1">
+          <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">
             Report Date
           </span>
-          <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-[#FFFFFF] block leading-snug font-mono">
+          <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white block leading-snug font-mono">
             {todayStr}
           </span>
         </div>
@@ -932,8 +932,8 @@ export default function DailyWorkReportView({
         {/* Primary Column (Left, 6 Columns) */}
         <div className="lg:col-span-6 space-y-5">
           {/* Card 1: Core Daily Deliverables & Roadblocks */}
-          <Card className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl shadow-xs overflow-hidden">
-            <CardHeader className="p-5 border-b border-[#E2E8F0] dark:border-[#334155] bg-slate-50/50 dark:bg-[#182234]">
+          <Card className="bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 rounded-2xl shadow-xs overflow-hidden">
+            <CardHeader className="p-5 border-b border-[#E2E8F0] dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800">
               <div>
                 <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-[#F8FAFC] tracking-tight">
                   Daily Work & Field Observations
@@ -945,7 +945,7 @@ export default function DailyWorkReportView({
                 <div className="flex items-center justify-between mb-1.5">
                   <label
                     htmlFor="dailyWorkNarrative"
-                    className="text-xs sm:text-sm font-bold text-slate-900 dark:text-[#F5EBE1] block"
+                    className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-200 block"
                   >
                     Daily Work Narrative & Completed Deliverables <span className="text-rose-500 font-bold">*</span>
                   </label>
@@ -964,7 +964,7 @@ export default function DailyWorkReportView({
               <div>
                 <label
                   htmlFor="roadblocksInput"
-                  className="text-xs sm:text-sm font-bold text-slate-900 dark:text-[#F5EBE1] block mb-1.5"
+                  className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-200 block mb-1.5"
                 >
                   Roadblocks & Operational Challenges
                 </label>
@@ -984,8 +984,8 @@ export default function DailyWorkReportView({
         {/* Secondary Column (Right, 6 Columns) */}
         <div className="lg:col-span-6 space-y-5">
           {/* Card 3: Shift Logistics & Planning Stack */}
-          <Card className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl shadow-xs overflow-hidden">
-            <CardHeader className="p-5 border-b border-[#E2E8F0] dark:border-[#334155] bg-slate-50/50 dark:bg-[#182234]">
+          <Card className="bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 rounded-2xl shadow-xs overflow-hidden">
+            <CardHeader className="p-5 border-b border-[#E2E8F0] dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800">
               <div>
                 <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-[#F8FAFC] tracking-tight">
                   Shift Logistics & Next Steps
@@ -996,7 +996,7 @@ export default function DailyWorkReportView({
               <div>
                 <label
                   htmlFor="resourcesInput"
-                  className="text-xs sm:text-sm font-bold text-slate-900 dark:text-[#F5EBE1] block mb-1.5"
+                  className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-200 block mb-1.5"
                 >
                   Resources Used & Logistics Needed
                 </label>
@@ -1013,7 +1013,7 @@ export default function DailyWorkReportView({
               <div>
                 <label
                   htmlFor="nextDayPlanInput"
-                  className="text-xs sm:text-sm font-bold text-slate-900 dark:text-[#F5EBE1] block mb-1.5"
+                  className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-200 block mb-1.5"
                 >
                   Tomorrow's Priorities & Target Kebeles
                 </label>
@@ -1030,7 +1030,7 @@ export default function DailyWorkReportView({
           </Card>
 
           {/* Card 4: Submission Action Panel */}
-          <Card className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl shadow-xs p-5">
+          <Card className="bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 rounded-2xl shadow-xs p-5">
             <Button
               type="submit"
               variant="primary"

@@ -425,7 +425,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
   return (
     <div className="space-y-6">
       {/* 1. Header Banner with Ethiopian Federal Accent & Connectivity Badge */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-[#1E293B] p-5 sm:p-6 rounded-2xl border border-[#E2E8F0] dark:border-[#334155] shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-slate-800 p-5 sm:p-6 rounded-2xl border border-[#E2E8F0] dark:border-slate-700 shadow-xs">
         <div>
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-[#1E3A8A] to-[#2563EB] text-white flex items-center justify-center shadow-xs shrink-0">
@@ -445,8 +445,8 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
         {/* Connectivity Status & Officer Badge */}
         <div className="flex flex-wrap items-center gap-2">
           {user?.name && (
-            <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-[#0F172A] border border-[#E2E8F0] dark:border-[#334155] text-xs font-semibold text-slate-700 dark:text-slate-300">
-              <User className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#60A5FA]" />
+            <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-[#E2E8F0] dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300">
+              <User className="w-3.5 h-3.5 text-[#2563EB] dark:text-blue-400" />
               <span>Officer: {user.name}</span>
               {user.employeeId && <span className="font-mono text-slate-400">({user.employeeId})</span>}
             </div>
@@ -480,13 +480,13 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
                   <span className="text-xs font-semibold text-emerald-800 dark:text-emerald-300">
                     12-Digit Citizen ID:
                   </span>
-                  <span className="font-mono font-bold text-sm bg-white dark:bg-[#0F172A] px-2.5 py-0.5 rounded-lg border border-emerald-300 dark:border-emerald-700 text-emerald-900 dark:text-emerald-200 tracking-wider">
+                  <span className="font-mono font-bold text-sm bg-white dark:bg-slate-900 px-2.5 py-0.5 rounded-lg border border-emerald-300 dark:border-emerald-700 text-emerald-900 dark:text-emerald-200 tracking-wider">
                     {registeredCitizen.clientRecordId}
                   </span>
                   <button
                     type="button"
                     onClick={() => handleCopyId(registeredCitizen.clientRecordId)}
-                    className="p-1 rounded-md bg-white dark:bg-[#0F172A] border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 transition-colors"
+                    className="p-1 rounded-md bg-white dark:bg-slate-900 border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 transition-colors"
                     title="Copy 12-Digit ID"
                   >
                     {copiedId ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
@@ -526,10 +526,10 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
       {/* 3. Registration Form */}
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Section 1: Citizen Identity & Demographics */}
-        <Card className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl shadow-xs overflow-hidden">
-          <CardHeader className="p-5 border-b border-[#E2E8F0] dark:border-[#334155] bg-slate-50/50 dark:bg-[#182234]">
+        <Card className="bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 rounded-2xl shadow-xs overflow-hidden">
+          <CardHeader className="p-5 border-b border-[#E2E8F0] dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-950/60 text-[#2563EB] dark:text-[#60A5FA] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-950/60 text-[#2563EB] dark:text-blue-400 flex items-center justify-center">
                 <User className="w-4 h-4" />
               </div>
               <div>
@@ -571,7 +571,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-start">
               {/* Date of Birth */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-[#CBD5E1] uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                   Date of Birth <span className="text-rose-500">*</span>
                 </label>
                 <div className="relative">
@@ -581,19 +581,19 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
                     max={todayStr}
                     onChange={(e) => setDateOfBirth(e.target.value)}
                     required
-                    className="w-full h-11 px-3.5 rounded-xl border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-[#3B82F6] transition-all cursor-pointer font-medium"
+                    className="w-full h-11 px-3.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-[#F8FAFC] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-blue-500 transition-all cursor-pointer font-medium"
                   />
                 </div>
               </div>
 
               {/* Age (Split into separate column) */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-[#CBD5E1] uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                   Age
                 </label>
-                <div className="h-11 px-3.5 rounded-xl border border-slate-300 dark:border-[#334155] bg-slate-50/80 dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] text-sm flex items-center font-bold">
+                <div className="h-11 px-3.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-900 text-slate-900 dark:text-[#F8FAFC] text-sm flex items-center font-bold">
                   {calculatedAge !== null ? (
-                    <span className="inline-flex items-center gap-1.5 text-[#2563EB] dark:text-[#60A5FA]">
+                    <span className="inline-flex items-center gap-1.5 text-[#2563EB] dark:text-blue-400">
                       <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                       {calculatedAge} {calculatedAge === 1 ? 'year' : 'years'}
                     </span>
@@ -605,13 +605,13 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
 
               {/* Gender */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-[#CBD5E1] uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                   Gender <span className="text-rose-500">*</span>
                 </label>
                 <select
                   value={gender}
                   onChange={(e) => setGender(e.target.value)}
-                  className="w-full h-11 px-3.5 rounded-xl border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-[#3B82F6] transition-all cursor-pointer font-medium"
+                  className="w-full h-11 px-3.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-[#F8FAFC] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-blue-500 transition-all cursor-pointer font-medium"
                   required
                 >
                   <option value="MALE">Male</option>
@@ -622,13 +622,13 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
 
               {/* Marital Status */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-[#CBD5E1] uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                   Marital Status (Optional)
                 </label>
                 <select
                   value={maritalStatus}
                   onChange={(e) => setMaritalStatus(e.target.value)}
-                  className="w-full h-11 px-3.5 rounded-xl border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-[#3B82F6] transition-all cursor-pointer font-medium"
+                  className="w-full h-11 px-3.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-[#F8FAFC] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-blue-500 transition-all cursor-pointer font-medium"
                 >
                   <option value="">Not Specified</option>
                   <option value="Single">Single</option>
@@ -642,8 +642,8 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
         </Card>
 
         {/* Section 2: Contact Information (Optional) */}
-        <Card className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl shadow-xs overflow-hidden">
-          <CardHeader className="p-5 border-b border-[#E2E8F0] dark:border-[#334155] bg-slate-50/50 dark:bg-[#182234]">
+        <Card className="bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 rounded-2xl shadow-xs overflow-hidden">
+          <CardHeader className="p-5 border-b border-[#E2E8F0] dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
                 <Phone className="w-4 h-4" />
@@ -684,8 +684,8 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
 
         {/* Section 3: Address & Location (Cascading Ethiopian Hierarchy) */}
         {/* Section 3: Address & Location (Cascading Ethiopian Hierarchy) */}
-        <Card className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl shadow-xs overflow-hidden">
-          <CardHeader className="p-5 border-b border-[#E2E8F0] dark:border-[#334155] bg-slate-50/50 dark:bg-[#182234]">
+        <Card className="bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 rounded-2xl shadow-xs overflow-hidden">
+          <CardHeader className="p-5 border-b border-[#E2E8F0] dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
                 <MapPin className="w-4 h-4" />
@@ -703,8 +703,8 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
               {/* Region */}
               <div className="flex flex-col">
                 <div className="h-6 flex items-center justify-between mb-1.5">
-                  <label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-[#F5EBE1] flex items-center gap-1">
-                    Region / City <span className="text-[#DC2626] dark:text-[#F43F5E]">*</span>
+                  <label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1">
+                    Region / City <span className="text-[#DC2626] dark:text-rose-400">*</span>
                   </label>
                 </div>
                 <div className="relative">
@@ -712,7 +712,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
                     value={regionId}
                     onChange={(e) => setRegionId(e.target.value)}
                     disabled={isLoadingLocations}
-                    className="w-full h-11 pl-3.5 pr-10 rounded-xl border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-[#3B82F6] hover:border-slate-400 dark:hover:border-slate-600 transition-all disabled:bg-slate-100 dark:disabled:bg-[#1E293B]/50 disabled:text-slate-400 font-medium cursor-pointer shadow-xs"
+                    className="w-full h-11 pl-3.5 pr-10 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-[#F8FAFC] text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-blue-500 hover:border-slate-400 dark:hover:border-slate-600 transition-all disabled:bg-slate-100 dark:disabled:bg-[#1E293B]/50 disabled:text-slate-400 font-medium cursor-pointer shadow-xs"
                     required
                   >
                     <option value="">Select Region</option>
@@ -729,8 +729,8 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
               {/* Zone */}
               <div className="flex flex-col">
                 <div className="h-6 flex items-center justify-between mb-1.5">
-                  <label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-[#F5EBE1] flex items-center gap-1">
-                    Zone / Sub-City <span className="text-[#DC2626] dark:text-[#F43F5E]">*</span>
+                  <label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1">
+                    Zone / Sub-City <span className="text-[#DC2626] dark:text-rose-400">*</span>
                   </label>
                 </div>
                 <div className="relative">
@@ -738,7 +738,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
                     value={zoneId}
                     onChange={(e) => setZoneId(e.target.value)}
                     disabled={!regionId || zones.length === 0}
-                    className="w-full h-11 pl-3.5 pr-10 rounded-xl border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-[#3B82F6] hover:border-slate-400 dark:hover:border-slate-600 transition-all disabled:bg-slate-100 dark:disabled:bg-[#1E293B]/50 disabled:text-slate-400 font-medium cursor-pointer shadow-xs"
+                    className="w-full h-11 pl-3.5 pr-10 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-[#F8FAFC] text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-blue-500 hover:border-slate-400 dark:hover:border-slate-600 transition-all disabled:bg-slate-100 dark:disabled:bg-[#1E293B]/50 disabled:text-slate-400 font-medium cursor-pointer shadow-xs"
                     required
                   >
                     <option value="">{regionId ? 'Select Zone' : 'Choose Region First'}</option>
@@ -755,8 +755,8 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
               {/* Woreda */}
               <div className="flex flex-col">
                 <div className="h-6 flex items-center justify-between mb-1.5">
-                  <label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-[#F5EBE1] flex items-center gap-1">
-                    Woreda Station <span className="text-[#DC2626] dark:text-[#F43F5E]">*</span>
+                  <label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1">
+                    Woreda Station <span className="text-[#DC2626] dark:text-rose-400">*</span>
                   </label>
                 </div>
                 <div className="relative">
@@ -764,7 +764,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
                     value={woredaId}
                     onChange={(e) => setWoredaId(e.target.value)}
                     disabled={!zoneId || woredas.length === 0}
-                    className="w-full h-11 pl-3.5 pr-10 rounded-xl border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-[#3B82F6] hover:border-slate-400 dark:hover:border-slate-600 transition-all disabled:bg-slate-100 dark:disabled:bg-[#1E293B]/50 disabled:text-slate-400 font-medium cursor-pointer shadow-xs"
+                    className="w-full h-11 pl-3.5 pr-10 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-[#F8FAFC] text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-blue-500 hover:border-slate-400 dark:hover:border-slate-600 transition-all disabled:bg-slate-100 dark:disabled:bg-[#1E293B]/50 disabled:text-slate-400 font-medium cursor-pointer shadow-xs"
                     required
                   >
                     <option value="">{zoneId ? 'Select Woreda' : 'Choose Zone First'}</option>
@@ -781,8 +781,8 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
               {/* Kebele */}
               <div className="flex flex-col">
                 <div className="h-6 flex items-center justify-between mb-1.5">
-                  <label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-[#F5EBE1] flex items-center gap-1">
-                    Kebele Unit <span className="text-[#DC2626] dark:text-[#F43F5E]">*</span>
+                  <label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1">
+                    Kebele Unit <span className="text-[#DC2626] dark:text-rose-400">*</span>
                   </label>
                 </div>
                 <div className="relative">
@@ -790,7 +790,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
                     value={kebeleId}
                     onChange={(e) => setKebeleId(e.target.value)}
                     disabled={!woredaId || kebeles.length === 0}
-                    className="w-full h-11 pl-3.5 pr-10 rounded-xl border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-[#3B82F6] hover:border-slate-400 dark:hover:border-slate-600 transition-all disabled:bg-slate-100 dark:disabled:bg-[#1E293B]/50 disabled:text-slate-400 font-medium cursor-pointer shadow-xs"
+                    className="w-full h-11 pl-3.5 pr-10 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-[#F8FAFC] text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-blue-500 hover:border-slate-400 dark:hover:border-slate-600 transition-all disabled:bg-slate-100 dark:disabled:bg-[#1E293B]/50 disabled:text-slate-400 font-medium cursor-pointer shadow-xs"
                     required
                   >
                     <option value="">{woredaId ? 'Select Kebele' : 'Choose Woreda First'}</option>
@@ -819,13 +819,13 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
         </Card>
 
         {/* 4. Action Controls & Provenance Footer */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-white dark:bg-[#1E293B] rounded-2xl border border-[#E2E8F0] dark:border-[#334155] shadow-xs">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-white dark:bg-slate-800 rounded-2xl border border-[#E2E8F0] dark:border-slate-700 shadow-xs">
           <Button
             type="button"
             variant="outline"
             onClick={handleClear}
             disabled={isSubmitting}
-            className="w-full sm:w-auto rounded-xl border-[#E2E8F0] dark:border-[#334155] text-slate-700 dark:text-[#F8FAFC] dark:hover:bg-[#0F172A]"
+            className="w-full sm:w-auto rounded-xl border-[#E2E8F0] dark:border-slate-700 text-slate-700 dark:text-[#F8FAFC] dark:hover:bg-[#0F172A]"
           >
             <RotateCcw className="w-4 h-4 mr-2" />
             Clear Form

@@ -219,15 +219,15 @@ export default function UserRoleModal({ user, isOpen, onClose, onUserUpdated }: 
       title="Change Operational Role & Workstation Location"
       size="lg"
     >
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-4">
         {/* User Card */}
-        <div className="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700 flex items-center justify-between">
+        <div className="p-3.5 bg-slate-50/80 dark:bg-slate-800/60 rounded-xl border border-slate-200/80 dark:border-slate-700/70 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-700 to-blue-500 text-white flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-tr from-blue-700 to-blue-500 text-white flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
               {(user.firstName?.[0] || user.fullName?.[0] || user.name?.[0] || 'U').toUpperCase()}
             </div>
             <div>
-              <span className="text-sm font-bold text-slate-800 dark:text-slate-100 block">
+              <span className="text-sm font-semibold text-slate-900 dark:text-slate-100 block">
                 {user.fullName || user.name}
               </span>
               <span className="text-xs text-slate-500 dark:text-slate-400">
@@ -241,11 +241,11 @@ export default function UserRoleModal({ user, isOpen, onClose, onUserUpdated }: 
         </div>
 
         {/* Section 1: Role Options */}
-        <div className="space-y-2.5">
+        <div className="space-y-2">
           <label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider block">
             1. Select New Operational Role
           </label>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
             {ROLES.map((role) => {
               const isSelected = selectedRole === role.id;
               const Icon = role.icon;
@@ -254,10 +254,10 @@ export default function UserRoleModal({ user, isOpen, onClose, onUserUpdated }: 
                   key={role.id}
                   type="button"
                   onClick={() => setSelectedRole(role.id)}
-                  className={`w-full text-left p-3.5 rounded-xl border transition-all flex flex-col justify-between cursor-pointer ${
+                  className={`w-full text-left p-3 rounded-lg border transition-all flex flex-col justify-between cursor-pointer ${
                     isSelected
-                      ? 'bg-blue-50/80 dark:bg-blue-950/40 border-blue-500 shadow-xs ring-2 ring-blue-500/20'
-                      : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
+                      ? 'bg-blue-50/80 dark:bg-blue-950/40 border-blue-500 dark:border-blue-500 shadow-xs ring-2 ring-blue-500/20'
+                      : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-slate-300 dark:hover:border-slate-600'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-2">
@@ -332,13 +332,13 @@ export default function UserRoleModal({ user, isOpen, onClose, onUserUpdated }: 
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end gap-2.5 pt-3 border-t border-slate-200 dark:border-slate-700">
+        <div className="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-700/80">
           <Button
             type="button"
             variant="secondary"
             onClick={onClose}
             disabled={isSubmitting}
-            className="font-semibold"
+            className="font-medium text-xs sm:text-sm px-4"
           >
             Cancel
           </Button>
@@ -347,7 +347,7 @@ export default function UserRoleModal({ user, isOpen, onClose, onUserUpdated }: 
             variant="primary"
             loading={isSubmitting}
             disabled={isSubmitting}
-            className="bg-[#2563EB] hover:bg-blue-700 text-white font-bold px-6 shadow-xs"
+            className="bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs sm:text-sm px-5 shadow-sm shadow-blue-500/20"
           >
             Save Role & Location
           </Button>

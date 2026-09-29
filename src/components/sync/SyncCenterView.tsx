@@ -184,7 +184,7 @@ export default function SyncCenterView({ user }) {
   return (
     <div className="space-y-6">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-[#1E293B] p-6 rounded-2xl border border-slate-200 dark:border-[#334155] shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-[#1E3A8A] text-white flex items-center justify-center shadow-xs">
             <RefreshCw className="w-5 h-5" />
@@ -322,7 +322,7 @@ export default function SyncCenterView({ user }) {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex border-b border-slate-200 dark:border-[#334155] text-xs font-semibold gap-6">
+      <div className="flex border-b border-slate-200 dark:border-slate-700 text-xs font-semibold gap-6">
         <button
           type="button"
           onClick={() => setActiveTab('overview')}
@@ -398,7 +398,7 @@ export default function SyncCenterView({ user }) {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="p-3.5 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-100 dark:border-[#334155] space-y-1">
+              <div className="p-3.5 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-700 space-y-1">
                 <span className="font-semibold text-slate-900 dark:text-[#F8FAFC] block flex items-center gap-1.5">
                   <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   1. Idempotent UUID Preservation
@@ -408,7 +408,7 @@ export default function SyncCenterView({ user }) {
                 </p>
               </div>
 
-              <div className="p-3.5 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-100 dark:border-[#334155] space-y-1">
+              <div className="p-3.5 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-700 space-y-1">
                 <span className="font-semibold text-slate-900 dark:text-[#F8FAFC] block flex items-center gap-1.5">
                   <CheckCheck className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                   2. Non-Destructive Offline Persistence
@@ -418,7 +418,7 @@ export default function SyncCenterView({ user }) {
                 </p>
               </div>
 
-              <div className="p-3.5 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-100 dark:border-[#334155] space-y-1">
+              <div className="p-3.5 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-700 space-y-1">
                 <span className="font-semibold text-slate-900 dark:text-[#F8FAFC] block flex items-center gap-1.5">
                   <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                   3. Multi-Level Duplicate Auditing
@@ -441,21 +441,21 @@ export default function SyncCenterView({ user }) {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-100 dark:border-[#334155]">
+              <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-700">
                 <span className="text-slate-600 dark:text-slate-300 font-medium">Internet Connectivity:</span>
                 <Badge variant={isOnline ? 'success' : 'warning'}>
                   {isOnline ? 'Active Online' : 'No Connection'}
                 </Badge>
               </div>
 
-              <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-100 dark:border-[#334155]">
+              <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-700">
                 <span className="text-slate-600 dark:text-slate-300 font-medium">Sync Engine Status:</span>
                 <span className="font-semibold text-slate-800 dark:text-slate-200">
                   {summary.isSyncing || isSyncingNow ? 'Pipeline In Progress...' : 'Standby / Idle'}
                 </span>
               </div>
 
-              <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-100 dark:border-[#334155]">
+              <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-700">
                 <span className="text-slate-600 dark:text-slate-300 font-medium">Central Database Status:</span>
                 <span className="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                   <CheckCircle2 className="w-3.5 h-3.5" />
@@ -464,7 +464,7 @@ export default function SyncCenterView({ user }) {
               </div>
 
               {serverHealth && (
-                <div className="p-3 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-100 dark:border-[#334155] space-y-1 font-mono text-[11px] text-slate-600 dark:text-slate-300">
+                <div className="p-3 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-700 space-y-1 font-mono text-[11px] text-slate-600 dark:text-slate-300">
                   <div className="flex justify-between">
                     <span>Central Citizens:</span>
                     <strong className="text-slate-800 dark:text-slate-200">{serverHealth.citizens?.total || 0}</strong>
@@ -506,7 +506,7 @@ export default function SyncCenterView({ user }) {
               </div>
 
               {/* Status Filters */}
-              <div className="flex items-center gap-1 bg-slate-100 dark:bg-[#0F172A] p-1 rounded-xl text-xs border border-transparent dark:border-[#334155]">
+              <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl text-xs border border-transparent dark:border-slate-700">
                 {['ALL', 'PENDING', 'SYNCING', 'FAILED', 'RESOLVED'].map((filter) => (
                   <button
                     key={filter}
@@ -514,7 +514,7 @@ export default function SyncCenterView({ user }) {
                     onClick={() => setQueueFilter(filter)}
                     className={`px-2.5 py-1 rounded-lg font-medium transition-colors ${
                       queueFilter === filter
-                        ? 'bg-white dark:bg-[#1E293B] text-slate-900 dark:text-[#F8FAFC] shadow-xs'
+                        ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-[#F8FAFC] shadow-xs'
                         : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
@@ -652,7 +652,7 @@ export default function SyncCenterView({ user }) {
                   <div
                     key={err.id}
                     className={`p-4 flex flex-col md:flex-row md:items-center justify-between gap-3 ${
-                      err.resolved ? 'opacity-60 bg-slate-50 dark:bg-[#0F172A]/40' : 'hover:bg-red-50/40 dark:hover:bg-red-950/20'
+                      err.resolved ? 'opacity-60 bg-slate-50 dark:bg-slate-900/40' : 'hover:bg-red-50/40 dark:hover:bg-red-950/20'
                     }`}
                   >
                     <div className="space-y-1">
@@ -709,7 +709,7 @@ export default function SyncCenterView({ user }) {
           </CardHeader>
           <CardContent className="space-y-4 text-xs">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-4 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155] space-y-2">
+              <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 space-y-2">
                 <div className="flex items-center gap-2 font-bold text-slate-900 dark:text-[#F8FAFC] text-sm">
                   <span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/60 text-[#1E3A8A] dark:text-blue-300 flex items-center justify-center text-xs">1</span>
                   Idempotent Stable UUIDs
@@ -719,7 +719,7 @@ export default function SyncCenterView({ user }) {
                 </p>
               </div>
 
-              <div className="p-4 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155] space-y-2">
+              <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 space-y-2">
                 <div className="flex items-center gap-2 font-bold text-slate-900 dark:text-[#F8FAFC] text-sm">
                   <span className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 flex items-center justify-center text-xs">2</span>
                   Server-Wins on Official Status
@@ -729,7 +729,7 @@ export default function SyncCenterView({ user }) {
                 </p>
               </div>
 
-              <div className="p-4 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155] space-y-2">
+              <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 space-y-2">
                 <div className="flex items-center gap-2 font-bold text-slate-900 dark:text-[#F8FAFC] text-sm">
                   <span className="w-6 h-6 rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 flex items-center justify-center text-xs">3</span>
                   Client-Wins on Draft Officer Inputs
@@ -739,7 +739,7 @@ export default function SyncCenterView({ user }) {
                 </p>
               </div>
 
-              <div className="p-4 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155] space-y-2">
+              <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 space-y-2">
                 <div className="flex items-center gap-2 font-bold text-slate-900 dark:text-[#F8FAFC] text-sm">
                   <span className="w-6 h-6 rounded-full bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300 flex items-center justify-center text-xs">4</span>
                   Immutable Finalized Reports

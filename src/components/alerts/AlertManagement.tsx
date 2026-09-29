@@ -338,7 +338,7 @@ export default function AlertManagement({ alerts = [], setAlerts, users = [], us
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-200 dark:border-[#334155] pb-3 flex-wrap">
+      <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-700 pb-3 flex-wrap">
         {[
           { key: 'all', label: `All Alerts (${alerts.length})` },
           { key: 'unread', label: `Unacknowledged (${unreadCount})` },
@@ -353,7 +353,7 @@ export default function AlertManagement({ alerts = [], setAlerts, users = [], us
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               filterPriority === tab.key
                 ? 'bg-[#2563EB] text-white shadow-sm'
-                : 'bg-white dark:bg-[#1E293B] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-[#334155] hover:bg-slate-50 dark:hover:bg-slate-800'
+                : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800'
             }`}
           >
             {tab.label}
@@ -384,7 +384,7 @@ export default function AlertManagement({ alerts = [], setAlerts, users = [], us
                     ? isCritical || isHigh
                       ? 'bg-rose-50/70 dark:bg-rose-950/40 border-rose-300 dark:border-rose-900/60 shadow-sm'
                       : 'bg-amber-50/60 dark:bg-amber-950/40 border-amber-300 dark:border-amber-900/60 shadow-sm'
-                    : 'bg-white dark:bg-[#1E293B] border-slate-200 dark:border-[#334155] hover:border-slate-300 dark:hover:border-slate-500'
+                    : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-500'
                 }`}
               >
                 <div className="flex items-start justify-between gap-3">
@@ -556,7 +556,7 @@ export default function AlertManagement({ alerts = [], setAlerts, users = [], us
               </div>
             )}
 
-            <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-[#334155]">
+            <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-700">
               <Button
                 type="button"
                 variant="ghost"

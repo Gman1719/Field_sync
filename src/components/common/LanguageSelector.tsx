@@ -24,7 +24,7 @@ export const LanguageSelector: React.FC = () => {
         className="language-select bg-transparent text-sm py-1 px-2 rounded border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200"
       >
         {languages.map((lang) => (
-          <option key={lang.code} value={lang.code} className="dark:bg-[#1E293B]">
+          <option key={lang.code} value={lang.code} className="dark:bg-slate-800">
             {lang.flag} {lang.name}
           </option>
         ))}

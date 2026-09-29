@@ -263,7 +263,7 @@ export default function EditProfileModal({ isOpen, onClose, user, onProfileUpdat
             <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
               Profile Photo / Avatar
             </label>
-            <div className="flex flex-col sm:flex-row items-center gap-4 p-4 rounded-xl bg-slate-50 dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#334155]">
+            <div className="flex flex-col sm:flex-row items-center gap-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700">
               <div className="relative group shrink-0">
                 {form.profilePhotoUrl ? (
                   <img

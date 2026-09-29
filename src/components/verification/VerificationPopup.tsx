@@ -99,12 +99,12 @@ export default function VerificationPopup({
       <div
         className="w-full max-w-md p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-[0_25px_60px_-15px_rgba(15,23,42,0.22),0_0_1px_1px_rgba(15,23,42,0.06)] dark:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9),inset_0_1px_0_0_rgba(255,255,255,0.08)] transition-all border
           bg-white text-slate-900 border-slate-200/90
-          dark:bg-gradient-to-b dark:from-[#1C1410] dark:to-[#140E0B] dark:text-white dark:border-[#38261E] animate-in zoom-in-95 duration-200"
+          dark:bg-gradient-to-b dark:from-slate-900 dark:to-slate-900 dark:text-white dark:border-slate-700 animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header Icon & Title */}
         <div className="flex flex-col items-center text-center">
-          <div className="w-14 h-14 mb-3 rounded-2xl flex items-center justify-center bg-blue-50 dark:bg-blue-950/60 text-[#2563EB] dark:text-[#60A5FA] border border-blue-100 dark:border-blue-900/50 shadow-xs">
+          <div className="w-14 h-14 mb-3 rounded-2xl flex items-center justify-center bg-blue-50 dark:bg-blue-950/60 text-[#2563EB] dark:text-blue-400 border border-blue-100 dark:border-blue-900/50 shadow-xs">
             <ShieldCheck className="w-7 h-7" />
           </div>
 

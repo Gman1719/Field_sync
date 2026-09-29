@@ -166,7 +166,7 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
   return (
     <div className="space-y-4">
       {/* 1. Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white dark:bg-[#1E293B] p-4 sm:p-5 rounded-2xl border border-[#E2E8F0] dark:border-[#334155] shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white dark:bg-slate-800 p-4 sm:p-5 rounded-2xl border border-[#E2E8F0] dark:border-slate-700 shadow-xs">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#1E3A8A] to-[#2563EB] text-white flex items-center justify-center shadow-xs shrink-0">
             <FileText className="w-5 h-5" />
@@ -200,8 +200,8 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
       {/* 2. Compact Executive KPI Overview Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {/* Total Submissions */}
-        <div className="bg-white dark:bg-[#1E293B] rounded-xl border border-[#E2E8F0] dark:border-[#334155] p-3.5 shadow-xs flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-[#2563EB] dark:text-[#60A5FA] flex items-center justify-center shrink-0">
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-[#E2E8F0] dark:border-slate-700 p-3.5 shadow-xs flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-[#2563EB] dark:text-blue-400 flex items-center justify-center shrink-0">
             <FileText className="w-4 h-4" />
           </div>
           <div className="min-w-0">
@@ -215,7 +215,7 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
         </div>
 
         {/* Total Citizens Registered */}
-        <div className="bg-white dark:bg-[#1E293B] rounded-xl border border-[#E2E8F0] dark:border-[#334155] p-3.5 shadow-xs flex items-center gap-3">
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-[#E2E8F0] dark:border-slate-700 p-3.5 shadow-xs flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
             <Users className="w-4 h-4" />
           </div>
@@ -230,7 +230,7 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
         </div>
 
         {/* Total Screen-Time */}
-        <div className="bg-white dark:bg-[#1E293B] rounded-xl border border-[#E2E8F0] dark:border-[#334155] p-3.5 shadow-xs flex items-center gap-3">
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-[#E2E8F0] dark:border-slate-700 p-3.5 shadow-xs flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
             <Smartphone className="w-4 h-4" />
           </div>
@@ -245,7 +245,7 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
         </div>
 
         {/* Cloud Sync Status */}
-        <div className="bg-white dark:bg-[#1E293B] rounded-xl border border-[#E2E8F0] dark:border-[#334155] p-3.5 shadow-xs flex items-center gap-3">
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-[#E2E8F0] dark:border-slate-700 p-3.5 shadow-xs flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0">
             <CheckCircle2 className="w-4 h-4" />
           </div>
@@ -261,7 +261,7 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
       </div>
 
       {/* 3. Filter Toolbar */}
-      <div className="bg-white dark:bg-[#1E293B] rounded-xl border border-[#E2E8F0] dark:border-[#334155] p-3 shadow-xs flex flex-wrap items-center justify-between gap-2.5">
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-[#E2E8F0] dark:border-slate-700 p-3 shadow-xs flex flex-wrap items-center justify-between gap-2.5">
         <div className="flex flex-wrap items-center gap-2">
           {/* Date Picker */}
           <div className="relative">
@@ -271,7 +271,7 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
               title="Filter by submission date"
-              className="h-8 pl-8 pr-2.5 rounded-lg border border-[#E2E8F0] dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-800 dark:text-[#F8FAFC] text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer font-medium"
+              className="h-8 pl-8 pr-2.5 rounded-lg border border-[#E2E8F0] dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-[#F8FAFC] text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer font-medium"
             />
           </div>
 
@@ -281,7 +281,7 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
             className={`h-8 px-2.5 rounded-lg text-xs font-bold transition-all border cursor-pointer ${
               selectedDate === todayStr
                 ? 'bg-[#2563EB] text-white border-[#2563EB] shadow-2xs'
-                : 'bg-slate-50 dark:bg-[#0F172A] text-slate-700 dark:text-slate-300 border-[#E2E8F0] dark:border-[#334155] hover:bg-slate-100 dark:hover:bg-slate-800'
+                : 'bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-[#E2E8F0] dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800'
             }`}
           >
             Today
@@ -291,7 +291,7 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
           <select
             value={filterSyncStatus}
             onChange={(e) => setFilterSyncStatus(e.target.value)}
-            className="h-8 px-2.5 rounded-lg border border-[#E2E8F0] dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-800 dark:text-[#F8FAFC] text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer min-w-[120px]"
+            className="h-8 px-2.5 rounded-lg border border-[#E2E8F0] dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-[#F8FAFC] text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer min-w-[120px]"
           >
             <option value="ALL">All Sync States</option>
             <option value="SYNCED">Synced to Cloud</option>
@@ -303,7 +303,7 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
             <button
               type="button"
               onClick={clearAllFilters}
-              className="h-8 px-2.5 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-[#0F172A] hover:bg-slate-200 dark:hover:bg-slate-800 border border-[#E2E8F0] dark:border-[#334155] transition-all whitespace-nowrap cursor-pointer"
+              className="h-8 px-2.5 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 transition-all whitespace-nowrap cursor-pointer"
             >
               Clear
             </button>
@@ -316,15 +316,15 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
       </div>
 
       {/* 4. Professional Enterprise Data Table / Streamlined Reports View */}
-      <div className="bg-white dark:bg-[#1E293B] rounded-xl border border-[#E2E8F0] dark:border-[#334155] shadow-xs overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-[#E2E8F0] dark:border-slate-700 shadow-xs overflow-hidden">
         {isLoading ? (
           <div className="p-12 text-center">
-            <RefreshCw className="w-6 h-6 text-[#2563EB] dark:text-[#60A5FA] animate-spin mx-auto mb-2" />
+            <RefreshCw className="w-6 h-6 text-[#2563EB] dark:text-blue-400 animate-spin mx-auto mb-2" />
             <p className="text-xs text-slate-500 dark:text-slate-400">Loading your submitted reports...</p>
           </div>
         ) : filteredReports.length === 0 ? (
           <div className="p-12 text-center">
-            <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-[#0F172A] flex items-center justify-center mx-auto mb-2.5 text-slate-400 dark:text-slate-500">
+            <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-900 flex items-center justify-center mx-auto mb-2.5 text-slate-400 dark:text-slate-500">
               <FileText className="w-6 h-6" />
             </div>
             <h3 className="font-bold text-slate-800 dark:text-[#F8FAFC] text-sm mb-1">
@@ -357,7 +357,7 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-[#E2E8F0] dark:border-[#334155] bg-slate-50/70 dark:bg-[#182234] text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                <tr className="border-b border-[#E2E8F0] dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                   <th className="py-3.5 px-5">Report Date</th>
                   <th className="py-3.5 px-5 text-center">Citizens</th>
                   <th className="py-3.5 px-5 text-center">Screen Time</th>
@@ -400,7 +400,7 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
 
                       {/* Citizens */}
                       <td className="py-3.5 px-5 text-center whitespace-nowrap">
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-blue-50 dark:bg-blue-950/60 text-[#2563EB] dark:text-[#60A5FA]">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-blue-50 dark:bg-blue-950/60 text-[#2563EB] dark:text-blue-400">
                           <Users className="w-3.5 h-3.5" />
                           {report.citizenCountLocal || 0}
                         </span>
@@ -435,7 +435,7 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
                           variant="outline"
                           size="sm"
                           onClick={() => setInspectReport(report)}
-                          className="h-8 px-3 text-xs rounded-lg border-[#E2E8F0] dark:border-[#334155] text-[#2563EB] dark:text-[#60A5FA] hover:bg-blue-50 dark:hover:bg-blue-950/40 cursor-pointer font-bold"
+                          className="h-8 px-3 text-xs rounded-lg border-[#E2E8F0] dark:border-slate-700 text-[#2563EB] dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 cursor-pointer font-bold"
                         >
                           <Eye className="w-3.5 h-3.5 mr-1" />
                           View Details
@@ -465,7 +465,7 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
             return (
               <div className="space-y-4 text-xs">
                 {/* Hero Header Card */}
-                <div className="p-4 bg-slate-50 dark:bg-[#182234] rounded-xl border border-[#E2E8F0] dark:border-[#334155] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-[#E2E8F0] dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
                     <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-[#F8FAFC]">
                       Report Date: {inspectReport.reportDate}
@@ -485,7 +485,7 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
 
                 {/* 2 Clean Telemetry Metric Tiles */}
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="p-4 bg-white dark:bg-[#1E293B] rounded-xl border border-[#E2E8F0] dark:border-[#334155] shadow-xs">
+                  <div className="p-4 bg-white dark:bg-slate-800 rounded-xl border border-[#E2E8F0] dark:border-slate-700 shadow-xs">
                     <span className="text-[11px] text-slate-400 dark:text-slate-500 uppercase font-bold block mb-1">
                       Citizens Registered
                     </span>
@@ -494,7 +494,7 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
                     </span>
                   </div>
 
-                  <div className="p-4 bg-white dark:bg-[#1E293B] rounded-xl border border-[#E2E8F0] dark:border-[#334155] shadow-xs">
+                  <div className="p-4 bg-white dark:bg-slate-800 rounded-xl border border-[#E2E8F0] dark:border-slate-700 shadow-xs">
                     <span className="text-[11px] text-slate-400 dark:text-slate-500 uppercase font-bold block mb-1">
                       Screen Time
                     </span>
@@ -505,22 +505,22 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
                 </div>
 
                 {/* Section 1: Work Summary & Narrative */}
-                <div className="p-3.5 bg-white dark:bg-[#1E293B] rounded-xl border border-[#E2E8F0] dark:border-[#334155] shadow-2xs space-y-1.5">
+                <div className="p-3.5 bg-white dark:bg-slate-800 rounded-xl border border-[#E2E8F0] dark:border-slate-700 shadow-2xs space-y-1.5">
                   <h4 className="font-extrabold text-slate-900 dark:text-[#F8FAFC] text-xs uppercase tracking-wider">
                     Daily Work Summary & Completed Deliverables
                   </h4>
-                  <div className="p-2.5 bg-slate-50 dark:bg-[#0F172A] rounded-lg border border-slate-100 dark:border-slate-800 text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap font-medium">
+                  <div className="p-2.5 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-100 dark:border-slate-800 text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap font-medium">
                     {details.summary || 'No narrative provided'}
                   </div>
                 </div>
 
                 {/* Section 2: Roadblocks & Challenges (if recorded) */}
                 {details.challenges && (
-                  <div className="p-3.5 bg-white dark:bg-[#1E293B] rounded-xl border border-[#E2E8F0] dark:border-[#334155] shadow-2xs space-y-1.5">
+                  <div className="p-3.5 bg-white dark:bg-slate-800 rounded-xl border border-[#E2E8F0] dark:border-slate-700 shadow-2xs space-y-1.5">
                     <h4 className="font-extrabold text-slate-900 dark:text-[#F8FAFC] text-xs uppercase tracking-wider">
                       Roadblocks & Operational Challenges
                     </h4>
-                    <div className="p-2.5 bg-slate-50 dark:bg-[#0F172A] rounded-lg border border-slate-100 dark:border-slate-800 text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap font-medium">
+                    <div className="p-2.5 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-100 dark:border-slate-800 text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap font-medium">
                       {details.challenges}
                     </div>
                   </div>
@@ -528,27 +528,27 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
 
                 {/* Section 3: Resources & Tomorrow's Strategy Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  <div className="p-3 bg-white dark:bg-[#1E293B] rounded-xl border border-[#E2E8F0] dark:border-[#334155] shadow-2xs space-y-1">
+                  <div className="p-3 bg-white dark:bg-slate-800 rounded-xl border border-[#E2E8F0] dark:border-slate-700 shadow-2xs space-y-1">
                     <h4 className="font-extrabold text-slate-900 dark:text-[#F8FAFC] text-[11px] uppercase tracking-wider">
                       Resources & Logistics
                     </h4>
-                    <div className="p-2 bg-slate-50 dark:bg-[#0F172A] rounded-lg border border-slate-100 dark:border-slate-800 text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
+                    <div className="p-2 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-100 dark:border-slate-800 text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
                       {details.resources || 'Standard field kit'}
                     </div>
                   </div>
 
-                  <div className="p-3 bg-white dark:bg-[#1E293B] rounded-xl border border-[#E2E8F0] dark:border-[#334155] shadow-2xs space-y-1">
+                  <div className="p-3 bg-white dark:bg-slate-800 rounded-xl border border-[#E2E8F0] dark:border-slate-700 shadow-2xs space-y-1">
                     <h4 className="font-extrabold text-slate-900 dark:text-[#F8FAFC] text-[11px] uppercase tracking-wider">
                       Tomorrow's Priorities
                     </h4>
-                    <div className="p-2 bg-slate-50 dark:bg-[#0F172A] rounded-lg border border-slate-100 dark:border-slate-800 text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
+                    <div className="p-2 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-100 dark:border-slate-800 text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
                       {details.nextDayPlan || 'Continue scheduled intake'}
                     </div>
                   </div>
                 </div>
 
                 {/* Audit & Device Provenance Footer Strip */}
-                <div className="p-2.5 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-100 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 flex flex-wrap items-center justify-between gap-2">
+                <div className="p-2.5 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <span>Report ID:</span>
                     <code className="font-mono font-bold text-slate-700 dark:text-slate-300">
@@ -569,11 +569,11 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
                 </div>
 
                 {/* Modal Actions */}
-                <div className="flex justify-end pt-2 border-t border-[#E2E8F0] dark:border-[#334155]">
+                <div className="flex justify-end pt-2 border-t border-[#E2E8F0] dark:border-slate-700">
                   <Button
                     variant="secondary"
                     onClick={() => setInspectReport(null)}
-                    className="text-xs font-bold px-5 rounded-xl dark:bg-[#1E293B] dark:border-[#334155] dark:text-[#F8FAFC]"
+                    className="text-xs font-bold px-5 rounded-xl dark:bg-slate-800 dark:border-slate-700 dark:text-[#F8FAFC]"
                   >
                     Close
                   </Button>

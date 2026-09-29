@@ -3,7 +3,7 @@ import { Radio } from 'lucide-react';
 
 export default function LoadingScreen() {
   return (
-    <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0F172A] flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-[#F8FAFC] dark:bg-slate-900 flex flex-col items-center justify-center p-4">
       <div className="relative flex items-center justify-center">
         <div className="w-20 h-20 rounded-full bg-blue-100/60 dark:bg-blue-900/40 animate-ping absolute" />
         <div className="w-16 h-16 border-4 border-slate-200 dark:border-slate-700 border-t-[#1E3A8A] dark:border-t-blue-500 rounded-full animate-spin" />

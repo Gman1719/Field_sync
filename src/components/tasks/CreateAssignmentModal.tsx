@@ -223,23 +223,23 @@ export default function CreateAssignmentModal({
       aria-modal="true"
       className="fixed inset-0 z-50 bg-slate-950/65 dark:bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
     >
-      <div className="bg-white dark:bg-gradient-to-b dark:from-[#1C1410] dark:to-[#140E0B] rounded-2xl sm:rounded-3xl max-w-xl w-full shadow-[0_25px_60px_-15px_rgba(15,23,42,0.18),0_0_1px_1px_rgba(15,23,42,0.06)] dark:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85),inset_0_1px_0_0_rgba(255,255,255,0.08)] border border-slate-200/90 dark:border-[#38261E] overflow-hidden animate-in zoom-in-95 duration-200">
+      <div className="bg-white dark:bg-gradient-to-b dark:from-slate-900 dark:to-slate-900 rounded-2xl sm:rounded-3xl max-w-xl w-full shadow-[0_25px_60px_-15px_rgba(15,23,42,0.18),0_0_1px_1px_rgba(15,23,42,0.06)] dark:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85),inset_0_1px_0_0_rgba(255,255,255,0.08)] border border-slate-200/90 dark:border-slate-700 overflow-hidden animate-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className="px-6 py-5 bg-slate-50/80 dark:bg-[#140E0C] border-b border-slate-100 dark:border-[#2C1D16] flex items-center justify-between">
+        <div className="px-6 py-5 bg-slate-50/80 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-[#1E3A8A] text-white flex items-center justify-center shrink-0 shadow-xs">
               <Briefcase className="w-4 h-4" />
             </div>
             <div>
               <h3 className="font-bold text-slate-900 dark:text-white text-base tracking-tight">Create Fieldwork Assignment</h3>
-              <p className="text-xs text-slate-500 dark:text-[#BFA89B] mt-0.5">Deploy registration target to Field Officer</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Deploy registration target to Field Officer</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close dialog"
-            className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 dark:text-[#A8988B] dark:hover:text-white bg-slate-100/70 hover:bg-slate-200/80 dark:bg-[#251A14] dark:hover:bg-[#34241C] border border-transparent dark:border-[#38261E] transition-all duration-150 shrink-0"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white bg-slate-100/70 hover:bg-slate-200/80 dark:bg-slate-800 dark:hover:bg-slate-700 border border-transparent dark:border-slate-700 transition-all duration-150 shrink-0"
           >
             <X className="w-4 h-4" />
           </button>
@@ -272,7 +272,7 @@ export default function CreateAssignmentModal({
               <select
                 value={assignedOfficerId}
                 onChange={(e) => handleOfficerChange(e.target.value)}
-                className="w-full h-11 px-3.5 rounded-lg border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] dark:focus:border-blue-500 transition-all cursor-pointer"
+                className="w-full h-11 px-3.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-[#F8FAFC] text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] dark:focus:border-blue-500 transition-all cursor-pointer"
                 required
               >
                 <option value="">Select Field Officer</option>
@@ -313,7 +313,7 @@ export default function CreateAssignmentModal({
           </div>
 
           {/* Location Scope */}
-          <div className="p-3.5 bg-slate-50 dark:bg-[#0F172A] rounded-xl space-y-3 border border-slate-100 dark:border-[#334155]">
+          <div className="p-3.5 bg-slate-50 dark:bg-slate-900 rounded-xl space-y-3 border border-slate-100 dark:border-slate-700">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">
               Fieldwork Location Scope (Optional Override)
             </span>
@@ -323,7 +323,7 @@ export default function CreateAssignmentModal({
                 <select
                   value={regionId}
                   onChange={(e) => setRegionId(e.target.value)}
-                  className="w-full h-9 px-2 text-xs rounded-lg border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#1E293B] text-slate-900 dark:text-[#F8FAFC] focus:outline-none focus:border-blue-500"
+                  className="w-full h-9 px-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-[#F8FAFC] focus:outline-none focus:border-blue-500"
                 >
                   <option value="">Select Region</option>
                   {regions.map((r) => (
@@ -338,7 +338,7 @@ export default function CreateAssignmentModal({
                   value={zoneId}
                   onChange={(e) => setZoneId(e.target.value)}
                   disabled={!regionId}
-                  className="w-full h-9 px-2 text-xs rounded-lg border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#1E293B] text-slate-900 dark:text-[#F8FAFC] disabled:bg-slate-100 dark:disabled:bg-slate-800/50 disabled:text-slate-400 dark:disabled:text-slate-600 focus:outline-none focus:border-blue-500"
+                  className="w-full h-9 px-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-[#F8FAFC] disabled:bg-slate-100 dark:disabled:bg-slate-800/50 disabled:text-slate-400 dark:disabled:text-slate-600 focus:outline-none focus:border-blue-500"
                 >
                   <option value="">Select Zone</option>
                   {zones.map((z) => (
@@ -353,7 +353,7 @@ export default function CreateAssignmentModal({
                   value={woredaId}
                   onChange={(e) => setWoredaId(e.target.value)}
                   disabled={!zoneId}
-                  className="w-full h-9 px-2 text-xs rounded-lg border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#1E293B] text-slate-900 dark:text-[#F8FAFC] disabled:bg-slate-100 dark:disabled:bg-slate-800/50 disabled:text-slate-400 dark:disabled:text-slate-600 focus:outline-none focus:border-blue-500"
+                  className="w-full h-9 px-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-[#F8FAFC] disabled:bg-slate-100 dark:disabled:bg-slate-800/50 disabled:text-slate-400 dark:disabled:text-slate-600 focus:outline-none focus:border-blue-500"
                 >
                   <option value="">Select Woreda</option>
                   {woredas.map((w) => (
@@ -368,7 +368,7 @@ export default function CreateAssignmentModal({
                   value={kebeleId}
                   onChange={(e) => setKebeleId(e.target.value)}
                   disabled={!woredaId}
-                  className="w-full h-9 px-2 text-xs rounded-lg border border-slate-300 dark:border-[#334155] bg-white dark:bg-[#1E293B] text-slate-900 dark:text-[#F8FAFC] disabled:bg-slate-100 dark:disabled:bg-slate-800/50 disabled:text-slate-400 dark:disabled:text-slate-600 focus:outline-none focus:border-blue-500"
+                  className="w-full h-9 px-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-[#F8FAFC] disabled:bg-slate-100 dark:disabled:bg-slate-800/50 disabled:text-slate-400 dark:disabled:text-slate-600 focus:outline-none focus:border-blue-500"
                 >
                   <option value="">Select Kebele</option>
                   {kebeles.map((k) => (
@@ -381,7 +381,7 @@ export default function CreateAssignmentModal({
           </div>
 
           {/* Docked Modern Footer */}
-          <div className="px-6 py-4 bg-slate-50/90 dark:bg-[#120C0A]/95 backdrop-blur-sm border-t border-slate-100 dark:border-[#2C1D16] flex items-center justify-end gap-3 rounded-b-2xl sm:rounded-b-3xl">
+          <div className="px-6 py-4 bg-slate-50/90 dark:bg-slate-900/95 backdrop-blur-sm border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-3 rounded-b-2xl sm:rounded-b-3xl">
             <Button
               type="button"
               variant="outline"

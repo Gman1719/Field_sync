@@ -479,11 +479,11 @@ export default function UserManagement({
       {/* 1. Header & Add Action */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl sm:text-2xl font-black text-[#0F172A] dark:text-[#F8FAFC] tracking-tight flex items-center gap-2.5">
-            <ShieldCheck className="w-6 h-6 text-[#2563EB] dark:text-[#60A5FA]" />
+          <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight flex items-center gap-2.5">
+            <ShieldCheck className="w-6 h-6 text-blue-600 dark:text-blue-400" />
             User & Workstation Management
           </h2>
-          <p className="text-xs sm:text-sm text-[#64748B] dark:text-[#94A3B8] mt-1">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
             Administer system accounts, assign Ethiopian administrative hierarchies, and oversee role permissions
           </p>
         </div>
@@ -496,7 +496,7 @@ export default function UserManagement({
               setFormErrors({});
               setShowAddModal(true);
             }}
-            className="w-full sm:w-auto bg-[#2563EB] hover:bg-blue-700 text-white font-bold h-11 px-5 rounded-xl shadow-md shadow-blue-600/20"
+            className="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-semibold h-10 px-4 rounded-xl shadow-sm shadow-blue-600/20 text-xs sm:text-sm"
           >
             <UserPlus className="w-4 h-4 mr-2" />
             Create User
@@ -589,7 +589,7 @@ export default function UserManagement({
       </div>
 
       {/* 3. Search & Filter Toolbar */}
-      <div className="bg-white dark:bg-[#1E293B] rounded-xl border border-[#E2E8F0] dark:border-[#334155] p-3.5 sm:p-4 shadow-xs transition-colors duration-200">
+      <div className="bg-white dark:bg-slate-800/90 rounded-xl border border-slate-200 dark:border-slate-700/70 p-3 sm:p-3.5 shadow-xs transition-colors duration-200">
         <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-2.5">
           {/* Search Input */}
           <div className="flex-1 relative">
@@ -599,7 +599,7 @@ export default function UserManagement({
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search by staff name, email, employee ID, or location..."
-              className="w-full h-10 pl-9 pr-8 rounded-lg border border-[#E2E8F0] dark:border-[#334155] bg-slate-50/70 dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] text-xs sm:text-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-[#3B82F6] transition-all"
+              className="w-full h-9 pl-9 pr-8 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-900/80 text-slate-900 dark:text-slate-100 text-xs sm:text-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
             />
             {searchTerm && (
               <button
@@ -621,7 +621,7 @@ export default function UserManagement({
                 setRoleFilter(e.target.value);
                 setSpecialFilter('all');
               }}
-              className="h-10 px-3 rounded-lg border border-[#E2E8F0] dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-800 dark:text-[#F8FAFC] text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-[#3B82F6] transition-all cursor-pointer min-w-[130px]"
+              className="h-9 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/80 text-slate-800 dark:text-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer min-w-[130px]"
             >
               <option value="all">All Roles</option>
               <option value="field_officer">Field Officers</option>
@@ -635,7 +635,7 @@ export default function UserManagement({
                 setStatusFilter(e.target.value);
                 setSpecialFilter('all');
               }}
-              className="h-10 px-3 rounded-lg border border-[#E2E8F0] dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-800 dark:text-[#F8FAFC] text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-[#3B82F6] transition-all cursor-pointer min-w-[130px]"
+              className="h-9 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/80 text-slate-800 dark:text-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer min-w-[130px]"
             >
               <option value="all">All Statuses</option>
               <option value="active">Active Accounts</option>
@@ -645,7 +645,7 @@ export default function UserManagement({
             <select
               value={regionFilter}
               onChange={(e) => setRegionFilter(e.target.value)}
-              className="h-10 px-3 rounded-lg border border-[#E2E8F0] dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-800 dark:text-[#F8FAFC] text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-[#3B82F6] transition-all cursor-pointer min-w-[140px]"
+              className="h-9 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/80 text-slate-800 dark:text-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer min-w-[140px]"
             >
               <option value="all">All Regions</option>
               {availableRegions.map((reg) => (
@@ -663,10 +663,10 @@ export default function UserManagement({
                   setRegionFilter('all');
                   setSpecialFilter('all');
                 }}
-                className="h-10 px-3.5 rounded-xl text-sm font-bold text-slate-700 dark:text-[#FFF8F0] hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-[#261C16] hover:bg-slate-200 dark:hover:bg-[#34241C] border border-[#E2E8F0] dark:border-[#463327] dark:hover:border-[#D4A373] transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer shadow-2xs"
+                className="h-9 px-3.5 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800/90 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer shadow-2xs"
                 title="Reset all filters"
               >
-                <RefreshCw className="w-4 h-4" />
+                <RefreshCw className="w-3.5 h-3.5" />
                 <span>Clear Filters</span>
               </button>
             )}
@@ -675,18 +675,18 @@ export default function UserManagement({
       </div>
 
       {/* 4. Staff Directory Table (Contained Layout, Separate Location Columns) */}
-      <Card className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-xl shadow-xs overflow-hidden">
-        <CardHeader className="p-4 sm:p-5 border-b border-[#E2E8F0] dark:border-[#334155] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <Card className="bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/70 rounded-xl shadow-xs overflow-hidden">
+        <CardHeader className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-700/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <CardTitle className="text-base font-bold text-slate-900 dark:text-[#F8FAFC]">
+            <CardTitle className="text-base font-bold text-slate-900 dark:text-slate-100">
               Staff Directory ({filteredUsers.length} records)
             </CardTitle>
-            <CardDescription className="text-xs text-slate-500 dark:text-[#94A3B8] mt-0.5">
+            <CardDescription className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               Authorized personnel, Ethiopian location hierarchy assignments, and workstation status
             </CardDescription>
           </div>
           {(searchTerm || roleFilter !== 'all' || statusFilter !== 'all' || regionFilter !== 'all' || specialFilter !== 'all') && (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-950/60 text-[#2563EB] dark:text-blue-300 border border-blue-200 dark:border-blue-900">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-300 border border-blue-200 dark:border-blue-900">
               Filtered Records
             </span>
           )}
@@ -705,31 +705,33 @@ export default function UserManagement({
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs sm:text-sm">
                 <thead>
-                  <tr className="bg-slate-50/90 dark:bg-[#0F172A] border-b border-[#E2E8F0] dark:border-[#334155] text-xs font-bold text-slate-600 dark:text-slate-200 uppercase tracking-wider">
-                    <th className="py-3.5 pl-4 sm:pl-6 pr-3">Staff Member</th>
-                    <th className="py-3.5 px-3">Role</th>
-                    <th className="py-3.5 px-3">Contact</th>
-                    <th className="py-3.5 px-3">Region</th>
-                    <th className="py-3.5 px-3">Zone</th>
-                    <th className="py-3.5 px-3">Woreda</th>
-                    <th className="py-3.5 px-3 text-center">Status</th>
-                    <th className="py-3.5 pr-4 sm:pr-6 pl-3 text-right">Actions</th>
+                  <tr className="bg-slate-50/90 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-700/80 text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                    <th className="py-3 pl-4 sm:pl-6 pr-3">Staff Member</th>
+                    <th className="py-3 px-3">Role</th>
+                    <th className="py-3 px-3">Contact</th>
+                    <th className="py-3 px-3">Region</th>
+                    <th className="py-3 px-3">Zone</th>
+                    <th className="py-3 px-3">Woreda</th>
+                    <th className="py-3 px-3 text-center">Status</th>
+                    <th className="py-3 pr-4 sm:pr-6 pl-3 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#E2E8F0] dark:divide-[#334155]">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60">
                   {filteredUsers.map((u, idx) => {
                     const isActive = u.status === 'active';
 
                     return (
                       <tr
                         key={u.id}
-                        className={`${
-                          idx % 2 === 1 ? 'bg-slate-50/40 dark:bg-[#182234]/30' : 'bg-white dark:bg-[#1E293B]'
+                        className={`transition-colors ${
+                          idx % 2 === 1
+                            ? 'bg-slate-50/40 dark:bg-slate-800/30 hover:bg-slate-100/60 dark:hover:bg-slate-700/40'
+                            : 'bg-white dark:bg-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-700/40'
                         }`}
                       >
                         {/* 1. Name & ID */}
                         <td className="py-3 pl-4 sm:pl-6 pr-3 whitespace-nowrap">
-                          <p className="font-bold text-black dark:text-white text-sm">
+                          <p className="font-bold text-slate-900 dark:text-slate-100 text-sm">
                             {u.name}
                           </p>
                           <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
@@ -737,16 +739,22 @@ export default function UserManagement({
                           </p>
                         </td>
 
-                        {/* 2. Role (No flags) */}
+                        {/* 2. Role */}
                         <td className="py-3 px-3 whitespace-nowrap">
-                          <span className="text-xs font-semibold text-black dark:text-white capitalize">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${
+                            u.role === 'manager'
+                              ? 'bg-blue-50 text-blue-700 border border-blue-200/80 dark:bg-blue-500/10 dark:text-blue-300 dark:border-blue-500/30'
+                              : u.role === 'supervisor'
+                              ? 'bg-indigo-50 text-indigo-700 border border-indigo-200/80 dark:bg-indigo-500/10 dark:text-indigo-300 dark:border-indigo-500/30'
+                              : 'bg-slate-100 text-slate-700 border border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700'
+                          }`}>
                             {u.role?.replace('_', ' ')}
                           </span>
                         </td>
 
                         {/* 3. Contact */}
                         <td className="py-3 px-3">
-                          <p className="text-xs font-medium text-black dark:text-white truncate max-w-[150px]" title={u.email}>
+                          <p className="text-xs font-medium text-slate-800 dark:text-slate-200 truncate max-w-[150px]" title={u.email}>
                             {u.email}
                           </p>
                           <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">
@@ -756,28 +764,33 @@ export default function UserManagement({
 
                         {/* 4. Region */}
                         <td className="py-3 px-3 whitespace-nowrap">
-                          <span className="text-xs font-medium text-black dark:text-white">
+                          <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
                             {u.role === 'manager' ? 'National' : (u.region || '—')}
                           </span>
                         </td>
 
                         {/* 5. Zone */}
                         <td className="py-3 px-3 whitespace-nowrap">
-                          <span className="text-xs text-black dark:text-white">
+                          <span className="text-xs text-slate-600 dark:text-slate-400">
                             {u.role === 'manager' ? 'All Zones' : (u.zone || '—')}
                           </span>
                         </td>
 
                         {/* 6. Woreda */}
                         <td className="py-3 px-3 whitespace-nowrap">
-                          <span className="text-xs text-black dark:text-white">
+                          <span className="text-xs text-slate-600 dark:text-slate-400">
                             {u.role === 'manager' || u.role === 'supervisor' ? 'All Woredas' : (u.woreda || '—')}
                           </span>
                         </td>
 
-                        {/* 7. Status (No flags) */}
+                        {/* 7. Status */}
                         <td className="py-3 px-3 text-center whitespace-nowrap">
-                          <span className="text-xs font-semibold text-black dark:text-white">
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                            isActive
+                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/30'
+                              : 'bg-slate-100 text-slate-600 border border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'
+                          }`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-emerald-500' : 'bg-slate-400'}`} />
                             {isActive ? 'Active' : 'Inactive'}
                           </span>
                         </td>
@@ -787,7 +800,7 @@ export default function UserManagement({
                           <button
                             type="button"
                             onClick={() => setSelectedUserDetails(u)}
-                            className="px-3 py-1.5 rounded-xl text-xs font-bold bg-[#2563EB] hover:bg-blue-700 text-white transition-all cursor-pointer shadow-xs"
+                            className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white transition-all cursor-pointer shadow-xs active:scale-95"
                           >
                             Detail
                           </button>
@@ -812,9 +825,9 @@ export default function UserManagement({
         <form onSubmit={handleCreateUser} noValidate className="space-y-6">
           {/* Section 1: Personal Information */}
           <div className="space-y-3">
-            <div className="flex items-center gap-2 pb-2 border-b border-[#E2E8F0] dark:border-[#334155]">
-              <User className="w-4 h-4 text-[#2563EB] dark:text-[#60A5FA]" />
-              <h3 className="text-xs font-bold text-[#0F172A] dark:text-[#F8FAFC] uppercase tracking-wider">
+            <div className="flex items-center gap-2 pb-2 border-b border-slate-200 dark:border-slate-700">
+              <User className="w-4 h-4 text-[#2563EB] dark:text-blue-400" />
+              <h3 className="text-xs font-bold text-[#0F172A] dark:text-slate-100 uppercase tracking-wider">
                 1. Personal Information (Ethiopian Naming)
               </h3>
             </div>
@@ -870,9 +883,9 @@ export default function UserManagement({
 
           {/* Section 2: Role Details (Work Shift & Department Removed as requested) */}
           <div className="space-y-3">
-            <div className="flex items-center gap-2 pb-2 border-b border-[#E2E8F0] dark:border-[#334155]">
-              <ShieldCheck className="w-4 h-4 text-[#2563EB] dark:text-[#60A5FA]" />
-              <h3 className="text-xs font-bold text-[#0F172A] dark:text-[#F8FAFC] uppercase tracking-wider">
+            <div className="flex items-center gap-2 pb-2 border-b border-slate-200 dark:border-slate-700">
+              <ShieldCheck className="w-4 h-4 text-[#2563EB] dark:text-blue-400" />
+              <h3 className="text-xs font-bold text-[#0F172A] dark:text-slate-100 uppercase tracking-wider">
                 2. System Role Assignment
               </h3>
             </div>
@@ -900,9 +913,9 @@ export default function UserManagement({
 
           {/* Section 3: Ethiopian Administrative Location Assignment */}
           <div className="space-y-3">
-            <div className="flex items-center gap-2 pb-2 border-b border-[#E2E8F0] dark:border-[#334155]">
-              <MapPin className="w-4 h-4 text-[#2563EB] dark:text-[#60A5FA]" />
-              <h3 className="text-xs font-bold text-[#0F172A] dark:text-[#F8FAFC] uppercase tracking-wider">
+            <div className="flex items-center gap-2 pb-2 border-b border-slate-200 dark:border-slate-700">
+              <MapPin className="w-4 h-4 text-[#2563EB] dark:text-blue-400" />
+              <h3 className="text-xs font-bold text-[#0F172A] dark:text-slate-100 uppercase tracking-wider">
                 3. Ethiopian Administrative Hierarchy Assignment
               </h3>
             </div>
@@ -928,13 +941,13 @@ export default function UserManagement({
           </div>
 
           {/* Footer Actions */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-[#E2E8F0] dark:border-[#334155]">
+          <div className="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
             <Button
               type="button"
               variant="secondary"
               onClick={() => setShowAddModal(false)}
               disabled={isSubmitting}
-              className="dark:bg-[#1E293B] dark:border-[#334155] dark:text-[#F8FAFC]"
+              className="dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
             >
               Cancel
             </Button>
@@ -943,7 +956,7 @@ export default function UserManagement({
               variant="primary"
               loading={isSubmitting}
               disabled={isSubmitting}
-              className="bg-[#2563EB] hover:bg-blue-700 text-white font-bold"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold"
             >
               <UserPlus className="w-4 h-4 mr-2" />
               Create User

@@ -78,9 +78,9 @@ export default function ScreenTimeManagement({
   return (
     <div className="space-y-6 animate-in fade-in duration-150">
       {/* Header & Filter Controls (Officer & Date Only) */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl border bg-white dark:bg-[#14161D] border-slate-200 dark:border-[#272A35] shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-xs">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-[#F4F4F5]">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
             Officers Screen Time
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
@@ -98,12 +98,12 @@ export default function ScreenTimeManagement({
               placeholder="Filter by officer..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-xs font-medium rounded-xl border border-slate-200 dark:border-[#272A35] bg-slate-50 dark:bg-[#1E222D] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              className="w-full pl-9 pr-3 py-2 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
           {/* Filter by Date */}
-          <div className="flex items-center gap-2 bg-slate-50 dark:bg-[#1E222D] px-3 py-1.5 rounded-xl border border-slate-200 dark:border-[#272A35]">
+          <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700">
             <Calendar className="w-4 h-4 text-slate-400" />
             <input
               type="date"
@@ -116,7 +116,7 @@ export default function ScreenTimeManagement({
       </div>
 
       {/* TABLE VIEW ONLY */}
-      <div className="rounded-2xl border bg-white dark:bg-[#14161D] border-slate-200 dark:border-[#272A35] shadow-xs overflow-hidden">
+      <div className="rounded-2xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-xs overflow-hidden">
         {isLoading && officers.length === 0 ? (
           <div className="py-16 text-center text-slate-400">
             <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-[#2563EB]" />
@@ -136,7 +136,7 @@ export default function ScreenTimeManagement({
           <div className="overflow-x-auto">
             <table className="w-full text-xs text-left">
               <thead>
-                <tr className="border-b border-slate-100 dark:border-[#272A35] bg-slate-50/50 dark:bg-[#1E222D]/40 text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
+                <tr className="border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/40 text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
                   <th className="py-3 px-4">Field Officer</th>
                   <th className="py-3 px-4">Date</th>
                   <th className="py-3 px-4">Location</th>
@@ -144,7 +144,7 @@ export default function ScreenTimeManagement({
                   <th className="py-3 px-4">Report Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-[#272A35]">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                 {filteredOfficers.map((off) => {
                   const screenTimeFmt = off.todayScreenTimeFormatted || off.screenTimeFormatted || '00:00:00';
                   const isReportSubmitted = off.dailyReportSubmitted;
@@ -152,11 +152,11 @@ export default function ScreenTimeManagement({
                   return (
                     <tr
                       key={off.id}
-                      className="hover:bg-slate-50/80 dark:hover:bg-[#1E222D]/60 transition-colors"
+                      className="hover:bg-slate-50/80 dark:hover:bg-slate-800/60 transition-colors"
                     >
                       {/* Field Officer */}
                       <td className="py-3.5 px-4">
-                        <div className="font-semibold text-slate-900 dark:text-[#F4F4F5]">
+                        <div className="font-semibold text-slate-900 dark:text-white">
                           {off.name || off.fullName}
                         </div>
                         <div className="text-[11px] text-slate-400 dark:text-slate-500">
@@ -166,7 +166,7 @@ export default function ScreenTimeManagement({
 
                       {/* Date */}
                       <td className="py-3.5 px-4 whitespace-nowrap">
-                        <span className="font-mono text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-[#1E222D] px-2.5 py-1 rounded-md border border-slate-200 dark:border-[#272A35]">
+                        <span className="font-mono text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-900 px-2.5 py-1 rounded-md border border-slate-200 dark:border-slate-700">
                           {off.date || selectedDate}
                         </span>
                       </td>
@@ -182,7 +182,7 @@ export default function ScreenTimeManagement({
                       </td>
 
                       {/* Screen Time */}
-                      <td className="py-3.5 px-4 font-mono font-bold text-sm text-[#2563EB] dark:text-[#60A5FA]">
+                      <td className="py-3.5 px-4 font-mono font-bold text-sm text-[#2563EB] dark:text-blue-400">
                         {screenTimeFmt}
                       </td>
 

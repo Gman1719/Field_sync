@@ -151,13 +151,13 @@ export default function UserEditModal({ user, isOpen, onClose, onUserUpdated }: 
     >
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* User Summary Card */}
-        <div className="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700 flex items-center justify-between">
+        <div className="p-3.5 bg-slate-50/80 dark:bg-slate-800/60 rounded-xl border border-slate-200/80 dark:border-slate-700/70 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-700 to-blue-500 text-white flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-tr from-blue-700 to-blue-500 text-white flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
               {(user.firstName?.[0] || user.fullName?.[0] || user.name?.[0] || 'U').toUpperCase()}
             </div>
             <div>
-              <span className="text-sm font-bold text-slate-800 dark:text-slate-100 block">
+              <span className="text-sm font-semibold text-slate-900 dark:text-slate-100 block">
                 {user.fullName || user.name}
               </span>
               <span className="text-xs text-slate-500 dark:text-slate-400">
@@ -174,14 +174,14 @@ export default function UserEditModal({ user, isOpen, onClose, onUserUpdated }: 
         </div>
 
         {/* Section 1: Full Name */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 pb-1.5 border-b border-slate-200 dark:border-slate-700">
-            <User className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-            <h4 className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+        <div className="space-y-2.5">
+          <div className="flex items-center gap-2 pb-1 border-b border-slate-100 dark:border-slate-800">
+            <User className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+            <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
               Full Legal Name
             </h4>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
             <Input
               label="First Name *"
               value={formData.firstName}
@@ -210,10 +210,10 @@ export default function UserEditModal({ user, isOpen, onClose, onUserUpdated }: 
         </div>
 
         {/* Section 2: Contact Information */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 pb-1.5 border-b border-slate-200 dark:border-slate-700">
-            <Phone className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-            <h4 className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+        <div className="space-y-2.5">
+          <div className="flex items-center gap-2 pb-1 border-b border-slate-100 dark:border-slate-800">
+            <Phone className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+            <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
               Contact Details
             </h4>
           </div>
@@ -231,13 +231,13 @@ export default function UserEditModal({ user, isOpen, onClose, onUserUpdated }: 
         </div>
 
         {/* Footer Actions */}
-        <div className="flex justify-end gap-2.5 pt-3 border-t border-slate-200 dark:border-slate-700">
+        <div className="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-700/80">
           <Button
             type="button"
             variant="secondary"
             onClick={onClose}
             disabled={isSubmitting}
-            className="font-semibold"
+            className="font-medium text-xs sm:text-sm px-4"
           >
             Cancel
           </Button>
@@ -245,7 +245,7 @@ export default function UserEditModal({ user, isOpen, onClose, onUserUpdated }: 
             type="submit"
             variant="primary"
             loading={isSubmitting}
-            className="bg-[#2563EB] hover:bg-blue-700 text-white font-bold px-6 shadow-xs"
+            className="bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs sm:text-sm px-5 shadow-sm shadow-blue-500/20"
           >
             Save Changes
           </Button>

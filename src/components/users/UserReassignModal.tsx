@@ -103,10 +103,10 @@ export default function UserReassignModal({ user, isOpen, onClose, onUserUpdated
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* User Identity Banner */}
-        <div className="p-3.5 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-[#E2E8F0] dark:border-[#334155] flex items-center justify-between">
+        <div className="p-3.5 bg-slate-50/80 dark:bg-slate-800/60 rounded-xl border border-slate-200/80 dark:border-slate-700/70 flex items-center justify-between">
           <div>
-            <span className="text-xs font-bold text-[#0F172A] dark:text-[#F8FAFC] block">{user.name}</span>
-            <span className="text-[11px] font-mono text-slate-500 dark:text-[#94A3B8]">{user.email}</span>
+            <span className="text-xs font-bold text-slate-900 dark:text-slate-100 block">{user.name}</span>
+            <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400">{user.email}</span>
           </div>
           <Badge variant={user.role === 'supervisor' ? 'info' : 'neutral'} className="capitalize text-xs font-semibold">
             {user.role?.replace('_', ' ')}
@@ -114,10 +114,10 @@ export default function UserReassignModal({ user, isOpen, onClose, onUserUpdated
         </div>
 
         {/* Current Station vs New Station */}
-        <div className="p-3 bg-slate-50 dark:bg-[#0F172A] border border-[#E2E8F0] dark:border-[#334155] rounded-xl text-xs space-y-1">
-          <span className="text-slate-400 dark:text-[#94A3B8] font-bold uppercase tracking-wider block text-[10px]">Current Active Jurisdiction:</span>
-          <p className="text-slate-800 dark:text-[#F8FAFC] font-semibold flex items-center gap-1.5">
-            <MapPin className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#60A5FA]" />
+        <div className="p-3 bg-slate-50/70 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/70 rounded-xl text-xs space-y-1">
+          <span className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider block text-[10px]">Current Active Jurisdiction:</span>
+          <p className="text-slate-800 dark:text-slate-100 font-semibold flex items-center gap-1.5">
+            <MapPin className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
             <span>
               {user.role === 'manager'
                 ? 'Organization-wide (National)'
@@ -128,7 +128,7 @@ export default function UserReassignModal({ user, isOpen, onClose, onUserUpdated
 
         {/* Cascading Location Hierarchy Dropdowns */}
         <div className="space-y-1.5 pt-1">
-          <span className="text-xs font-bold text-slate-700 dark:text-[#CBD5E1] uppercase tracking-wider block">
+          <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider block">
             Select New Ethiopian Hierarchy Assignment
           </span>
           <LocationDropdown
@@ -146,13 +146,13 @@ export default function UserReassignModal({ user, isOpen, onClose, onUserUpdated
         </div>
 
         {/* Actions Footer */}
-        <div className="flex justify-end gap-2.5 pt-3 border-t border-[#E2E8F0] dark:border-[#334155]">
+        <div className="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-700/80">
           <Button
             type="button"
             variant="secondary"
             onClick={onClose}
             disabled={isSubmitting}
-            className="font-semibold"
+            className="font-medium text-xs sm:text-sm px-4"
           >
             Cancel
           </Button>
@@ -160,7 +160,7 @@ export default function UserReassignModal({ user, isOpen, onClose, onUserUpdated
             type="submit"
             variant="primary"
             loading={isSubmitting}
-            className="bg-[#2563EB] hover:bg-blue-700 text-white font-bold"
+            className="bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs sm:text-sm px-4 shadow-sm shadow-blue-500/20"
           >
             <MapPin className="w-4 h-4 mr-1.5" />
             Apply Reassignment

@@ -372,7 +372,7 @@ export default function SupervisorReports({
             className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all ${
               activeTab === tab.id
                 ? 'bg-[#1E3A8A] text-white shadow-xs'
-                : 'bg-white dark:bg-[#1E293B] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-[#334155] hover:border-slate-300 dark:hover:border-slate-500'
+                : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-500'
             }`}
           >
             <span>{tab.label}</span>
@@ -395,7 +395,7 @@ export default function SupervisorReports({
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="border-b border-slate-200 dark:border-[#334155] text-slate-600 dark:text-slate-200 font-bold uppercase tracking-wider bg-slate-50/90 dark:bg-[#0F172A] text-[11px]">
+                  <tr className="border-b border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-200 font-bold uppercase tracking-wider bg-slate-50/90 dark:bg-slate-900 text-[11px]">
                     <th className="py-3.5 pl-6">Report Type</th>
                     <th className="py-3.5 px-4">Subject / Region</th>
                     <th className="py-3.5 px-4">Report Date</th>
@@ -530,7 +530,7 @@ export default function SupervisorReports({
                   className={`w-9 h-9 rounded-lg font-bold text-xs flex items-center justify-center transition-all ${
                     form.overallRating === val
                       ? 'bg-[#1E3A8A] text-white shadow-xs'
-                      : 'bg-slate-100 dark:bg-[#0F172A] text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800'
+                      : 'bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800'
                   }`}
                 >
                   {val}
@@ -555,7 +555,7 @@ export default function SupervisorReports({
             rows={2}
           />
 
-          <div className="flex justify-end gap-3 pt-3 border-t border-slate-100 dark:border-[#334155]">
+          <div className="flex justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-700">
             <Button
               type="button"
               variant="outline"
@@ -627,7 +627,7 @@ export default function SupervisorReports({
             />
           </div>
 
-          <div className="flex justify-end gap-3 pt-3 border-t border-slate-100 dark:border-[#334155]">
+          <div className="flex justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-700">
             <Button
               type="button"
               variant="outline"

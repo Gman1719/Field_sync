@@ -324,7 +324,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
   return (
     <div className="space-y-6">
       {/* 1. Header with Clean Typography (No Icons) */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-[#1E293B] p-5 sm:p-6 rounded-2xl border border-[#E2E8F0] dark:border-[#334155] shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-slate-800 p-5 sm:p-6 rounded-2xl border border-[#E2E8F0] dark:border-slate-700 shadow-xs">
         <div>
           <h2 className="text-xl sm:text-2xl font-black text-[#0F172A] dark:text-[#F8FAFC] tracking-tight">
             {isOfficer ? 'My Registered Citizens' : 'Registered Citizens'}
@@ -404,7 +404,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
       </div>
 
       {/* 3. Search & Filter Toolbar (No Icons) */}
-      <div className="bg-white dark:bg-[#1E293B] rounded-2xl border border-[#E2E8F0] dark:border-[#334155] p-4 shadow-xs transition-colors duration-200 space-y-3">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl border border-[#E2E8F0] dark:border-slate-700 p-4 shadow-xs transition-colors duration-200 space-y-3">
         {/* Row 1: Search & Date Filter */}
         <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
           {/* Search Input */}
@@ -414,7 +414,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search by citizen name, 12-digit ID, phone, email, woreda, or kebele/village..."
-              className="w-full h-11 px-4 pr-9 rounded-xl border border-[#E2E8F0] dark:border-[#334155] bg-slate-50/70 dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] text-xs sm:text-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-[#3B82F6] transition-all"
+              className="w-full h-11 px-4 pr-9 rounded-xl border border-[#E2E8F0] dark:border-slate-700 bg-slate-50/70 dark:bg-slate-900 text-slate-900 dark:text-[#F8FAFC] text-xs sm:text-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-blue-500 transition-all"
             />
             {searchTerm && (
               <button
@@ -435,7 +435,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
               title="Filter by registration date"
-              className="h-11 px-3 rounded-xl border border-[#E2E8F0] dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-800 dark:text-[#F8FAFC] text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-[#3B82F6] transition-all cursor-pointer font-medium"
+              className="h-11 px-3 rounded-xl border border-[#E2E8F0] dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-[#F8FAFC] text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-blue-500 transition-all cursor-pointer font-medium"
             />
 
             {/* Quick "Today" shortcut */}
@@ -445,7 +445,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
               className={`h-11 px-4 rounded-xl text-sm font-bold transition-all border cursor-pointer ${
                 selectedDate === todayStr
                   ? 'bg-[#2563EB] text-white border-[#2563EB] shadow-xs'
-                  : 'bg-slate-50 dark:bg-[#261C16] text-slate-700 dark:text-[#FFF8F0] border-[#E2E8F0] dark:border-[#463327] hover:bg-slate-100 dark:hover:bg-[#34241C] dark:hover:border-[#D4A373]'
+                  : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-100 border-[#E2E8F0] dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 dark:hover:border-blue-400'
               }`}
               title="Filter records registered today"
             >
@@ -462,7 +462,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
               <select
                 value={selectedOfficerId}
                 onChange={(e) => setSelectedOfficerId(e.target.value)}
-                className="w-full h-10 px-3 rounded-xl border border-[#E2E8F0] dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-800 dark:text-[#F8FAFC] text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-[#3B82F6] transition-all cursor-pointer font-medium"
+                className="w-full h-10 px-3 rounded-xl border border-[#E2E8F0] dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-[#F8FAFC] text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-blue-500 transition-all cursor-pointer font-medium"
               >
                 <option value="">Registered By: All Officers</option>
                 {registeredByOptions.map((off) => (
@@ -479,7 +479,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
             <select
               value={selectedRegionId}
               onChange={(e) => setSelectedRegionId(e.target.value)}
-              className="w-full h-10 px-3 rounded-xl border border-[#E2E8F0] dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-800 dark:text-[#F8FAFC] text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-[#3B82F6] transition-all cursor-pointer font-medium"
+              className="w-full h-10 px-3 rounded-xl border border-[#E2E8F0] dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-[#F8FAFC] text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-blue-500 transition-all cursor-pointer font-medium"
             >
               <option value="">All Regions</option>
               {regions.map((r) => (
@@ -494,7 +494,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
           <select
             value={filterSyncStatus}
             onChange={(e) => setFilterSyncStatus(e.target.value)}
-            className="h-10 px-3 rounded-xl border border-[#E2E8F0] dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-800 dark:text-[#F8FAFC] text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-[#3B82F6] transition-all cursor-pointer min-w-[130px]"
+            className="h-10 px-3 rounded-xl border border-[#E2E8F0] dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-[#F8FAFC] text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-blue-500 transition-all cursor-pointer min-w-[130px]"
           >
             <option value="ALL">All Sync States</option>
             <option value="SYNCED">Synced to Cloud</option>
@@ -505,7 +505,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
           <select
             value={filterGender}
             onChange={(e) => setFilterGender(e.target.value)}
-            className="h-10 px-3 rounded-xl border border-[#E2E8F0] dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-800 dark:text-[#F8FAFC] text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-[#3B82F6] transition-all cursor-pointer min-w-[110px]"
+            className="h-10 px-3 rounded-xl border border-[#E2E8F0] dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-[#F8FAFC] text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-blue-500 transition-all cursor-pointer min-w-[110px]"
           >
             <option value="ALL">All Genders</option>
             <option value="MALE">Male</option>
@@ -517,7 +517,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
             <button
               type="button"
               onClick={clearAllFilters}
-              className="h-10 px-3.5 rounded-xl text-xs font-bold text-slate-600 dark:text-[#FFF8F0] hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-[#261C16] hover:bg-slate-200 dark:hover:bg-[#34241C] border border-[#E2E8F0] dark:border-[#463327] dark:hover:border-[#D4A373] transition-all whitespace-nowrap cursor-pointer shadow-2xs ml-auto"
+              className="h-10 px-3.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-100 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-[#E2E8F0] dark:border-slate-700 dark:hover:border-blue-400 transition-all whitespace-nowrap cursor-pointer shadow-2xs ml-auto"
               title="Reset all filters"
             >
               Clear Filters
@@ -531,7 +531,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
         <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-blue-50/90 via-indigo-50/50 to-blue-50/90 dark:from-[#1E293B] dark:via-[#1E293B] dark:to-[#1E293B] border border-blue-200/80 dark:border-blue-900/50 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all">
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[11px] font-bold text-[#2563EB] dark:text-[#60A5FA] uppercase tracking-wider">
+              <span className="text-[11px] font-bold text-[#2563EB] dark:text-blue-400 uppercase tracking-wider">
                 Officer Intake Throughput
               </span>
               {selectedDate && (
@@ -556,13 +556,13 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
           </div>
 
           {/* Result Metric Box */}
-          <div className="flex items-center gap-4 bg-white dark:bg-[#0F172A] p-3 px-5 rounded-2xl border border-blue-100 dark:border-[#334155] shadow-xs shrink-0 sm:self-center">
+          <div className="flex items-center gap-4 bg-white dark:bg-slate-900 p-3 px-5 rounded-2xl border border-blue-100 dark:border-slate-700 shadow-xs shrink-0 sm:self-center">
             <div className="text-right">
               <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
                 Total Citizens
               </span>
               <div className="flex items-baseline justify-end gap-1.5">
-                <span className="text-3xl font-black text-[#2563EB] dark:text-[#60A5FA] font-mono leading-none">
+                <span className="text-3xl font-black text-[#2563EB] dark:text-blue-400 font-mono leading-none">
                   {filteredCitizens.length}
                 </span>
                 <span className="text-xs font-bold text-slate-600 dark:text-slate-300">
@@ -586,8 +586,8 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
       )}
 
       {/* 5. Modern Data Table (No Icons) */}
-      <Card className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl shadow-xs overflow-hidden">
-        <CardHeader className="p-4 sm:p-5 border-b border-[#E2E8F0] dark:border-[#334155] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <Card className="bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 rounded-2xl shadow-xs overflow-hidden">
+        <CardHeader className="p-4 sm:p-5 border-b border-[#E2E8F0] dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <CardTitle className="text-base font-bold text-slate-900 dark:text-[#F8FAFC]">
               {isOfficer ? 'My Registered Citizens' : 'Registered Citizens'} ({filteredCitizens.length} {filteredCitizens.length === 1 ? 'record' : 'records'})
@@ -643,7 +643,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs sm:text-sm">
                 <thead>
-                  <tr className="bg-slate-50/90 dark:bg-[#0F172A] border-b border-[#E2E8F0] dark:border-[#334155] text-xs font-bold text-slate-600 dark:text-slate-200 uppercase tracking-wider">
+                  <tr className="bg-slate-50/90 dark:bg-slate-900 border-b border-[#E2E8F0] dark:border-slate-700 text-xs font-bold text-slate-600 dark:text-slate-200 uppercase tracking-wider">
                     <th className="py-4 pl-4 sm:pl-6 pr-3">Citizen Name & 12-Digit ID</th>
                     <th className="py-4 px-3">Contact</th>
                     <th className="py-4 px-3">Gender</th>
@@ -665,7 +665,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
                       <tr
                         key={citizen.clientRecordId || citizen.id || idx}
                         className={`${
-                          idx % 2 === 1 ? 'bg-slate-50/40 dark:bg-[#182234]/30' : 'bg-white dark:bg-[#1E293B]'
+                          idx % 2 === 1 ? 'bg-slate-50/40 dark:bg-slate-800/30' : 'bg-white dark:bg-slate-800'
                         }`}
                       >
                         {/* 1. Name & 12-Digit ID */}
@@ -674,7 +674,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
                             {[citizen.firstName, citizen.middleName, citizen.lastName].filter(Boolean).join(' ') || 'Unnamed Citizen'}
                           </p>
                           <div className="flex items-center gap-1.5 mt-0.5">
-                            <span className="text-[11px] font-mono font-semibold text-[#2563EB] dark:text-[#60A5FA] bg-blue-50 dark:bg-blue-950/60 px-1.5 py-0.5 rounded border border-blue-200/60 dark:border-blue-900/50">
+                            <span className="text-[11px] font-mono font-semibold text-[#2563EB] dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-1.5 py-0.5 rounded border border-blue-200/60 dark:border-blue-900/50">
                               {citizenId}
                             </span>
                             <button
@@ -795,7 +795,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
         >
           <div className="space-y-5">
             {/* Profile Overview Card */}
-            <div className="p-4 sm:p-5 bg-slate-50 dark:bg-[#0F172A] rounded-2xl border border-[#E2E8F0] dark:border-[#334155] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="p-4 sm:p-5 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-[#E2E8F0] dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-4 min-w-0">
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#1E3A8A] to-[#2563EB] text-white flex items-center justify-center font-extrabold text-xl shadow-md shrink-0">
                   {(selectedCitizen.firstName?.[0] || 'C').toUpperCase()}
@@ -805,13 +805,13 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
                     {[selectedCitizen.firstName, selectedCitizen.middleName, selectedCitizen.lastName].filter(Boolean).join(' ') || 'Unnamed Citizen'}
                   </h3>
                   <div className="flex flex-wrap items-center gap-2 mt-1">
-                    <span className="text-xs font-mono font-bold text-[#2563EB] dark:text-[#60A5FA] bg-blue-50 dark:bg-blue-950/60 border border-blue-200/60 dark:border-blue-900/60 px-2 py-0.5 rounded-md">
+                    <span className="text-xs font-mono font-bold text-[#2563EB] dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 border border-blue-200/60 dark:border-blue-900/60 px-2 py-0.5 rounded-md">
                       ID: {selectedCitizen.clientRecordId || selectedCitizen.nationalId || selectedCitizen.idNumber || selectedCitizen.id}
                     </span>
                     <button
                       type="button"
                       onClick={() => copyCitizenId(selectedCitizen.clientRecordId || selectedCitizen.nationalId || selectedCitizen.idNumber || selectedCitizen.id)}
-                      className="text-xs font-semibold text-slate-500 hover:text-[#2563EB] dark:hover:text-[#60A5FA] px-1.5 py-0.5 rounded bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-slate-700 transition-colors"
+                      className="text-xs font-semibold text-slate-500 hover:text-[#2563EB] dark:hover:text-[#60A5FA] px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 transition-colors"
                       title="Copy full 12-digit record ID"
                     >
                       {copiedId ? 'Copied' : 'Copy ID'}
@@ -839,21 +839,21 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
                 Personal Demographics
               </h4>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                <div className="p-3 bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-xl shadow-2xs">
+                <div className="p-3 bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 rounded-xl shadow-2xs">
                   <span className="text-slate-400 dark:text-slate-500 block text-[11px] mb-0.5">Gender</span>
                   <span className="font-bold text-slate-800 dark:text-[#F8FAFC] text-sm">{selectedCitizen.gender || '—'}</span>
                 </div>
-                <div className="p-3 bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-xl shadow-2xs">
+                <div className="p-3 bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 rounded-xl shadow-2xs">
                   <span className="text-slate-400 dark:text-slate-500 block text-[11px] mb-0.5">Calculated Age</span>
                   <span className="font-bold text-slate-800 dark:text-[#F8FAFC] text-sm">
                     {selectedCitizen.age ? `${selectedCitizen.age} years` : 'Unspecified'}
                   </span>
                 </div>
-                <div className="p-3 bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-xl shadow-2xs">
+                <div className="p-3 bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 rounded-xl shadow-2xs">
                   <span className="text-slate-400 dark:text-slate-500 block text-[11px] mb-0.5">Date of Birth</span>
                   <span className="font-bold text-slate-800 dark:text-[#F8FAFC] text-sm">{selectedCitizen.dateOfBirth || '—'}</span>
                 </div>
-                <div className="p-3 bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-xl shadow-2xs">
+                <div className="p-3 bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 rounded-xl shadow-2xs">
                   <span className="text-slate-400 dark:text-slate-500 block text-[11px] mb-0.5">Marital Status</span>
                   <span className="font-bold text-slate-800 dark:text-[#F8FAFC] text-sm">{selectedCitizen.maritalStatus || '—'}</span>
                 </div>
@@ -866,7 +866,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
                 Contact Information
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                <div className="p-3.5 bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-xl shadow-2xs flex items-center justify-between">
+                <div className="p-3.5 bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 rounded-xl shadow-2xs flex items-center justify-between">
                   <div>
                     <span className="text-slate-400 dark:text-slate-500 block text-[11px] mb-0.5">Mobile Phone Number</span>
                     <span className="font-bold text-slate-800 dark:text-[#F8FAFC] font-mono text-sm">
@@ -879,7 +879,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
                     <button
                       type="button"
                       onClick={() => copyPhoneNumber(selectedCitizen.phoneNumber || selectedCitizen.phone)}
-                      className="px-2 py-1 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-[#2563EB] dark:hover:text-[#60A5FA] bg-slate-50 dark:bg-[#0F172A] border border-slate-200 dark:border-slate-700"
+                      className="px-2 py-1 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-[#2563EB] dark:hover:text-[#60A5FA] bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700"
                       title="Copy phone"
                     >
                       {copiedPhone ? 'Copied' : 'Copy'}
@@ -887,7 +887,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
                   )}
                 </div>
 
-                <div className="p-3.5 bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-xl shadow-2xs">
+                <div className="p-3.5 bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 rounded-xl shadow-2xs">
                   <span className="text-slate-400 dark:text-slate-500 block text-[11px] mb-0.5">Email Address</span>
                   <span className="font-bold text-slate-800 dark:text-[#F8FAFC] text-sm">
                     {selectedCitizen.email || 'None registered'}
@@ -901,27 +901,27 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
               <h4 className="text-xs font-bold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider">
                 Ethiopian Administrative Jurisdiction
               </h4>
-              <div className="p-4 bg-slate-50 dark:bg-[#0F172A] border border-[#E2E8F0] dark:border-[#334155] rounded-xl">
+              <div className="p-4 bg-slate-50 dark:bg-slate-900 border border-[#E2E8F0] dark:border-slate-700 rounded-xl">
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                  <div className="p-3 bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-lg shadow-2xs">
+                  <div className="p-3 bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 rounded-lg shadow-2xs">
                     <span className="text-slate-400 dark:text-slate-500 text-[10px] block font-semibold uppercase">Region</span>
                     <span className="font-bold text-slate-900 dark:text-[#F8FAFC] text-sm">
                       {selectedCitizen.regionName || selectedCitizen.region || '—'}
                     </span>
                   </div>
-                  <div className="p-3 bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-lg shadow-2xs">
+                  <div className="p-3 bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 rounded-lg shadow-2xs">
                     <span className="text-slate-400 dark:text-slate-500 text-[10px] block font-semibold uppercase">Zone / Sub-City</span>
                     <span className="font-bold text-slate-900 dark:text-[#F8FAFC] text-sm">
                       {selectedCitizen.zoneName || selectedCitizen.zone || '—'}
                     </span>
                   </div>
-                  <div className="p-3 bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-lg shadow-2xs">
+                  <div className="p-3 bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 rounded-lg shadow-2xs">
                     <span className="text-slate-400 dark:text-slate-500 text-[10px] block font-semibold uppercase">Woreda Station</span>
                     <span className="font-bold text-slate-900 dark:text-[#F8FAFC] text-sm">
                       {selectedCitizen.woredaName || selectedCitizen.woreda || '—'}
                     </span>
                   </div>
-                  <div className="p-3 bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-lg shadow-2xs">
+                  <div className="p-3 bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 rounded-lg shadow-2xs">
                     <span className="text-slate-400 dark:text-slate-500 text-[10px] block font-semibold uppercase">Kebele & Village</span>
                     <span className="font-bold text-slate-900 dark:text-[#F8FAFC] text-sm">
                       {[selectedCitizen.kebeleName || selectedCitizen.kebele, selectedCitizen.village].filter(Boolean).join(' • ') || '—'}
@@ -932,7 +932,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
             </div>
 
             {/* Section 4: Officer Provenance & Intake Audit */}
-            <div className="p-4 bg-gradient-to-r from-slate-50 to-blue-50/40 dark:from-[#0F172A] dark:to-[#1E293B]/70 border border-[#E2E8F0] dark:border-[#334155] rounded-xl text-xs space-y-2">
+            <div className="p-4 bg-gradient-to-r from-slate-50 to-blue-50/40 dark:from-[#0F172A] dark:to-[#1E293B]/70 border border-[#E2E8F0] dark:border-slate-700 rounded-xl text-xs space-y-2">
               <span className="text-slate-400 dark:text-[#94A3B8] font-bold uppercase tracking-wider block text-[10px]">
                 Registration Provenance & Device Audit
               </span>
@@ -965,7 +965,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
             </div>
 
             {/* Footer Actions */}
-            <div className="flex justify-end pt-3 border-t border-[#E2E8F0] dark:border-[#334155]">
+            <div className="flex justify-end pt-3 border-t border-[#E2E8F0] dark:border-slate-700">
               <Button
                 variant="secondary"
                 onClick={() => setSelectedCitizen(null)}

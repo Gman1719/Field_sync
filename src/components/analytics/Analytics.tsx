@@ -193,7 +193,7 @@ export default function Analytics({ user, setActiveTab }: AnalyticsProps) {
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
       {/* 1. Header & Scope Indicator */}
-      <div className="bg-white dark:bg-[#1E293B] border border-slate-200/90 dark:border-[#334155] rounded-2xl p-6 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700 rounded-2xl p-6 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-950/50 border border-blue-100 dark:border-blue-900/50 text-[#1E3A8A] dark:text-blue-400">
             <BarChart3 className="w-6 h-6" />
@@ -212,7 +212,7 @@ export default function Analytics({ user, setActiveTab }: AnalyticsProps) {
 
         {/* Total Registrations in Period Quick Badge */}
         {d?.citizens && (
-          <div className="flex items-center gap-3 bg-slate-50 dark:bg-[#0F172A] px-4 py-2 rounded-xl border border-slate-200/90 dark:border-[#334155]">
+          <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-900 px-4 py-2 rounded-xl border border-slate-200/90 dark:border-slate-700">
             <div className="text-right">
               <div className="text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Recorded</div>
               <div className="text-lg font-bold text-slate-900 dark:text-[#F8FAFC]">
@@ -224,7 +224,7 @@ export default function Analytics({ user, setActiveTab }: AnalyticsProps) {
       </div>
 
       {/* 2. Global Filter Bar: Timeframe & Manager Zone Drilldown */}
-      <Card className="border border-slate-200/90 dark:border-[#334155] shadow-xs">
+      <Card className="border border-slate-200/90 dark:border-slate-700 shadow-xs">
         <CardContent className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
           {/* Timeframe Presets */}
           <div className="flex flex-wrap items-center gap-2">
@@ -244,7 +244,7 @@ export default function Analytics({ user, setActiveTab }: AnalyticsProps) {
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                   period === p.id
                     ? 'bg-[#1E3A8A] text-white shadow-xs'
-                    : 'bg-slate-100 dark:bg-[#0F172A] text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800'
+                    : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800'
                 }`}
               >
                 {p.label}
@@ -262,7 +262,7 @@ export default function Analytics({ user, setActiveTab }: AnalyticsProps) {
               <select
                 value={selectedZoneFilter}
                 onChange={(e) => setSelectedZoneFilter(e.target.value)}
-                className="px-2.5 py-1.5 text-xs border border-slate-200 dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] rounded-lg focus:outline-hidden focus:ring-1 focus:ring-[#1E3A8A]"
+                className="px-2.5 py-1.5 text-xs border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-[#F8FAFC] rounded-lg focus:outline-hidden focus:ring-1 focus:ring-[#1E3A8A]"
               >
                 <option value="all">All Zones (National)</option>
                 {d?.scope?.availableZones?.map((z: any) => (
@@ -285,7 +285,7 @@ export default function Analytics({ user, setActiveTab }: AnalyticsProps) {
 
           {/* Date Range Feedback Pill */}
           {d?.dateRange && (
-            <div className="text-xs font-mono text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-[#0F172A] px-2.5 py-1 rounded-md border border-slate-100 dark:border-[#334155]">
+            <div className="text-xs font-mono text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900 px-2.5 py-1 rounded-md border border-slate-100 dark:border-slate-700">
               {d.dateRange.startDate} → {d.dateRange.endDate} ({d.dateRange.days} days)
             </div>
           )}
@@ -309,7 +309,7 @@ export default function Analytics({ user, setActiveTab }: AnalyticsProps) {
           {/* SECTION 1: DEMOGRAPHICS (GENDER PIE CHART & AGE BAR CHART) */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Chart 1: Citizen Registrations by Gender (Pie Chart) */}
-            <Card className="border border-slate-200/90 dark:border-[#334155] shadow-xs">
+            <Card className="border border-slate-200/90 dark:border-slate-700 shadow-xs">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] flex items-center justify-between">
                   <span className="flex items-center gap-2">
@@ -376,7 +376,7 @@ export default function Analytics({ user, setActiveTab }: AnalyticsProps) {
                       {/* Legend List with Proportions */}
                       <div className="space-y-3 w-full sm:w-48 mt-4 sm:mt-0">
                         {genderChartData.map((item: any) => (
-                          <div key={item.name} className="flex items-center justify-between text-xs p-2 rounded-lg bg-slate-50 dark:bg-[#0F172A] border border-slate-100 dark:border-[#334155]">
+                          <div key={item.name} className="flex items-center justify-between text-xs p-2 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700">
                             <div className="flex items-center gap-2">
                               <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
                               <span className="font-medium text-slate-800 dark:text-slate-200">{item.name}</span>
@@ -395,7 +395,7 @@ export default function Analytics({ user, setActiveTab }: AnalyticsProps) {
             </Card>
 
             {/* Chart 2: Citizen Registrations by Age (Bar Chart) */}
-            <Card className="border border-slate-200/90 dark:border-[#334155] shadow-xs">
+            <Card className="border border-slate-200/90 dark:border-slate-700 shadow-xs">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] flex items-center justify-between">
                   <span className="flex items-center gap-2">
@@ -459,7 +459,7 @@ export default function Analytics({ user, setActiveTab }: AnalyticsProps) {
             {/* Chart 3: Where Citizens Registered Comparison */}
             {/* For Supervisor: Compare Woredas in assigned zone */}
             {/* For Manager: Compare Zones */}
-            <Card className="border border-slate-200/90 dark:border-[#334155] shadow-xs">
+            <Card className="border border-slate-200/90 dark:border-slate-700 shadow-xs">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] flex items-center gap-2">
                   <MapPin className="w-4 h-4 text-[#1E3A8A] dark:text-blue-400" />
@@ -529,7 +529,7 @@ export default function Analytics({ user, setActiveTab }: AnalyticsProps) {
             {/* Chart 4: Citizen Registrations by Region (Bar Chart) */}
             {/* For Supervisor: Scoped strictly to their assigned zone/region */}
             {/* For Manager: Compare registration volume across regions (Oromia, Amhara, Addis Ababa, Tigray...) */}
-            <Card className="border border-slate-200/90 dark:border-[#334155] shadow-xs">
+            <Card className="border border-slate-200/90 dark:border-slate-700 shadow-xs">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] flex items-center gap-2">
                   <Globe className="w-4 h-4 text-[#1E3A8A] dark:text-blue-400" />
@@ -593,7 +593,7 @@ export default function Analytics({ user, setActiveTab }: AnalyticsProps) {
           </div>
 
           {/* SECTION 3: FIELD OFFICER REGISTRATION COMPARISON (HORIZONTAL BAR CHART) */}
-          <Card className="border border-slate-200/90 dark:border-[#334155] shadow-xs">
+          <Card className="border border-slate-200/90 dark:border-slate-700 shadow-xs">
             <CardHeader className="pb-3">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
@@ -609,7 +609,7 @@ export default function Analytics({ user, setActiveTab }: AnalyticsProps) {
                   <select
                     value={officerDisplayLimit}
                     onChange={(e) => setOfficerDisplayLimit(Number(e.target.value))}
-                    className="px-2.5 py-1 text-xs border border-slate-200 dark:border-[#334155] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-[#F8FAFC] rounded-lg"
+                    className="px-2.5 py-1 text-xs border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-[#F8FAFC] rounded-lg"
                   >
                     <option value={5}>Top 5</option>
                     <option value={10}>Top 10</option>
@@ -624,7 +624,7 @@ export default function Analytics({ user, setActiveTab }: AnalyticsProps) {
                       else if (officerSortOrder === 'asc') setOfficerSortOrder('alpha');
                       else setOfficerSortOrder('desc');
                     }}
-                    className="flex items-center gap-1 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-[#334155] bg-slate-50 dark:bg-[#0F172A] text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                    className="flex items-center gap-1 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
                     title="Change sort order"
                   >
                     <ArrowUpDown className="w-3 h-3 text-slate-400" />

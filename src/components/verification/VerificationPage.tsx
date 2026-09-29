@@ -259,7 +259,7 @@ export default function VerificationPage({
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="p-3 bg-white dark:bg-[#1E293B] rounded-xl border border-slate-200 dark:border-[#334155] shadow-sm flex items-center gap-3">
+          <div className="p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center gap-3">
             <div className="text-right">
               <div className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Average Trust</div>
               <div className={`text-xl font-bold ${
@@ -352,7 +352,7 @@ export default function VerificationPage({
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                   filter === tab.key
                     ? 'bg-[#1E3A8A] text-white shadow-sm'
-                    : 'bg-slate-100 dark:bg-[#0F172A] text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800'
+                    : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800'
                 }`}
               >
                 {tab.label}
@@ -431,7 +431,7 @@ export default function VerificationPage({
 
                 {/* Expanded Verification Details */}
                 {isExpanded && (
-                  <div className="p-4 pt-0 border-t border-slate-100 dark:border-[#334155] bg-slate-50/50 dark:bg-[#182234]/50 space-y-4">
+                  <div className="p-4 pt-0 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 space-y-4">
                     {!officer.hasHistory ? (
                       <div className="py-8 text-center text-slate-400 dark:text-slate-500">
                         <Clock className="w-8 h-8 mx-auto text-slate-300 dark:text-slate-600 mb-2" />
@@ -442,35 +442,35 @@ export default function VerificationPage({
                       <>
                         {/* Metrics Pills Grid */}
                         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 pt-3">
-                          <div className="p-2.5 bg-white dark:bg-[#0F172A] rounded-lg border border-slate-200 dark:border-[#334155] text-center">
+                          <div className="p-2.5 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 text-center">
                             <div className="text-[10px] uppercase font-bold text-slate-400">Challenges</div>
                             <div className="text-base font-bold text-slate-900 dark:text-[#F8FAFC]">{officer.historyCount}</div>
                           </div>
-                          <div className="p-2.5 bg-white dark:bg-[#0F172A] rounded-lg border border-slate-200 dark:border-[#334155] text-center">
+                          <div className="p-2.5 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 text-center">
                             <div className="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400">Passed</div>
                             <div className="text-base font-bold text-emerald-700 dark:text-emerald-400">{officer.passed}</div>
                           </div>
-                          <div className="p-2.5 bg-white dark:bg-[#0F172A] rounded-lg border border-slate-200 dark:border-[#334155] text-center">
+                          <div className="p-2.5 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 text-center">
                             <div className="text-[10px] uppercase font-bold text-rose-600 dark:text-rose-400">Failed</div>
                             <div className="text-base font-bold text-rose-700 dark:text-rose-400">{officer.failed}</div>
                           </div>
-                          <div className="p-2.5 bg-white dark:bg-[#0F172A] rounded-lg border border-slate-200 dark:border-[#334155] text-center">
+                          <div className="p-2.5 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 text-center">
                             <div className="text-[10px] uppercase font-bold text-amber-600 dark:text-amber-400">Skipped</div>
                             <div className="text-base font-bold text-amber-700 dark:text-amber-400">{officer.skipped}</div>
                           </div>
-                          <div className="p-2.5 bg-white dark:bg-[#0F172A] rounded-lg border border-slate-200 dark:border-[#334155] text-center">
+                          <div className="p-2.5 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 text-center">
                             <div className="text-[10px] uppercase font-bold text-slate-400">Avg Response</div>
                             <div className="text-base font-bold text-slate-900 dark:text-[#F8FAFC]">{officer.avgResponseTime}s</div>
                           </div>
-                          <div className="p-2.5 bg-white dark:bg-[#0F172A] rounded-lg border border-slate-200 dark:border-[#334155] text-center">
+                          <div className="p-2.5 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 text-center">
                             <div className="text-[10px] uppercase font-bold text-slate-400">Reports Today</div>
                             <div className="text-base font-bold text-slate-900 dark:text-[#F8FAFC]">{officer.todayReports}</div>
                           </div>
-                          <div className="p-2.5 bg-white dark:bg-[#0F172A] rounded-lg border border-slate-200 dark:border-[#334155] text-center">
+                          <div className="p-2.5 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 text-center">
                             <div className="text-[10px] uppercase font-bold text-slate-400">Citizens</div>
                             <div className="text-base font-bold text-slate-900 dark:text-[#F8FAFC]">{officer.citizenCount}</div>
                           </div>
-                          <div className="p-2.5 bg-white dark:bg-[#0F172A] rounded-lg border border-slate-200 dark:border-[#334155] text-center">
+                          <div className="p-2.5 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 text-center">
                             <div className="text-[10px] uppercase font-bold text-slate-400">Attendance</div>
                             <div className="text-xs font-bold text-slate-900 dark:text-[#F8FAFC] capitalize pt-1">{officer.attendanceStatus}</div>
                           </div>
@@ -478,15 +478,15 @@ export default function VerificationPage({
 
                         {/* Recent History Table */}
                         {officer.questionHistory.length > 0 && (
-                          <div className="bg-white dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155] overflow-hidden">
-                            <div className="px-4 py-2.5 bg-slate-50 dark:bg-[#182234] border-b border-slate-200 dark:border-[#334155] flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-200">
+                          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+                            <div className="px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-200">
                               <span>Security Verification Challenges ({officer.questionHistory.length})</span>
                               <span className="text-slate-400 font-normal">Last: {new Date(officer.lastVerified).toLocaleString()}</span>
                             </div>
 
                             <div className="overflow-x-auto">
                               <table className="w-full text-left text-xs text-slate-700 dark:text-slate-300">
-                                <thead className="bg-slate-50/90 dark:bg-[#0F172A] text-[11px] uppercase tracking-wider text-slate-600 dark:text-slate-200 font-bold border-b border-slate-200 dark:border-[#334155]">
+                                <thead className="bg-slate-50/90 dark:bg-slate-900 text-[11px] uppercase tracking-wider text-slate-600 dark:text-slate-200 font-bold border-b border-slate-200 dark:border-slate-700">
                                   <tr>
                                     <th className="py-2.5 px-4 font-semibold">Time</th>
                                     <th className="py-2.5 px-4 font-semibold">Challenge Prompt</th>

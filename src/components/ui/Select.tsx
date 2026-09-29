@@ -37,19 +37,19 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select(
       {label && (
         <label
           htmlFor={selectId}
-          className="block text-xs font-semibold text-slate-700 dark:text-[#CBD5E1] uppercase tracking-wider"
+          className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider"
         >
-          {label} {required && <span className="text-[#DC2626] font-bold">*</span>}
+          {label} {required && <span className="text-rose-600 dark:text-rose-400 font-bold">*</span>}
         </label>
       )}
       <div className="relative rounded-lg shadow-sm">
         <select
           ref={ref}
           id={selectId}
-          className={`block w-full appearance-none rounded-lg border text-sm transition-colors duration-150 py-2.5 px-3.5 pr-10 text-[#0F172A] dark:text-[#F8FAFC] bg-white dark:bg-[#1E293B] placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-offset-0 ${
+          className={`block w-full appearance-none rounded-lg border text-sm transition-colors duration-150 py-2.5 px-3.5 pr-10 text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-800/80 focus:outline-none focus:ring-2 focus:ring-offset-0 ${
             error
-              ? 'border-red-300 dark:border-rose-800 focus:border-red-500 focus:ring-red-200 dark:focus:ring-rose-950'
-              : 'border-[#E2E8F0] dark:border-[#334155] hover:border-slate-300 dark:hover:border-slate-500 focus:border-[#2563EB] dark:focus:border-[#3B82F6] focus:ring-blue-100 dark:focus:ring-blue-950/50'
+              ? 'border-rose-400 dark:border-rose-600 focus:border-rose-500 focus:ring-rose-200 dark:focus:ring-rose-950'
+              : 'border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600 focus:border-blue-500 dark:focus:border-blue-500 focus:ring-blue-100 dark:focus:ring-blue-950/50'
           } ${className}`}
           {...props}
         >
@@ -61,7 +61,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select(
                 <option
                   key={String(val)}
                   value={val}
-                  className="bg-white dark:bg-[#1E293B] text-[#0F172A] dark:text-[#F8FAFC]"
+                  className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
                 >
                   {lbl}
                 </option>
@@ -72,8 +72,8 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select(
           <ChevronDown className="w-4 h-4" />
         </div>
       </div>
-      {error && <p className="text-xs text-[#DC2626] dark:text-rose-400 font-medium mt-1">{error}</p>}
-      {!error && helperText && <p className="text-xs text-slate-500 dark:text-[#94A3B8] mt-1">{helperText}</p>}
+      {error && <p className="text-xs text-rose-600 dark:text-rose-400 font-medium mt-1">{error}</p>}
+      {!error && helperText && <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{helperText}</p>}
     </div>
   );
 });

@@ -333,7 +333,7 @@ export default function TeamManagement({
 
   const renderOfficerDetailModal = () => {
     if (!selectedOfficer) return null;
-    const { regCount, isOnline } = getOfficerStats(selectedOfficer);
+    const { isOnline } = getOfficerStats(selectedOfficer);
     const initials = ((selectedOfficer.name || selectedOfficer.fullName || 'FO')[0] || 'O').toUpperCase();
     const directSupervisor =
       selectedOfficer.supervisorName ||
@@ -341,11 +341,6 @@ export default function TeamManagement({
       selectedTeam?.supervisor?.name ||
       (users.find((u: any) => u.id === selectedOfficer.supervisorId || u.id === selectedOfficer.assignedSupervisorId)?.name) ||
       'Zonal Field Supervisor';
-
-    const officerReportsCount = (reports || []).filter((r: any) => {
-      const offId = String(selectedOfficer.id || selectedOfficer.employeeId || '');
-      return String(r.officerId || r.userId || r.employeeId || '') === offId;
-    }).length;
 
     const officerId = selectedOfficer.employeeId || selectedOfficer.id || 'N/A';
 
@@ -358,7 +353,7 @@ export default function TeamManagement({
       >
         <div className="space-y-5 text-xs">
           {/* 1. Profile Header Banner */}
-          <div className="p-4 sm:p-5 bg-slate-50 dark:bg-[#1E222D] rounded-2xl border border-[#E2E8F0] dark:border-[#272A35] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="p-4 sm:p-5 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4 min-w-0">
               <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#1E3A8A] to-[#2563EB] text-white flex items-center justify-center font-extrabold text-xl shadow-md shrink-0">
                 {initials}
@@ -368,17 +363,9 @@ export default function TeamManagement({
                   {selectedOfficer.name || selectedOfficer.fullName}
                 </h3>
                 <div className="flex flex-wrap items-center gap-2 mt-1">
-                  <span className="text-xs font-mono font-bold text-[#2563EB] dark:text-[#60A5FA] bg-blue-50 dark:bg-blue-950/60 border border-blue-200/60 dark:border-blue-900/60 px-2 py-0.5 rounded-md">
+                  <span className="text-xs font-mono font-bold text-[#2563EB] dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 border border-blue-200/60 dark:border-blue-900/60 px-2 py-0.5 rounded-md">
                     ID: {officerId}
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => copyToClipboard(officerId, 'ID')}
-                    className="text-xs font-semibold text-slate-500 hover:text-[#2563EB] dark:hover:text-[#60A5FA] px-1.5 py-0.5 rounded bg-white dark:bg-[#14161D] border border-slate-200 dark:border-[#272A35] transition-colors cursor-pointer"
-                    title="Copy Officer ID"
-                  >
-                    {copiedField === 'ID' ? 'Copied' : 'Copy ID'}
-                  </button>
                 </div>
                 <div className="flex items-center gap-2 mt-2">
                   <Badge variant="primary" className="text-[10px] font-semibold">
@@ -398,17 +385,17 @@ export default function TeamManagement({
           {/* 2. Personal & Contact Information */}
           <div className="space-y-2.5">
             <h4 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-              <User className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#60A5FA]" />
+              <User className="w-3.5 h-3.5 text-[#2563EB] dark:text-blue-400" />
               Personal & Contact Details
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-              <div className="p-3 bg-white dark:bg-[#14161D] border border-[#E2E8F0] dark:border-[#272A35] rounded-xl">
+              <div className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/60 rounded-xl">
                 <span className="text-slate-400 dark:text-slate-500 block text-[11px] mb-1">Ethiopian Name</span>
                 <span className="font-semibold text-slate-900 dark:text-white">
                   {[selectedOfficer.firstName, selectedOfficer.middleName, selectedOfficer.lastName].filter(Boolean).join(' ') || selectedOfficer.name || selectedOfficer.fullName}
                 </span>
               </div>
-              <div className="p-3 bg-white dark:bg-[#14161D] border border-[#E2E8F0] dark:border-[#272A35] rounded-xl flex items-center justify-between">
+              <div className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/60 rounded-xl flex items-center justify-between">
                 <div className="min-w-0 pr-2">
                   <span className="text-slate-400 dark:text-slate-500 block text-[11px] mb-1">Phone Number</span>
                   <span className="font-semibold text-slate-900 dark:text-white font-mono truncate block">
@@ -419,14 +406,14 @@ export default function TeamManagement({
                   <button
                     type="button"
                     onClick={() => copyToClipboard(selectedOfficer.phone, 'Phone')}
-                    className="p-1 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#1E222D] transition-colors cursor-pointer"
+                    className="p-1 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
                     title="Copy Phone"
                   >
                     {copiedField === 'Phone' ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
                   </button>
                 )}
               </div>
-              <div className="p-3 bg-white dark:bg-[#14161D] border border-[#E2E8F0] dark:border-[#272A35] rounded-xl flex items-center justify-between">
+              <div className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/60 rounded-xl flex items-center justify-between">
                 <div className="min-w-0 pr-2">
                   <span className="text-slate-400 dark:text-slate-500 block text-[11px] mb-1">Email Address</span>
                   <span className="font-semibold text-slate-900 dark:text-white truncate block">
@@ -437,7 +424,7 @@ export default function TeamManagement({
                   <button
                     type="button"
                     onClick={() => copyToClipboard(selectedOfficer.email, 'Email')}
-                    className="p-1 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#1E222D] transition-colors cursor-pointer"
+                    className="p-1 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
                     title="Copy Email"
                   >
                     {copiedField === 'Email' ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
@@ -450,74 +437,32 @@ export default function TeamManagement({
           {/* 3. Jurisdictional & Administrative Station */}
           <div className="space-y-2.5">
             <h4 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#60A5FA]" />
+              <MapPin className="w-3.5 h-3.5 text-[#2563EB] dark:text-blue-400" />
               Administrative Deployment & Hierarchy
             </h4>
-            <div className="p-4 bg-slate-50 dark:bg-[#1E222D] border border-[#E2E8F0] dark:border-[#272A35] rounded-xl">
+            <div className="p-4 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 rounded-xl">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="p-2.5 bg-white dark:bg-[#14161D] border border-[#E2E8F0] dark:border-[#272A35] rounded-lg">
+                <div className="p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/60 rounded-lg">
                   <span className="text-slate-400 dark:text-slate-500 text-[11px] block">Region</span>
                   <span className="font-bold text-slate-900 dark:text-white">{selectedOfficer.region || selectedTeam?.region || 'Unassigned'}</span>
                 </div>
-                <div className="p-2.5 bg-white dark:bg-[#14161D] border border-[#E2E8F0] dark:border-[#272A35] rounded-lg">
+                <div className="p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/60 rounded-lg">
                   <span className="text-slate-400 dark:text-slate-500 text-[11px] block">Zone / Sub-City</span>
                   <span className="font-bold text-slate-900 dark:text-white">{selectedOfficer.zone || selectedTeam?.zone || 'Unassigned'}</span>
                 </div>
-                <div className="p-2.5 bg-white dark:bg-[#14161D] border border-[#E2E8F0] dark:border-[#272A35] rounded-lg">
+                <div className="p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/60 rounded-lg">
                   <span className="text-slate-400 dark:text-slate-500 text-[11px] block">Woreda / Field Station</span>
                   <span className="font-bold text-slate-900 dark:text-white">{selectedOfficer.woreda || 'Assigned Station'}</span>
                 </div>
-                <div className="p-2.5 bg-white dark:bg-[#14161D] border border-[#E2E8F0] dark:border-[#272A35] rounded-lg sm:col-span-3 flex items-center justify-between">
+                <div className="p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/60 rounded-lg sm:col-span-3 flex items-center justify-between">
                   <div>
                     <span className="text-slate-400 dark:text-slate-500 text-[11px] block">Direct Assigned Lead Supervisor</span>
-                    <span className="font-bold text-[#2563EB] dark:text-[#60A5FA]">
+                    <span className="font-bold text-[#2563EB] dark:text-blue-400">
                       {directSupervisor}
                     </span>
                   </div>
                   <Badge variant="neutral" className="text-[10px]">Supervisor Lead</Badge>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 4. Operational Telemetry & Metrics */}
-          <div className="space-y-2.5">
-            <h4 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-              <Activity className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#60A5FA]" />
-              Operational Telemetry & Performance
-            </h4>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="p-3.5 rounded-xl border border-blue-100 dark:border-blue-900/50 bg-blue-50/50 dark:bg-blue-950/20">
-                <span className="text-[10px] text-blue-700 dark:text-[#60A5FA] font-bold uppercase block">
-                  Total Registrations
-                </span>
-                <span className="text-2xl font-black text-blue-800 dark:text-blue-300 font-mono mt-1 block">
-                  {regCount}
-                </span>
-                <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 block">Citizens enrolled</span>
-              </div>
-
-              <div className="p-3.5 rounded-xl border border-slate-200 dark:border-[#272A35] bg-white dark:bg-[#14161D]">
-                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase block">
-                  Daily Shift Reports
-                </span>
-                <span className="text-2xl font-black text-slate-900 dark:text-white font-mono mt-1 block">
-                  {officerReportsCount}
-                </span>
-                <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 block">Submitted logs</span>
-              </div>
-
-              <div className="p-3.5 rounded-xl border border-slate-200 dark:border-[#272A35] bg-white dark:bg-[#14161D]">
-                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase block">
-                  Sync & Connectivity
-                </span>
-                <div className="flex items-center gap-1.5 mt-1.5">
-                  <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-500' : 'bg-slate-400'}`} />
-                  <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                    {isOnline ? 'Online Synced' : 'Offline Mode'}
-                  </span>
-                </div>
-                <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 block">FieldSync Telemetry</span>
               </div>
             </div>
           </div>
@@ -540,10 +485,10 @@ export default function TeamManagement({
     return (
       <div className="space-y-6 animate-in fade-in duration-150">
         {/* Header Banner */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl border bg-white dark:bg-[#14161D] border-slate-200 dark:border-[#272A35] shadow-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl border bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700/60 shadow-xs">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-[#3B82F6] border border-blue-200 dark:border-blue-900/40">
+              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-500 border border-blue-200 dark:border-blue-900/40">
                 Supervisor Field Team
               </span>
               <span className="text-xs text-slate-400 dark:text-slate-500">•</span>
@@ -552,7 +497,7 @@ export default function TeamManagement({
               </span>
             </div>
 
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-[#F4F4F5] mt-2">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white mt-2">
               Team
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
@@ -562,13 +507,13 @@ export default function TeamManagement({
 
           {/* Quick Controls: View Mode & Search */}
           <div className="flex items-center gap-2.5">
-            <div className="flex items-center border border-slate-200 dark:border-[#272A35] rounded-xl overflow-hidden bg-slate-50 dark:bg-[#1E222D] p-0.5">
+            <div className="flex items-center border border-slate-200 dark:border-slate-700/60 rounded-xl overflow-hidden bg-slate-50 dark:bg-slate-800/60 p-0.5">
               <button
                 type="button"
                 onClick={() => setViewMode('cards')}
                 className={`p-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors ${
                   viewMode === 'cards'
-                    ? 'bg-white dark:bg-[#14161D] text-blue-600 dark:text-[#3B82F6] shadow-xs'
+                    ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-500 shadow-xs'
                     : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
                 }`}
                 title="Cards Layout"
@@ -580,7 +525,7 @@ export default function TeamManagement({
                 onClick={() => setViewMode('table')}
                 className={`p-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors ${
                   viewMode === 'table'
-                    ? 'bg-white dark:bg-[#14161D] text-blue-600 dark:text-[#3B82F6] shadow-xs'
+                    ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-500 shadow-xs'
                     : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
                 }`}
                 title="Table Layout"
@@ -593,7 +538,7 @@ export default function TeamManagement({
 
         {/* Stats Strip */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-          <div className="p-4 rounded-xl border bg-white dark:bg-[#14161D] border-slate-200 dark:border-[#272A35] shadow-xs">
+          <div className="p-4 rounded-xl border bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700/60 shadow-xs">
             <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
               Assigned Officers
             </span>
@@ -605,7 +550,7 @@ export default function TeamManagement({
             </div>
           </div>
 
-          <div className="p-4 rounded-xl border bg-white dark:bg-[#14161D] border-slate-200 dark:border-[#272A35] shadow-xs">
+          <div className="p-4 rounded-xl border bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700/60 shadow-xs">
             <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block">
               Online Now
             </span>
@@ -617,19 +562,19 @@ export default function TeamManagement({
             </div>
           </div>
 
-          <div className="p-4 rounded-xl border bg-white dark:bg-[#14161D] border-slate-200 dark:border-[#272A35] shadow-xs">
+          <div className="p-4 rounded-xl border bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700/60 shadow-xs">
             <span className="text-[11px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider block">
               Active Status
             </span>
             <div className="mt-1 flex items-baseline gap-2">
-              <span className="text-2xl font-black text-blue-600 dark:text-[#3B82F6] font-mono">
+              <span className="text-2xl font-black text-blue-600 dark:text-blue-500 font-mono">
                 {activeCount}
               </span>
               <span className="text-xs text-slate-400">Active</span>
             </div>
           </div>
 
-          <div className="p-4 rounded-xl border bg-white dark:bg-[#14161D] border-slate-200 dark:border-[#272A35] shadow-xs">
+          <div className="p-4 rounded-xl border bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700/60 shadow-xs">
             <span className="text-[11px] font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider block">
               Citizens Registered
             </span>
@@ -643,15 +588,15 @@ export default function TeamManagement({
         </div>
 
         {/* Filter & Search Bar */}
-        <div className="p-3.5 bg-white dark:bg-[#14161D] rounded-xl border border-slate-200 dark:border-[#272A35] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-xs">
+        <div className="p-3.5 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-sm dark:shadow-slate-950/20">
           <div className="relative flex-1 max-w-md">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <Search className="w-4 h-4 text-slate-400 dark:text-slate-300 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search officer by name, ID, or woreda..."
-              className="w-full pl-10 pr-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-[#1E222D] border border-slate-200 dark:border-[#272A35] text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              className="w-full pl-10 pr-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
@@ -661,8 +606,8 @@ export default function TeamManagement({
               onClick={() => setStatusFilter('ALL')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-colors ${
                 statusFilter === 'ALL'
-                  ? 'bg-[#2563EB] text-white shadow-xs'
-                  : 'bg-slate-100 dark:bg-[#261C16] text-slate-600 dark:text-[#FFF8F0] border border-transparent dark:border-[#463327] hover:bg-slate-200 dark:hover:bg-[#34241C] dark:hover:border-[#D4A373]'
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-200 border border-transparent dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-800'
               }`}
             >
               All ({supervisorOfficers.length})
@@ -673,7 +618,7 @@ export default function TeamManagement({
               className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-colors ${
                 statusFilter === 'ONLINE'
                   ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'bg-slate-100 dark:bg-[#261C16] text-slate-600 dark:text-[#FFF8F0] border border-transparent dark:border-[#463327] hover:bg-slate-200 dark:hover:bg-[#34241C] dark:hover:border-[#D4A373]'
+                  : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-200 border border-transparent dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-800'
               }`}
             >
               Online ({onlineCount})
@@ -683,8 +628,8 @@ export default function TeamManagement({
               onClick={() => setStatusFilter('ACTIVE')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-colors ${
                 statusFilter === 'ACTIVE'
-                  ? 'bg-[#2563EB] text-white shadow-xs'
-                  : 'bg-slate-100 dark:bg-[#261C16] text-slate-600 dark:text-[#FFF8F0] border border-transparent dark:border-[#463327] hover:bg-slate-200 dark:hover:bg-[#34241C] dark:hover:border-[#D4A373]'
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-200 border border-transparent dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-800'
               }`}
             >
               Active ({activeCount})
@@ -694,10 +639,10 @@ export default function TeamManagement({
 
         {/* Officers Presentation */}
         {filteredSupervisorOfficers.length === 0 ? (
-          <div className="py-16 text-center rounded-2xl border bg-white dark:bg-[#14161D] border-slate-200 dark:border-[#272A35] p-6">
-            <Users className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
+          <div className="py-16 text-center rounded-2xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 p-6">
+            <Users className="w-10 h-10 text-slate-300 dark:text-slate-500 mx-auto mb-2" />
             <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200">No Field Officers Found</h3>
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 max-w-sm mx-auto">
+            <p className="text-xs text-slate-400 dark:text-slate-400 mt-1 max-w-sm mx-auto">
               {searchTerm || statusFilter !== 'ALL'
                 ? 'Try adjusting your search query or status filter.'
                 : 'No field officers have been assigned to your supervision zone yet.'}
@@ -712,7 +657,7 @@ export default function TeamManagement({
               return (
                 <div
                   key={officer.id || officer.employeeId}
-                  className="rounded-2xl border bg-white dark:bg-[#14161D] border-slate-200 dark:border-[#272A35] shadow-xs hover:border-blue-400 dark:hover:border-blue-800 transition-all flex flex-col justify-between overflow-hidden p-5"
+                  className="rounded-2xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-slate-950/40 hover:border-blue-400 dark:hover:border-blue-500 transition-all flex flex-col justify-between overflow-hidden p-5"
                 >
                   {/* Top: Avatar, Name & Live Status */}
                   <div>
@@ -723,7 +668,7 @@ export default function TeamManagement({
                             {initials}
                           </div>
                           <span
-                            className={`absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-white dark:border-[#14161D] ${
+                            className={`absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-white dark:border-slate-800 ${
                               isOnline ? 'bg-emerald-500' : 'bg-slate-400'
                             }`}
                             title={isOnline ? 'Online' : 'Offline'}
@@ -734,7 +679,7 @@ export default function TeamManagement({
                           <h3 className="font-bold text-sm text-slate-900 dark:text-white truncate">
                             {officer.name || officer.fullName}
                           </h3>
-                          <div className="flex items-center gap-1.5 text-[11px] text-slate-400 font-mono mt-0.5">
+                          <div className="flex items-center gap-1.5 text-[11px] text-slate-400 dark:text-slate-400 font-mono mt-0.5">
                             <span>ID: {officer.id || officer.employeeId}</span>
                           </div>
                         </div>
@@ -750,7 +695,7 @@ export default function TeamManagement({
                     </div>
 
                     {/* Location Row - Kebele removed per user request */}
-                    <div className="mt-3.5 p-2.5 rounded-xl bg-slate-50 dark:bg-[#1E222D] border border-slate-100 dark:border-[#272A35] flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+                    <div className="mt-3.5 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/80 border border-slate-100 dark:border-slate-700 flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
                       <MapPin className="w-3.5 h-3.5 text-blue-500 shrink-0" />
                       <span className="truncate">
                         {officer.woreda && officer.woreda !== 'Unassigned'
@@ -761,8 +706,8 @@ export default function TeamManagement({
 
                     {/* Performance Row */}
                     <div className="grid grid-cols-2 gap-2 mt-3">
-                      <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-[#1E222D] border border-slate-100 dark:border-[#272A35] text-center">
-                        <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
+                      <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/80 border border-slate-100 dark:border-slate-700 text-center">
+                        <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-400 block tracking-wider">
                           Citizens Registered
                         </span>
                         <span className="text-sm font-black text-slate-900 dark:text-white font-mono mt-0.5 block">
@@ -770,8 +715,8 @@ export default function TeamManagement({
                         </span>
                       </div>
 
-                      <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-[#1E222D] border border-slate-100 dark:border-[#272A35] text-center">
-                        <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
+                      <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/80 border border-slate-100 dark:border-slate-700 text-center">
+                        <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-400 block tracking-wider">
                           Daily Report
                         </span>
                         <div className="mt-0.5 flex items-center justify-center gap-1">
@@ -792,7 +737,7 @@ export default function TeamManagement({
                   </div>
 
                   {/* Actions Bar */}
-                  <div className="mt-4 pt-3 border-t border-slate-100 dark:border-[#272A35] flex items-center justify-between gap-2">
+                  <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between gap-2">
                     <div className="flex items-center gap-1">
                       {officer.phone && (
                         <a
@@ -817,7 +762,7 @@ export default function TeamManagement({
                     <button
                       type="button"
                       onClick={() => setSelectedOfficer(officer)}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#2563EB] hover:bg-blue-700 text-sm font-bold text-white transition-all cursor-pointer shadow-xs"
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-sm font-bold text-white transition-all cursor-pointer shadow-xs"
                     >
                       <Eye className="w-4 h-4" />
                       <span>Detail</span>
@@ -829,11 +774,11 @@ export default function TeamManagement({
           </div>
         ) : (
           /* Table Layout */
-          <div className="rounded-2xl border bg-white dark:bg-[#14161D] border-slate-200 dark:border-[#272A35] overflow-hidden shadow-xs">
+          <div className="rounded-2xl border bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700/60 overflow-hidden shadow-xs">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
-                  <tr className="bg-slate-50 dark:bg-[#1E222D] border-b border-slate-200 dark:border-[#272A35] text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  <tr className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-700/60 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                     <th className="py-3 px-4">Officer</th>
                     <th className="py-3 px-4">Woreda Station</th>
                     <th className="py-3 px-4">Status</th>
@@ -842,13 +787,13 @@ export default function TeamManagement({
                     <th className="py-3 px-4 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-[#272A35]">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60">
                   {filteredSupervisorOfficers.map((officer: any) => {
                     const { regCount, todayReport, isOnline } = getOfficerStats(officer);
                     return (
                       <tr
                         key={officer.id || officer.employeeId}
-                        className="hover:bg-slate-50/80 dark:hover:bg-[#1E222D]/60 transition-colors"
+                        className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors"
                       >
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-2.5">
@@ -898,7 +843,7 @@ export default function TeamManagement({
                           <button
                             type="button"
                             onClick={() => setSelectedOfficer(officer)}
-                            className="px-3.5 py-1.5 rounded-xl text-sm font-bold bg-[#2563EB] hover:bg-blue-700 text-white transition-colors cursor-pointer shadow-xs"
+                            className="px-3.5 py-1.5 rounded-xl text-sm font-bold bg-blue-600 hover:bg-blue-700 text-white transition-colors cursor-pointer shadow-xs"
                           >
                             Detail
                           </button>
@@ -924,30 +869,30 @@ export default function TeamManagement({
   return (
     <div className="space-y-6 animate-in fade-in duration-150">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl border bg-white dark:bg-[#14161D] border-slate-200 dark:border-[#272A35] shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-slate-950/30">
         <div>
-          <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-[#3B82F6] border border-blue-200 dark:border-blue-900/40">
+          <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-700">
             Workforce Hierarchy
           </span>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-[#F4F4F5] mt-2">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white mt-2">
             Team
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-300 mt-0.5">
             Zonal supervisor structures and assigned field officer units
           </p>
         </div>
       </div>
 
       {/* Filter Bar */}
-      <div className="p-3.5 bg-white dark:bg-[#14161D] rounded-xl border border-slate-200 dark:border-[#272A35] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-xs">
+      <div className="p-3.5 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-sm dark:shadow-slate-950/20">
         <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Search className="w-4 h-4 text-slate-400 dark:text-slate-300 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search teams by name, zone, or supervisor..."
-            className="w-full pl-10 pr-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-[#1E222D] border border-slate-200 dark:border-[#272A35] text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            className="w-full pl-10 pr-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           />
         </div>
 
@@ -955,7 +900,7 @@ export default function TeamManagement({
           <select
             value={filterRegion}
             onChange={(e) => setFilterRegion(e.target.value)}
-            className="text-xs font-medium py-2 px-3 rounded-xl border border-slate-200 dark:border-[#272A35] bg-slate-50 dark:bg-[#1E222D] text-slate-700 dark:text-slate-200 focus:outline-none"
+            className="text-xs font-medium py-2 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-200 focus:outline-none"
           >
             <option value="All">All Regions</option>
             {REAL_ETHIOPIAN_REGIONS.map((r) => (
@@ -970,7 +915,7 @@ export default function TeamManagement({
         {filteredTeams.map((team: any) => (
           <div
             key={team.id}
-            className="rounded-2xl border bg-white dark:bg-[#14161D] border-slate-200 dark:border-[#272A35] shadow-xs p-5 flex flex-col justify-between hover:shadow-md transition-shadow"
+            className="rounded-2xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md dark:shadow-slate-950/40 p-5 flex flex-col justify-between transition-all"
           >
             <div className="space-y-4">
               {/* Team Header */}
@@ -979,7 +924,7 @@ export default function TeamManagement({
                   <h3 className="font-bold text-sm text-slate-900 dark:text-white">
                     {team.name}
                   </h3>
-                  <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
+                  <p className="text-xs text-slate-500 dark:text-slate-300 flex items-center gap-1 mt-0.5">
                     <MapPin className="w-3.5 h-3.5 text-blue-500 shrink-0" />
                     <span className="truncate">{team.region} &gt; {team.zone}</span>
                   </p>
@@ -990,16 +935,16 @@ export default function TeamManagement({
               </div>
 
               {/* Supervisor info */}
-              <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#1E222D] border border-slate-100 dark:border-[#272A35]">
+              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/80 border border-slate-100 dark:border-slate-700">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 block tracking-wider">
+                  <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-blue-400 block tracking-wider">
                     Lead Supervisor
                   </span>
                   {team.supervisor && (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+                    <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-slate-500 dark:text-slate-300">
                       <span
-                        className={`w-1.5 h-1.5 rounded-full ${
-                          team.stats.isSupervisorOnline ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-600'
+                        className={`w-2 h-2 rounded-full ${
+                          team.stats.isSupervisorOnline ? 'bg-emerald-500 shadow-xs shadow-emerald-500/50' : 'bg-slate-300 dark:bg-slate-600'
                         }`}
                       />
                       {team.stats.isSupervisorOnline ? 'Online' : 'Offline'}
@@ -1010,7 +955,7 @@ export default function TeamManagement({
                   {team.supervisor?.name || team.supervisor?.fullName || 'Frontline Pool'}
                 </span>
                 {team.supervisor && (
-                  <p className="text-[10px] text-slate-400 font-mono mt-0.5">
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">
                     ID: {team.supervisor.employeeId || team.supervisor.id}
                   </p>
                 )}
@@ -1019,7 +964,7 @@ export default function TeamManagement({
               {/* All Officers under this Supervisor */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider">
+                  <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-300 tracking-wider">
                     Officers ({team.officers.length})
                   </span>
                   {team.stats.onlineOfficers > 0 && (
@@ -1031,8 +976,8 @@ export default function TeamManagement({
                 </div>
 
                 {team.officers.length === 0 ? (
-                  <div className="py-4 text-center rounded-xl bg-slate-50 dark:bg-[#1E222D] border border-dashed border-slate-200 dark:border-[#272A35]">
-                    <p className="text-xs text-slate-400 dark:text-slate-500">No officers assigned to this supervisor</p>
+                  <div className="py-4 text-center rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-dashed border-slate-200 dark:border-slate-700">
+                    <p className="text-xs text-slate-400 dark:text-slate-400">No officers assigned to this supervisor</p>
                   </div>
                 ) : (
                   <div className="space-y-1.5 max-h-52 overflow-y-auto pr-1">
@@ -1042,24 +987,24 @@ export default function TeamManagement({
                       return (
                         <div
                           key={officer.id || officer.employeeId}
-                          className="p-2 rounded-xl bg-slate-50 dark:bg-[#1E222D] border border-slate-100 dark:border-[#272A35] flex items-center justify-between"
+                          className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/80 border border-slate-100 dark:border-slate-700 flex items-center justify-between"
                         >
-                          <div className="flex items-center gap-2 min-w-0">
+                          <div className="flex items-center gap-2.5 min-w-0">
                             <div className="relative shrink-0">
-                              <div className="w-6 h-6 rounded-md bg-blue-100 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-[10px]">
+                              <div className="w-7 h-7 rounded-lg bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 flex items-center justify-center font-bold text-xs border border-blue-200/50 dark:border-blue-700/50">
                                 {initials}
                               </div>
                               <span
-                                className={`absolute -bottom-0.5 -right-0.5 w-1.5 h-1.5 rounded-full border border-white dark:border-[#1E222D] ${
+                                className={`absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border border-white dark:border-slate-900 ${
                                   isOnline ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-600'
                                 }`}
                               />
                             </div>
                             <div className="min-w-0">
-                              <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 block truncate">
+                              <span className="text-xs font-semibold text-slate-800 dark:text-white block truncate">
                                 {officer.name || officer.fullName}
                               </span>
-                              <span className="text-[10px] text-slate-400 font-mono block truncate">
+                              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono block truncate">
                                 {officer.employeeId || officer.id} • {officer.woreda || officer.zone || 'Field'}
                               </span>
                             </div>
@@ -1073,14 +1018,14 @@ export default function TeamManagement({
             </div>
 
             {/* Card Footer */}
-            <div className="mt-4 pt-3 border-t border-slate-100 dark:border-[#272A35] flex items-center justify-between gap-2">
-              <span className="text-xs text-slate-500 dark:text-slate-400">
-                <strong className="text-slate-800 dark:text-slate-200">{team.stats.activeOfficers}</strong> Active Personnel
+            <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between gap-2">
+              <span className="text-xs text-slate-500 dark:text-slate-300">
+                <strong className="text-slate-800 dark:text-white">{team.stats.activeOfficers}</strong> Active Personnel
               </span>
               <button
                 type="button"
                 onClick={() => setSelectedTeam(team)}
-                className="px-4 py-2 rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white text-sm font-bold transition-all cursor-pointer shadow-xs"
+                className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold transition-all cursor-pointer shadow-xs"
               >
                 Detail
               </button>
@@ -1099,12 +1044,12 @@ export default function TeamManagement({
         >
           <div className="space-y-5 text-xs">
             {/* Header info */}
-            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#1E222D] border border-slate-200 dark:border-[#272A35] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <h4 className="font-bold text-base text-slate-900 dark:text-white">
                   {selectedTeam.name}
                 </h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-1">
+                <p className="text-xs text-slate-500 dark:text-slate-300 flex items-center gap-1.5 mt-1">
                   <MapPin className="w-3.5 h-3.5 text-blue-500" />
                   <span>
                     {[selectedTeam.region, selectedTeam.zone, (selectedTeam.woreda && selectedTeam.woreda !== 'All Woredas in Zone' ? selectedTeam.woreda : null)]
@@ -1121,19 +1066,19 @@ export default function TeamManagement({
 
             {/* Quick Metrics Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="p-3 rounded-xl border border-slate-200 dark:border-[#272A35] bg-white dark:bg-[#14161D]">
-                <span className="text-[10px] text-slate-400 font-bold uppercase block">Total Officers</span>
+              <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase block">Total Officers</span>
                 <span className="text-lg font-black text-slate-900 dark:text-white font-mono mt-0.5 block">
                   {selectedTeam.stats.officersCount}
                 </span>
               </div>
-              <div className="p-3 rounded-xl border border-slate-200 dark:border-[#272A35] bg-white dark:bg-[#14161D]">
+              <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
                 <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold uppercase block">Online Now</span>
                 <span className="text-lg font-black text-emerald-600 dark:text-emerald-400 font-mono mt-0.5 block">
                   {selectedTeam.stats.onlineOfficers}
                 </span>
               </div>
-              <div className="p-3 rounded-xl border border-slate-200 dark:border-[#272A35] bg-white dark:bg-[#14161D]">
+              <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
                 <span className="text-[10px] text-blue-600 dark:text-blue-400 font-bold uppercase block">Active Status</span>
                 <span className="text-lg font-black text-blue-600 dark:text-blue-400 font-mono mt-0.5 block">
                   {selectedTeam.stats.activeOfficers}
@@ -1143,8 +1088,8 @@ export default function TeamManagement({
 
             {/* Supervisor Info Card */}
             {selectedTeam.supervisor && (
-              <div className="p-4 rounded-xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40">
-                <span className="text-[10px] uppercase font-bold text-blue-600 dark:text-[#3B82F6] block tracking-wider mb-2">
+              <div className="p-4 rounded-xl bg-blue-50/50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/60">
+                <span className="text-[10px] uppercase font-bold text-blue-600 dark:text-blue-400 block tracking-wider mb-2">
                   Lead Supervisor Information
                 </span>
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -1152,7 +1097,7 @@ export default function TeamManagement({
                     <h5 className="font-bold text-sm text-slate-900 dark:text-white">
                       {selectedTeam.supervisor.name || selectedTeam.supervisor.fullName}
                     </h5>
-                    <p className="text-[11px] text-slate-500 font-mono mt-0.5">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">
                       ID: {selectedTeam.supervisor.employeeId || selectedTeam.supervisor.id} • Role: Zonal Supervisor
                     </p>
                   </div>
@@ -1160,7 +1105,7 @@ export default function TeamManagement({
                     {selectedTeam.supervisor.phone && (
                       <a
                         href={`tel:${selectedTeam.supervisor.phone}`}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white dark:bg-[#1E222D] border border-slate-200 dark:border-[#272A35] text-slate-700 dark:text-slate-300 hover:text-blue-600 transition-colors"
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:text-blue-600 transition-colors"
                       >
                         <Phone className="w-3.5 h-3.5" />
                         <span>{formatEthiopianPhone(selectedTeam.supervisor.phone)}</span>
@@ -1169,7 +1114,7 @@ export default function TeamManagement({
                     {selectedTeam.supervisor.email && (
                       <a
                         href={`mailto:${selectedTeam.supervisor.email}`}
-                        className="p-1.5 rounded-lg bg-white dark:bg-[#1E222D] border border-slate-200 dark:border-[#272A35] text-slate-700 dark:text-slate-300 hover:text-blue-600 transition-colors"
+                        className="p-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:text-blue-600 transition-colors"
                         title={selectedTeam.supervisor.email}
                       >
                         <Mail className="w-3.5 h-3.5" />
@@ -1183,21 +1128,21 @@ export default function TeamManagement({
             {/* Detailed Officers List */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <h5 className="font-bold text-xs uppercase text-slate-700 dark:text-slate-300 tracking-wider">
+                <h5 className="font-bold text-xs uppercase text-slate-700 dark:text-slate-200 tracking-wider">
                   Officers Under This Supervisor ({selectedTeam.officers.length})
                 </h5>
               </div>
 
               {selectedTeam.officers.length === 0 ? (
-                <div className="py-8 text-center rounded-xl border border-dashed border-slate-200 dark:border-[#272A35] p-4">
-                  <Users className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-1.5" />
-                  <p className="text-xs text-slate-500">No field officers currently assigned to this supervisor.</p>
+                <div className="py-8 text-center rounded-xl border border-dashed border-slate-200 dark:border-slate-700 p-4">
+                  <Users className="w-8 h-8 text-slate-300 dark:text-slate-500 mx-auto mb-1.5" />
+                  <p className="text-xs text-slate-500 dark:text-slate-400">No field officers currently assigned to this supervisor.</p>
                 </div>
               ) : (
-                <div className="rounded-xl border border-slate-200 dark:border-[#272A35] overflow-hidden">
+                <div className="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
                   <div className="overflow-x-auto max-h-72">
                     <table className="w-full text-left border-collapse text-xs">
-                      <thead className="sticky top-0 bg-slate-50 dark:bg-[#1E222D] border-b border-slate-200 dark:border-[#272A35] text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                      <thead className="sticky top-0 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider">
                         <tr>
                           <th className="py-2.5 px-3">Officer</th>
                           <th className="py-2.5 px-3">Station</th>
@@ -1206,13 +1151,13 @@ export default function TeamManagement({
                           <th className="py-2.5 px-3 text-right">Actions</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100 dark:divide-[#272A35] bg-white dark:bg-[#14161D]">
+                      <tbody className="divide-y divide-slate-100 dark:divide-slate-700 bg-white dark:bg-slate-900">
                         {selectedTeam.officers.map((officer: any) => {
                           const { regCount, isOnline } = getOfficerStats(officer);
                           return (
                             <tr
                               key={officer.id || officer.employeeId}
-                              className="hover:bg-slate-50/80 dark:hover:bg-[#1E222D]/60 transition-colors"
+                              className="hover:bg-slate-50/80 dark:hover:bg-slate-800/60 transition-colors"
                             >
                               <td className="py-2.5 px-3">
                                 <div className="flex items-center gap-2">
@@ -1225,7 +1170,7 @@ export default function TeamManagement({
                                     <span className="font-bold text-slate-900 dark:text-white block">
                                       {officer.name || officer.fullName}
                                     </span>
-                                    <span className="text-[10px] text-slate-400 font-mono">
+                                    <span className="text-[10px] text-slate-400 dark:text-slate-400 font-mono">
                                       ID: {officer.employeeId || officer.id}
                                     </span>
                                   </div>
@@ -1246,7 +1191,7 @@ export default function TeamManagement({
                                 <button
                                   type="button"
                                   onClick={() => setSelectedOfficer(officer)}
-                                  className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-blue-600 hover:text-white dark:bg-[#1E222D] dark:hover:bg-blue-600 text-slate-700 dark:text-slate-200 transition-colors cursor-pointer"
+                                  className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-blue-600 hover:text-white dark:bg-slate-800 dark:hover:bg-blue-600 text-slate-700 dark:text-slate-200 transition-colors cursor-pointer border border-transparent dark:border-slate-700"
                                 >
                                   Detail
                                 </button>

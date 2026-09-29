@@ -59,9 +59,9 @@ export default function Modal({
       aria-labelledby={title ? 'modal-title' : undefined}
       className="fixed inset-0 z-50 overflow-y-auto"
     >
-      {/* Modern Glassmorphic Backdrop Scrim */}
+      {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-slate-950/65 dark:bg-black/80 backdrop-blur-md transition-opacity animate-in fade-in duration-200"
+        className="fixed inset-0 bg-slate-950/60 dark:bg-black/75 backdrop-blur-sm transition-opacity animate-in fade-in duration-200"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -69,14 +69,14 @@ export default function Modal({
       {/* Dialog Positioning Wrapper */}
       <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-6">
         <div
-          className={`relative transform overflow-hidden rounded-2xl sm:rounded-3xl bg-white text-left shadow-[0_25px_60px_-15px_rgba(15,23,42,0.18),0_0_1px_1px_rgba(15,23,42,0.06)] border border-slate-200/90 dark:bg-gradient-to-b dark:from-[#1C1410] dark:to-[#140E0B] dark:border-[#38261E] dark:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85),inset_0_1px_0_0_rgba(255,255,255,0.08)] transition-all sm:my-8 w-full ${
+          className={`relative transform overflow-hidden rounded-2xl sm:rounded-2xl bg-white dark:bg-slate-800 text-left shadow-[0_20px_60px_-10px_rgba(15,23,42,0.2),0_0_0_1px_rgba(15,23,42,0.05)] dark:shadow-[0_24px_64px_-12px_rgba(0,0,0,0.8),0_0_0_1px_rgba(255,255,255,0.05)] border border-slate-200/80 dark:border-slate-700 transition-all sm:my-8 w-full ${
             maxWidth || sizes[size] || sizes.md
           } ${className} animate-in zoom-in-95 fade-in duration-200 ease-out`}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
           {(title || description) && (
-            <div className="px-6 py-5 border-b border-slate-100 dark:border-[#2C1D16] flex items-center justify-between gap-4">
+            <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between gap-4">
               <div className="min-w-0 pr-2">
                 {title && (
                   <h3
@@ -87,7 +87,7 @@ export default function Modal({
                   </h3>
                 )}
                 {description && (
-                  <p className="text-xs sm:text-sm text-slate-500 dark:text-[#BFA89B] mt-1 leading-normal">
+                  <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-300 mt-1 leading-normal">
                     {description}
                   </p>
                 )}
@@ -96,33 +96,33 @@ export default function Modal({
                 type="button"
                 onClick={onClose}
                 aria-label="Close dialog"
-                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 dark:text-[#A8988B] dark:hover:text-white bg-slate-100/70 hover:bg-slate-200/80 dark:bg-[#251A14] dark:hover:bg-[#34241C] border border-transparent dark:border-[#38261E] transition-all duration-150 shrink-0"
+                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-700 border border-transparent dark:border-slate-700 transition-all duration-150 shrink-0 cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
           )}
 
-          {/* Dismiss button when no title or description is provided */}
+          {/* Dismiss button when no title/description */}
           {!title && !description && (
             <button
               type="button"
               onClick={onClose}
               aria-label="Close dialog"
-              className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 dark:text-[#A8988B] dark:hover:text-white bg-slate-100/70 hover:bg-slate-200/80 dark:bg-[#251A14] dark:hover:bg-[#34241C] border border-transparent dark:border-[#38261E] transition-all duration-150"
+              className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-700 border border-transparent dark:border-slate-700 transition-all duration-150 cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
           )}
 
-          {/* Modal Content Well */}
-          <div className="px-6 py-5 sm:p-6 max-h-[75vh] overflow-y-auto text-slate-700 dark:text-[#E8DDD7]">
+          {/* Modal Content */}
+          <div className="px-6 py-5 sm:p-6 max-h-[75vh] overflow-y-auto text-slate-700 dark:text-slate-200">
             {children}
           </div>
 
-          {/* Docked Modern Footer */}
+          {/* Footer */}
           {footer && (
-            <div className="px-6 py-4 bg-slate-50/90 dark:bg-[#120C0A]/95 backdrop-blur-sm border-t border-slate-100 dark:border-[#2C1D16] flex items-center justify-end gap-3 rounded-b-2xl sm:rounded-b-3xl">
+            <div className="px-6 py-4 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-100 dark:border-slate-700 flex items-center justify-end gap-3 rounded-b-2xl">
               {footer}
             </div>
           )}

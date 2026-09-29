@@ -385,7 +385,7 @@ export default function ReportForm({
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Header Banner */}
-      <div className="bg-white dark:bg-[#1E293B] rounded-xl border border-slate-200/90 dark:border-[#334155] shadow-2xs p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200/90 dark:border-slate-700 shadow-2xs p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 className="text-lg font-bold text-slate-900 dark:text-[#F8FAFC] tracking-tight flex items-center gap-2">
             <FileText className="w-5 h-5 text-[#1E3A8A] dark:text-blue-400" />

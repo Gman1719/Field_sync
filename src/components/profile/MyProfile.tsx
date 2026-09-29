@@ -137,7 +137,7 @@ export default function MyProfile({ user: propUser, defaultTab = 'personal' }) {
   return (
     <div className="space-y-6 pb-12 animate-in fade-in duration-200">
       {/* 1. Profile Header Card */}
-      <div className="bg-white dark:bg-[#1E293B] rounded-2xl border border-slate-200/90 dark:border-[#334155] p-6 shadow-xs relative overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/90 dark:border-slate-700 p-6 shadow-xs relative overflow-hidden">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
             {/* Avatar */}
@@ -145,7 +145,7 @@ export default function MyProfile({ user: propUser, defaultTab = 'personal' }) {
               <img
                 src={persistentPhotoUrl}
                 alt={user?.fullName || user?.name || 'User'}
-                className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-slate-100 dark:border-[#334155] shadow-xs"
+                className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-slate-100 dark:border-slate-700 shadow-xs"
               />
             ) : (
               <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl bg-[#2563EB] text-white flex items-center justify-center text-2xl font-bold tracking-tight shadow-xs">
@@ -202,7 +202,7 @@ export default function MyProfile({ user: propUser, defaultTab = 'personal' }) {
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex items-center gap-2 mt-6 pt-4 border-t border-slate-100 dark:border-[#334155] overflow-x-auto">
+        <div className="flex items-center gap-2 mt-6 pt-4 border-t border-slate-100 dark:border-slate-700 overflow-x-auto">
           {[
             { id: 'personal', label: 'Personal Information', icon: User },
             { id: 'work', label: 'Work Information', icon: Building },
@@ -245,27 +245,27 @@ export default function MyProfile({ user: propUser, defaultTab = 'personal' }) {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className="p-3.5 bg-slate-50/70 dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#334155] rounded-xl">
+                <div className="p-3.5 bg-slate-50/70 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 rounded-xl">
                   <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mb-1">First Name</span>
                   <span className="text-sm font-semibold text-slate-900 dark:text-white">{user?.firstName || 'Not provided'}</span>
                 </div>
-                <div className="p-3.5 bg-slate-50/70 dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#334155] rounded-xl">
+                <div className="p-3.5 bg-slate-50/70 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 rounded-xl">
                   <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mb-1">Middle Name (Father)</span>
                   <span className="text-sm font-semibold text-slate-900 dark:text-white">{user?.middleName || '—'}</span>
                 </div>
-                <div className="p-3.5 bg-slate-50/70 dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#334155] rounded-xl">
+                <div className="p-3.5 bg-slate-50/70 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 rounded-xl">
                   <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mb-1">Last Name (Grandfather)</span>
                   <span className="text-sm font-semibold text-slate-900 dark:text-white">{user?.lastName || 'Not provided'}</span>
                 </div>
-                <div className="p-3.5 bg-slate-50/70 dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#334155] rounded-xl">
+                <div className="p-3.5 bg-slate-50/70 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 rounded-xl">
                   <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mb-1">Email Address</span>
                   <span className="text-sm font-semibold text-slate-900 dark:text-white break-all">{user?.email}</span>
                 </div>
-                <div className="p-3.5 bg-slate-50/70 dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#334155] rounded-xl">
+                <div className="p-3.5 bg-slate-50/70 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 rounded-xl">
                   <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mb-1">Phone Number</span>
                   <span className="text-sm font-semibold text-slate-900 dark:text-white">{user?.phoneNumber || user?.phone || 'Not provided'}</span>
                 </div>
-                <div className="p-3.5 bg-slate-50/70 dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#334155] rounded-xl">
+                <div className="p-3.5 bg-slate-50/70 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 rounded-xl">
                   <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mb-1">Profile Photo</span>
                   <span className="text-sm font-semibold text-slate-900 dark:text-white">
                     {user?.profilePhotoUrl ? 'Custom Photo Active' : 'Default Avatar (Initials)'}
@@ -366,7 +366,7 @@ export default function MyProfile({ user: propUser, defaultTab = 'personal' }) {
           {/* Field Officer Work View */}
           {isOfficer && (
             <div className="space-y-6">
-              <Card className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#1E293B]">
+              <Card className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                 <CardHeader>
                   <CardTitle>Fieldwork Assignment & Work Location</CardTitle>
                   <CardDescription>
@@ -375,19 +375,19 @@ export default function MyProfile({ user: propUser, defaultTab = 'personal' }) {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                    <div className="p-3.5 bg-slate-50 dark:bg-[#0F172A] border border-slate-200 dark:border-[#334155] rounded-xl">
+                    <div className="p-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl">
                       <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mb-1">Region</span>
                       <span className="text-sm font-semibold text-slate-900 dark:text-white">{user?.region || 'Addis Ababa'}</span>
                     </div>
-                    <div className="p-3.5 bg-slate-50 dark:bg-[#0F172A] border border-slate-200 dark:border-[#334155] rounded-xl">
+                    <div className="p-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl">
                       <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mb-1">Zone / Sub-City</span>
                       <span className="text-sm font-semibold text-slate-900 dark:text-white">{user?.zone || 'Bole Sub-City'}</span>
                     </div>
-                    <div className="p-3.5 bg-slate-50 dark:bg-[#0F172A] border border-slate-200 dark:border-[#334155] rounded-xl">
+                    <div className="p-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl">
                       <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mb-1">Woreda</span>
                       <span className="text-sm font-semibold text-slate-900 dark:text-white">{user?.woreda || 'Bole Woreda 01'}</span>
                     </div>
-                    <div className="p-3.5 bg-slate-50 dark:bg-[#0F172A] border border-slate-200 dark:border-[#334155] rounded-xl">
+                    <div className="p-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl">
                       <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mb-1">Assigned Supervisor</span>
                       <span className="text-sm font-semibold text-slate-900 dark:text-white">
                         {user?.supervisorName || 'Regional Supervisor'}
@@ -422,8 +422,8 @@ export default function MyProfile({ user: propUser, defaultTab = 'personal' }) {
                     />
                   </div>
 
-                  <div className="p-4 bg-slate-50 dark:bg-[#0F172A] border border-slate-200 dark:border-[#334155] rounded-xl text-xs text-slate-700 dark:text-slate-300 flex items-start gap-3">
-                    <Info className="w-4 h-4 text-[#2563EB] dark:text-[#60A5FA] shrink-0 mt-0.5" />
+                  <div className="p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-700 dark:text-slate-300 flex items-start gap-3">
+                    <Info className="w-4 h-4 text-[#2563EB] dark:text-blue-400 shrink-0 mt-0.5" />
                     <div>
                       <p className="font-semibold text-slate-900 dark:text-white mb-0.5">Read-Only Administrative Scope</p>
                       <p className="text-slate-600 dark:text-slate-400">
@@ -441,7 +441,7 @@ export default function MyProfile({ user: propUser, defaultTab = 'personal' }) {
       {/* Tab C: Account Information */}
       {activeTab === 'account' && (
         <div className="space-y-6 animate-in fade-in duration-150">
-          <Card className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#1E293B]">
+          <Card className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
             <CardHeader>
               <CardTitle>Account & System Information</CardTitle>
               <CardDescription>
@@ -450,37 +450,37 @@ export default function MyProfile({ user: propUser, defaultTab = 'personal' }) {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className="p-3.5 bg-slate-50 dark:bg-[#0F172A] border border-slate-200 dark:border-slate-700 rounded-xl">
+                <div className="p-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl">
                   <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mb-1">User UUID</span>
                   <span className="font-mono text-xs font-semibold text-slate-800 dark:text-[#F8FAFC] break-all select-all">
                     {user?.id}
                   </span>
                 </div>
-                <div className="p-3.5 bg-slate-50 dark:bg-[#0F172A] border border-slate-200 dark:border-slate-700 rounded-xl">
+                <div className="p-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl">
                   <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mb-1">System Role</span>
                   <Badge variant="primary" className="capitalize text-xs font-semibold">
                     {user?.systemRole || user?.role?.toUpperCase()}
                   </Badge>
                 </div>
-                <div className="p-3.5 bg-slate-50 dark:bg-[#0F172A] border border-slate-200 dark:border-slate-700 rounded-xl">
+                <div className="p-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl">
                   <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mb-1">Account Status</span>
                   <Badge variant={user?.isActive !== false ? 'success' : 'error'} dot className="text-xs">
                     {user?.isActive !== false ? 'ACTIVE ACCOUNT' : 'DEACTIVATED'}
                   </Badge>
                 </div>
-                <div className="p-3.5 bg-slate-50 dark:bg-[#0F172A] border border-slate-200 dark:border-slate-700 rounded-xl">
+                <div className="p-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl">
                   <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mb-1">Account Creation Date</span>
                   <span className="text-xs font-semibold text-slate-800 dark:text-[#F8FAFC]">
                     {formatDate(user?.createdAt)}
                   </span>
                 </div>
-                <div className="p-3.5 bg-slate-50 dark:bg-[#0F172A] border border-slate-200 dark:border-slate-700 rounded-xl">
+                <div className="p-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl">
                   <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mb-1">Last Updated</span>
                   <span className="text-xs font-semibold text-slate-800 dark:text-[#F8FAFC]">
                     {formatDateTime(user?.updatedAt)}
                   </span>
                 </div>
-                <div className="p-3.5 bg-slate-50 dark:bg-[#0F172A] border border-slate-200 dark:border-slate-700 rounded-xl">
+                <div className="p-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl">
                   <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mb-1">Last Successful Login</span>
                   <span className="text-xs font-semibold text-slate-800 dark:text-[#F8FAFC]">
                     {formatDateTime(user?.lastLogin)}

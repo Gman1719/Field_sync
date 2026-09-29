@@ -257,15 +257,15 @@ export default function AllReports({ reports = [], users = [], supervisorReports
       </div>
 
       {/* Tabs & Search / Filter Controls */}
-      <Card className="border border-slate-200/90 dark:border-slate-700 bg-white dark:bg-[#1E293B]">
+      <Card className="border border-slate-200/90 dark:border-slate-700 bg-white dark:bg-slate-800">
         <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           {/* Tab Switcher */}
-          <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-[#0F172A] rounded-xl w-fit">
+          <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-900 rounded-xl w-fit">
             <button
               onClick={() => setActiveTab('daily')}
               className={`px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
                 activeTab === 'daily'
-                  ? 'bg-white dark:bg-[#1E293B] text-slate-900 dark:text-[#F8FAFC] shadow-sm'
+                  ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-[#F8FAFC] shadow-sm'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
@@ -275,7 +275,7 @@ export default function AllReports({ reports = [], users = [], supervisorReports
               onClick={() => setActiveTab('supervisor')}
               className={`px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
                 activeTab === 'supervisor'
-                  ? 'bg-white dark:bg-[#1E293B] text-slate-900 dark:text-[#F8FAFC] shadow-sm'
+                  ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-[#F8FAFC] shadow-sm'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
@@ -311,7 +311,7 @@ export default function AllReports({ reports = [], users = [], supervisorReports
         </div>
 
         {/* Filter Toolbar */}
-        <div className="p-4 bg-slate-50/50 dark:bg-[#182234]/50 border-b border-slate-200 dark:border-slate-700 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="p-4 bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <div>
             <Input
               placeholder="Search site, officer, region..."
@@ -369,7 +369,7 @@ export default function AllReports({ reports = [], users = [], supervisorReports
             /* DAILY FIELD REPORTS TABLE */
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs sm:text-sm text-slate-700 dark:text-slate-300">
-                <thead className="bg-slate-50/90 dark:bg-[#0F172A] text-[11px] uppercase tracking-wider text-slate-600 dark:text-slate-200 font-bold border-b border-slate-200 dark:border-[#334155]">
+                <thead className="bg-slate-50/90 dark:bg-slate-900 text-[11px] uppercase tracking-wider text-slate-600 dark:text-slate-200 font-bold border-b border-slate-200 dark:border-slate-700">
                   <tr>
                     <th className="py-3 px-4 font-semibold">Submitted</th>
                     <th className="py-3 px-4 font-semibold">Field Officer</th>
@@ -457,7 +457,7 @@ export default function AllReports({ reports = [], users = [], supervisorReports
             /* SUPERVISOR REPORTS TABLE */
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs sm:text-sm text-slate-700 dark:text-slate-300">
-                <thead className="bg-slate-50/90 dark:bg-[#0F172A] text-[11px] uppercase tracking-wider text-slate-600 dark:text-slate-200 font-bold border-b border-slate-200 dark:border-[#334155]">
+                <thead className="bg-slate-50/90 dark:bg-slate-900 text-[11px] uppercase tracking-wider text-slate-600 dark:text-slate-200 font-bold border-b border-slate-200 dark:border-slate-700">
                   <tr>
                     <th className="py-3 px-4 font-semibold">Submitted</th>
                     <th className="py-3 px-4 font-semibold">Evaluation Type</th>

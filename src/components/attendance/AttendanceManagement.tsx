@@ -356,7 +356,7 @@ export default function AttendanceManagement({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-            <CalendarCheck className="w-6 h-6 text-[#2563EB] dark:text-[#60A5FA]" />
+            <CalendarCheck className="w-6 h-6 text-[#2563EB] dark:text-blue-400" />
             Attendance Management
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
@@ -437,7 +437,7 @@ export default function AttendanceManagement({
                   <div
                     key={officer.id}
                     onClick={() => handleOpenModal(officer)}
-                    className="p-3.5 bg-slate-50 dark:bg-[#0F172A] hover:bg-slate-100/80 dark:hover:bg-slate-800/60 rounded-xl border border-slate-200/80 dark:border-[#334155] cursor-pointer transition-all flex items-center justify-between"
+                    className="p-3.5 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100/80 dark:hover:bg-slate-800/60 rounded-xl border border-slate-200/80 dark:border-slate-700 cursor-pointer transition-all flex items-center justify-between"
                   >
                     <div className="min-w-0">
                       <p className="text-xs font-semibold text-slate-900 dark:text-white truncate">{officer.name}</p>
@@ -494,7 +494,7 @@ export default function AttendanceManagement({
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="border-b border-slate-200 dark:border-[#334155] text-slate-600 dark:text-slate-200 font-bold uppercase tracking-wider bg-slate-50/90 dark:bg-[#0F172A] text-[11px]">
+                  <tr className="border-b border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-200 font-bold uppercase tracking-wider bg-slate-50/90 dark:bg-slate-900 text-[11px]">
                     <th className="py-3.5 pl-6">Officer</th>
                     <th className="py-3.5 px-4">Date</th>
                     <th className="py-3.5 px-4">Status</th>

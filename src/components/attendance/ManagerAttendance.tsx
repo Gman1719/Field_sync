@@ -303,7 +303,7 @@ export default function ManagerAttendance({
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="border-b border-slate-200 dark:border-[#334155] text-slate-600 dark:text-slate-200 font-bold uppercase tracking-wider bg-slate-50/90 dark:bg-[#0F172A] text-[11px]">
+                  <tr className="border-b border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-200 font-bold uppercase tracking-wider bg-slate-50/90 dark:bg-slate-900 text-[11px]">
                     <th className="py-3.5 pl-6">Officer</th>
                     <th className="py-3.5 px-4">Region</th>
                     <th className="py-3.5 px-4">Supervisor</th>

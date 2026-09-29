@@ -121,7 +121,7 @@ export default function DuplicateReviewConsole({ user }) {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-[#1E293B] p-6 rounded-2xl border border-slate-200 dark:border-[#334155] shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-[#1E3A8A] text-white flex items-center justify-center shadow-xs">
             <Users className="w-5 h-5" />
@@ -167,7 +167,7 @@ export default function DuplicateReviewConsole({ user }) {
       </div>
 
       {/* Controls & Filter Bar */}
-      <div className="bg-white dark:bg-[#1E293B] p-4 rounded-2xl border border-slate-200 dark:border-[#334155] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 text-xs">
+      <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 text-xs">
         {/* Status Filter Buttons */}
         <div className="flex flex-wrap items-center gap-1.5">
           {[
@@ -183,7 +183,7 @@ export default function DuplicateReviewConsole({ user }) {
               className={`px-3 py-1.5 rounded-xl font-semibold transition-colors flex items-center gap-1.5 ${
                 statusFilter === tab.id
                   ? 'bg-[#1E3A8A] text-white shadow-xs'
-                  : 'bg-slate-50 dark:bg-[#0F172A] text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-transparent dark:border-[#334155]'
+                  : 'bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-transparent dark:border-slate-700'
               }`}
             >
               {tab.label}
@@ -204,7 +204,7 @@ export default function DuplicateReviewConsole({ user }) {
             placeholder="Search citizen name or phone..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-8 py-1.5 border border-slate-200 dark:border-[#334155] bg-white dark:bg-[#0F172A] rounded-xl text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]"
+            className="w-full pl-9 pr-8 py-1.5 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-xl text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]"
           />
           {searchQuery && (
             <button
@@ -288,7 +288,7 @@ export default function DuplicateReviewConsole({ user }) {
 
                       {/* Side-by-side snippet */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-600 dark:text-slate-300 pt-1">
-                        <div className="p-2.5 bg-slate-50 dark:bg-[#0F172A] rounded-lg border border-slate-100 dark:border-[#334155]">
+                        <div className="p-2.5 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-100 dark:border-slate-700">
                           <strong className="block text-slate-800 dark:text-slate-200 font-semibold mb-0.5">
                             Candidate (New Registration):
                           </strong>
@@ -301,7 +301,7 @@ export default function DuplicateReviewConsole({ user }) {
                           </div>
                         </div>
 
-                        <div className="p-2.5 bg-slate-50 dark:bg-[#0F172A] rounded-lg border border-slate-100 dark:border-[#334155]">
+                        <div className="p-2.5 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-100 dark:border-slate-700">
                           <strong className="block text-slate-800 dark:text-slate-200 font-semibold mb-0.5">
                             Suspected Match (Existing Record):
                           </strong>
@@ -498,8 +498,8 @@ export default function DuplicateReviewConsole({ user }) {
                   </div>
 
                   {/* Column 2: Suspected Record (Existing) */}
-                  <div className="p-4 bg-slate-50 dark:bg-[#0F172A] rounded-2xl border border-slate-200 dark:border-[#334155] space-y-3">
-                    <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-[#334155]">
+                  <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-700">
                       <div>
                         <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 block">Suspected Match</span>
                         <h4 className="font-bold text-slate-900 dark:text-[#F8FAFC] text-sm">

@@ -30,7 +30,7 @@ const CustomTooltip: any = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     const fullDate = payload[0]?.payload?.fullDate;
     return (
-      <div className="bg-white dark:bg-[#1E293B] p-3 rounded-xl border border-slate-200 dark:border-[#334155] shadow-modal text-xs font-sans text-slate-800 dark:text-[#F8FAFC]">
+      <div className="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 shadow-modal text-xs font-sans text-slate-800 dark:text-[#F8FAFC]">
         <p className="font-semibold text-slate-900 dark:text-white mb-1">
           {fullDate ? `Date: ${fullDate}` : label}
         </p>
@@ -761,7 +761,7 @@ export default function Dashboard({
               {/* Button 1: Register Citizen */}
               <div
                 onClick={() => setActiveTab('register')}
-                className="group relative cursor-pointer overflow-hidden rounded-2xl bg-white dark:bg-[#1E293B] p-5 border border-blue-200/90 dark:border-blue-900/60 shadow-xs hover:shadow-md hover:border-blue-500 dark:hover:border-blue-400 hover:-translate-y-0.5 transition-all duration-200"
+                className="group relative cursor-pointer overflow-hidden rounded-2xl bg-white dark:bg-slate-800 p-5 border border-blue-200/90 dark:border-blue-900/60 shadow-xs hover:shadow-md hover:border-blue-500 dark:hover:border-blue-400 hover:-translate-y-0.5 transition-all duration-200"
               >
                 {/* Visual accent top line */}
                 <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-500" />
@@ -788,7 +788,7 @@ export default function Dashboard({
               {/* Button 2: Daily Work Report */}
               <div
                 onClick={() => setActiveTab('report_new')}
-                className={`group relative cursor-pointer overflow-hidden rounded-2xl bg-white dark:bg-[#1E293B] p-5 border shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 ${
+                className={`group relative cursor-pointer overflow-hidden rounded-2xl bg-white dark:bg-slate-800 p-5 border shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 ${
                   isReportSubmittedToday
                     ? 'border-emerald-200/90 dark:border-emerald-900/60 hover:border-emerald-500 dark:hover:border-emerald-400'
                     : 'border-indigo-200/90 dark:border-indigo-900/60 hover:border-indigo-500 dark:hover:border-indigo-400'
@@ -1076,7 +1076,7 @@ export default function Dashboard({
           MANAGER VIEW: SUPERVISOR ZONAL REGISTRATION PERFORMANCE CHART
          ============================================================ */}
       {isManager && (
-        <Card className="bg-white dark:bg-[#1E293B] border border-slate-200/90 dark:border-[#334155] shadow-xs">
+        <Card className="bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700 shadow-xs">
           <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 gap-2">
             <div>
               <CardTitle className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
@@ -1107,7 +1107,7 @@ export default function Dashboard({
               <div className="space-y-4">
                 {/* Summary Badges */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  <div className="bg-slate-50 dark:bg-[#0F172A] p-3 rounded-xl border border-slate-100 dark:border-slate-800">
+                  <div className="bg-slate-50 dark:bg-slate-900 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
                     <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Top Performing Zone</p>
                     <p className="text-sm font-bold text-slate-900 dark:text-white mt-0.5 truncate">
                       {supervisorZonePerformanceData[0]?.zone || '—'}
@@ -1116,14 +1116,14 @@ export default function Dashboard({
                       {supervisorZonePerformanceData[0]?.name} ({supervisorZonePerformanceData[0]?.registrations} records)
                     </p>
                   </div>
-                  <div className="bg-slate-50 dark:bg-[#0F172A] p-3 rounded-xl border border-slate-100 dark:border-slate-800">
+                  <div className="bg-slate-50 dark:bg-slate-900 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
                     <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Active Supervisors</p>
                     <p className="text-sm font-bold text-slate-900 dark:text-white mt-0.5">
                       {supervisorZonePerformanceData.length} Supervisors
                     </p>
                     <p className="text-xs text-slate-400">Across all operational zones</p>
                   </div>
-                  <div className="col-span-2 sm:col-span-1 bg-slate-50 dark:bg-[#0F172A] p-3 rounded-xl border border-slate-100 dark:border-slate-800">
+                  <div className="col-span-2 sm:col-span-1 bg-slate-50 dark:bg-slate-900 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
                     <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Zonal Intake</p>
                     <p className="text-sm font-bold text-slate-900 dark:text-white mt-0.5">
                       {supervisorZonePerformanceData.reduce((sum, s) => sum + s.registrations, 0)} Registrations
@@ -1160,7 +1160,7 @@ export default function Dashboard({
                           if (active && payload && payload.length) {
                             const data = payload[0].payload;
                             return (
-                              <div className="bg-white dark:bg-[#1E293B] p-3 rounded-xl border border-slate-200 dark:border-[#334155] shadow-lg text-xs">
+                              <div className="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 shadow-lg text-xs">
                                 <p className="font-bold text-slate-900 dark:text-white">{data.name}</p>
                                 <p className="text-slate-500 dark:text-slate-400 text-[11px] mb-1.5">Zone: <span className="font-medium text-slate-700 dark:text-slate-200">{data.zone}</span></p>
                                 <div className="space-y-0.5 border-t border-slate-100 dark:border-slate-800 pt-1.5">
@@ -1230,8 +1230,8 @@ export default function Dashboard({
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-50 dark:bg-[#0F172A] border-b border-slate-200 dark:border-[#334155]">
-                    <tr className="border-b border-slate-200 dark:border-[#334155] text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-200">
+                  <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
+                    <tr className="border-b border-slate-200 dark:border-slate-700 text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-200">
                       <th className="py-3.5 pl-6 pr-3">Rank</th>
                       <th className="py-3.5 px-4">Officer</th>
                       <th className="py-3.5 px-4">Woreda / Territory</th>
@@ -1301,7 +1301,7 @@ export default function Dashboard({
         ) : officerDetail ? (
           <div className="space-y-5 py-2">
             {/* Officer Header Card */}
-            <div className="p-4 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-slate-200/80 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h4 className="text-base font-bold text-slate-900 dark:text-[#F8FAFC]">{officerDetail.officer.fullName}</h4>
                 <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400 mt-1 flex-wrap">
@@ -1329,19 +1329,19 @@ export default function Dashboard({
 
             {/* Officer KPI Metrics */}
             <div className="grid grid-cols-3 gap-3">
-              <div className="p-3 bg-white dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155] shadow-2xs text-center">
+              <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-2xs text-center">
                 <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 block">Citizens Registered</span>
                 <span className="text-lg font-bold text-slate-900 dark:text-white mt-0.5 block">
                   {officerDetail.metrics.citizensRegistered}
                 </span>
               </div>
-              <div className="p-3 bg-white dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155] shadow-2xs text-center">
+              <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-2xs text-center">
                 <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 block">Screen Time</span>
                 <span className="text-lg font-bold text-teal-700 dark:text-teal-400 mt-0.5 block">
                   {officerDetail.metrics.totalScreenTimeFormatted}
                 </span>
               </div>
-              <div className="p-3 bg-white dark:bg-[#0F172A] rounded-xl border border-slate-200 dark:border-[#334155] shadow-2xs text-center">
+              <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-2xs text-center">
                 <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 block">Reports Submitted</span>
                 <span className="text-lg font-bold text-indigo-700 dark:text-indigo-400 mt-0.5 block">
                   {officerDetail.metrics.reportsCount}
@@ -1355,13 +1355,13 @@ export default function Dashboard({
                 Recent Daily Work Reports
               </h5>
               {(!officerDetail.recentReports || officerDetail.recentReports.length === 0) ? (
-                <div className="text-center py-6 text-xs text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-[#0F172A] rounded-xl border border-dashed border-slate-200 dark:border-[#334155]">
+                <div className="text-center py-6 text-xs text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-900 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">
                   No daily work reports submitted yet
                 </div>
               ) : (
-                <div className="border border-slate-200 dark:border-[#334155] rounded-xl overflow-hidden">
+                <div className="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
                   <table className="w-full text-left text-xs">
-                    <thead className="bg-slate-50/90 dark:bg-[#0F172A] border-b border-slate-200 dark:border-[#334155] text-slate-600 dark:text-slate-200 font-bold uppercase tracking-wider text-[11px]">
+                    <thead className="bg-slate-50/90 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-200 font-bold uppercase tracking-wider text-[11px]">
                       <tr>
                         <th className="py-2.5 px-3">Date</th>
                         <th className="py-2.5 px-3 text-right">Registrations</th>

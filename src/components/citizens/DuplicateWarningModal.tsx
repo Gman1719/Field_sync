@@ -21,7 +21,7 @@ export default function DuplicateWarningModal({
       aria-modal="true"
       className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/65 dark:bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
     >
-      <div className="bg-white dark:bg-gradient-to-b dark:from-[#1C1410] dark:to-[#140E0B] rounded-2xl sm:rounded-3xl max-w-2xl w-full shadow-[0_25px_60px_-15px_rgba(15,23,42,0.18),0_0_1px_1px_rgba(15,23,42,0.06)] dark:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85),inset_0_1px_0_0_rgba(255,255,255,0.08)] border border-rose-200/90 dark:border-rose-900/60 overflow-hidden animate-in zoom-in-95 duration-200">
+      <div className="bg-white dark:bg-gradient-to-b dark:from-slate-900 dark:to-slate-900 rounded-2xl sm:rounded-3xl max-w-2xl w-full shadow-[0_25px_60px_-15px_rgba(15,23,42,0.18),0_0_1px_1px_rgba(15,23,42,0.06)] dark:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85),inset_0_1px_0_0_rgba(255,255,255,0.08)] border border-rose-200/90 dark:border-rose-900/60 overflow-hidden animate-in zoom-in-95 duration-200">
         {/* Header */}
         <div className="px-6 py-5 bg-rose-50/80 dark:bg-rose-950/30 border-b border-rose-100 dark:border-rose-900/40 flex items-start gap-4">
           <div className="w-10 h-10 rounded-2xl bg-rose-600 text-white flex items-center justify-center shrink-0 shadow-sm">
@@ -40,7 +40,7 @@ export default function DuplicateWarningModal({
         {/* Content */}
         <div className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
           {/* Policy Guidance Alert */}
-          <div className="p-4 bg-slate-50/80 dark:bg-[#17100D] border border-slate-200/80 dark:border-[#2F211A] rounded-2xl text-xs space-y-1">
+          <div className="p-4 bg-slate-50/80 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/60 rounded-2xl text-xs space-y-1">
             <span className="font-bold flex items-center gap-1.5 text-slate-800 dark:text-white">
               <ShieldAlert className="w-4 h-4 text-rose-600 dark:text-rose-400" />
               National Identity Anti-Duplication Rule:
@@ -52,7 +52,7 @@ export default function DuplicateWarningModal({
 
           {/* Match Reasons */}
           <div className="space-y-1.5">
-            <span className="text-xs font-bold text-slate-700 dark:text-[#E8DDD7] uppercase tracking-wider">
+            <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
               Duplicate Detection Triggers:
             </span>
             <ul className="space-y-1.5">
@@ -79,20 +79,20 @@ export default function DuplicateWarningModal({
                 <Badge variant="error">Duplicate Blocked</Badge>
               </div>
 
-              <div className="space-y-1.5 text-slate-700 dark:text-[#E8DDD7]">
+              <div className="space-y-1.5 text-slate-700 dark:text-slate-300">
                 <div className="font-bold text-sm text-slate-900 dark:text-white">
                   {[candidate.firstName, candidate.middleName, candidate.lastName].filter(Boolean).join(' ')}
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <User className="w-3.5 h-3.5 text-slate-400 dark:text-[#A8988B]" />
+                  <User className="w-3.5 h-3.5 text-slate-400 dark:text-slate-400" />
                   <span>{candidate.gender} • {candidate.age ? `${candidate.age} yrs` : (candidate.dateOfBirth || 'Age unrecorded')}</span>
                 </div>
                 <div className="flex items-center gap-1.5 font-mono">
-                  <Phone className="w-3.5 h-3.5 text-slate-400 dark:text-[#A8988B]" />
+                  <Phone className="w-3.5 h-3.5 text-slate-400 dark:text-slate-400" />
                   <span>{formatEthiopianPhone(candidate.phoneNumber)}</span>
                 </div>
                 <div className="flex items-start gap-1.5 pt-1">
-                  <MapPin className="w-3.5 h-3.5 text-slate-400 dark:text-[#A8988B] shrink-0 mt-0.5" />
+                  <MapPin className="w-3.5 h-3.5 text-slate-400 dark:text-slate-400 shrink-0 mt-0.5" />
                   <span>
                     {[candidate.regionName, candidate.zoneName, candidate.woredaName, candidate.kebeleName, candidate.village].filter(Boolean).join(' > ')}
                   </span>
@@ -102,33 +102,33 @@ export default function DuplicateWarningModal({
 
             {/* Existing Matching Record in Database */}
             {primaryMatch && (
-              <div className="p-4 rounded-2xl border border-slate-200/80 dark:border-[#2F211A] bg-slate-50/80 dark:bg-[#17100D] space-y-2">
+              <div className="p-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 bg-slate-50/80 dark:bg-slate-800 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-600 dark:text-[#BFA89B] uppercase tracking-wider text-[11px]">
+                  <span className="font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider text-[11px]">
                     Already In Database
                   </span>
                   <Badge variant="primary">Canonical Record</Badge>
                 </div>
 
-                <div className="space-y-1.5 text-slate-700 dark:text-[#E8DDD7]">
+                <div className="space-y-1.5 text-slate-700 dark:text-slate-300">
                   <div className="font-bold text-sm text-slate-900 dark:text-white">
                     {[primaryMatch.firstName, primaryMatch.middleName, primaryMatch.lastName].filter(Boolean).join(' ')}
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <User className="w-3.5 h-3.5 text-slate-400 dark:text-[#A8988B]" />
+                    <User className="w-3.5 h-3.5 text-slate-400 dark:text-slate-400" />
                     <span>{primaryMatch.gender} • {primaryMatch.age ? `${primaryMatch.age} yrs` : (primaryMatch.dateOfBirth || 'Age unrecorded')}</span>
                   </div>
                   <div className="flex items-center gap-1.5 font-mono">
-                    <Phone className="w-3.5 h-3.5 text-slate-400 dark:text-[#A8988B]" />
+                    <Phone className="w-3.5 h-3.5 text-slate-400 dark:text-slate-400" />
                     <span>{formatEthiopianPhone(primaryMatch.phoneNumber)}</span>
                   </div>
                   <div className="flex items-start gap-1.5 pt-1">
-                    <MapPin className="w-3.5 h-3.5 text-slate-400 dark:text-[#A8988B] shrink-0 mt-0.5" />
+                    <MapPin className="w-3.5 h-3.5 text-slate-400 dark:text-slate-400 shrink-0 mt-0.5" />
                     <span>
                       {[primaryMatch.regionName || primaryMatch.region, primaryMatch.zoneName || primaryMatch.zone, primaryMatch.woredaName || primaryMatch.woreda, primaryMatch.kebeleName || primaryMatch.kebele, primaryMatch.village].filter(Boolean).join(' > ') || 'Address recorded'}
                     </span>
                   </div>
-                  <div className="text-[11px] text-slate-400 dark:text-[#A8988B] font-mono pt-1 truncate">
+                  <div className="text-[11px] text-slate-400 dark:text-slate-400 font-mono pt-1 truncate">
                     ID: {primaryMatch.clientRecordId || primaryMatch.id}
                   </div>
                 </div>
@@ -138,7 +138,7 @@ export default function DuplicateWarningModal({
         </div>
 
         {/* Footer Actions */}
-        <div className="px-6 py-4 bg-slate-50/90 dark:bg-[#120C0A]/95 backdrop-blur-sm border-t border-slate-100 dark:border-[#2C1D16] flex justify-end rounded-b-2xl sm:rounded-b-3xl">
+        <div className="px-6 py-4 bg-slate-50/90 dark:bg-slate-900/95 backdrop-blur-sm border-t border-slate-100 dark:border-slate-800 flex justify-end rounded-b-2xl sm:rounded-b-3xl">
           <Button
             type="button"
             variant="primary"
