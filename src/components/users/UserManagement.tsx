@@ -947,7 +947,7 @@ export default function UserManagement({
               variant="secondary"
               onClick={() => setShowAddModal(false)}
               disabled={isSubmitting}
-              className="dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
+              className="dark:bg-slate-700 dark:hover:bg-slate-600 dark:border-slate-600 dark:text-slate-100"
             >
               Cancel
             </Button>

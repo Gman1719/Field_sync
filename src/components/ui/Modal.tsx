@@ -61,7 +61,7 @@ export default function Modal({
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-slate-950/60 dark:bg-black/75 backdrop-blur-sm transition-opacity animate-in fade-in duration-200"
+        className="fixed inset-0 bg-slate-950/40 dark:bg-slate-950/65 backdrop-blur-md transition-opacity animate-in fade-in duration-200"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -69,7 +69,7 @@ export default function Modal({
       {/* Dialog Positioning Wrapper */}
       <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-6">
         <div
-          className={`relative transform overflow-hidden rounded-2xl sm:rounded-2xl bg-white dark:bg-slate-800 text-left shadow-[0_20px_60px_-10px_rgba(15,23,42,0.2),0_0_0_1px_rgba(15,23,42,0.05)] dark:shadow-[0_24px_64px_-12px_rgba(0,0,0,0.8),0_0_0_1px_rgba(255,255,255,0.05)] border border-slate-200/80 dark:border-slate-700 transition-all sm:my-8 w-full ${
+          className={`relative transform overflow-hidden rounded-2xl sm:rounded-2xl bg-white dark:bg-slate-800 text-left shadow-[0_20px_60px_-10px_rgba(15,23,42,0.2),0_0_0_1px_rgba(15,23,42,0.05)] dark:shadow-[0_24px_64px_-12px_rgba(0,0,0,0.8),0_0_0_1px_rgba(255,255,255,0.08)] border border-slate-200/80 dark:border-slate-700 transition-all sm:my-8 w-full ${
             maxWidth || sizes[size] || sizes.md
           } ${className} animate-in zoom-in-95 fade-in duration-200 ease-out`}
           onClick={(e) => e.stopPropagation()}
@@ -96,7 +96,7 @@ export default function Modal({
                 type="button"
                 onClick={onClose}
                 aria-label="Close dialog"
-                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-700 border border-transparent dark:border-slate-700 transition-all duration-150 shrink-0 cursor-pointer"
+                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 dark:text-slate-200 dark:hover:text-white bg-slate-100 hover:bg-slate-200 dark:bg-slate-700/80 dark:hover:bg-slate-600 border border-transparent dark:border-slate-600 transition-all duration-150 shrink-0 cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -109,7 +109,7 @@ export default function Modal({
               type="button"
               onClick={onClose}
               aria-label="Close dialog"
-              className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-700 border border-transparent dark:border-slate-700 transition-all duration-150 cursor-pointer"
+              className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 dark:text-slate-200 dark:hover:text-white bg-slate-100 hover:bg-slate-200 dark:bg-slate-700/80 dark:hover:bg-slate-600 border border-transparent dark:border-slate-600 transition-all duration-150 cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>

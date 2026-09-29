@@ -559,8 +559,9 @@ export default function AlertManagement({ alerts = [], setAlerts, users = [], us
             <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-700">
               <Button
                 type="button"
-                variant="ghost"
+                variant="outline"
                 onClick={() => setShowModal(false)}
+                className="dark:text-slate-200 dark:border-slate-700"
               >
                 Cancel
               </Button>

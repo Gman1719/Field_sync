@@ -64,7 +64,7 @@ export default function ConfirmDialog({
         </div>
         <div className="min-w-0 pt-0.5">
           <h4 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">{title}</h4>
-          {message && <p className="text-sm text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed">{message}</p>}
+          {message && <p className="text-sm text-slate-600 dark:text-slate-300 mt-1.5 leading-relaxed">{message}</p>}
         </div>
       </div>
     </Modal>

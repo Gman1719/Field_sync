@@ -151,7 +151,7 @@ export default function UserEditModal({ user, isOpen, onClose, onUserUpdated }: 
     >
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* User Summary Card */}
-        <div className="p-3.5 bg-slate-50/80 dark:bg-slate-800/60 rounded-xl border border-slate-200/80 dark:border-slate-700/70 flex items-center justify-between">
+        <div className="p-3.5 bg-slate-50/80 dark:bg-slate-900/70 rounded-xl border border-slate-200/80 dark:border-slate-700/80 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-gradient-to-tr from-blue-700 to-blue-500 text-white flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
               {(user.firstName?.[0] || user.fullName?.[0] || user.name?.[0] || 'U').toUpperCase()}
@@ -175,7 +175,7 @@ export default function UserEditModal({ user, isOpen, onClose, onUserUpdated }: 
 
         {/* Section 1: Full Name */}
         <div className="space-y-2.5">
-          <div className="flex items-center gap-2 pb-1 border-b border-slate-100 dark:border-slate-800">
+          <div className="flex items-center gap-2 pb-1 border-b border-slate-200/80 dark:border-slate-700/80">
             <User className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
             <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
               Full Legal Name
@@ -211,7 +211,7 @@ export default function UserEditModal({ user, isOpen, onClose, onUserUpdated }: 
 
         {/* Section 2: Contact Information */}
         <div className="space-y-2.5">
-          <div className="flex items-center gap-2 pb-1 border-b border-slate-100 dark:border-slate-800">
+          <div className="flex items-center gap-2 pb-1 border-b border-slate-200/80 dark:border-slate-700/80">
             <Phone className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
             <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
               Contact Details

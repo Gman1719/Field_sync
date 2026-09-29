@@ -103,7 +103,7 @@ export default function UserReassignModal({ user, isOpen, onClose, onUserUpdated
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* User Identity Banner */}
-        <div className="p-3.5 bg-slate-50/80 dark:bg-slate-800/60 rounded-xl border border-slate-200/80 dark:border-slate-700/70 flex items-center justify-between">
+        <div className="p-3.5 bg-slate-50/80 dark:bg-slate-900/70 rounded-xl border border-slate-200/80 dark:border-slate-700/80 flex items-center justify-between">
           <div>
             <span className="text-xs font-bold text-slate-900 dark:text-slate-100 block">{user.name}</span>
             <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400">{user.email}</span>
@@ -114,7 +114,7 @@ export default function UserReassignModal({ user, isOpen, onClose, onUserUpdated
         </div>
 
         {/* Current Station vs New Station */}
-        <div className="p-3 bg-slate-50/70 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/70 rounded-xl text-xs space-y-1">
+        <div className="p-3 bg-slate-50/70 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-700/80 rounded-xl text-xs space-y-1">
           <span className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider block text-[10px]">Current Active Jurisdiction:</span>
           <p className="text-slate-800 dark:text-slate-100 font-semibold flex items-center gap-1.5">
             <MapPin className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />

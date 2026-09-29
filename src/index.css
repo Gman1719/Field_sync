@@ -419,8 +419,55 @@ html.dark [role="dialog"] ::-webkit-scrollbar-thumb:hover {
   background: #475569;
 }
 
+/* ============================================================== */
+/* Universal Dark Mode Modal & Dialog Standards                  */
+/* ============================================================== */
 /* Frosted glass backdrop blur support */
 [role="dialog"] [class*="backdrop-blur"] {
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(14px) !important;
+  backdrop-filter: blur(14px) !important;
+}
+
+/* Ensure backdrops are never pitch black or gloomy */
+html.dark [role="dialog"] > div[aria-hidden="true"],
+html.dark [role="dialog"] .fixed.inset-0:not([role="dialog"]) {
+  background-color: rgba(11, 15, 25, 0.65) !important;
+}
+
+/* Modal Shells: Crisp slate-800 elevation with slate-700 border */
+html.dark [role="dialog"] [class*="bg-white"],
+html.dark [role="dialog"] [class*="dark:bg-slate-800"],
+html.dark [role="dialog"] [class*="dark:bg-slate-900"] {
+  border-color: #334155;
+}
+
+/* Modal Titles & Headings: Luminous, high contrast white */
+html.dark [role="dialog"] h1,
+html.dark [role="dialog"] h2,
+html.dark [role="dialog"] h3,
+html.dark [role="dialog"] h4,
+html.dark [role="dialog"] #modal-title {
+  color: #F8FAFC !important;
+}
+
+/* Modal Form Labels: Crisp slate-300 */
+html.dark [role="dialog"] label {
+  color: #CBD5E1 !important;
+  font-weight: 600;
+}
+
+/* Modal Subcards & Inset Containers */
+html.dark [role="dialog"] .p-3.bg-slate-50,
+html.dark [role="dialog"] .p-3\\.5.bg-slate-50,
+html.dark [role="dialog"] .p-4.bg-slate-50,
+html.dark [role="dialog"] .p-5.bg-slate-50 {
+  background-color: #0F172A !important;
+  border-color: #334155 !important;
+}
+
+/* Modal Divider Lines */
+html.dark [role="dialog"] hr,
+html.dark [role="dialog"] .border-t,
+html.dark [role="dialog"] .border-b {
+  border-color: #334155 !important;
 }

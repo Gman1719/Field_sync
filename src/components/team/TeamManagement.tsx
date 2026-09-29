@@ -353,7 +353,7 @@ export default function TeamManagement({
       >
         <div className="space-y-5 text-xs">
           {/* 1. Profile Header Banner */}
-          <div className="p-4 sm:p-5 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="p-4 sm:p-5 bg-slate-50 dark:bg-slate-900/80 rounded-2xl border border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4 min-w-0">
               <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#1E3A8A] to-[#2563EB] text-white flex items-center justify-center font-extrabold text-xl shadow-md shrink-0">
                 {initials}
@@ -363,7 +363,7 @@ export default function TeamManagement({
                   {selectedOfficer.name || selectedOfficer.fullName}
                 </h3>
                 <div className="flex flex-wrap items-center gap-2 mt-1">
-                  <span className="text-xs font-mono font-bold text-[#2563EB] dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 border border-blue-200/60 dark:border-blue-900/60 px-2 py-0.5 rounded-md">
+                  <span className="text-xs font-mono font-bold text-[#2563EB] dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 border border-blue-200/60 dark:border-blue-800/80 px-2 py-0.5 rounded-md">
                     ID: {officerId}
                   </span>
                 </div>
@@ -384,20 +384,20 @@ export default function TeamManagement({
 
           {/* 2. Personal & Contact Information */}
           <div className="space-y-2.5">
-            <h4 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+            <h4 className="text-xs font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
               <User className="w-3.5 h-3.5 text-[#2563EB] dark:text-blue-400" />
               Personal & Contact Details
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-              <div className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/60 rounded-xl">
-                <span className="text-slate-400 dark:text-slate-500 block text-[11px] mb-1">Ethiopian Name</span>
+              <div className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl">
+                <span className="text-slate-400 dark:text-slate-400 block text-[11px] mb-1">Ethiopian Name</span>
                 <span className="font-semibold text-slate-900 dark:text-white">
                   {[selectedOfficer.firstName, selectedOfficer.middleName, selectedOfficer.lastName].filter(Boolean).join(' ') || selectedOfficer.name || selectedOfficer.fullName}
                 </span>
               </div>
-              <div className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/60 rounded-xl flex items-center justify-between">
+              <div className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl flex items-center justify-between">
                 <div className="min-w-0 pr-2">
-                  <span className="text-slate-400 dark:text-slate-500 block text-[11px] mb-1">Phone Number</span>
+                  <span className="text-slate-400 dark:text-slate-400 block text-[11px] mb-1">Phone Number</span>
                   <span className="font-semibold text-slate-900 dark:text-white font-mono truncate block">
                     {formatEthiopianPhone(selectedOfficer.phone) || 'Not provided'}
                   </span>
@@ -406,16 +406,16 @@ export default function TeamManagement({
                   <button
                     type="button"
                     onClick={() => copyToClipboard(selectedOfficer.phone, 'Phone')}
-                    className="p-1 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+                    className="p-1 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                     title="Copy Phone"
                   >
                     {copiedField === 'Phone' ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
                   </button>
                 )}
               </div>
-              <div className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/60 rounded-xl flex items-center justify-between">
+              <div className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl flex items-center justify-between">
                 <div className="min-w-0 pr-2">
-                  <span className="text-slate-400 dark:text-slate-500 block text-[11px] mb-1">Email Address</span>
+                  <span className="text-slate-400 dark:text-slate-400 block text-[11px] mb-1">Email Address</span>
                   <span className="font-semibold text-slate-900 dark:text-white truncate block">
                     {selectedOfficer.email || 'Not provided'}
                   </span>
@@ -424,7 +424,7 @@ export default function TeamManagement({
                   <button
                     type="button"
                     onClick={() => copyToClipboard(selectedOfficer.email, 'Email')}
-                    className="p-1 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+                    className="p-1 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                     title="Copy Email"
                   >
                     {copiedField === 'Email' ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
@@ -436,27 +436,27 @@ export default function TeamManagement({
 
           {/* 3. Jurisdictional & Administrative Station */}
           <div className="space-y-2.5">
-            <h4 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+            <h4 className="text-xs font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
               <MapPin className="w-3.5 h-3.5 text-[#2563EB] dark:text-blue-400" />
               Administrative Deployment & Hierarchy
             </h4>
-            <div className="p-4 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 rounded-xl">
+            <div className="p-4 bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 rounded-xl">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/60 rounded-lg">
-                  <span className="text-slate-400 dark:text-slate-500 text-[11px] block">Region</span>
+                <div className="p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg">
+                  <span className="text-slate-400 dark:text-slate-400 text-[11px] block">Region</span>
                   <span className="font-bold text-slate-900 dark:text-white">{selectedOfficer.region || selectedTeam?.region || 'Unassigned'}</span>
                 </div>
-                <div className="p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/60 rounded-lg">
-                  <span className="text-slate-400 dark:text-slate-500 text-[11px] block">Zone / Sub-City</span>
+                <div className="p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg">
+                  <span className="text-slate-400 dark:text-slate-400 text-[11px] block">Zone / Sub-City</span>
                   <span className="font-bold text-slate-900 dark:text-white">{selectedOfficer.zone || selectedTeam?.zone || 'Unassigned'}</span>
                 </div>
-                <div className="p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/60 rounded-lg">
-                  <span className="text-slate-400 dark:text-slate-500 text-[11px] block">Woreda / Field Station</span>
+                <div className="p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg">
+                  <span className="text-slate-400 dark:text-slate-400 text-[11px] block">Woreda / Field Station</span>
                   <span className="font-bold text-slate-900 dark:text-white">{selectedOfficer.woreda || 'Assigned Station'}</span>
                 </div>
-                <div className="p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/60 rounded-lg sm:col-span-3 flex items-center justify-between">
+                <div className="p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg sm:col-span-3 flex items-center justify-between">
                   <div>
-                    <span className="text-slate-400 dark:text-slate-500 text-[11px] block">Direct Assigned Lead Supervisor</span>
+                    <span className="text-slate-400 dark:text-slate-400 text-[11px] block">Direct Assigned Lead Supervisor</span>
                     <span className="font-bold text-[#2563EB] dark:text-blue-400">
                       {directSupervisor}
                     </span>

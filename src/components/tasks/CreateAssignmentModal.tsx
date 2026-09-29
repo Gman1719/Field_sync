@@ -221,25 +221,25 @@ export default function CreateAssignmentModal({
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 bg-slate-950/65 dark:bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 bg-slate-950/40 dark:bg-slate-950/65 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
     >
-      <div className="bg-white dark:bg-gradient-to-b dark:from-slate-900 dark:to-slate-900 rounded-2xl sm:rounded-3xl max-w-xl w-full shadow-[0_25px_60px_-15px_rgba(15,23,42,0.18),0_0_1px_1px_rgba(15,23,42,0.06)] dark:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85),inset_0_1px_0_0_rgba(255,255,255,0.08)] border border-slate-200/90 dark:border-slate-700 overflow-hidden animate-in zoom-in-95 duration-200">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl sm:rounded-3xl max-w-xl w-full shadow-2xl border border-slate-200/90 dark:border-slate-700 overflow-hidden animate-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className="px-6 py-5 bg-slate-50/80 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <div className="px-6 py-5 bg-slate-50/80 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#1E3A8A] text-white flex items-center justify-center shrink-0 shadow-xs">
+            <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
               <Briefcase className="w-4 h-4" />
             </div>
             <div>
               <h3 className="font-bold text-slate-900 dark:text-white text-base tracking-tight">Create Fieldwork Assignment</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Deploy registration target to Field Officer</p>
+              <p className="text-xs text-slate-500 dark:text-slate-300 mt-0.5">Deploy registration target to Field Officer</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close dialog"
-            className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white bg-slate-100/70 hover:bg-slate-200/80 dark:bg-slate-800 dark:hover:bg-slate-700 border border-transparent dark:border-slate-700 transition-all duration-150 shrink-0"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 dark:text-slate-200 dark:hover:text-white bg-slate-100/70 hover:bg-slate-200/80 dark:bg-slate-700/80 dark:hover:bg-slate-600 border border-transparent dark:border-slate-600 transition-all duration-150 shrink-0 cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -381,7 +381,7 @@ export default function CreateAssignmentModal({
           </div>
 
           {/* Docked Modern Footer */}
-          <div className="px-6 py-4 bg-slate-50/90 dark:bg-slate-900/95 backdrop-blur-sm border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-3 rounded-b-2xl sm:rounded-b-3xl">
+          <div className="px-6 py-4 bg-slate-50/90 dark:bg-slate-900/80 backdrop-blur-sm border-t border-slate-100 dark:border-slate-700 flex items-center justify-end gap-3 rounded-b-2xl sm:rounded-b-3xl">
             <Button
               type="button"
               variant="outline"

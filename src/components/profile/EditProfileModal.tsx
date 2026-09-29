@@ -389,7 +389,7 @@ export default function EditProfileModal({ isOpen, onClose, user, onProfileUpdat
             variant="outline"
             onClick={onClose}
             disabled={isSubmitting}
-            className="dark:text-slate-300 dark:border-slate-700 dark:hover:bg-[#0F172A]"
+            className="dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700/60"
           >
             Cancel
           </Button>

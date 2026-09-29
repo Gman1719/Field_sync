@@ -397,16 +397,16 @@ export default function MainLayout({
             <div
               role="dialog"
               aria-modal="true"
-              className="fixed inset-0 z-50 bg-slate-950/65 dark:bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
+              className="fixed inset-0 z-50 bg-slate-950/40 dark:bg-slate-950/65 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
               onClick={() => setShowSyncLog(false)}
             >
               <div
-                className="bg-white dark:bg-gradient-to-b dark:from-slate-900 dark:to-slate-900 rounded-2xl sm:rounded-3xl max-w-lg w-full shadow-[0_25px_60px_-15px_rgba(15,23,42,0.18),0_0_1px_1px_rgba(15,23,42,0.06)] dark:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85),inset_0_1px_0_0_rgba(255,255,255,0.08)] border border-slate-200/90 dark:border-slate-700 overflow-hidden animate-in zoom-in-95 duration-200"
+                className="bg-white dark:bg-slate-800 rounded-2xl sm:rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200/90 dark:border-slate-700 overflow-hidden animate-in zoom-in-95 duration-200"
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
                   <div className="flex items-center gap-2.5 text-slate-900 dark:text-white font-bold text-base tracking-tight">
-                    <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-[#2563EB] dark:text-blue-400 flex items-center justify-center shrink-0">
+                    <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
                       <RefreshCw className="w-4 h-4" />
                     </div>
                     <span>Sync Activity Log</span>
@@ -414,18 +414,18 @@ export default function MainLayout({
                   <button
                     type="button"
                     aria-label="Close dialog"
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white bg-slate-100/70 hover:bg-slate-200/80 dark:bg-slate-800 dark:hover:bg-slate-700 border border-transparent dark:border-slate-700 transition-all duration-150"
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 dark:text-slate-200 dark:hover:text-white bg-slate-100/70 hover:bg-slate-200/80 dark:bg-slate-700/80 dark:hover:bg-slate-600 border border-transparent dark:border-slate-600 transition-all duration-150 cursor-pointer"
                     onClick={() => setShowSyncLog(false)}
                   >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
-                <div className="p-6 max-h-96 overflow-y-auto font-mono text-xs text-slate-700 dark:text-slate-300 space-y-2">
+                <div className="p-6 max-h-96 overflow-y-auto font-mono text-xs text-slate-700 dark:text-slate-200 space-y-2">
                   {syncLog.length === 0 ? (
                     <div className="text-center py-8 text-slate-400 dark:text-slate-400 font-sans">No sync activity recorded yet</div>
                   ) : (
                     syncLog.map((log, i) => (
-                      <div key={i} className="p-3 bg-slate-50/80 dark:bg-slate-800 rounded-xl border border-slate-200/80 dark:border-slate-700/60 break-words">
+                      <div key={i} className="p-3 bg-slate-50/80 dark:bg-slate-900/80 rounded-xl border border-slate-200/80 dark:border-slate-700 break-words">
                         {log}
                       </div>
                     ))

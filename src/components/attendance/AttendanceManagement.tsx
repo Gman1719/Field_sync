@@ -596,7 +596,7 @@ export default function AttendanceManagement({
             rows={2}
           />
 
-          <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
+          <div className="flex justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-700">
             <Button
               variant="outline"
               onClick={() => setShowModal(false)}

@@ -221,7 +221,7 @@ export default function UserRoleModal({ user, isOpen, onClose, onUserUpdated }: 
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* User Card */}
-        <div className="p-3.5 bg-slate-50/80 dark:bg-slate-800/60 rounded-xl border border-slate-200/80 dark:border-slate-700/70 flex items-center justify-between">
+        <div className="p-3.5 bg-slate-50/80 dark:bg-slate-900/70 rounded-xl border border-slate-200/80 dark:border-slate-700/80 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-gradient-to-tr from-blue-700 to-blue-500 text-white flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
               {(user.firstName?.[0] || user.fullName?.[0] || user.name?.[0] || 'U').toUpperCase()}
@@ -256,8 +256,8 @@ export default function UserRoleModal({ user, isOpen, onClose, onUserUpdated }: 
                   onClick={() => setSelectedRole(role.id)}
                   className={`w-full text-left p-3 rounded-lg border transition-all flex flex-col justify-between cursor-pointer ${
                     isSelected
-                      ? 'bg-blue-50/80 dark:bg-blue-950/40 border-blue-500 dark:border-blue-500 shadow-xs ring-2 ring-blue-500/20'
-                      : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-slate-300 dark:hover:border-slate-600'
+                      ? 'bg-blue-50/80 dark:bg-blue-950/50 border-blue-500 dark:border-blue-500 shadow-xs ring-2 ring-blue-500/20'
+                      : 'bg-white dark:bg-slate-900/60 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 dark:hover:bg-slate-900/90'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-2">
@@ -265,7 +265,7 @@ export default function UserRoleModal({ user, isOpen, onClose, onUserUpdated }: 
                       className={`p-2 rounded-lg ${
                         isSelected
                           ? 'bg-blue-600 text-white'
-                          : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
                       }`}
                     >
                       <Icon className="w-4 h-4" />
@@ -300,7 +300,7 @@ export default function UserRoleModal({ user, isOpen, onClose, onUserUpdated }: 
           </div>
 
           {selectedRole === 'manager' ? (
-            <div className="p-4 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl flex items-center gap-3">
+            <div className="p-4 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-xl flex items-center gap-3">
               <Building2 className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" />
               <div>
                 <span className="text-sm font-bold text-slate-800 dark:text-slate-100 block">
@@ -312,7 +312,7 @@ export default function UserRoleModal({ user, isOpen, onClose, onUserUpdated }: 
               </div>
             </div>
           ) : (
-            <div className="p-4 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 rounded-xl space-y-3">
+            <div className="p-4 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-xl space-y-3">
               <p className="text-xs text-slate-500 dark:text-slate-400">
                 {selectedRole === 'supervisor'
                   ? 'Assign the Region and Zone for this Supervisor. Supervisors coordinate all woredas within their assigned Zone.'

@@ -19,9 +19,9 @@ export default function DuplicateWarningModal({
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/65 dark:bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/40 dark:bg-slate-950/65 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
     >
-      <div className="bg-white dark:bg-gradient-to-b dark:from-slate-900 dark:to-slate-900 rounded-2xl sm:rounded-3xl max-w-2xl w-full shadow-[0_25px_60px_-15px_rgba(15,23,42,0.18),0_0_1px_1px_rgba(15,23,42,0.06)] dark:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85),inset_0_1px_0_0_rgba(255,255,255,0.08)] border border-rose-200/90 dark:border-rose-900/60 overflow-hidden animate-in zoom-in-95 duration-200">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl sm:rounded-3xl max-w-2xl w-full shadow-2xl border border-rose-200/90 dark:border-rose-900/60 overflow-hidden animate-in zoom-in-95 duration-200">
         {/* Header */}
         <div className="px-6 py-5 bg-rose-50/80 dark:bg-rose-950/30 border-b border-rose-100 dark:border-rose-900/40 flex items-start gap-4">
           <div className="w-10 h-10 rounded-2xl bg-rose-600 text-white flex items-center justify-center shrink-0 shadow-sm">
@@ -40,12 +40,12 @@ export default function DuplicateWarningModal({
         {/* Content */}
         <div className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
           {/* Policy Guidance Alert */}
-          <div className="p-4 bg-slate-50/80 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/60 rounded-2xl text-xs space-y-1">
+          <div className="p-4 bg-slate-50/80 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 rounded-2xl text-xs space-y-1">
             <span className="font-bold flex items-center gap-1.5 text-slate-800 dark:text-white">
               <ShieldAlert className="w-4 h-4 text-rose-600 dark:text-rose-400" />
               National Identity Anti-Duplication Rule:
             </span>
-            <p className="text-slate-600 dark:text-[#D4C3B7] leading-relaxed">
+            <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
               To prevent fraudulent identity cards and protect national registry integrity, the system validates all demographic and biometric attributes prior to persistence. Saving this duplicate record has been blocked.
             </p>
           </div>
@@ -138,7 +138,7 @@ export default function DuplicateWarningModal({
         </div>
 
         {/* Footer Actions */}
-        <div className="px-6 py-4 bg-slate-50/90 dark:bg-slate-900/95 backdrop-blur-sm border-t border-slate-100 dark:border-slate-800 flex justify-end rounded-b-2xl sm:rounded-b-3xl">
+        <div className="px-6 py-4 bg-slate-50/90 dark:bg-slate-900/80 backdrop-blur-sm border-t border-slate-100 dark:border-slate-700 flex justify-end rounded-b-2xl sm:rounded-b-3xl">
           <Button
             type="button"
             variant="primary"
