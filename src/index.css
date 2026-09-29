@@ -20,12 +20,12 @@
 }
 
 .dark, [data-theme='dark'] {
-  --color-app-bg: #0B0F19;
-  --color-card-bg: #1E293B;
-  --color-card-inset: #0F172A;
-  --color-text-main: #F8FAFC;
-  --color-text-muted: #CBD5E1;
-  --color-border: #334155;
+  --color-app-bg: #22272E;
+  --color-card-bg: #2D333B;
+  --color-card-inset: #282E35;
+  --color-text-main: #ADBAC7;
+  --color-text-muted: #768390;
+  --color-border: #444C56;
   color-scheme: dark;
 }
 
@@ -76,11 +76,11 @@
 
   .dark ::-webkit-scrollbar-thumb,
   [data-theme='dark'] ::-webkit-scrollbar-thumb {
-    background: #334155;
+    background: #444C56;
   }
   .dark ::-webkit-scrollbar-thumb:hover,
   [data-theme='dark'] ::-webkit-scrollbar-thumb:hover {
-    background: #475569;
+    background: #545D68;
   }
 
   /* Prevent blinding white autofill in dark mode */
@@ -89,8 +89,8 @@
   .dark input:-webkit-autofill:focus,
   .dark textarea:-webkit-autofill,
   .dark select:-webkit-autofill {
-    -webkit-text-fill-color: #F8FAFC;
-    -webkit-box-shadow: 0 0 0px 1000px #1E293B inset;
+    -webkit-text-fill-color: #ADBAC7;
+    -webkit-box-shadow: 0 0 0px 1000px #313A46 inset;
     transition: background-color 5000s ease-in-out 0s;
   }
 
@@ -111,19 +111,19 @@
 
   .dark table thead,
   [data-theme='dark'] table thead {
-    background-color: #1E293B !important;
-    border-bottom: 1px solid #334155 !important;
+    background-color: #282E35 !important;
+    border-bottom: 1px solid #444C56 !important;
   }
   .dark table thead tr,
   [data-theme='dark'] table thead tr {
-    background-color: #1E293B !important;
-    border-color: #334155 !important;
+    background-color: #282E35 !important;
+    border-color: #444C56 !important;
   }
   .dark table thead th,
   [data-theme='dark'] table thead th {
-    background-color: #1E293B !important;
-    color: #94A3B8 !important;
-    border-color: #334155 !important;
+    background-color: #282E35 !important;
+    color: #8B949E !important;
+    border-color: #444C56 !important;
     font-size: 0.75rem !important;
   }
 }
@@ -133,15 +133,15 @@
 /* ============================================================== */
 html.dark aside,
 html[data-theme='dark'] aside {
-  background-color: #0F172A !important;
-  border-right-color: #1E293B !important;
+  background-color: #1C2128 !important;
+  border-right-color: #444C56 !important;
 }
 
 /* Header Navigation Bar */
 html.dark header,
 html[data-theme='dark'] header {
-  background-color: #0F172A !important;
-  border-bottom-color: #1E293B !important;
+  background-color: #1C2128 !important;
+  border-bottom-color: #444C56 !important;
 }
 
 /* ============================================================== */
@@ -149,82 +149,80 @@ html[data-theme='dark'] header {
 /* ============================================================== */
 html.dark,
 html[data-theme='dark'] {
-  background-color: #0B0F19 !important;
+  background-color: #22272E !important;
   color-scheme: dark;
 }
 
 html.dark body,
 html[data-theme='dark'] body {
-  background-color: #0B0F19 !important;
-  color: #F8FAFC !important;
+  background-color: #22272E !important;
+  color: #ADBAC7 !important;
 }
 
 html.dark .min-h-screen,
 html[data-theme='dark'] .min-h-screen,
 html.dark main,
 html.dark .lg\:pl-64 {
-  background-color: #0B0F19 !important;
+  background-color: #22272E !important;
 }
 
 /* ============================================================== */
 /* Universal Card Elevation in Dark Mode                          */
 /* ============================================================== */
 
-/* Elevate white/light cards in dark mode to clean Slate-800 surfaces */
+/* Cards: warm charcoal surface */
 html.dark .bg-white:not(input):not(select):not(textarea),
 html[data-theme='dark'] .bg-white:not(input):not(select):not(textarea) {
-  background-color: #1E293B !important;
+  background-color: #2D333B !important;
 }
 
-/* Any cards previously marked with dark:bg-slate-900 are lifted to #1E293B */
 html.dark .dark\:bg-slate-900:not(body):not(main):not(.min-h-screen):not(input):not(select):not(textarea):not(thead):not(tr):not(th),
 html[data-theme='dark'] .dark\:bg-slate-900:not(body):not(main):not(.min-h-screen):not(input):not(select):not(textarea):not(thead):not(tr):not(th) {
-  background-color: #1E293B !important;
+  background-color: #2D333B !important;
 }
 
-/* Rounded containers and cards get crisp slate-700 borders */
+/* Card borders */
 html.dark .rounded-2xl.border,
 html.dark .rounded-xl.border,
 html[data-theme='dark'] .rounded-2xl.border,
 html[data-theme='dark'] .rounded-xl.border {
-  border-color: #334155 !important;
+  border-color: #444C56 !important;
 }
 
-/* Inner inset sub-containers (e.g. supervisor boxes, officer rows, stat widgets) */
+/* Inner inset sub-containers */
 html.dark .bg-slate-50:not(input):not(select):not(textarea),
 html[data-theme='dark'] .bg-slate-50:not(input):not(select):not(textarea) {
-  background-color: #0F172A !important;
-  border-color: #334155 !important;
+  background-color: #282E35 !important;
+  border-color: #444C56 !important;
 }
 
-/* Upgrade faint/semi-transparent borders to crisp #334155 */
+/* Faint borders */
 html.dark [class*="border-slate-700/"],
 html.dark [class*="border-slate-800/"],
 html[data-theme='dark'] [class*="border-slate-700/"],
 html[data-theme='dark'] [class*="border-slate-800/"] {
-  border-color: #334155 !important;
+  border-color: #444C56 !important;
 }
 
-/* Universal Text Visibility in Dark Mode */
+/* Universal Text — GitHub dim scale */
 html.dark .text-slate-900,
 html[data-theme='dark'] .text-slate-900 {
-  color: #F8FAFC !important;
+  color: #CDD9E5 !important;
 }
 
 html.dark .text-slate-800,
 html[data-theme='dark'] .text-slate-800 {
-  color: #F1F5F9 !important;
+  color: #ADBAC7 !important;
 }
 
 html.dark .text-slate-700,
 html[data-theme='dark'] .text-slate-700 {
-  color: #E2E8F0 !important;
+  color: #ADBAC7 !important;
 }
 
-/* Elevate murky slate-500/slate-600 to easily readable slate-400 and slate-300 */
 html.dark .text-slate-600,
 html[data-theme='dark'] .text-slate-600 {
-  color: #CBD5E1 !important;
+  color: #909DAB !important;
 }
 
 html.dark .text-slate-500,
@@ -233,36 +231,36 @@ html.dark .dark\:text-slate-600,
 html[data-theme='dark'] .text-slate-500,
 html[data-theme='dark'] .dark\:text-slate-500,
 html[data-theme='dark'] .dark\:text-slate-600 {
-  color: #94A3B8 !important;
+  color: #768390 !important;
 }
 
 html.dark .text-slate-400,
 html.dark .dark\:text-slate-400,
 html[data-theme='dark'] .text-slate-400,
 html[data-theme='dark'] .dark\:text-slate-400 {
-  color: #CBD5E1 !important;
+  color: #909DAB !important;
 }
 
 /* ============================================================== */
 /* Table Rows: Professional Slate Dark                            */
 /* ============================================================== */
 html.dark table tbody tr {
-  background-color: #1E293B !important;
-  border-color: #334155 !important;
+  background-color: #2D333B !important;
+  border-color: #444C56 !important;
 }
 
 html.dark table tbody tr:hover {
-  background-color: #273549 !important;
+  background-color: #353B44 !important;
 }
 
 html.dark table tbody tr:nth-child(even),
 html.dark table tbody tr.bg-slate-50\/40,
 html.dark table tbody tr[class*="bg-slate-50"] {
-  background-color: #162032 !important;
+  background-color: #282E35 !important;
 }
 
 html.dark table tbody tr:nth-child(even):hover {
-  background-color: #243144 !important;
+  background-color: #323840 !important;
 }
 
 /* Light Theme Stable Rows */
@@ -286,14 +284,9 @@ table tbody tr[class*="bg-slate-50"] {
 input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="submit"]):not([type="button"]):not([class*="bg-transparent"]),
 select:not([class*="bg-transparent"]),
 textarea:not([class*="bg-transparent"]) {
-  font-size: 0.875rem !important;
-  border-radius: 0.5rem !important;
-  transition: all 0.15s ease-in-out !important;
-}
-
-input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="submit"]):not([type="button"]):not([class*="bg-transparent"]),
-select:not([class*="bg-transparent"]),
-textarea:not([class*="bg-transparent"]) {
+  font-size: 0.875rem;
+  border-radius: 0.5rem;
+  transition: all 0.15s ease-in-out;
   background-color: #FFFFFF;
   border: 1px solid #CBD5E1;
   color: #0F172A;
@@ -302,66 +295,66 @@ textarea:not([class*="bg-transparent"]) {
 
 input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="submit"]):not([type="button"]):not([class*="bg-transparent"])::placeholder,
 textarea:not([class*="bg-transparent"])::placeholder {
-  color: #94A3B8 !important;
-  opacity: 1 !important;
+  color: #94A3B8;
+  opacity: 1;
 }
 
 input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="submit"]):not([type="button"]):not([class*="bg-transparent"]):hover,
 select:not([class*="bg-transparent"]):hover,
 textarea:not([class*="bg-transparent"]):hover {
-  border-color: #94A3B8 !important;
+  border-color: #94A3B8;
 }
 
 input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="submit"]):not([type="button"]):not([class*="bg-transparent"]):focus,
 select:not([class*="bg-transparent"]):focus,
 textarea:not([class*="bg-transparent"]):focus {
-  border-color: #2563EB !important;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
-  outline: none !important;
+  border-color: #2563EB;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  outline: none;
 }
 
-/* Dark Theme Form Controls: Sleek Slate */
-html.dark main input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="submit"]):not([type="button"]):not([class*="bg-transparent"]),
-html.dark main select:not([class*="bg-transparent"]),
-html.dark main textarea:not([class*="bg-transparent"]),
-html.dark [role="dialog"] input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="submit"]):not([type="button"]):not([class*="bg-transparent"]),
-html.dark [role="dialog"] select:not([class*="bg-transparent"]),
-html.dark [role="dialog"] textarea:not([class*="bg-transparent"]) {
-  background-color: #1E293B !important;
-  border: 1px solid #334155 !important;
-  color: #F1F5F9 !important;
+/* Dark Theme Form Controls: readable & clearly visible */
+html.dark input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="submit"]):not([type="button"]):not([class*="bg-transparent"]),
+html.dark select:not([class*="bg-transparent"]),
+html.dark textarea:not([class*="bg-transparent"]),
+html[data-theme='dark'] input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="submit"]):not([type="button"]):not([class*="bg-transparent"]),
+html[data-theme='dark'] select:not([class*="bg-transparent"]),
+html[data-theme='dark'] textarea:not([class*="bg-transparent"]) {
+  background-color: #313A46 !important;
+  border: 1px solid #444C56 !important;
+  color: #ADBAC7 !important;
   box-shadow: none !important;
-  border-radius: 0.5rem !important;
 }
 
-html.dark main input::placeholder,
-html.dark main textarea::placeholder,
-html.dark [role="dialog"] input::placeholder,
-html.dark [role="dialog"] textarea::placeholder,
-html.dark ::placeholder {
-  color: #64748B !important;
+html.dark input::placeholder,
+html.dark textarea::placeholder,
+html[data-theme='dark'] input::placeholder,
+html[data-theme='dark'] textarea::placeholder,
+html.dark ::placeholder,
+html[data-theme='dark'] ::placeholder {
+  color: #768390 !important;
   opacity: 1 !important;
   font-weight: 400 !important;
 }
 
-html.dark main input:hover,
-html.dark main select:hover,
-html.dark main textarea:hover,
-html.dark [role="dialog"] input:hover,
-html.dark [role="dialog"] select:hover,
-html.dark [role="dialog"] textarea:hover {
-  border-color: #475569 !important;
+html.dark input:hover,
+html.dark select:hover,
+html.dark textarea:hover,
+html[data-theme='dark'] input:hover,
+html[data-theme='dark'] select:hover,
+html[data-theme='dark'] textarea:hover {
+  border-color: #545D68 !important;
 }
 
-html.dark main input:focus,
-html.dark main select:focus,
-html.dark main textarea:focus,
-html.dark [role="dialog"] input:focus,
-html.dark [role="dialog"] select:focus,
-html.dark [role="dialog"] textarea:focus {
-  background-color: #1E293B !important;
-  border-color: #3B82F6 !important;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;
+html.dark input:focus,
+html.dark select:focus,
+html.dark textarea:focus,
+html[data-theme='dark'] input:focus,
+html[data-theme='dark'] select:focus,
+html[data-theme='dark'] textarea:focus {
+  background-color: #313A46 !important;
+  border-color: #539BF5 !important;
+  box-shadow: 0 0 0 3px rgba(83, 155, 245, 0.2) !important;
   outline: none !important;
 }
 
