@@ -245,7 +245,7 @@ VALUES
     ('u_off', 'FO000', 'Field Officer', 'officer@fieldsync.com', 'Password123!', 'field_officer', 'North', 'active', '+251911000200'),
     ('u_sup', 'SUP000', 'Regional Supervisor', 'supervisor@fieldsync.com', 'Password123!', 'supervisor', 'North', 'active', '+251911000100'),
     ('u_mgr', 'MGR000', 'System Manager', 'manager@fieldsync.com', 'Password123!', 'manager', 'All', 'active', '+251911000000'),
-    ('o1', 'FO001', 'መሠረት አለሙ', 'meseret@fieldsync.com', 'officer123', 'field_officer', 'North', 'active', '+251911000201'),
-    ('s1', 'SUP001', 'ብርሃን ገብረእግዚአብሔር', 'birhan@fieldsync.com', 'super123', 'supervisor', 'North', 'active', '+251911000101'),
-    ('m1', 'MGR001', 'አበበ በቀለ', 'abebe@fieldsync.com', 'manager123', 'manager', 'All', 'active', '+251911000001')
+    ('o1', 'FO001', 'Meseret Alemu', 'meseret@fieldsync.com', 'officer123', 'field_officer', 'North', 'active', '+251911000201'),
+    ('s1', 'SUP001', 'Birhan Alemayehu', 'birhan@fieldsync.com', 'super123', 'supervisor', 'North', 'active', '+251911000101'),
+    ('m1', 'MGR001', 'Abebe Bekele', 'abebe@fieldsync.com', 'manager123', 'manager', 'All', 'active', '+251911000001')
 ON CONFLICT (id) DO NOTHING;

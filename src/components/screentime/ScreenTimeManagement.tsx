@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { API_BASE } from '../../config/api';
 import { getZonedTimeComponents } from '../../config/workingHours';
+import { useUserLanguage } from '../../context/UserLanguageContext';
 
 interface ScreenTimeManagementProps {
   user: any;
@@ -25,6 +26,7 @@ export default function ScreenTimeManagement({
   isManager = false,
   isSupervisor = false,
 }: ScreenTimeManagementProps) {
+  const { userT } = useUserLanguage();
   const { dateStr: todayDateStr } = getZonedTimeComponents();
   const [selectedDate, setSelectedDate] = useState<string>(todayDateStr);
   const [searchQuery, setSearchQuery] = useState('');
@@ -81,10 +83,10 @@ export default function ScreenTimeManagement({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-xs">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-            Officers Screen Time
+            {userT('Officers Screen Time')}
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            Cumulative daily screen time sent with official daily reports
+            {userT('Cumulative daily screen time sent with official daily reports')}
           </p>
         </div>
 
@@ -95,7 +97,7 @@ export default function ScreenTimeManagement({
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Filter by officer..."
+              placeholder={userT('Filter by officer...')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-9 pr-3 py-2 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
@@ -120,16 +122,16 @@ export default function ScreenTimeManagement({
         {isLoading && officers.length === 0 ? (
           <div className="py-16 text-center text-slate-400">
             <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-[#2563EB]" />
-            <p className="text-xs font-medium">Loading officers screen time...</p>
+            <p className="text-xs font-medium">{userT('Loading officers screen time...')}</p>
           </div>
         ) : filteredOfficers.length === 0 ? (
           <div className="py-16 text-center">
             <Users className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
             <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-              No Field Officers Found
+              {userT('No Field Officers Found')}
             </h3>
             <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
-              {searchQuery ? 'Try changing your officer filter' : 'No officers assigned to this territory.'}
+              {searchQuery ? userT('Try changing your officer filter') : userT('No officers assigned to this territory.')}
             </p>
           </div>
         ) : (
@@ -137,11 +139,11 @@ export default function ScreenTimeManagement({
             <table className="w-full text-xs text-left">
               <thead>
                 <tr className="border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/40 text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
-                  <th className="py-3 px-4">Field Officer</th>
-                  <th className="py-3 px-4">Date</th>
-                  <th className="py-3 px-4">Location</th>
-                  <th className="py-3 px-4">Screen Time</th>
-                  <th className="py-3 px-4">Report Status</th>
+                  <th className="py-3 px-4">{userT('Field Officer')}</th>
+                  <th className="py-3 px-4">{userT('Date')}</th>
+                  <th className="py-3 px-4">{userT('Location')}</th>
+                  <th className="py-3 px-4">{userT('Screen Time')}</th>
+                  <th className="py-3 px-4">{userT('Report Status')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
@@ -174,10 +176,10 @@ export default function ScreenTimeManagement({
                       {/* Location */}
                       <td className="py-3.5 px-4 text-slate-600 dark:text-slate-400">
                         <div className="font-medium text-slate-800 dark:text-slate-200">
-                          {off.zone?.name || off.zone || 'Zone'}
+                          {off.zone?.name || off.zone || userT('Zone')}
                         </div>
                         <div className="text-[11px] text-slate-400">
-                          {off.woreda?.name || off.woreda || 'Woreda'}
+                          {off.woreda?.name || off.woreda || userT('Woreda')}
                         </div>
                       </td>
 
@@ -191,12 +193,12 @@ export default function ScreenTimeManagement({
                         {isReportSubmitted ? (
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/40">
                             <CheckCircle2 className="w-3.5 h-3.5" />
-                            Submitted with Report
+                            {userT('Submitted with Report')}
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
                             <Clock className="w-3.5 h-3.5" />
-                            In Progress
+                            {userT('In Progress')}
                           </span>
                         )}
                       </td>

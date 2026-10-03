@@ -12,6 +12,7 @@ import { API_BASE } from '../../config/api';
 import { db } from '../../services/database';
 import { offlineDb } from '../../db/offlineDb';
 import { ActivityLogger } from '../../services/activityLogger';
+import { useUserLanguage } from '../../context/UserLanguageContext';
 
 interface UserEditModalProps {
   user: any;
@@ -21,6 +22,7 @@ interface UserEditModalProps {
 }
 
 export default function UserEditModal({ user, isOpen, onClose, onUserUpdated }: UserEditModalProps) {
+  const { userT } = useUserLanguage();
   const [formData, setFormData] = useState({
     firstName: '',
     middleName: '',
@@ -48,13 +50,13 @@ export default function UserEditModal({ user, isOpen, onClose, onUserUpdated }: 
 
   const validate = () => {
     const errs: Record<string, string> = {};
-    if (!formData.firstName.trim()) errs.firstName = 'First name is required';
-    if (!formData.middleName.trim()) errs.middleName = 'Father name is required';
-    if (!formData.lastName.trim()) errs.lastName = 'Grandfather name is required';
+    if (!formData.firstName.trim()) errs.firstName = userT('First name is required');
+    if (!formData.middleName.trim()) errs.middleName = userT('Father name is required');
+    if (!formData.lastName.trim()) errs.lastName = userT('Grandfather name is required');
 
     if (formData.phone && formData.phone.trim()) {
-      const phoneErr = validateEthiopianPhone(formData.phone.trim(), false, 'Enter 10 digits (09/07...) or +251');
-      if (phoneErr) errs.phone = phoneErr;
+      const phoneErr = validateEthiopianPhone(formData.phone.trim(), false, userT('Enter 10 digits (09/07...) or +251'));
+      if (phoneErr) errs.phone = userT(phoneErr);
     }
 
     setErrors(errs);
@@ -64,7 +66,7 @@ export default function UserEditModal({ user, isOpen, onClose, onUserUpdated }: 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) {
-      toast.error('Please resolve errors in the form');
+      toast.error(userT('Please resolve errors in the form'));
       return;
     }
 
@@ -131,12 +133,12 @@ export default function UserEditModal({ user, isOpen, onClose, onUserUpdated }: 
         });
       } catch (_e) {}
 
-      toast.success('Staff profile updated successfully');
+      toast.success(userT('Staff profile updated successfully'));
       if (onUserUpdated) onUserUpdated(updatedUser);
       onClose();
     } catch (err: any) {
       console.error('Update user error:', err);
-      toast.error(err.message || 'Failed to update user profile');
+      toast.error(err.message ? userT(err.message) : userT('Failed to update user profile'));
     } finally {
       setIsSubmitting(false);
     }
@@ -146,7 +148,7 @@ export default function UserEditModal({ user, isOpen, onClose, onUserUpdated }: 
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Edit Staff Profile"
+      title={userT('Edit Staff Profile')}
       size="md"
     >
       <form onSubmit={handleSubmit} className="space-y-5">
@@ -161,7 +163,7 @@ export default function UserEditModal({ user, isOpen, onClose, onUserUpdated }: 
                 {user.fullName || user.name}
               </span>
               <span className="text-xs text-slate-500 dark:text-slate-400">
-                {user.email} • {user.employeeId || 'ID: ' + user.id?.slice(0, 8)}
+                {user.email} • {user.employeeId || userT('ID:') + ' ' + user.id?.slice(0, 8)}
               </span>
             </div>
           </div>
@@ -169,7 +171,7 @@ export default function UserEditModal({ user, isOpen, onClose, onUserUpdated }: 
             variant={user.role === 'manager' ? 'primary' : user.role === 'supervisor' ? 'info' : 'neutral'}
             className="capitalize text-xs font-semibold"
           >
-            {user.role?.replace('_', ' ')}
+            {userT(user.role?.replace('_', ' ') || '')}
           </Badge>
         </div>
 
@@ -178,33 +180,33 @@ export default function UserEditModal({ user, isOpen, onClose, onUserUpdated }: 
           <div className="flex items-center gap-2 pb-1 border-b border-slate-200/80 dark:border-slate-700/80">
             <User className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
             <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-              Full Legal Name
+              {userT('Full Legal Name')}
             </h4>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
             <Input
-              label="First Name *"
+              label={userT('First Name')}
               value={formData.firstName}
               onChange={(e) => setFormData(p => ({ ...p, firstName: e.target.value }))}
-              placeholder="e.g. Abebe"
+              placeholder={userT('e.g. Abebe')}
               required
-              error={errors.firstName}
+              error={errors.firstName ? userT(errors.firstName) : undefined}
             />
             <Input
-              label="Middle (Father) *"
+              label={userT('Middle Name (Father)')}
               value={formData.middleName}
               onChange={(e) => setFormData(p => ({ ...p, middleName: e.target.value }))}
-              placeholder="e.g. Bikila"
+              placeholder={userT('e.g. Bikila')}
               required
-              error={errors.middleName}
+              error={errors.middleName ? userT(errors.middleName) : undefined}
             />
             <Input
-              label="Last (Grandfather) *"
+              label={userT('Last Name (Grandfather)')}
               value={formData.lastName}
               onChange={(e) => setFormData(p => ({ ...p, lastName: e.target.value }))}
-              placeholder="e.g. Demisse"
+              placeholder={userT('e.g. Demisse')}
               required
-              error={errors.lastName}
+              error={errors.lastName ? userT(errors.lastName) : undefined}
             />
           </div>
         </div>
@@ -214,18 +216,18 @@ export default function UserEditModal({ user, isOpen, onClose, onUserUpdated }: 
           <div className="flex items-center gap-2 pb-1 border-b border-slate-200/80 dark:border-slate-700/80">
             <Phone className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
             <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-              Contact Details
+              {userT('Contact Details')}
             </h4>
           </div>
           <div>
             <Input
-              label="Phone Number"
+              label={userT('Phone Number')}
               type="text"
               value={formData.phone}
               onChange={(e) => setFormData(p => ({ ...p, phone: e.target.value }))}
-              placeholder="09XXXXXXXX or +2519XXXXXXXX"
-              helperText="Ethiopian mobile format (09/07 + 8 digits) or +251"
-              error={errors.phone}
+              placeholder={userT('09XXXXXXXX or +2519XXXXXXXX')}
+              helperText={userT('Ethiopian mobile format (09/07 + 8 digits) or +251')}
+              error={errors.phone ? userT(errors.phone) : undefined}
             />
           </div>
         </div>
@@ -239,7 +241,7 @@ export default function UserEditModal({ user, isOpen, onClose, onUserUpdated }: 
             disabled={isSubmitting}
             className="font-medium text-xs sm:text-sm px-4"
           >
-            Cancel
+            {userT('Cancel')}
           </Button>
           <Button
             type="submit"
@@ -247,7 +249,7 @@ export default function UserEditModal({ user, isOpen, onClose, onUserUpdated }: 
             loading={isSubmitting}
             className="bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs sm:text-sm px-5 shadow-sm shadow-blue-500/20"
           >
-            Save Changes
+            {userT('Save Changes')}
           </Button>
         </div>
       </form>

@@ -1,4 +1,5 @@
 import React, { type HTMLAttributes, type ReactNode } from 'react';
+import { useUserLanguage } from '../../context/UserLanguageContext';
 
 export interface CardProps extends HTMLAttributes<HTMLDivElement> {
   children?: ReactNode;
@@ -31,17 +32,19 @@ export function CardHeader({ children, className = '', ...props }: HTMLAttribute
 }
 
 export function CardTitle({ children, className = '', ...props }: HTMLAttributes<HTMLHeadingElement>) {
+  const { userT } = useUserLanguage();
   return (
     <h3 className={`font-bold text-slate-900 dark:text-white text-base sm:text-lg tracking-tight ${className}`} {...props}>
-      {children}
+      {typeof children === 'string' ? userT(children) : children}
     </h3>
   );
 }
 
 export function CardDescription({ children, className = '', ...props }: HTMLAttributes<HTMLParagraphElement>) {
+  const { userT } = useUserLanguage();
   return (
     <p className={`text-xs sm:text-sm text-slate-500 dark:text-slate-300 mt-1 ${className}`} {...props}>
-      {children}
+      {typeof children === 'string' ? userT(children) : children}
     </p>
   );
 }

@@ -36,6 +36,8 @@ import {
   deleteNotification,
 } from '../../services/notificationApi';
 import toast from 'react-hot-toast';
+import { translateText } from '../../services/translationEngine';
+import { useUserLanguage } from '../../context/UserLanguageContext';
 
 interface NotificationCenterProps {
   user: any;
@@ -52,6 +54,7 @@ const CATEGORY_CHIPS = [
 ];
 
 export default function NotificationCenter({ user, setActiveTab }: NotificationCenterProps) {
+  const { language, userT } = useUserLanguage();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -180,11 +183,36 @@ export default function NotificationCenter({ user, setActiveTab }: NotificationC
     const diffHours = Math.floor(diffMinutes / 60);
     const diffDays = Math.floor(diffHours / 24);
 
-    if (diffMinutes < 1) return 'Just now';
-    if (diffMinutes < 60) return `${diffMinutes}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 7) return `${diffDays}d ago`;
+    if (diffMinutes < 1) {
+      if (language === 'am') return 'አሁን';
+      if (language === 'om') return 'Amma';
+      if (language === 'ti') return 'ሕጂ';
+      return 'Just now';
+    }
+    if (diffMinutes < 60) {
+      if (language === 'am') return `ከ ${diffMinutes} ደቂቃ በፊት`;
+      if (language === 'om') return `Daqiiqaa ${diffMinutes} dura`;
+      if (language === 'ti') return `ቅድሚ ${diffMinutes} ደቒቕ`;
+      return `${diffMinutes}m ago`;
+    }
+    if (diffHours < 24) {
+      if (language === 'am') return `ከ ${diffHours} ሰዓት በፊት`;
+      if (language === 'om') return `Sa'aatii ${diffHours} dura`;
+      if (language === 'ti') return `ቅድሚ ${diffHours} ሰዓት`;
+      return `${diffHours}h ago`;
+    }
+    if (diffDays === 1) {
+      if (language === 'am') return 'ትላንት';
+      if (language === 'om') return 'Kaleessa';
+      if (language === 'ti') return 'ትማሊ';
+      return 'Yesterday';
+    }
+    if (diffDays < 7) {
+      if (language === 'am') return `ከ ${diffDays} ቀን በፊት`;
+      if (language === 'om') return `Guyyaa ${diffDays} dura`;
+      if (language === 'ti') return `ቅድሚ ${diffDays} መዓልቲ`;
+      return `${diffDays}d ago`;
+    }
 
     return date.toLocaleDateString([], {
       month: 'short',
@@ -215,16 +243,16 @@ export default function NotificationCenter({ user, setActiveTab }: NotificationC
           <div>
             <div className="flex items-center gap-2.5">
               <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-                Notifications
+                {userT('Notifications')}
               </h1>
               {unreadCount > 0 && (
                 <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-[#3B82F6] border border-blue-200 dark:border-blue-900/40">
-                  {unreadCount} Unread
+                  {language === 'am' ? `${unreadCount} ያልተነበቡ` : language === 'om' ? `${unreadCount} Hin dubbifamne` : language === 'ti' ? `${unreadCount} ዘይተነበቡ` : `${unreadCount} Unread`}
                 </span>
               )}
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Operational updates, verifications, and system events
+              {userT('Operational updates, verifications, and system events')}
             </p>
           </div>
         </div>
@@ -238,7 +266,7 @@ export default function NotificationCenter({ user, setActiveTab }: NotificationC
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-semibold transition-all shadow-xs cursor-pointer"
             >
               <CheckCheck className="w-4 h-4" />
-              <span>Mark All Read</span>
+              <span>{userT('Mark All Read')}</span>
             </button>
           </div>
         )}
@@ -261,7 +289,7 @@ export default function NotificationCenter({ user, setActiveTab }: NotificationC
                   : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
-              All
+              {userT('All')}
             </button>
             <button
               type="button"
@@ -275,7 +303,7 @@ export default function NotificationCenter({ user, setActiveTab }: NotificationC
                   : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
-              <span>Unread</span>
+              <span>{userT('Unread')}</span>
               {unreadCount > 0 && (
                 <span className="px-1.5 py-0.2 rounded-full text-[10px] font-black bg-blue-600 text-white">
                   {unreadCount}
@@ -294,7 +322,7 @@ export default function NotificationCenter({ user, setActiveTab }: NotificationC
                   : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
-              Read
+              {userT('Read')}
             </button>
           </div>
 
@@ -308,7 +336,7 @@ export default function NotificationCenter({ user, setActiveTab }: NotificationC
                 setSearchQuery(e.target.value);
                 setPage(1);
               }}
-              placeholder="Search notifications..."
+              placeholder={userT('Search notifications...')}
               className="w-full pl-10 pr-9 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
             />
             {searchQuery && (
@@ -343,7 +371,7 @@ export default function NotificationCenter({ user, setActiveTab }: NotificationC
                 }`}
               >
                 <Icon className="w-3 h-3" />
-                <span>{chip.label}</span>
+                <span>{userT(chip.label)}</span>
               </button>
             );
           })}
@@ -358,7 +386,7 @@ export default function NotificationCenter({ user, setActiveTab }: NotificationC
               }}
               className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-semibold ml-auto"
             >
-              Clear filters
+              {userT('Clear filters')}
             </button>
           )}
         </div>
@@ -369,7 +397,7 @@ export default function NotificationCenter({ user, setActiveTab }: NotificationC
         {loading ? (
           <div className="py-20 text-center rounded-2xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 p-6 space-y-3">
             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-              Loading notifications...
+              {userT('Loading notifications...')}
             </p>
           </div>
         ) : notifications.length === 0 ? (
@@ -378,12 +406,12 @@ export default function NotificationCenter({ user, setActiveTab }: NotificationC
               <CheckCircle2 className="w-7 h-7" />
             </div>
             <h3 className="text-sm font-bold text-slate-800 dark:text-white">
-              You're All Caught Up
+              {userT("You're All Caught Up")}
             </h3>
             <p className="text-xs text-slate-400 dark:text-slate-500 max-w-sm mx-auto">
               {searchQuery || categoryFilter !== 'ALL' || statusFilter !== 'all'
-                ? 'No notifications match your current filter or search criteria.'
-                : 'No unread alerts or operational notifications at this time.'}
+                ? userT('No notifications match your current filter or search criteria.')
+                : userT('No unread alerts or operational notifications at this time.')}
             </p>
           </div>
         ) : (
@@ -408,22 +436,22 @@ export default function NotificationCenter({ user, setActiveTab }: NotificationC
                         isUnread ? 'text-slate-900 dark:text-white font-extrabold' : 'text-slate-800 dark:text-slate-200'
                       }`}
                     >
-                      {n.title}
+                      {translateText(n.title, language)}
                     </h4>
 
                     {n.type && (
                       <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-semibold bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-300">
-                        {n.type}
+                        {userT(n.type)}
                       </span>
                     )}
 
                     {isUnread && (
-                      <span className="w-2 h-2 rounded-full bg-blue-600 inline-block shrink-0" title="Unread" />
+                      <span className="w-2 h-2 rounded-full bg-blue-600 inline-block shrink-0" title={userT('Unread')} />
                     )}
                   </div>
 
                   <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed break-words">
-                    {n.message}
+                    {translateText(n.message, language)}
                   </p>
 
                   {/* Metadata Row */}
@@ -435,7 +463,7 @@ export default function NotificationCenter({ user, setActiveTab }: NotificationC
 
                     {n.actionUrl && (
                       <span className="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 font-semibold group-hover:underline">
-                        <span>Open Detail</span>
+                        <span>{userT('Open Detail')}</span>
                         <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
                       </span>
                     )}
@@ -449,7 +477,7 @@ export default function NotificationCenter({ user, setActiveTab }: NotificationC
                       type="button"
                       onClick={(e) => handleMarkRead(n.id, e)}
                       className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors"
-                      title="Mark as read"
+                      title={userT('Mark as read')}
                     >
                       <Check className="w-4 h-4" />
                     </button>
@@ -458,7 +486,7 @@ export default function NotificationCenter({ user, setActiveTab }: NotificationC
                       type="button"
                       onClick={(e) => handleMarkUnread(n.id, e)}
                       className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                      title="Mark as unread"
+                      title={userT('Mark as unread')}
                     >
                       <EyeOff className="w-4 h-4" />
                     </button>
@@ -468,7 +496,7 @@ export default function NotificationCenter({ user, setActiveTab }: NotificationC
                     type="button"
                     onClick={(e) => handleDelete(n.id, e)}
                     className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
-                    title="Remove"
+                    title={userT('Remove')}
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -483,7 +511,13 @@ export default function NotificationCenter({ user, setActiveTab }: NotificationC
       {pagination.totalPages > 1 && (
         <div className="flex items-center justify-between p-4 rounded-xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-xs">
           <span className="text-slate-500">
-            Page {pagination.page} of {pagination.totalPages} ({pagination.total} notifications)
+            {language === 'am'
+              ? `ገጽ ${pagination.page} ከ ${pagination.totalPages} (${pagination.total} ማንቂያዎች)`
+              : language === 'om'
+              ? `Fuula ${pagination.page} / ${pagination.totalPages} (${pagination.total} beeksisa)`
+              : language === 'ti'
+              ? `ገጽ ${pagination.page} ካብ ${pagination.totalPages} (${pagination.total} መጠንቀቕታታት)`
+              : `Page ${pagination.page} of ${pagination.totalPages} (${pagination.total} notifications)`}
           </span>
 
           <div className="flex items-center gap-1.5">

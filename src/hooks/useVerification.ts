@@ -4,6 +4,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { offlineDb } from '../db/offlineDb';
+import { db } from '../services/database';
 import { API_BASE } from '../config/api';
 import {
   evaluateWorkingHours,
@@ -19,6 +20,40 @@ export interface PendingVerificationData {
   remainingSeconds: number;
   message?: string;
   isOffline?: boolean;
+}
+
+// Check if officer is on approved leave or approved permission
+async function isAbsenceAuthorized(targetOfficerId: string): Promise<boolean> {
+  try {
+    const { dateStr, totalMinutes } = getZonedTimeComponents();
+
+    if (db.leaves) {
+      const leaves = await db.leaves.where('employeeId').equals(targetOfficerId).toArray();
+      const activeLeave = leaves.find(
+        (l: any) =>
+          (l.status || '').toLowerCase() === 'approved' &&
+          (l.startDate || l.start_date) <= dateStr &&
+          (l.endDate || l.end_date) >= dateStr
+      );
+      if (activeLeave) return true;
+    }
+
+    if (db.permissions) {
+      const permissions = await db.permissions.where('employeeId').equals(targetOfficerId).toArray();
+      const activePerm = permissions.find((p: any) => {
+        if ((p.status || '').toLowerCase() !== 'approved') return false;
+        const pDate = p.date || p.permissionDate || p.startDate || p.start_date;
+        if (pDate !== dateStr) return false;
+        const [sh, sm] = (p.startTime || p.start_time || '00:00').split(':').map(Number);
+        const [eh, em] = (p.endTime || p.end_time || '00:00').split(':').map(Number);
+        const sMins = sh * 60 + sm;
+        const eMins = eh * 60 + em;
+        return totalMinutes >= sMins && totalMinutes <= eMins;
+      });
+      if (activePerm) return true;
+    }
+  } catch (_) {}
+  return false;
 }
 
 export function useVerification(officerId?: string | null, officerName?: string | null) {
@@ -75,9 +110,10 @@ export function useVerification(officerId?: string | null, officerName?: string 
     if (!officerId) return;
 
     // Listen to incoming verification signals from heartbeat
-    const handleIncoming = (e: any) => {
+    const handleIncoming = async (e: any) => {
       const v = e.detail;
       if (v && v.id && !showPopup) {
+        if (officerId && (await isAbsenceAuthorized(officerId))) return;
         triggerVerification({
           id: v.id,
           scheduledAt: v.scheduledAt,
@@ -103,6 +139,7 @@ export function useVerification(officerId?: string | null, officerName?: string 
         if (res.ok) {
           const json = await res.json();
           if (json.success && json.pending) {
+            if (officerId && (await isAbsenceAuthorized(officerId))) return;
             triggerVerification({
               id: json.pending.id,
               scheduledAt: json.pending.scheduledAt,
@@ -134,6 +171,8 @@ export function useVerification(officerId?: string | null, officerName?: string 
 
       const wh = evaluateWorkingHours();
       if (!wh.isWorkingHours || wh.isLunch) return;
+
+      if (officerId && (await isAbsenceAuthorized(officerId))) return;
 
       const { dateStr } = getZonedTimeComponents();
 

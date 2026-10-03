@@ -22,6 +22,7 @@ const supervisorReportsRouter = require('./routes/supervisorReports');
 const syncRouter = require('./routes/sync');
 const locationsRouter = require('./routes/locations');
 const workSessionsRouter = require('./routes/workSessions');
+const notificationsRouter = require('./routes/notifications');
 
 
 const app = express();
@@ -67,10 +68,12 @@ app.use('/api/screen-time', screenTimeRouter);
 app.use('/api/audit', auditRouter);
 app.use('/api/alerts', alertsRouter);
 app.use('/api/verification', verificationRouter);
+app.use('/api/work-verifications', verificationRouter);
 app.use('/api/supervisor-reports', supervisorReportsRouter);
 app.use('/api/sync', syncRouter);
 app.use('/api/locations', locationsRouter);
 app.use('/api/work-sessions', workSessionsRouter);
+app.use('/api/notifications', notificationsRouter);
 
 // Start server
 app.listen(PORT, () => {

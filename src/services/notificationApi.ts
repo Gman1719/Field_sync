@@ -239,3 +239,46 @@ export async function deleteNotification(id: string): Promise<boolean> {
     return false;
   }
 }
+
+export async function createLocalNotification(params: {
+  recipientId: string;
+  title: string;
+  message: string;
+  type?: string;
+  priority?: 'NORMAL' | 'IMPORTANT' | 'URGENT';
+  relatedRecordId?: string | null;
+  actionUrl?: string | null;
+}): Promise<AppNotification> {
+  const notif: AppNotification = {
+    id: `notif_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+    recipientId: params.recipientId,
+    title: params.title,
+    message: params.message,
+    type: params.type || 'LEAVE_REQUEST',
+    priority: params.priority || 'NORMAL',
+    isRead: false,
+    readAt: null,
+    relatedRecordId: params.relatedRecordId || null,
+    actionUrl: params.actionUrl || '/requests',
+    metadata: null,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  try {
+    if (offlineDb.notifications) {
+      await offlineDb.notifications.put(notif);
+    }
+  } catch (_e) {}
+
+  if (navigator.onLine) {
+    fetch(`${API_BASE}/notifications`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(notif),
+    }).catch(() => {});
+  }
+
+  window.dispatchEvent(new CustomEvent('notifications-updated'));
+  return notif;
+}

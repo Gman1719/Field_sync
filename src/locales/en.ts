@@ -10,6 +10,7 @@ export default {
     reports: 'Reports',
     attendance: 'Attendance',
     tasks: 'Tasks',
+    requests: 'My Requests',
     leaves: 'Leaves',
     permissions: 'Permissions',
     screentime: 'Screen Time',
@@ -22,6 +23,15 @@ export default {
     alerts: 'Alerts',
     all_reports: 'All Reports',
     sync: 'Sync',
+    daily_report: 'Daily Work Report',
+    my_reports: 'My Report',
+    activity_logs: 'Activity Logs',
+    sessions: 'Work Sessions',
+    verification: 'Identity Verification',
+    chat: 'Team Chat',
+    duplicates: 'Duplicate Review',
+    profile: 'My Profile',
+    notifications: 'Notifications',
     logout: 'Logout'
   },
   auth: {

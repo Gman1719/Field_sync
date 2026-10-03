@@ -9,6 +9,7 @@ import Badge from '../ui/Badge';
 import LocationDropdown from './LocationDropdown';
 import { API_BASE } from '../../config/api';
 import { db } from '../../services/database';
+import { useUserLanguage } from '../../context/UserLanguageContext';
 
 interface UserReassignModalProps {
   user: any;
@@ -18,6 +19,7 @@ interface UserReassignModalProps {
 }
 
 export default function UserReassignModal({ user, isOpen, onClose, onUserUpdated }: UserReassignModalProps) {
+  const { userT } = useUserLanguage();
   const [assignment, setAssignment] = useState({
     regionId: '',
     zoneId: '',
@@ -47,17 +49,17 @@ export default function UserReassignModal({ user, isOpen, onClose, onUserUpdated
     // Validation based on role
     const newErrors: Record<string, string> = {};
     if (user.role === 'supervisor') {
-      if (!assignment.regionId) newErrors.regionId = 'Region is required';
-      if (!assignment.zoneId) newErrors.zoneId = 'Zone is required';
+      if (!assignment.regionId) newErrors.regionId = userT('Region is required');
+      if (!assignment.zoneId) newErrors.zoneId = userT('Zone is required');
     } else if (user.role === 'field_officer') {
-      if (!assignment.regionId) newErrors.regionId = 'Region is required';
-      if (!assignment.zoneId) newErrors.zoneId = 'Zone is required';
-      if (!assignment.woredaId) newErrors.woredaId = 'Woreda is required';
+      if (!assignment.regionId) newErrors.regionId = userT('Region is required');
+      if (!assignment.zoneId) newErrors.zoneId = userT('Zone is required');
+      if (!assignment.woredaId) newErrors.woredaId = userT('Woreda is required');
     }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      toast.error('Please complete all required location fields');
+      toast.error(userT('Please complete all required location fields'));
       return;
     }
 
@@ -83,12 +85,12 @@ export default function UserReassignModal({ user, isOpen, onClose, onUserUpdated
       // Update in Dexie local DB as well
       await db.users.update(user.id, updatedUser);
 
-      toast.success(`Workstation location reassigned for ${user.name}`);
+      toast.success(userT(`Workstation location reassigned for ${user.name}`));
       if (onUserUpdated) onUserUpdated(updatedUser);
       onClose();
-    } catch (err) {
+    } catch (err: any) {
       console.error('Reassignment error:', err);
-      toast.error(err.message || 'Reassignment failed');
+      toast.error(err.message ? userT(err.message) : userT('Reassignment failed'));
     } finally {
       setIsSubmitting(false);
     }
@@ -98,7 +100,7 @@ export default function UserReassignModal({ user, isOpen, onClose, onUserUpdated
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Reassign Operational Workstation"
+      title={userT('Reassign Operational Workstation')}
       size="md"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -109,19 +111,21 @@ export default function UserReassignModal({ user, isOpen, onClose, onUserUpdated
             <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400">{user.email}</span>
           </div>
           <Badge variant={user.role === 'supervisor' ? 'info' : 'neutral'} className="capitalize text-xs font-semibold">
-            {user.role?.replace('_', ' ')}
+            {userT(user.role?.replace('_', ' ') || '')}
           </Badge>
         </div>
 
         {/* Current Station vs New Station */}
         <div className="p-3 bg-slate-50/70 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-700/80 rounded-xl text-xs space-y-1">
-          <span className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider block text-[10px]">Current Active Jurisdiction:</span>
+          <span className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider block text-[10px]">
+            {userT('Current Active Jurisdiction:')}
+          </span>
           <p className="text-slate-800 dark:text-slate-100 font-semibold flex items-center gap-1.5">
             <MapPin className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
             <span>
               {user.role === 'manager'
-                ? 'Organization-wide (National)'
-                : `${user.region || 'No Region'} / ${user.zone || 'No Zone'} ${user.woreda ? `/ ${user.woreda}` : ''}`}
+                ? userT('Organization-wide (National)')
+                : `${user.region ? userT(user.region) : userT('No Region')} / ${user.zone ? userT(user.zone) : userT('No Zone')}${user.woreda ? ` / ${userT(user.woreda)}` : ''}`}
             </span>
           </p>
         </div>
@@ -129,7 +133,7 @@ export default function UserReassignModal({ user, isOpen, onClose, onUserUpdated
         {/* Cascading Location Hierarchy Dropdowns */}
         <div className="space-y-1.5 pt-1">
           <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider block">
-            Select New Ethiopian Hierarchy Assignment
+            {userT('Select New Ethiopian Hierarchy Assignment')}
           </span>
           <LocationDropdown
             role={user.role}
@@ -154,7 +158,7 @@ export default function UserReassignModal({ user, isOpen, onClose, onUserUpdated
             disabled={isSubmitting}
             className="font-medium text-xs sm:text-sm px-4"
           >
-            Cancel
+            {userT('Cancel')}
           </Button>
           <Button
             type="submit"
@@ -163,7 +167,7 @@ export default function UserReassignModal({ user, isOpen, onClose, onUserUpdated
             className="bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs sm:text-sm px-4 shadow-sm shadow-blue-500/20"
           >
             <MapPin className="w-4 h-4 mr-1.5" />
-            Apply Reassignment
+            {userT('Apply Reassignment')}
           </Button>
         </div>
       </form>

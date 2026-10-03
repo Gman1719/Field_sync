@@ -12,8 +12,10 @@ import Button from '../ui/Button';
 import Badge from '../ui/Badge';
 import StatCard from '../ui/StatCard';
 import Modal from '../ui/Modal';
+import { useUserLanguage } from '../../context/UserLanguageContext';
 
 export default function CitizensDatabase({ user, users = [], setActiveTab }) {
+  const { userT } = useUserLanguage();
   const isOfficer = user?.role === 'field_officer' || user?.role === 'FIELD_OFFICER';
 
   // --- Filter State ---
@@ -327,11 +329,11 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-slate-800 p-5 sm:p-6 rounded-2xl border border-[#E2E8F0] dark:border-slate-700 shadow-xs">
         <div>
           <h2 className="text-xl sm:text-2xl font-black text-[#0F172A] dark:text-[#F8FAFC] tracking-tight">
-            {isOfficer ? 'My Registered Citizens' : 'Registered Citizens'}
+            {isOfficer ? userT('My Registered Citizens') : userT('Registered Citizens')}
           </h2>
           {isOfficer && (
             <p className="text-xs sm:text-sm text-slate-500 dark:text-[#94A3B8] mt-1">
-              Frontline citizen enrollment directory with administrative jurisdiction
+              {userT('Frontline citizen enrollment directory with administrative jurisdiction')}
             </p>
           )}
         </div>
@@ -345,7 +347,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
               onClick={() => setActiveTab('register')}
               className="h-11 px-5 rounded-xl shadow-xs font-bold"
             >
-              Register Citizen
+              {userT('Register Citizen')}
             </Button>
           </div>
         )}
@@ -354,48 +356,48 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
       {/* 2. Interactive KPI Stats Cards (No icons, responsive, clickable to filter) */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-3.5">
         <StatCard
-          label={isOfficer ? "My Total Registered" : "Total Registered"}
+          label={isOfficer ? userT('My Total Registered') : userT('Total Registered')}
           value={stats.total}
           variant="primary"
-          subtitle={isOfficer ? "Enrolled by you" : "All registered citizens"}
+          subtitle={isOfficer ? userT('Enrolled by you') : userT('All registered citizens')}
           active={!hasActiveFilters}
           onClick={clearAllFilters}
         />
         <StatCard
-          label="Synced to Cloud"
+          label={userT('Synced to Cloud')}
           value={stats.synced}
           variant="success"
-          subtitle="Persisted on central server"
+          subtitle={userT('Persisted on central server')}
           active={filterSyncStatus === 'SYNCED'}
           onClick={() => {
             setFilterSyncStatus(prev => prev === 'SYNCED' ? 'ALL' : 'SYNCED');
           }}
         />
         <StatCard
-          label="Pending Local Sync"
+          label={userT('Pending Local Sync')}
           value={stats.pending}
           variant="warning"
-          subtitle="Buffered on this device"
+          subtitle={userT('Buffered on this device')}
           active={filterSyncStatus === 'PENDING'}
           onClick={() => {
             setFilterSyncStatus(prev => prev === 'PENDING' ? 'ALL' : 'PENDING');
           }}
         />
         <StatCard
-          label="Male Citizens"
+          label={userT('Male Citizens')}
           value={stats.male}
           variant="info"
-          subtitle="Registered males"
+          subtitle={userT('Registered males')}
           active={filterGender === 'MALE'}
           onClick={() => {
             setFilterGender(prev => prev === 'MALE' ? 'ALL' : 'MALE');
           }}
         />
         <StatCard
-          label="Female Citizens"
+          label={userT('Female Citizens')}
           value={stats.female}
           variant="neutral"
-          subtitle="Registered females"
+          subtitle={userT('Registered females')}
           active={filterGender === 'FEMALE'}
           onClick={() => {
             setFilterGender(prev => prev === 'FEMALE' ? 'ALL' : 'FEMALE');
@@ -413,7 +415,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search by citizen name, 12-digit ID, phone, email, woreda, or kebele/village..."
+              placeholder={userT('Search by citizen name, 12-digit ID, phone, email, woreda, or kebele/village...')}
               className="w-full h-11 px-4 pr-9 rounded-xl border border-[#E2E8F0] dark:border-slate-700 bg-slate-50/70 dark:bg-slate-900 text-slate-900 dark:text-[#F8FAFC] text-xs sm:text-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-blue-500 transition-all"
             />
             {searchTerm && (
@@ -421,7 +423,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
                 type="button"
                 onClick={() => setSearchTerm('')}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs p-1"
-                title="Clear search"
+                title={userT('Clear search')}
               >
                 ✕
               </button>
@@ -434,7 +436,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
               type="date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              title="Filter by registration date"
+              title={userT('Filter by registration date')}
               className="h-11 px-3 rounded-xl border border-[#E2E8F0] dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-[#F8FAFC] text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-blue-500 transition-all cursor-pointer font-medium"
             />
 
@@ -447,9 +449,9 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
                   ? 'bg-[#2563EB] text-white border-[#2563EB] shadow-xs'
                   : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-100 border-[#E2E8F0] dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 dark:hover:border-blue-400'
               }`}
-              title="Filter records registered today"
+              title={userT('Filter records registered today')}
             >
-              Today
+              {userT('Today')}
             </button>
           </div>
         </div>
@@ -464,7 +466,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
                 onChange={(e) => setSelectedOfficerId(e.target.value)}
                 className="w-full h-10 px-3 rounded-xl border border-[#E2E8F0] dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-[#F8FAFC] text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-blue-500 transition-all cursor-pointer font-medium"
               >
-                <option value="">Registered By: All Officers</option>
+                <option value="">{userT('Registered By: All Officers')}</option>
                 {registeredByOptions.map((off) => (
                   <option key={off.id} value={off.id}>
                     {off.name} {off.employeeId ? `(${off.employeeId})` : ''}
@@ -481,7 +483,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
               onChange={(e) => setSelectedRegionId(e.target.value)}
               className="w-full h-10 px-3 rounded-xl border border-[#E2E8F0] dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-[#F8FAFC] text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-blue-500 transition-all cursor-pointer font-medium"
             >
-              <option value="">All Regions</option>
+              <option value="">{userT('All Regions')}</option>
               {regions.map((r) => (
                 <option key={r.id} value={r.id}>
                   {r.name}
@@ -496,9 +498,9 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
             onChange={(e) => setFilterSyncStatus(e.target.value)}
             className="h-10 px-3 rounded-xl border border-[#E2E8F0] dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-[#F8FAFC] text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-blue-500 transition-all cursor-pointer min-w-[130px]"
           >
-            <option value="ALL">All Sync States</option>
-            <option value="SYNCED">Synced to Cloud</option>
-            <option value="PENDING">Pending Local Sync</option>
+            <option value="ALL">{userT('All Sync States')}</option>
+            <option value="SYNCED">{userT('Synced to Cloud')}</option>
+            <option value="PENDING">{userT('Pending Local Sync')}</option>
           </select>
 
           {/* Gender Filter */}
@@ -507,9 +509,9 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
             onChange={(e) => setFilterGender(e.target.value)}
             className="h-10 px-3 rounded-xl border border-[#E2E8F0] dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-[#F8FAFC] text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-blue-500 transition-all cursor-pointer min-w-[110px]"
           >
-            <option value="ALL">All Genders</option>
-            <option value="MALE">Male</option>
-            <option value="FEMALE">Female</option>
+            <option value="ALL">{userT('All Genders')}</option>
+            <option value="MALE">{userT('Male')}</option>
+            <option value="FEMALE">{userT('Female')}</option>
           </select>
 
           {/* Clear Filters Button */}
@@ -518,9 +520,9 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
               type="button"
               onClick={clearAllFilters}
               className="h-10 px-3.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-100 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-[#E2E8F0] dark:border-slate-700 dark:hover:border-blue-400 transition-all whitespace-nowrap cursor-pointer shadow-2xs ml-auto"
-              title="Reset all filters"
+              title={userT('Reset all filters')}
             >
-              Clear Filters
+              {userT('Clear Filters')}
             </button>
           )}
         </div>
@@ -532,16 +534,16 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-[11px] font-bold text-[#2563EB] dark:text-blue-400 uppercase tracking-wider">
-                Officer Intake Throughput
+                {userT('Officer Intake Throughput')}
               </span>
               {selectedDate && (
                 <span className="px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-blue-100 dark:bg-blue-900/60 text-[#2563EB] dark:text-blue-300">
-                  Date: {selectedDate === todayStr ? 'Today' : selectedDate}
+                  {userT('Date')}: {selectedDate === todayStr ? userT('Today') : selectedDate}
                 </span>
               )}
             </div>
             <h3 className="text-base font-extrabold text-slate-900 dark:text-[#F8FAFC] mt-0.5">
-              {currentOfficer ? currentOfficer.name : 'All Field Officers'}
+              {currentOfficer ? currentOfficer.name : userT('All Field Officers')}
               {currentOfficer?.employeeId && (
                 <span className="ml-1.5 text-xs font-mono font-medium text-slate-500 dark:text-slate-400">
                   ({currentOfficer.employeeId})
@@ -550,8 +552,8 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">
               {selectedDate
-                ? `Citizens enrolled on ${selectedDate === todayStr ? 'today' : selectedDate}`
-                : 'Citizens enrolled by this officer'}
+                ? `${userT('Citizens Registered')} ${selectedDate === todayStr ? userT('Today') : selectedDate}`
+                : userT('Citizens enrolled by this officer')}
             </p>
           </div>
 
@@ -559,14 +561,14 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
           <div className="flex items-center gap-4 bg-white dark:bg-slate-900 p-3 px-5 rounded-2xl border border-blue-100 dark:border-slate-700 shadow-xs shrink-0 sm:self-center">
             <div className="text-right">
               <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
-                Total Citizens
+                {userT('Total Citizens')}
               </span>
               <div className="flex items-baseline justify-end gap-1.5">
                 <span className="text-3xl font-black text-[#2563EB] dark:text-blue-400 font-mono leading-none">
                   {filteredCitizens.length}
                 </span>
                 <span className="text-xs font-bold text-slate-600 dark:text-slate-300">
-                  {filteredCitizens.length === 1 ? 'citizen' : 'citizens'}
+                  {filteredCitizens.length === 1 ? userT('citizen') : userT('citizens')}
                 </span>
               </div>
             </div>
@@ -575,10 +577,10 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
 
             <div className="text-xs space-y-1">
               <div className="text-emerald-600 dark:text-emerald-400 font-bold text-[11px]">
-                {filteredCitizens.filter(c => c.syncStatus === 'SYNCED').length} Synced
+                {filteredCitizens.filter(c => c.syncStatus === 'SYNCED').length} {userT('Synced')}
               </div>
               <div className="text-amber-600 dark:text-amber-400 font-bold text-[11px]">
-                {filteredCitizens.filter(c => c.syncStatus !== 'SYNCED').length} Pending
+                {filteredCitizens.filter(c => c.syncStatus !== 'SYNCED').length} {userT('Pending')}
               </div>
             </div>
           </div>
@@ -590,12 +592,12 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
         <CardHeader className="p-4 sm:p-5 border-b border-[#E2E8F0] dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <CardTitle className="text-base font-bold text-slate-900 dark:text-[#F8FAFC]">
-              {isOfficer ? 'My Registered Citizens' : 'Registered Citizens'} ({filteredCitizens.length} {filteredCitizens.length === 1 ? 'record' : 'records'})
+              {isOfficer ? userT('My Registered Citizens') : userT('Registered Citizens')} ({filteredCitizens.length} {filteredCitizens.length === 1 ? userT('record') : userT('records')})
             </CardTitle>
           </div>
           {hasActiveFilters && (
             <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-50 dark:bg-blue-950/60 text-[#2563EB] dark:text-blue-300 border border-blue-200 dark:border-blue-900">
-              Showing {filteredCitizens.length} of {baseCitizens.length} {isOfficer ? 'enrolled by you' : 'total'}
+              {userT('Showing')} {filteredCitizens.length} {userT('of')} {baseCitizens.length} {isOfficer ? userT('enrolled by you') : userT('total')}
             </span>
           )}
         </CardHeader>
@@ -603,19 +605,19 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
         <CardContent className="p-0">
           {isLoading ? (
             <div className="py-20 text-center text-xs text-slate-500 dark:text-slate-400">
-              Loading citizen database records...
+              {userT('Loading citizen database records...')}
             </div>
           ) : filteredCitizens.length === 0 ? (
             <div className="py-20 text-center text-slate-400 dark:text-slate-500 space-y-3 px-4">
               <p className="font-bold text-slate-800 dark:text-slate-200 text-base">
-                {isOfficer ? 'No Citizen Records Registered Yet' : 'No Citizen Records Found'}
+                {isOfficer ? userT('No Citizen Records Registered Yet') : userT('No Citizen Records Found')}
               </p>
               <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
                 {hasActiveFilters
-                  ? 'No citizen registrations match your current filter parameters. Try clearing or expanding your filters.'
+                  ? userT('No citizen registrations match your current filter parameters. Try clearing or expanding your filters.')
                   : isOfficer
-                  ? 'You have not registered any citizens yet. Use the Citizen Registration console to register citizens in your assigned woreda or kebele.'
-                  : 'No citizen registrations recorded in the system yet.'}
+                  ? userT('You have not registered any citizens yet. Use the Citizen Registration console to register citizens in your assigned woreda or kebele.')
+                  : userT('No citizen registrations recorded in the system yet.')}
               </p>
               <div className="pt-2 flex items-center justify-center gap-2">
                 {hasActiveFilters ? (
@@ -625,7 +627,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
                     onClick={clearAllFilters}
                     className="font-bold px-4"
                   >
-                    Reset All Filters
+                    {userT('Reset All Filters')}
                   </Button>
                 ) : isOfficer && setActiveTab ? (
                   <Button
@@ -634,7 +636,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
                     onClick={() => setActiveTab('register')}
                     className="px-5 rounded-xl shadow-xs font-bold"
                   >
-                    Register Citizen Now
+                    {userT('Register Citizen Now')}
                   </Button>
                 ) : null}
               </div>
@@ -644,16 +646,16 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
               <table className="w-full text-left text-xs sm:text-sm">
                 <thead>
                   <tr className="bg-slate-50/90 dark:bg-slate-900 border-b border-[#E2E8F0] dark:border-slate-700 text-xs font-bold text-slate-600 dark:text-slate-200 uppercase tracking-wider">
-                    <th className="py-4 pl-4 sm:pl-6 pr-3">Citizen Name & 12-Digit ID</th>
-                    <th className="py-4 px-3">Contact</th>
-                    <th className="py-4 px-3">Gender</th>
-                    <th className="py-4 px-3">Age</th>
-                    <th className="py-4 px-3">Region</th>
-                    <th className="py-4 px-3">Zone</th>
-                    <th className="py-4 px-3">Woreda</th>
-                    <th className="py-4 px-3">Kebele / Village</th>
-                    <th className="py-4 px-3 text-center">Sync Status</th>
-                    <th className="py-4 pr-4 sm:pr-6 pl-3 text-right">Action</th>
+                    <th className="py-4 pl-4 sm:pl-6 pr-3">{userT('Citizen Name & 12-Digit ID')}</th>
+                    <th className="py-4 px-3">{userT('Contact')}</th>
+                    <th className="py-4 px-3">{userT('Gender')}</th>
+                    <th className="py-4 px-3">{userT('Age')}</th>
+                    <th className="py-4 px-3">{userT('Region')}</th>
+                    <th className="py-4 px-3">{userT('Zone')}</th>
+                    <th className="py-4 px-3">{userT('Woreda')}</th>
+                    <th className="py-4 px-3">{userT('Kebele / Village')}</th>
+                    <th className="py-4 px-3 text-center">{userT('Sync Status')}</th>
+                    <th className="py-4 pr-4 sm:pr-6 pl-3 text-right">{userT('Action')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#E2E8F0] dark:divide-[#334155]">
@@ -671,7 +673,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
                         {/* 1. Name & 12-Digit ID */}
                         <td className="py-3.5 pl-4 sm:pl-6 pr-3 whitespace-nowrap">
                           <p className="font-bold text-slate-900 dark:text-[#F8FAFC] text-sm">
-                            {[citizen.firstName, citizen.middleName, citizen.lastName].filter(Boolean).join(' ') || 'Unnamed Citizen'}
+                            {[citizen.firstName, citizen.middleName, citizen.lastName].filter(Boolean).join(' ') || userT('Unnamed Citizen')}
                           </p>
                           <div className="flex items-center gap-1.5 mt-0.5">
                             <span className="text-[11px] font-mono font-semibold text-[#2563EB] dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-1.5 py-0.5 rounded border border-blue-200/60 dark:border-blue-900/50">
@@ -681,9 +683,9 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
                               type="button"
                               onClick={() => copyCitizenId(citizenId)}
                               className="text-[11px] font-semibold text-slate-400 hover:text-[#2563EB] dark:hover:text-[#60A5FA] px-1 py-0.5 rounded transition-colors"
-                              title="Copy 12-digit Citizen ID"
+                              title={userT('Copy 12-digit Citizen ID')}
                             >
-                              Copy
+                              {userT('Copy')}
                             </button>
                           </div>
                         </td>
@@ -695,7 +697,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
                               {formatEthiopianPhone(citizen.phoneNumber || citizen.phone)}
                             </p>
                           ) : (
-                            <span className="text-[11px] text-slate-400 dark:text-slate-500 italic">No phone</span>
+                            <span className="text-[11px] text-slate-400 dark:text-slate-500 italic">{userT('No phone')}</span>
                           )}
                           {citizen.email && (
                             <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 max-w-[150px] truncate" title={citizen.email}>
@@ -707,14 +709,14 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
                         {/* 3. Gender */}
                         <td className="py-3.5 px-3 whitespace-nowrap">
                           <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
-                            {citizen.gender || '—'}
+                            {citizen.gender ? userT(citizen.gender) : '—'}
                           </span>
                         </td>
 
                         {/* 4. Age */}
                         <td className="py-3.5 px-3 whitespace-nowrap">
                           <span className="text-xs text-slate-700 dark:text-slate-300 font-semibold">
-                            {citizen.age ? `${citizen.age} yrs` : (citizen.dateOfBirth || '—')}
+                            {citizen.age ? `${citizen.age} ${userT('yrs')}` : (citizen.dateOfBirth || '—')}
                           </span>
                         </td>
 
@@ -742,7 +744,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
                         {/* 7. Kebele / Village */}
                         <td className="py-3.5 px-3 whitespace-nowrap">
                           <span className="text-xs text-slate-800 dark:text-slate-200 font-semibold">
-                            {citizen.kebeleName || citizen.kebele || 'Kebele'}
+                            {citizen.kebeleName || citizen.kebele || userT('Kebele')}
                           </span>
                           {citizen.village && (
                             <span className="text-[11px] text-slate-400 dark:text-slate-500 block truncate max-w-[120px]" title={citizen.village}>
@@ -755,11 +757,11 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
                         <td className="py-3.5 px-3 text-center whitespace-nowrap">
                           {isSynced ? (
                             <span className="inline-block px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                              Synced
+                              {userT('Synced')}
                             </span>
                           ) : (
                             <span className="inline-block px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
-                              Pending
+                              {userT('Pending')}
                             </span>
                           )}
                         </td>
@@ -770,9 +772,9 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
                             type="button"
                             onClick={() => setSelectedCitizen(citizen)}
                             className="px-4 py-2 rounded-xl text-sm font-bold text-white bg-[#2563EB] hover:bg-blue-700 active:scale-95 transition-all inline-block cursor-pointer shadow-xs"
-                            title="View Citizen Details"
+                            title={userT('View Citizen Details')}
                           >
-                            Details
+                            {userT('Details')}
                           </button>
                         </td>
                       </tr>
@@ -790,7 +792,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
         <Modal
           isOpen={!!selectedCitizen}
           onClose={() => setSelectedCitizen(null)}
-          title="Citizen Details"
+          title={userT('Citizen Details')}
           size="lg"
         >
           <div className="space-y-5">
@@ -802,7 +804,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
                 </div>
                 <div className="min-w-0">
                   <h3 className="text-lg sm:text-xl font-extrabold text-[#0F172A] dark:text-[#F8FAFC] truncate">
-                    {[selectedCitizen.firstName, selectedCitizen.middleName, selectedCitizen.lastName].filter(Boolean).join(' ') || 'Unnamed Citizen'}
+                    {[selectedCitizen.firstName, selectedCitizen.middleName, selectedCitizen.lastName].filter(Boolean).join(' ') || userT('Unnamed Citizen')}
                   </h3>
                   <div className="flex flex-wrap items-center gap-2 mt-1">
                     <span className="text-xs font-mono font-bold text-[#2563EB] dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 border border-blue-200/60 dark:border-blue-900/60 px-2 py-0.5 rounded-md">
@@ -812,9 +814,9 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
                       type="button"
                       onClick={() => copyCitizenId(selectedCitizen.clientRecordId || selectedCitizen.nationalId || selectedCitizen.idNumber || selectedCitizen.id)}
                       className="text-xs font-semibold text-slate-500 hover:text-[#2563EB] dark:hover:text-[#60A5FA] px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 transition-colors"
-                      title="Copy full 12-digit record ID"
+                      title={userT('Copy full 12-digit record ID')}
                     >
-                      {copiedId ? 'Copied' : 'Copy ID'}
+                      {copiedId ? userT('Copied') : userT('Copy ID')}
                     </button>
                   </div>
                 </div>
@@ -823,11 +825,11 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
               <div className="shrink-0">
                 {selectedCitizen.syncStatus === 'SYNCED' ? (
                   <span className="inline-block px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 shadow-2xs">
-                    Synced to Cloud
+                    {userT('Synced to Cloud')}
                   </span>
                 ) : (
                   <span className="inline-block px-3 py-1.5 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 shadow-2xs">
-                    Buffered on Device
+                    {userT('Buffered on Device')}
                   </span>
                 )}
               </div>
@@ -836,26 +838,26 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
             {/* Section 1: Demographics */}
             <div className="space-y-2">
               <h4 className="text-xs font-bold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider">
-                Personal Demographics
+                {userT('Personal Demographics')}
               </h4>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
                 <div className="p-3 bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 rounded-xl shadow-2xs">
-                  <span className="text-slate-400 dark:text-slate-500 block text-[11px] mb-0.5">Gender</span>
-                  <span className="font-bold text-slate-800 dark:text-[#F8FAFC] text-sm">{selectedCitizen.gender || '—'}</span>
+                  <span className="text-slate-400 dark:text-slate-500 block text-[11px] mb-0.5">{userT('Gender')}</span>
+                  <span className="font-bold text-slate-800 dark:text-[#F8FAFC] text-sm">{selectedCitizen.gender ? userT(selectedCitizen.gender) : '—'}</span>
                 </div>
                 <div className="p-3 bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 rounded-xl shadow-2xs">
-                  <span className="text-slate-400 dark:text-slate-500 block text-[11px] mb-0.5">Calculated Age</span>
+                  <span className="text-slate-400 dark:text-slate-500 block text-[11px] mb-0.5">{userT('Calculated Age')}</span>
                   <span className="font-bold text-slate-800 dark:text-[#F8FAFC] text-sm">
-                    {selectedCitizen.age ? `${selectedCitizen.age} years` : 'Unspecified'}
+                    {selectedCitizen.age ? `${selectedCitizen.age} ${userT('years')}` : userT('Unspecified')}
                   </span>
                 </div>
                 <div className="p-3 bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 rounded-xl shadow-2xs">
-                  <span className="text-slate-400 dark:text-slate-500 block text-[11px] mb-0.5">Date of Birth</span>
+                  <span className="text-slate-400 dark:text-slate-500 block text-[11px] mb-0.5">{userT('Date of Birth')}</span>
                   <span className="font-bold text-slate-800 dark:text-[#F8FAFC] text-sm">{selectedCitizen.dateOfBirth || '—'}</span>
                 </div>
                 <div className="p-3 bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 rounded-xl shadow-2xs">
-                  <span className="text-slate-400 dark:text-slate-500 block text-[11px] mb-0.5">Marital Status</span>
-                  <span className="font-bold text-slate-800 dark:text-[#F8FAFC] text-sm">{selectedCitizen.maritalStatus || '—'}</span>
+                  <span className="text-slate-400 dark:text-slate-500 block text-[11px] mb-0.5">{userT('Marital Status')}</span>
+                  <span className="font-bold text-slate-800 dark:text-[#F8FAFC] text-sm">{selectedCitizen.maritalStatus ? userT(selectedCitizen.maritalStatus) : '—'}</span>
                 </div>
               </div>
             </div>
@@ -863,16 +865,16 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
             {/* Section 2: Contact Information */}
             <div className="space-y-2">
               <h4 className="text-xs font-bold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider">
-                Contact Information
+                {userT('Contact Information')}
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                 <div className="p-3.5 bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 rounded-xl shadow-2xs flex items-center justify-between">
                   <div>
-                    <span className="text-slate-400 dark:text-slate-500 block text-[11px] mb-0.5">Mobile Phone Number</span>
+                    <span className="text-slate-400 dark:text-slate-500 block text-[11px] mb-0.5">{userT('Mobile Phone Number')}</span>
                     <span className="font-bold text-slate-800 dark:text-[#F8FAFC] font-mono text-sm">
                       {selectedCitizen.phoneNumber || selectedCitizen.phone
                         ? formatEthiopianPhone(selectedCitizen.phoneNumber || selectedCitizen.phone)
-                        : 'No phone registered'}
+                        : userT('No phone registered')}
                     </span>
                   </div>
                   {(selectedCitizen.phoneNumber || selectedCitizen.phone) && (
@@ -880,17 +882,17 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
                       type="button"
                       onClick={() => copyPhoneNumber(selectedCitizen.phoneNumber || selectedCitizen.phone)}
                       className="px-2 py-1 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-[#2563EB] dark:hover:text-[#60A5FA] bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700"
-                      title="Copy phone"
+                      title={userT('Copy phone')}
                     >
-                      {copiedPhone ? 'Copied' : 'Copy'}
+                      {copiedPhone ? userT('Copied') : userT('Copy')}
                     </button>
                   )}
                 </div>
 
                 <div className="p-3.5 bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 rounded-xl shadow-2xs">
-                  <span className="text-slate-400 dark:text-slate-500 block text-[11px] mb-0.5">Email Address</span>
+                  <span className="text-slate-400 dark:text-slate-500 block text-[11px] mb-0.5">{userT('Email Address')}</span>
                   <span className="font-bold text-slate-800 dark:text-[#F8FAFC] text-sm">
-                    {selectedCitizen.email || 'None registered'}
+                    {selectedCitizen.email || userT('None registered')}
                   </span>
                 </div>
               </div>
@@ -899,30 +901,30 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
             {/* Section 3: Ethiopian Administrative Jurisdiction */}
             <div className="space-y-2">
               <h4 className="text-xs font-bold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider">
-                Ethiopian Administrative Jurisdiction
+                {userT('Ethiopian Administrative Jurisdiction')}
               </h4>
               <div className="p-4 bg-slate-50 dark:bg-slate-900 border border-[#E2E8F0] dark:border-slate-700 rounded-xl">
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
                   <div className="p-3 bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 rounded-lg shadow-2xs">
-                    <span className="text-slate-400 dark:text-slate-500 text-[10px] block font-semibold uppercase">Region</span>
+                    <span className="text-slate-400 dark:text-slate-500 text-[10px] block font-semibold uppercase">{userT('Region')}</span>
                     <span className="font-bold text-slate-900 dark:text-[#F8FAFC] text-sm">
                       {selectedCitizen.regionName || selectedCitizen.region || '—'}
                     </span>
                   </div>
                   <div className="p-3 bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 rounded-lg shadow-2xs">
-                    <span className="text-slate-400 dark:text-slate-500 text-[10px] block font-semibold uppercase">Zone / Sub-City</span>
+                    <span className="text-slate-400 dark:text-slate-500 text-[10px] block font-semibold uppercase">{userT('Zone / Sub-City')}</span>
                     <span className="font-bold text-slate-900 dark:text-[#F8FAFC] text-sm">
                       {selectedCitizen.zoneName || selectedCitizen.zone || '—'}
                     </span>
                   </div>
                   <div className="p-3 bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 rounded-lg shadow-2xs">
-                    <span className="text-slate-400 dark:text-slate-500 text-[10px] block font-semibold uppercase">Woreda Station</span>
+                    <span className="text-slate-400 dark:text-slate-500 text-[10px] block font-semibold uppercase">{userT('Woreda Station')}</span>
                     <span className="font-bold text-slate-900 dark:text-[#F8FAFC] text-sm">
                       {selectedCitizen.woredaName || selectedCitizen.woreda || '—'}
                     </span>
                   </div>
                   <div className="p-3 bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 rounded-lg shadow-2xs">
-                    <span className="text-slate-400 dark:text-slate-500 text-[10px] block font-semibold uppercase">Kebele & Village</span>
+                    <span className="text-slate-400 dark:text-slate-500 text-[10px] block font-semibold uppercase">{userT('Kebele & Village')}</span>
                     <span className="font-bold text-slate-900 dark:text-[#F8FAFC] text-sm">
                       {[selectedCitizen.kebeleName || selectedCitizen.kebele, selectedCitizen.village].filter(Boolean).join(' • ') || '—'}
                     </span>
@@ -934,19 +936,19 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
             {/* Section 4: Officer Provenance & Intake Audit */}
             <div className="p-4 bg-gradient-to-r from-slate-50 to-blue-50/40 dark:from-[#0F172A] dark:to-[#1E293B]/70 border border-[#E2E8F0] dark:border-slate-700 rounded-xl text-xs space-y-2">
               <span className="text-slate-400 dark:text-[#94A3B8] font-bold uppercase tracking-wider block text-[10px]">
-                Registration Provenance & Device Audit
+                {userT('Registration Provenance & Device Audit')}
               </span>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-slate-600 dark:text-slate-300 text-[11px] pt-1">
                 <div>
-                  <span className="text-slate-400 block text-[10px]">Registered By (Officer)</span>
+                  <span className="text-slate-400 block text-[10px]">{userT('Registered By (Officer)')}</span>
                   <strong className="text-slate-900 dark:text-[#F8FAFC]">
                     {selectedCitizen.registeredByName ||
                       (users || []).find(u => u.id === selectedCitizen.registeredById || u.employeeId === selectedCitizen.registeredById)?.name ||
-                      (selectedCitizen.registeredById === user?.id ? (user?.name || user?.fullName) : selectedCitizen.registeredById) || 'Field Officer'}
+                      (selectedCitizen.registeredById === user?.id ? (user?.name || user?.fullName) : selectedCitizen.registeredById) || userT('Field Officer')}
                   </strong>
                 </div>
                 <div>
-                  <span className="text-slate-400 block text-[10px]">Officer Employee ID</span>
+                  <span className="text-slate-400 block text-[10px]">{userT('Officer Employee ID')}</span>
                   <strong className="text-slate-900 dark:text-[#F8FAFC] font-mono">
                     {selectedCitizen.registeredByEmployeeId ||
                       (users || []).find(u => u.id === selectedCitizen.registeredById || u.employeeId === selectedCitizen.registeredById)?.employeeId ||
@@ -954,7 +956,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
                   </strong>
                 </div>
                 <div>
-                  <span className="text-slate-400 block text-[10px]">Intake Timestamp</span>
+                  <span className="text-slate-400 block text-[10px]">{userT('Intake Timestamp')}</span>
                   <strong className="text-slate-900 dark:text-[#F8FAFC]">
                     {selectedCitizen.registrationTimestamp || selectedCitizen.createdAt
                       ? new Date(selectedCitizen.registrationTimestamp || selectedCitizen.createdAt).toLocaleString()
@@ -971,7 +973,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
                 onClick={() => setSelectedCitizen(null)}
                 className="text-sm font-bold px-6 rounded-xl"
               >
-                Close Details
+                {userT('Close Details')}
               </Button>
             </div>
           </div>

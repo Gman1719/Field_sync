@@ -45,6 +45,26 @@ const ensureTable = async () => {
 
 ensureTable().catch(console.error);
 
+// POST /api/work-sessions — Start or record single session
+router.post('/', async (req, res) => {
+  try {
+    const { id, reportDate, startedAt, officerId: bodyOfficerId } = req.body;
+    const officerId = req.user?.id || bodyOfficerId;
+    if (!id || !startedAt) {
+      return res.status(400).json({ error: 'id and startedAt required' });
+    }
+    await pool.query(`
+      INSERT INTO work_sessions (id, officer_id, report_date, started_at, duration_seconds, sync_status)
+      VALUES ($1, $2, $3, $4, 0, 'SYNCED')
+      ON CONFLICT (id) DO NOTHING
+    `, [id, officerId || 'u_off', reportDate || new Date().toISOString().split('T')[0], startedAt]);
+    res.json({ success: true, message: 'Work session started successfully' });
+  } catch (error) {
+    console.error('work-sessions post error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // POST /api/work-sessions/sync — Bulk sync offline sessions (idempotent upsert)
 router.post('/sync', async (req, res) => {
   try {

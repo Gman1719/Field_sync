@@ -1,5 +1,6 @@
 import React, { type ButtonHTMLAttributes, type ReactNode, type ElementType } from 'react';
 import { Loader2 } from 'lucide-react';
+import { useUserLanguage } from '../../context/UserLanguageContext';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'success' | 'danger' | 'ghost' | 'outline';
 export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg';
@@ -29,6 +30,7 @@ export default function Button({
   onClick,
   ...props
 }: ButtonProps) {
+  const { userT } = useUserLanguage();
   const isSpinning = isLoading || loading;
   const baseStyles =
     'inline-flex items-center justify-center font-semibold transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 select-none active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none disabled:active:scale-100 cursor-pointer';
@@ -73,7 +75,7 @@ export default function Button({
       ) : Icon ? (
         <Icon className={size === 'xs' || size === 'sm' ? 'w-4 h-4' : 'w-4.5 h-4.5'} />
       ) : null}
-      {children}
+      {typeof children === 'string' ? userT(children) : children}
     </button>
   );
 }

@@ -13,6 +13,7 @@ import {
   Moon,
 } from 'lucide-react';
 import SyncBadge from '../ui/SyncBadge';
+import LanguageSelector from './LanguageSelector';
 import { useUserLanguage } from '../../context/UserLanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import {
@@ -52,10 +53,12 @@ export default function Header({
   onLogout,
 }: HeaderProps) {
   const { theme, toggleTheme } = useTheme();
-  const { currentUserLanguage, changeUserLanguage, userLanguages } = useUserLanguage();
+  const { currentUserLanguage, changeUserLanguage, userLanguages, userT } = useUserLanguage();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showLangMenu, setShowLangMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+
+  const isOfficer = user?.role === 'field_officer';
 
   const tabTitles: Record<string, string> = {
     dashboard: 'Dashboard Overview',
@@ -75,12 +78,14 @@ export default function Header({
     all_reports: 'All Daily Reports',
     alerts: 'Emergency Alerts',
     verification: 'Officer Security Verification',
+    send_alert: 'Send Alert',
+    requests: isOfficer ? 'My Requests' : 'Leave & Permission Requests',
+    leaves: 'Leave Management',
+    permissions: 'Permission Management',
     notifications: 'Notifications & Alerts',
     profile: 'My Profile & Workstation',
     profile_security: 'Security & Change Password',
   };
-
-  const isOfficer = user?.role === 'field_officer';
 
   const [recentNotifications, setRecentNotifications] = useState<any[]>([]);
   const [liveUnreadCount, setLiveUnreadCount] = useState(0);
@@ -159,11 +164,11 @@ export default function Header({
             <span className="hover:text-slate-600 dark:hover:text-slate-300 transition-colors">FieldSync</span>
             <ChevronRight className="w-3.5 h-3.5 text-slate-300 dark:text-slate-600" />
             <span className="text-slate-600 dark:text-slate-400 font-medium capitalize truncate">
-              {user?.role?.replace('_', ' ') || 'Staff'}
+              {userT(user?.role?.replace('_', ' ') || 'Staff')}
             </span>
           </div>
           <h1 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white truncate tracking-tight">
-            {tabTitles[activeTab] || 'Overview'}
+            {userT(tabTitles[activeTab] || 'Overview')}
           </h1>
         </div>
       </div>
@@ -208,51 +213,7 @@ export default function Header({
           )}
         </button>
 
-        <div className="relative">
-          <button
-            type="button"
-            onClick={() => setShowLangMenu(!showLangMenu)}
-            className="p-2 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-1 text-xs font-medium cursor-pointer"
-            title="Change Language"
-          >
-            <Globe className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-            <span className="hidden md:inline uppercase">{currentUserLanguage || 'en'}</span>
-          </button>
-
-          {showLangMenu && (
-            <div
-              className="absolute right-0 mt-2 w-44 bg-white dark:bg-slate-800 rounded-xl shadow-modal border border-slate-200 dark:border-slate-700 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150"
-              onMouseLeave={() => setShowLangMenu(false)}
-            >
-              <div className="px-3 py-1.5 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider border-b border-slate-100 dark:border-slate-700">
-                Select Language
-              </div>
-              {Object.entries((userLanguages as Record<string, any>) || {}).map(([code, lang]: [string, any]) => (
-                <button
-                  key={code}
-                  type="button"
-                  onClick={() => {
-                    changeUserLanguage(code);
-                    setShowLangMenu(false);
-                  }}
-                  className={`w-full px-3 py-2 text-left text-xs flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors ${
-                    currentUserLanguage === code
-                      ? 'text-[#2563EB] dark:text-blue-400 font-semibold bg-blue-50/50 dark:bg-blue-950/40'
-                      : 'text-slate-700 dark:text-slate-300'
-                  }`}
-                >
-                  <span className="flex items-center gap-2">
-                    <span>{lang.flag}</span>
-                    <span>{lang.nativeName}</span>
-                  </span>
-                  {currentUserLanguage === code && (
-                    <Check className="w-3.5 h-3.5 text-[#2563EB] dark:text-blue-400" />
-                  )}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+        <LanguageSelector />
 
         <div className="relative">
           <button

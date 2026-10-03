@@ -6,6 +6,7 @@ import Select from '../ui/Select';
 import { API_BASE } from '../../config/api';
 import { offlineDb } from '../../db/offlineDb';
 import { db } from '../../services/database';
+import { useUserLanguage } from '../../context/UserLanguageContext';
 
 const DEFAULT_ETHIOPIA_REGIONS = [
   { id: 'reg-addis-ababa', code: 'AA', name: 'Addis Ababa' },
@@ -115,6 +116,7 @@ export default function LocationDropdown({
   disabled = false,
   errors = {}
 }: LocationDropdownProps) {
+  const { userT } = useUserLanguage();
   const [regions, setRegions] = useState<any[]>([]);
   const [zones, setZones] = useState<any[]>([]);
   const [woredas, setWoredas] = useState<any[]>([]);
@@ -373,10 +375,10 @@ export default function LocationDropdown({
       <div className="p-3.5 bg-slate-50/80 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/70 rounded-xl text-slate-700 dark:text-slate-300 text-xs">
         <div className="flex items-center gap-2 font-semibold text-slate-900 dark:text-slate-100 mb-1">
           <Building className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-          Organization-Wide Scope
+          {userT('Organization-Wide Scope')}
         </div>
         <p className="text-slate-500 dark:text-slate-400">
-          Managers hold system-wide administrative oversight. No Zone or Woreda assignment is required.
+          {userT('Managers hold system-wide administrative oversight. No Zone or Woreda assignment is required.')}
         </p>
       </div>
     );
@@ -389,7 +391,7 @@ export default function LocationDropdown({
         <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center justify-between">
           <span className="flex items-center gap-1.5">
             <MapPin className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-            Region / Chartered City <span className="text-rose-500">*</span>
+            {userT('Region / Chartered City')} <span className="text-rose-500">*</span>
           </span>
           {loadingRegions && <Loader2 className="w-3 h-3 text-blue-600 dark:text-blue-400 animate-spin" />}
         </label>
@@ -399,10 +401,10 @@ export default function LocationDropdown({
           disabled={disabled || loadingRegions}
           error={errors.regionId}
         >
-          <option value="">Select Region / Chartered City</option>
+          <option value="">{userT('Select Region / Chartered City')}</option>
           {regions.map((r) => (
             <option key={r.id} value={r.id}>
-              {r.name} ({r.code})
+              {userT(r.name)} ({r.code})
             </option>
           ))}
         </Select>
@@ -414,7 +416,7 @@ export default function LocationDropdown({
           <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center justify-between">
             <span className="flex items-center gap-1.5">
               <Building className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-              Zone / Sub-City <span className="text-rose-500">*</span>
+              {userT('Zone / Sub-City')} <span className="text-rose-500">*</span>
             </span>
             {loadingZones && <Loader2 className="w-3 h-3 text-blue-600 dark:text-blue-400 animate-spin" />}
           </label>
@@ -424,10 +426,10 @@ export default function LocationDropdown({
             disabled={disabled || !regionId || loadingZones}
             error={errors.zoneId}
           >
-            <option value="">{regionId ? 'Select Zone / Sub-City' : 'Select Region First'}</option>
+            <option value="">{regionId ? userT('Zone / Sub-City') : userT('Select Region First')}</option>
             {zones.map((z) => (
               <option key={z.id} value={z.id}>
-                {z.name}
+                {userT(z.name)}
               </option>
             ))}
           </Select>
@@ -440,7 +442,7 @@ export default function LocationDropdown({
           <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center justify-between">
             <span className="flex items-center gap-1.5">
               <Home className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-              Woreda / Kebele <span className="text-rose-500">*</span>
+              {userT('Woreda / Kebele')} <span className="text-rose-500">*</span>
             </span>
             {loadingWoredas && <Loader2 className="w-3 h-3 text-blue-600 dark:text-blue-400 animate-spin" />}
           </label>
@@ -450,10 +452,10 @@ export default function LocationDropdown({
             disabled={disabled || !zoneId || loadingWoredas}
             error={errors.woredaId}
           >
-            <option value="">{zoneId ? 'Select Woreda' : 'Select Zone First'}</option>
+            <option value="">{zoneId ? userT('Select Woreda') : userT('Select Zone First')}</option>
             {woredas.map((w) => (
               <option key={w.id} value={w.id}>
-                {w.name}
+                {userT(w.name)}
               </option>
             ))}
           </Select>
@@ -466,7 +468,7 @@ export default function LocationDropdown({
           <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center justify-between">
             <span className="flex items-center gap-1.5">
               <UserCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-              Assigned Supervisor
+              {userT('Assigned Supervisor')}
             </span>
             {loadingSupervisors && <Loader2 className="w-3 h-3 text-blue-600 dark:text-blue-400 animate-spin" />}
           </label>
@@ -478,9 +480,9 @@ export default function LocationDropdown({
             <option value="">
               {zoneId
                 ? supervisors.length > 0
-                  ? 'Select Supervisor (or leave unassigned)'
-                  : 'No active supervisors in this zone'
-                : 'Select Zone First'}
+                  ? userT('Select Supervisor (or leave unassigned)')
+                  : userT('No active supervisors in this zone')
+                : userT('Select Zone First')}
             </option>
             {supervisors.map((s) => (
               <option key={s.id} value={s.id}>
@@ -490,7 +492,7 @@ export default function LocationDropdown({
           </Select>
           {supervisors.length > 1 && (
             <p className="mt-1 text-[11px] text-amber-600 dark:text-amber-400">
-              Multiple supervisors detected for this zone. Please select the primary supervisor.
+              {userT('Multiple supervisors detected for this zone. Please select the primary supervisor.')}
             </p>
           )}
         </div>

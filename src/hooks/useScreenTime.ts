@@ -11,6 +11,8 @@ import {
   getZonedTimeComponents,
   isEligibleWorkArea,
 } from '../config/workingHours';
+import { db } from '../services/database';
+import { timeStringToMinutes } from '../utils/requestValidation';
 import type { ScreenTimeStatus, DailyScreenTime, WorkSession } from '../types/index';
 
 export interface ScreenTimeHookResult {
@@ -25,10 +27,16 @@ export interface ScreenTimeHookResult {
   startWorkSession: () => Promise<void>;
   finalizeWorkSession: () => Promise<void>;
   pauseAndSaveOnLogout: () => Promise<void>;
+  resetSessionForTesting: () => Promise<void>;
   isTabActive: boolean;
   isWorkingHours: boolean;
   isLunch: boolean;
   statusMessage: string;
+  isInitialized: boolean;
+  isOnApprovedLeave?: boolean;
+  activeApprovedLeave?: any | null;
+  isOnApprovedPermission?: boolean;
+  activeApprovedPermission?: any | null;
 }
 
 const INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes inactivity timeout
@@ -62,9 +70,14 @@ export function useScreenTime(user: any): ScreenTimeHookResult {
     return localStorage.getItem('fieldsync_active_tab') || 'dashboard';
   });
   const [isTabActive, setIsTabActive] = useState(true);
-  const [isWorkingHours, setIsWorkingHours] = useState(false);
-  const [isLunch, setIsLunch] = useState(false);
+  const [isWorkingHours, setIsWorkingHours] = useState(() => evaluateWorkingHours().isWorkingHours);
+  const [isLunch, setIsLunch] = useState(() => evaluateWorkingHours().isLunch);
+  const [isInitialized, setIsInitialized] = useState(false);
   const [statusMessage, setStatusMessage] = useState('Not Started');
+  const [isOnApprovedLeave, setIsOnApprovedLeave] = useState(false);
+  const [activeApprovedLeave, setActiveApprovedLeave] = useState<any | null>(null);
+  const [isOnApprovedPermission, setIsOnApprovedPermission] = useState(false);
+  const [activeApprovedPermission, setActiveApprovedPermission] = useState<any | null>(null);
 
   // Verification modal state
   const [isVerificationPending, setIsVerificationPending] = useState(false);
@@ -83,6 +96,60 @@ export function useScreenTime(user: any): ScreenTimeHookResult {
     typeof document !== 'undefined' && typeof document.hasFocus === 'function' ? document.hasFocus() : true
   );
   const pageTimesRef = useRef<Record<string, number>>({});
+  const approvedLeaveRef = useRef<any | null>(null);
+  const approvedPermissionRef = useRef<any | null>(null);
+
+  // Check approved absences (leaves and permissions)
+  const checkApprovedAbsences = useCallback(async () => {
+    if (!officerId || !isOfficer) return;
+    try {
+      const { dateStr, totalMinutes } = getZonedTimeComponents();
+
+      // Check leaves
+      let userLeaves: any[] = [];
+      if (db.leaves) {
+        userLeaves = await db.leaves.where('employeeId').equals(officerId).toArray();
+      }
+      const activeLeave = userLeaves.find(
+        (l) =>
+          (l.status || '').toLowerCase() === 'approved' &&
+          (l.startDate || l.start_date) <= dateStr &&
+          (l.endDate || l.end_date) >= dateStr
+      );
+
+      setIsOnApprovedLeave(Boolean(activeLeave));
+      setActiveApprovedLeave(activeLeave || null);
+      approvedLeaveRef.current = activeLeave || null;
+
+      // Check permissions
+      let userPerms: any[] = [];
+      if (db.permissions) {
+        userPerms = await db.permissions.where('employeeId').equals(officerId).toArray();
+      }
+      const activePerm = userPerms.find((p) => {
+        if ((p.status || '').toLowerCase() !== 'approved') return false;
+        const pDate = p.date || p.permissionDate || p.startDate || p.start_date;
+        if (pDate !== dateStr) return false;
+        const sMins = timeStringToMinutes(p.startTime || p.start_time);
+        const eMins = timeStringToMinutes(p.endTime || p.end_time);
+        return sMins >= 0 && eMins >= 0 && totalMinutes >= sMins && totalMinutes <= eMins;
+      });
+
+      setIsOnApprovedPermission(Boolean(activePerm));
+      setActiveApprovedPermission(activePerm || null);
+      approvedPermissionRef.current = activePerm || null;
+    } catch (_) {}
+  }, [officerId, isOfficer]);
+
+  useEffect(() => {
+    checkApprovedAbsences();
+    const interval = setInterval(checkApprovedAbsences, 10000);
+    window.addEventListener('fieldsync-request-updated', checkApprovedAbsences);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('fieldsync-request-updated', checkApprovedAbsences);
+    };
+  }, [checkApprovedAbsences]);
 
   useEffect(() => {
     try {
@@ -350,6 +417,8 @@ export function useScreenTime(user: any): ScreenTimeHookResult {
         setSessionStartedAt(null);
       } catch (err) {
         console.error('Error loading today screen-time state:', err);
+      } finally {
+        setIsInitialized(true);
       }
     };
 
@@ -515,19 +584,89 @@ export function useScreenTime(user: any): ScreenTimeHookResult {
     }
   }, [officerId]);
 
+  // Explicit session reset for testing first-time login
+  const resetSessionForTesting = useCallback(async () => {
+    if (!officerId) return;
+    const { dateStr } = getZonedTimeComponents();
+    const screenTimeId = `st_${officerId}_${dateStr}`;
+    try {
+      localStorage.removeItem(`fieldsync_screentime_${officerId}_${dateStr}`);
+      if (offlineDb.dailyScreenTimes) {
+        await offlineDb.dailyScreenTimes.delete(screenTimeId);
+      }
+      if (offlineDb.workSessions) {
+        const list = await offlineDb.workSessions
+          .where('officerId')
+          .equals(officerId)
+          .filter((s) => s.reportDate === dateStr)
+          .toArray();
+        for (const s of list) {
+          await offlineDb.workSessions.delete(s.id);
+        }
+      }
+      if (offlineDb.dailyWorkReports) {
+        const reports = await offlineDb.dailyWorkReports
+          .where('officerId')
+          .equals(officerId)
+          .filter((r) => r.reportDate === dateStr)
+          .toArray();
+        for (const r of reports) {
+          await offlineDb.dailyWorkReports.delete(r.id);
+        }
+      }
+    } catch (_e) {}
+
+    setIsSessionActive(false);
+    sessionActiveRef.current = false;
+    setTrackingStatus('NOT_STARTED');
+    statusRef.current = 'NOT_STARTED';
+    setScreenTimeCounter(0);
+    counterRef.current = 0;
+    setSessionStartedAt(null);
+    setStatusMessage('Work Session Not Started');
+    window.dispatchEvent(new CustomEvent('fieldsync-session-reset'));
+  }, [officerId]);
+
   // 7. Core 1-Second Screen-Time Evaluation Loop
   useEffect(() => {
     if (!isOfficer || !officerId) return;
 
     timerRef.current = setInterval(() => {
-      // Must not track if finalized or not started
-      if (!sessionActiveRef.current || statusRef.current === 'FINALIZED') {
-        return;
-      }
-
       const wh = evaluateWorkingHours();
       setIsWorkingHours(wh.isWorkingHours);
       setIsLunch(wh.isLunch);
+
+      // Must not track if finalized or not started
+      if (!sessionActiveRef.current || statusRef.current === 'FINALIZED') {
+        if (approvedLeaveRef.current) {
+          const lType = approvedLeaveRef.current.type || 'Leave';
+          const formattedType = lType.charAt(0).toUpperCase() + lType.slice(1);
+          setStatusMessage(`On Approved Leave (${formattedType}) — Absence Authorized`);
+        }
+        return;
+      }
+
+      // Check Approved Leave (Absence Authorized - officer not expected to work)
+      if (approvedLeaveRef.current) {
+        if (statusRef.current !== 'NOT_TRACKING') {
+          setTrackingStatus('NOT_TRACKING');
+        }
+        const lType = approvedLeaveRef.current.type || 'Leave';
+        const formattedType = lType.charAt(0).toUpperCase() + lType.slice(1);
+        setStatusMessage(`On Approved Leave (${formattedType}) — Absence Authorized`);
+        return;
+      }
+
+      // Check Approved Permission (Authorized temporary absence recorded separately from screen-time)
+      if (approvedPermissionRef.current) {
+        if (statusRef.current !== 'NOT_TRACKING') {
+          setTrackingStatus('NOT_TRACKING');
+        }
+        const pStart = approvedPermissionRef.current.startTime || approvedPermissionRef.current.start_time || '';
+        const pEnd = approvedPermissionRef.current.endTime || approvedPermissionRef.current.end_time || '';
+        setStatusMessage(`Approved Permission (${pStart}–${pEnd}) — Authorized Absence`);
+        return;
+      }
 
       // Check Verification Modal State
       if (verificationPendingRef.current) {
@@ -681,10 +820,16 @@ export function useScreenTime(user: any): ScreenTimeHookResult {
     startWorkSession,
     finalizeWorkSession,
     pauseAndSaveOnLogout,
+    resetSessionForTesting,
     isTabActive,
     isWorkingHours,
     isLunch,
     statusMessage,
+    isInitialized,
+    isOnApprovedLeave,
+    activeApprovedLeave,
+    isOnApprovedPermission,
+    activeApprovedPermission,
   };
 }
 

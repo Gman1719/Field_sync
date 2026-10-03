@@ -33,27 +33,35 @@ i18n
 // Unified userLanguages metadata mapping for backward compatibility
 export const userLanguages = {
   en: {
+    code: 'en',
     name: 'English',
     nativeName: 'English',
     flag: '🇬🇧',
+    countryCode: 'GB',
     translations: en
   },
   am: {
+    code: 'am',
     name: 'Amharic',
     nativeName: 'አማርኛ',
     flag: '🇪🇹',
+    countryCode: 'ET',
     translations: am
   },
   om: {
+    code: 'om',
     name: 'Afaan Oromoo',
     nativeName: 'Oromoo',
     flag: '🇪🇹',
+    countryCode: 'ET',
     translations: om
   },
   ti: {
+    code: 'ti',
     name: 'Tigrinya',
     nativeName: 'ትግርኛ',
     flag: '🇪🇹',
+    countryCode: 'ET',
     translations: ti
   }
 };

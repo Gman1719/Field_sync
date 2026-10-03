@@ -18,6 +18,7 @@ import StatCard from '../ui/StatCard';
 import Button from '../ui/Button';
 import Badge from '../ui/Badge';
 import Modal from '../ui/Modal';
+import { useUserLanguage } from '../../context/UserLanguageContext';
 
 const REAL_ETHIOPIAN_REGIONS = [
   'Addis Ababa',
@@ -49,6 +50,7 @@ export default function TeamManagement({
   employeePerformance = [],
   citizens = []
 }: any) {
+  const { userT } = useUserLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRegion, setFilterRegion] = useState('All');
   const [statusFilter, setStatusFilter] = useState('ALL'); // 'ALL', 'ONLINE', 'ACTIVE'
@@ -348,7 +350,7 @@ export default function TeamManagement({
       <Modal
         isOpen={!!selectedOfficer}
         onClose={() => setSelectedOfficer(null)}
-        title="Field Officer Profile & Operational Information"
+        title={userT('Field Officer Profile & Operational Information')}
         size="lg"
       >
         <div className="space-y-5 text-xs">
@@ -369,13 +371,13 @@ export default function TeamManagement({
                 </div>
                 <div className="flex items-center gap-2 mt-2">
                   <Badge variant="primary" className="text-[10px] font-semibold">
-                    Field Officer
+                    {userT('Field Officer')}
                   </Badge>
                   <Badge variant={isOnline ? 'success' : 'neutral'} dot className="text-[10px] font-semibold">
-                    {isOnline ? 'ONLINE NOW' : 'OFFLINE'}
+                    {isOnline ? userT('Online Now') : userT('Offline')}
                   </Badge>
                   <Badge variant={selectedOfficer.status === 'active' ? 'success' : 'neutral'} className="text-[10px] font-semibold">
-                    {selectedOfficer.status ? String(selectedOfficer.status).toUpperCase() : 'ACTIVE'}
+                    {selectedOfficer.status ? userT(String(selectedOfficer.status).toUpperCase()) : userT('Active')}
                   </Badge>
                 </div>
               </div>
@@ -386,20 +388,20 @@ export default function TeamManagement({
           <div className="space-y-2.5">
             <h4 className="text-xs font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
               <User className="w-3.5 h-3.5 text-[#2563EB] dark:text-blue-400" />
-              Personal & Contact Details
+              {userT('Personal & Contact Details')}
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
               <div className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl">
-                <span className="text-slate-400 dark:text-slate-400 block text-[11px] mb-1">Ethiopian Name</span>
+                <span className="text-slate-400 dark:text-slate-400 block text-[11px] mb-1">{userT('Ethiopian Name')}</span>
                 <span className="font-semibold text-slate-900 dark:text-white">
                   {[selectedOfficer.firstName, selectedOfficer.middleName, selectedOfficer.lastName].filter(Boolean).join(' ') || selectedOfficer.name || selectedOfficer.fullName}
                 </span>
               </div>
               <div className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl flex items-center justify-between">
                 <div className="min-w-0 pr-2">
-                  <span className="text-slate-400 dark:text-slate-400 block text-[11px] mb-1">Phone Number</span>
+                  <span className="text-slate-400 dark:text-slate-400 block text-[11px] mb-1">{userT('Phone Number')}</span>
                   <span className="font-semibold text-slate-900 dark:text-white font-mono truncate block">
-                    {formatEthiopianPhone(selectedOfficer.phone) || 'Not provided'}
+                    {formatEthiopianPhone(selectedOfficer.phone) || userT('Not provided')}
                   </span>
                 </div>
                 {selectedOfficer.phone && (
@@ -407,7 +409,7 @@ export default function TeamManagement({
                     type="button"
                     onClick={() => copyToClipboard(selectedOfficer.phone, 'Phone')}
                     className="p-1 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                    title="Copy Phone"
+                    title={userT('Copy Phone')}
                   >
                     {copiedField === 'Phone' ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
                   </button>
@@ -415,9 +417,9 @@ export default function TeamManagement({
               </div>
               <div className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl flex items-center justify-between">
                 <div className="min-w-0 pr-2">
-                  <span className="text-slate-400 dark:text-slate-400 block text-[11px] mb-1">Email Address</span>
+                  <span className="text-slate-400 dark:text-slate-400 block text-[11px] mb-1">{userT('Email Address')}</span>
                   <span className="font-semibold text-slate-900 dark:text-white truncate block">
-                    {selectedOfficer.email || 'Not provided'}
+                    {selectedOfficer.email || userT('Not provided')}
                   </span>
                 </div>
                 {selectedOfficer.email && (
@@ -425,7 +427,7 @@ export default function TeamManagement({
                     type="button"
                     onClick={() => copyToClipboard(selectedOfficer.email, 'Email')}
                     className="p-1 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                    title="Copy Email"
+                    title={userT('Copy Email')}
                   >
                     {copiedField === 'Email' ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
                   </button>
@@ -438,30 +440,30 @@ export default function TeamManagement({
           <div className="space-y-2.5">
             <h4 className="text-xs font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
               <MapPin className="w-3.5 h-3.5 text-[#2563EB] dark:text-blue-400" />
-              Administrative Deployment & Hierarchy
+              {userT('Administrative Deployment & Hierarchy')}
             </h4>
             <div className="p-4 bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 rounded-xl">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg">
-                  <span className="text-slate-400 dark:text-slate-400 text-[11px] block">Region</span>
-                  <span className="font-bold text-slate-900 dark:text-white">{selectedOfficer.region || selectedTeam?.region || 'Unassigned'}</span>
+                  <span className="text-slate-400 dark:text-slate-400 text-[11px] block">{userT('Region')}</span>
+                  <span className="font-bold text-slate-900 dark:text-white">{selectedOfficer.region || selectedTeam?.region || userT('Unassigned')}</span>
                 </div>
                 <div className="p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg">
-                  <span className="text-slate-400 dark:text-slate-400 text-[11px] block">Zone / Sub-City</span>
-                  <span className="font-bold text-slate-900 dark:text-white">{selectedOfficer.zone || selectedTeam?.zone || 'Unassigned'}</span>
+                  <span className="text-slate-400 dark:text-slate-400 text-[11px] block">{userT('Zone / Sub-City')}</span>
+                  <span className="font-bold text-slate-900 dark:text-white">{selectedOfficer.zone || selectedTeam?.zone || userT('Unassigned')}</span>
                 </div>
                 <div className="p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg">
-                  <span className="text-slate-400 dark:text-slate-400 text-[11px] block">Woreda / Field Station</span>
-                  <span className="font-bold text-slate-900 dark:text-white">{selectedOfficer.woreda || 'Assigned Station'}</span>
+                  <span className="text-slate-400 dark:text-slate-400 text-[11px] block">{userT('Woreda / Field Station')}</span>
+                  <span className="font-bold text-slate-900 dark:text-white">{selectedOfficer.woreda || userT('Assigned Station')}</span>
                 </div>
                 <div className="p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg sm:col-span-3 flex items-center justify-between">
                   <div>
-                    <span className="text-slate-400 dark:text-slate-400 text-[11px] block">Direct Assigned Lead Supervisor</span>
+                    <span className="text-slate-400 dark:text-slate-400 text-[11px] block">{userT('Direct Assigned Lead Supervisor')}</span>
                     <span className="font-bold text-[#2563EB] dark:text-blue-400">
                       {directSupervisor}
                     </span>
                   </div>
-                  <Badge variant="neutral" className="text-[10px]">Supervisor Lead</Badge>
+                  <Badge variant="neutral" className="text-[10px]">{userT('Supervisor Lead')}</Badge>
                 </div>
               </div>
             </div>
@@ -489,19 +491,19 @@ export default function TeamManagement({
           <div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-500 border border-blue-200 dark:border-blue-900/40">
-                Supervisor Field Team
+                {userT('Supervisor Field Team')}
               </span>
               <span className="text-xs text-slate-400 dark:text-slate-500">•</span>
               <span className="text-xs text-slate-500 dark:text-slate-400">
-                {(user?.zone && user.zone !== 'Unassigned') ? user.zone : ((user?.region && user.region !== 'Unassigned') ? user.region : 'Assigned Zone')}
+                {(user?.zone && user.zone !== 'Unassigned') ? user.zone : ((user?.region && user.region !== 'Unassigned') ? user.region : userT('Assigned Zone'))}
               </span>
             </div>
 
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white mt-2">
-              Team
+              {userT('Team')}
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-              Direct field officers assigned to your operational unit
+              {userT('Direct field officers assigned to your operational unit')}
             </p>
           </div>
 
@@ -516,7 +518,7 @@ export default function TeamManagement({
                     ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-500 shadow-xs'
                     : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
                 }`}
-                title="Cards Layout"
+                title={userT('Cards Layout')}
               >
                 <LayoutGrid className="w-4 h-4" />
               </button>
@@ -528,7 +530,7 @@ export default function TeamManagement({
                     ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-500 shadow-xs'
                     : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
                 }`}
-                title="Table Layout"
+                title={userT('Table Layout')}
               >
                 <List className="w-4 h-4" />
               </button>
@@ -540,49 +542,49 @@ export default function TeamManagement({
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
           <div className="p-4 rounded-xl border bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700/60 shadow-xs">
             <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
-              Assigned Officers
+              {userT('Assigned Officers')}
             </span>
             <div className="mt-1 flex items-baseline gap-2">
               <span className="text-2xl font-black text-slate-900 dark:text-white font-mono">
                 {totalOfficers}
               </span>
-              <span className="text-xs text-slate-400">Personnel</span>
+              <span className="text-xs text-slate-400">{userT('Personnel')}</span>
             </div>
           </div>
 
           <div className="p-4 rounded-xl border bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700/60 shadow-xs">
             <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block">
-              Online Now
+              {userT('Online Now')}
             </span>
             <div className="mt-1 flex items-baseline gap-2">
               <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400 font-mono">
                 {onlineCount}
               </span>
-              <span className="text-xs text-slate-400">Connected</span>
+              <span className="text-xs text-slate-400">{userT('Connected')}</span>
             </div>
           </div>
 
           <div className="p-4 rounded-xl border bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700/60 shadow-xs">
             <span className="text-[11px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider block">
-              Active Status
+              {userT('Active Status')}
             </span>
             <div className="mt-1 flex items-baseline gap-2">
               <span className="text-2xl font-black text-blue-600 dark:text-blue-500 font-mono">
                 {activeCount}
               </span>
-              <span className="text-xs text-slate-400">Active</span>
+              <span className="text-xs text-slate-400">{userT('Active')}</span>
             </div>
           </div>
 
           <div className="p-4 rounded-xl border bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700/60 shadow-xs">
             <span className="text-[11px] font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider block">
-              Citizens Registered
+              {userT('Citizens Registered')}
             </span>
             <div className="mt-1 flex items-baseline gap-2">
               <span className="text-2xl font-black text-purple-600 dark:text-purple-400 font-mono">
                 {totalCitizens.toLocaleString()}
               </span>
-              <span className="text-xs text-slate-400">Total</span>
+              <span className="text-xs text-slate-400">{userT('Total')}</span>
             </div>
           </div>
         </div>
@@ -595,7 +597,7 @@ export default function TeamManagement({
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search officer by name, ID, or woreda..."
+              placeholder={userT('Search officer by name, ID, or woreda...')}
               className="w-full pl-10 pr-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
@@ -610,7 +612,7 @@ export default function TeamManagement({
                   : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-200 border border-transparent dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-800'
               }`}
             >
-              All ({supervisorOfficers.length})
+              {userT('All')} ({supervisorOfficers.length})
             </button>
             <button
               type="button"
@@ -621,7 +623,7 @@ export default function TeamManagement({
                   : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-200 border border-transparent dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-800'
               }`}
             >
-              Online ({onlineCount})
+              {userT('Online')} ({onlineCount})
             </button>
             <button
               type="button"
@@ -632,7 +634,7 @@ export default function TeamManagement({
                   : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-200 border border-transparent dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-800'
               }`}
             >
-              Active ({activeCount})
+              {userT('Active')} ({activeCount})
             </button>
           </div>
         </div>
@@ -641,11 +643,11 @@ export default function TeamManagement({
         {filteredSupervisorOfficers.length === 0 ? (
           <div className="py-16 text-center rounded-2xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 p-6">
             <Users className="w-10 h-10 text-slate-300 dark:text-slate-500 mx-auto mb-2" />
-            <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200">No Field Officers Found</h3>
+            <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200">{userT('No Field Officers Found')}</h3>
             <p className="text-xs text-slate-400 dark:text-slate-400 mt-1 max-w-sm mx-auto">
               {searchTerm || statusFilter !== 'ALL'
-                ? 'Try adjusting your search query or status filter.'
-                : 'No field officers have been assigned to your supervision zone yet.'}
+                ? userT('Try adjusting your search query or status filter.')
+                : userT('No field officers have been assigned to your supervision zone yet.')}
             </p>
           </div>
         ) : viewMode === 'cards' ? (
@@ -671,7 +673,7 @@ export default function TeamManagement({
                             className={`absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-white dark:border-slate-800 ${
                               isOnline ? 'bg-emerald-500' : 'bg-slate-400'
                             }`}
-                            title={isOnline ? 'Online' : 'Offline'}
+                            title={isOnline ? userT('Online') : userT('Offline')}
                           />
                         </div>
 
@@ -690,7 +692,7 @@ export default function TeamManagement({
                         dot
                         className="text-[10px] shrink-0 font-medium"
                       >
-                        {isOnline ? 'Online' : 'Offline'}
+                        {isOnline ? userT('Online') : userT('Offline')}
                       </Badge>
                     </div>
 
@@ -700,7 +702,7 @@ export default function TeamManagement({
                       <span className="truncate">
                         {officer.woreda && officer.woreda !== 'Unassigned'
                           ? officer.woreda
-                          : (officer.zone && officer.zone !== 'Unassigned' ? officer.zone : 'Field Station')}
+                          : (officer.zone && officer.zone !== 'Unassigned' ? officer.zone : userT('Field Station'))}
                       </span>
                     </div>
 
@@ -708,7 +710,7 @@ export default function TeamManagement({
                     <div className="grid grid-cols-2 gap-2 mt-3">
                       <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/80 border border-slate-100 dark:border-slate-700 text-center">
                         <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-400 block tracking-wider">
-                          Citizens Registered
+                          {userT('Citizens Registered')}
                         </span>
                         <span className="text-sm font-black text-slate-900 dark:text-white font-mono mt-0.5 block">
                           {regCount}
@@ -717,18 +719,18 @@ export default function TeamManagement({
 
                       <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/80 border border-slate-100 dark:border-slate-700 text-center">
                         <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-400 block tracking-wider">
-                          Daily Report
+                          {userT('Daily Report')}
                         </span>
                         <div className="mt-0.5 flex items-center justify-center gap-1">
                           {todayReport ? (
                             <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
                               <CheckCircle className="w-3.5 h-3.5" />
-                              Submitted
+                              {userT('Submitted')}
                             </span>
                           ) : (
                             <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-600 dark:text-amber-400">
                               <Clock className="w-3.5 h-3.5" />
-                              Pending
+                              {userT('Pending')}
                             </span>
                           )}
                         </div>
@@ -743,7 +745,7 @@ export default function TeamManagement({
                         <a
                           href={`tel:${officer.phone}`}
                           className="p-2 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors"
-                          title={`Call ${officer.phone}`}
+                          title={`${userT('Call')} ${officer.phone}`}
                         >
                           <Phone className="w-3.5 h-3.5" />
                         </a>
@@ -752,7 +754,7 @@ export default function TeamManagement({
                         <a
                           href={`mailto:${officer.email}`}
                           className="p-2 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors"
-                          title={`Email ${officer.email}`}
+                          title={`${userT('Email')} ${officer.email}`}
                         >
                           <Mail className="w-3.5 h-3.5" />
                         </a>
@@ -765,7 +767,7 @@ export default function TeamManagement({
                       className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-sm font-bold text-white transition-all cursor-pointer shadow-xs"
                     >
                       <Eye className="w-4 h-4" />
-                      <span>Detail</span>
+                      <span>{userT('Detail')}</span>
                     </button>
                   </div>
                 </div>
@@ -779,12 +781,12 @@ export default function TeamManagement({
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
                   <tr className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-700/60 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                    <th className="py-3 px-4">Officer</th>
-                    <th className="py-3 px-4">Woreda Station</th>
-                    <th className="py-3 px-4">Status</th>
-                    <th className="py-3 px-4 text-center">Registrations</th>
-                    <th className="py-3 px-4 text-center">Daily Report</th>
-                    <th className="py-3 px-4 text-right">Actions</th>
+                    <th className="py-3 px-4">{userT('Officer')}</th>
+                    <th className="py-3 px-4">{userT('Woreda Station')}</th>
+                    <th className="py-3 px-4">{userT('Status')}</th>
+                    <th className="py-3 px-4 text-center">{userT('Registrations')}</th>
+                    <th className="py-3 px-4 text-center">{userT('Daily Report')}</th>
+                    <th className="py-3 px-4 text-right">{userT('Actions')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60">
@@ -813,14 +815,14 @@ export default function TeamManagement({
                           </div>
                         </td>
                         <td className="py-3 px-4 text-slate-600 dark:text-slate-300">
-                          {officer.woreda && officer.woreda !== 'Unassigned' ? officer.woreda : (officer.zone && officer.zone !== 'Unassigned' ? officer.zone : 'Assigned Station')}
+                          {officer.woreda && officer.woreda !== 'Unassigned' ? officer.woreda : (officer.zone && officer.zone !== 'Unassigned' ? officer.zone : userT('Assigned Station'))}
                         </td>
                         <td className="py-3 px-4">
                           <Badge
                             variant={isOnline ? 'success' : 'neutral'}
                             className="text-[10px]"
                           >
-                            {isOnline ? 'Online' : 'Offline'}
+                            {isOnline ? userT('Online') : userT('Offline')}
                           </Badge>
                         </td>
                         <td className="py-3 px-4 text-center font-bold font-mono text-slate-900 dark:text-white">
@@ -830,12 +832,12 @@ export default function TeamManagement({
                           {todayReport ? (
                             <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600">
                               <CheckCircle className="w-3.5 h-3.5" />
-                              Submitted
+                              {userT('Submitted')}
                             </span>
                           ) : (
                             <span className="inline-flex items-center gap-1 text-[11px] text-amber-600">
                               <Clock className="w-3.5 h-3.5" />
-                              Pending
+                              {userT('Pending')}
                             </span>
                           )}
                         </td>
@@ -845,7 +847,7 @@ export default function TeamManagement({
                             onClick={() => setSelectedOfficer(officer)}
                             className="px-3.5 py-1.5 rounded-xl text-sm font-bold bg-blue-600 hover:bg-blue-700 text-white transition-colors cursor-pointer shadow-xs"
                           >
-                            Detail
+                            {userT('Detail')}
                           </button>
                         </td>
                       </tr>
@@ -872,13 +874,13 @@ export default function TeamManagement({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-slate-950/30">
         <div>
           <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-700">
-            Workforce Hierarchy
+            {userT('Workforce Hierarchy')}
           </span>
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white mt-2">
-            Team
+            {userT('Team')}
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-300 mt-0.5">
-            Zonal supervisor structures and assigned field officer units
+            {userT('Zonal supervisor structures and assigned field officer units')}
           </p>
         </div>
       </div>
@@ -891,7 +893,7 @@ export default function TeamManagement({
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search teams by name, zone, or supervisor..."
+            placeholder={userT('Search teams by name, zone, or supervisor...')}
             className="w-full pl-10 pr-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           />
         </div>
@@ -902,7 +904,7 @@ export default function TeamManagement({
             onChange={(e) => setFilterRegion(e.target.value)}
             className="text-xs font-medium py-2 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-200 focus:outline-none"
           >
-            <option value="All">All Regions</option>
+            <option value="All">{userT('All Regions')}</option>
             {REAL_ETHIOPIAN_REGIONS.map((r) => (
               <option key={r} value={r}>{r}</option>
             ))}
@@ -930,7 +932,7 @@ export default function TeamManagement({
                   </p>
                 </div>
                 <Badge variant="primary" className="text-[10px] shrink-0">
-                  {team.officers.length} {team.officers.length === 1 ? 'Officer' : 'Officers'}
+                  {team.officers.length} {team.officers.length === 1 ? userT('Officer') : userT('Officers')}
                 </Badge>
               </div>
 
@@ -938,7 +940,7 @@ export default function TeamManagement({
               <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/80 border border-slate-100 dark:border-slate-700">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-blue-400 block tracking-wider">
-                    Lead Supervisor
+                    {userT('Lead Supervisor')}
                   </span>
                   {team.supervisor && (
                     <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-slate-500 dark:text-slate-300">
@@ -947,12 +949,12 @@ export default function TeamManagement({
                           team.stats.isSupervisorOnline ? 'bg-emerald-500 shadow-xs shadow-emerald-500/50' : 'bg-slate-300 dark:bg-slate-600'
                         }`}
                       />
-                      {team.stats.isSupervisorOnline ? 'Online' : 'Offline'}
+                      {team.stats.isSupervisorOnline ? userT('Online') : userT('Offline')}
                     </span>
                   )}
                 </div>
                 <span className="text-xs font-bold text-slate-900 dark:text-white mt-1 block">
-                  {team.supervisor?.name || team.supervisor?.fullName || 'Frontline Pool'}
+                  {team.supervisor?.name || team.supervisor?.fullName || userT('Frontline Pool')}
                 </span>
                 {team.supervisor && (
                   <p className="text-[10px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">
@@ -965,19 +967,19 @@ export default function TeamManagement({
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-300 tracking-wider">
-                    Officers ({team.officers.length})
+                    {userT('Officers')} ({team.officers.length})
                   </span>
                   {team.stats.onlineOfficers > 0 && (
                     <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                      {team.stats.onlineOfficers} online
+                      {team.stats.onlineOfficers} {userT('online')}
                     </span>
                   )}
                 </div>
 
                 {team.officers.length === 0 ? (
                   <div className="py-4 text-center rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-dashed border-slate-200 dark:border-slate-700">
-                    <p className="text-xs text-slate-400 dark:text-slate-400">No officers assigned to this supervisor</p>
+                    <p className="text-xs text-slate-400 dark:text-slate-400">{userT('No officers assigned to this supervisor')}</p>
                   </div>
                 ) : (
                   <div className="space-y-1.5 max-h-52 overflow-y-auto pr-1">
@@ -1005,7 +1007,7 @@ export default function TeamManagement({
                                 {officer.name || officer.fullName}
                               </span>
                               <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono block truncate">
-                                {officer.employeeId || officer.id} • {officer.woreda || officer.zone || 'Field'}
+                                {officer.employeeId || officer.id} • {officer.woreda || officer.zone || userT('Field')}
                               </span>
                             </div>
                           </div>
@@ -1020,14 +1022,14 @@ export default function TeamManagement({
             {/* Card Footer */}
             <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between gap-2">
               <span className="text-xs text-slate-500 dark:text-slate-300">
-                <strong className="text-slate-800 dark:text-white">{team.stats.activeOfficers}</strong> Active Personnel
+                <strong className="text-slate-800 dark:text-white">{team.stats.activeOfficers}</strong> {userT('Active Personnel')}
               </span>
               <button
                 type="button"
                 onClick={() => setSelectedTeam(team)}
                 className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold transition-all cursor-pointer shadow-xs"
               >
-                Detail
+                {userT('Detail')}
               </button>
             </div>
           </div>
@@ -1039,7 +1041,7 @@ export default function TeamManagement({
         <Modal
           isOpen={!!selectedTeam}
           onClose={() => setSelectedTeam(null)}
-          title={`Team Details — ${selectedTeam.name}`}
+          title={`${userT('Team Details')} — ${selectedTeam.name}`}
           size="lg"
         >
           <div className="space-y-5 text-xs">
@@ -1055,31 +1057,31 @@ export default function TeamManagement({
                     {[selectedTeam.region, selectedTeam.zone, (selectedTeam.woreda && selectedTeam.woreda !== 'All Woredas in Zone' ? selectedTeam.woreda : null)]
                       .filter(Boolean)
                       .filter((s: string) => s !== 'Unassigned')
-                      .join(' > ') || 'Operational Unit'}
+                      .join(' > ') || userT('Operational Unit')}
                   </span>
                 </p>
               </div>
               <Badge variant="primary" className="text-xs font-semibold self-start sm:self-auto">
-                {selectedTeam.officers.length} Assigned Officers
+                {selectedTeam.officers.length} {userT('Assigned Officers')}
               </Badge>
             </div>
 
             {/* Quick Metrics Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
-                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase block">Total Officers</span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase block">{userT('Total Officers')}</span>
                 <span className="text-lg font-black text-slate-900 dark:text-white font-mono mt-0.5 block">
                   {selectedTeam.stats.officersCount}
                 </span>
               </div>
               <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
-                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold uppercase block">Online Now</span>
+                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold uppercase block">{userT('Online Now')}</span>
                 <span className="text-lg font-black text-emerald-600 dark:text-emerald-400 font-mono mt-0.5 block">
                   {selectedTeam.stats.onlineOfficers}
                 </span>
               </div>
               <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
-                <span className="text-[10px] text-blue-600 dark:text-blue-400 font-bold uppercase block">Active Status</span>
+                <span className="text-[10px] text-blue-600 dark:text-blue-400 font-bold uppercase block">{userT('Active Status')}</span>
                 <span className="text-lg font-black text-blue-600 dark:text-blue-400 font-mono mt-0.5 block">
                   {selectedTeam.stats.activeOfficers}
                 </span>
@@ -1090,7 +1092,7 @@ export default function TeamManagement({
             {selectedTeam.supervisor && (
               <div className="p-4 rounded-xl bg-blue-50/50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/60">
                 <span className="text-[10px] uppercase font-bold text-blue-600 dark:text-blue-400 block tracking-wider mb-2">
-                  Lead Supervisor Information
+                  {userT('Lead Supervisor Information')}
                 </span>
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
@@ -1098,7 +1100,7 @@ export default function TeamManagement({
                       {selectedTeam.supervisor.name || selectedTeam.supervisor.fullName}
                     </h5>
                     <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">
-                      ID: {selectedTeam.supervisor.employeeId || selectedTeam.supervisor.id} • Role: Zonal Supervisor
+                      ID: {selectedTeam.supervisor.employeeId || selectedTeam.supervisor.id} • {userT('Role')}: {userT('Zonal Supervisor')}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -1129,14 +1131,14 @@ export default function TeamManagement({
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <h5 className="font-bold text-xs uppercase text-slate-700 dark:text-slate-200 tracking-wider">
-                  Officers Under This Supervisor ({selectedTeam.officers.length})
+                  {userT('Officers Under This Supervisor')} ({selectedTeam.officers.length})
                 </h5>
               </div>
 
               {selectedTeam.officers.length === 0 ? (
                 <div className="py-8 text-center rounded-xl border border-dashed border-slate-200 dark:border-slate-700 p-4">
                   <Users className="w-8 h-8 text-slate-300 dark:text-slate-500 mx-auto mb-1.5" />
-                  <p className="text-xs text-slate-500 dark:text-slate-400">No field officers currently assigned to this supervisor.</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">{userT('No field officers currently assigned to this supervisor.')}</p>
                 </div>
               ) : (
                 <div className="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
@@ -1144,11 +1146,11 @@ export default function TeamManagement({
                     <table className="w-full text-left border-collapse text-xs">
                       <thead className="sticky top-0 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider">
                         <tr>
-                          <th className="py-2.5 px-3">Officer</th>
-                          <th className="py-2.5 px-3">Station</th>
-                          <th className="py-2.5 px-3">Status</th>
-                          <th className="py-2.5 px-3 text-center">Registrations</th>
-                          <th className="py-2.5 px-3 text-right">Actions</th>
+                          <th className="py-2.5 px-3">{userT('Officer')}</th>
+                          <th className="py-2.5 px-3">{userT('Station')}</th>
+                          <th className="py-2.5 px-3">{userT('Status')}</th>
+                          <th className="py-2.5 px-3 text-center">{userT('Registrations')}</th>
+                          <th className="py-2.5 px-3 text-right">{userT('Actions')}</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100 dark:divide-slate-700 bg-white dark:bg-slate-900">
@@ -1177,11 +1179,11 @@ export default function TeamManagement({
                                 </div>
                               </td>
                               <td className="py-2.5 px-3 text-slate-600 dark:text-slate-300">
-                                {officer.woreda || officer.zone || 'Assigned Station'}
+                                {officer.woreda || officer.zone || userT('Assigned Station')}
                               </td>
                               <td className="py-2.5 px-3">
                                 <Badge variant={isOnline ? 'success' : 'neutral'} className="text-[10px]">
-                                  {isOnline ? 'Online' : 'Offline'}
+                                  {isOnline ? userT('Online') : userT('Offline')}
                                 </Badge>
                               </td>
                               <td className="py-2.5 px-3 text-center font-mono font-bold text-slate-900 dark:text-white">
@@ -1193,7 +1195,7 @@ export default function TeamManagement({
                                   onClick={() => setSelectedOfficer(officer)}
                                   className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-blue-600 hover:text-white dark:bg-slate-800 dark:hover:bg-blue-600 text-slate-700 dark:text-slate-200 transition-colors cursor-pointer border border-transparent dark:border-slate-700"
                                 >
-                                  Detail
+                                  {userT('Detail')}
                                 </button>
                               </td>
                             </tr>

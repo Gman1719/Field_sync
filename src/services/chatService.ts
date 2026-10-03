@@ -45,9 +45,24 @@ export function getConversationId(userIdA: string, userIdB: string): string {
   return [normalizeUserId(userIdA), normalizeUserId(userIdB)].sort().join('__');
 }
 
-export async function getConversationMessages(userIdA: string, userIdB: string): Promise<ChatMessage[]> {
+export function isChatOnline(): boolean {
+  if (typeof window !== 'undefined') {
+    if (!navigator.onLine) return false;
+    if (localStorage.getItem('fieldsync_simulated_offline') === 'true') return false;
+    if (localStorage.getItem('fieldsync_offline_toggle') === 'true') return false;
+    if (sessionStorage.getItem('fieldsync_offline') === 'true') return false;
+  }
+  return typeof navigator !== 'undefined' ? Boolean(navigator.onLine) : true;
+}
+
+export async function getConversationMessages(
+  userIdA: string,
+  userIdB: string,
+  viewerId?: string
+): Promise<ChatMessage[]> {
   const normA = normalizeUserId(userIdA);
   const normB = normalizeUserId(userIdB);
+  const normViewer = viewerId ? normalizeUserId(viewerId) : '';
   const convId = getConversationId(normA, normB);
 
   await seedInitialChatIfEmpty();
@@ -56,10 +71,19 @@ export async function getConversationMessages(userIdA: string, userIdB: string):
   const all = await offlineDb.chatMessages.toArray();
   const msgs = all
     .filter((m) => {
-      if (m.conversationId === convId) return true;
       const s = normalizeUserId(m.senderId);
       const r = normalizeUserId(m.receiverId);
-      return (s === normA && r === normB) || (s === normB && r === normA);
+      const isInConv = m.conversationId === convId || (s === normA && r === normB) || (s === normB && r === normA);
+      if (!isInConv) return false;
+
+      // Messages with status 'sending' (offline pending) are ONLY visible to the sender who drafted them,
+      // and NOT delivered to the receiver until connection is restored!
+      if (m.status === 'sending') {
+        if (!normViewer || s !== normViewer) {
+          return false;
+        }
+      }
+      return true;
     })
     .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
 
@@ -89,6 +113,7 @@ export async function sendMessage(params: {
   const normSenderId = normalizeUserId(params.senderId);
   const normReceiverId = normalizeUserId(params.receiverId);
   const convId = getConversationId(normSenderId, normReceiverId);
+  const online = isChatOnline();
 
   const newMsg: ChatMessage = {
     id: `msg_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
@@ -100,7 +125,7 @@ export async function sendMessage(params: {
     text: params.text.trim(),
     timestamp: new Date().toISOString(),
     isRead: false,
-    status: 'delivered', // Delivered so recipient terminal immediately registers incoming message
+    status: online ? 'delivered' : 'sending', // Offline messages are held in 'sending' state
     replyTo: params.replyTo,
     attachment: params.attachment,
     reactions: {},
@@ -108,22 +133,70 @@ export async function sendMessage(params: {
 
   await offlineDb.chatMessages.put(newMsg);
 
-  // Dispatch local window event & cross-tab broadcast
+  // Dispatch local window event for the sender's UI
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('fieldsync-chat-update', { detail: { message: newMsg } }));
-    if (broadcastChannel) {
+
+    // ONLY broadcast/deliver to receiver if online!
+    if (online) {
+      if (broadcastChannel) {
+        try {
+          broadcastChannel.postMessage({ type: 'NEW_MESSAGE', message: newMsg });
+        } catch (_e) {}
+      }
+
+      // Universal multi-window/multi-tab sync trigger
       try {
-        broadcastChannel.postMessage({ type: 'NEW_MESSAGE', message: newMsg });
+        localStorage.setItem('fieldsync_chat_sync', JSON.stringify({ id: newMsg.id, timestamp: Date.now() }));
       } catch (_e) {}
     }
-
-    // Universal multi-window/multi-tab sync trigger
-    try {
-      localStorage.setItem('fieldsync_chat_sync', JSON.stringify({ id: newMsg.id, timestamp: Date.now() }));
-    } catch (_e) {}
   }
 
   return newMsg;
+}
+
+// Delivers all pending/queued messages when back online
+export async function deliverPendingChatMessages(currentUserId?: string): Promise<number> {
+  if (!isChatOnline()) return 0;
+
+  const all = await offlineDb.chatMessages.toArray();
+  const normCurrent = currentUserId ? normalizeUserId(currentUserId) : '';
+
+  const pending = all.filter((m) => {
+    if (m.status !== 'sending') return false;
+    if (normCurrent) return normalizeUserId(m.senderId) === normCurrent;
+    return true;
+  });
+
+  if (pending.length === 0) return 0;
+
+  for (const msg of pending) {
+    const updated: ChatMessage = {
+      ...msg,
+      status: 'delivered',
+    };
+    await offlineDb.chatMessages.put(updated);
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('fieldsync-chat-update', { detail: { message: updated } }));
+      if (broadcastChannel) {
+        try {
+          broadcastChannel.postMessage({ type: 'NEW_MESSAGE', message: updated });
+        } catch (_e) {}
+      }
+      try {
+        localStorage.setItem('fieldsync_chat_sync', JSON.stringify({ id: updated.id, timestamp: Date.now() }));
+      } catch (_e) {}
+    }
+  }
+
+  return pending.length;
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('online', () => {
+    deliverPendingChatMessages().catch(() => {});
+  });
 }
 
 export async function markConversationAsRead(userIdA: string, userIdB: string, currentUserId: string): Promise<void> {

@@ -4,6 +4,8 @@ import {
   ArrowRight, Sun, Moon
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
+import { useUserLanguage } from '../../context/UserLanguageContext';
+import LanguageSelector from '../common/LanguageSelector';
 import heroImage from '../../assets/field-officer-hero.jpg';
 
 interface LoginProps {
@@ -22,6 +24,7 @@ export default function Login({
   initialRole = null
 }: LoginProps) {
   const { theme, toggleTheme } = useTheme();
+  const { userT } = useUserLanguage();
 
   const [email, setEmail] = useState('meseret@fieldsync.com');
   const [password, setPassword] = useState('officer123');
@@ -81,7 +84,7 @@ export default function Login({
         {/* Subtle Ambient Depth Glow (gives depth in dark mode) */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[560px] h-[560px] bg-blue-500/5 dark:bg-blue-600/10 rounded-full blur-3xl pointer-events-none -z-0" />
 
-        {/* Top Header: "Back to Home" & Theme Toggle */}
+        {/* Top Header: "Back to Home", Language Selector & Theme Toggle */}
         <div className="relative z-10 flex items-center justify-between w-full max-w-2xl mx-auto pt-2">
           {onBackToHome ? (
             <button
@@ -89,26 +92,33 @@ export default function Login({
               onClick={onBackToHome}
               className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white px-3.5 py-2 rounded-xl hover:bg-slate-200/60 dark:hover:bg-slate-850/80 transition-colors cursor-pointer"
             >
-              Back to Home
+              {userT('Back to Home')}
             </button>
           ) : (
             <div />
           )}
 
-          {/* Theme Toggle Button */}
-          <button
-            type="button"
-            onClick={toggleTheme}
-            aria-label="Toggle color theme"
-            title={theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
-            className="p-2.5 rounded-xl text-slate-600 dark:text-amber-400 hover:text-slate-900 dark:hover:text-amber-300 bg-white dark:bg-[#131A2A] border border-slate-200 dark:border-slate-700/80 shadow-xs hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-all cursor-pointer"
-          >
-            {theme === 'dark' ? (
-              <Sun className="w-4 h-4 text-amber-400" />
-            ) : (
-              <Moon className="w-4 h-4 text-slate-600" />
-            )}
-          </button>
+          <div className="flex items-center gap-2">
+            {/* Language Selector */}
+            <LanguageSelector
+              buttonClassName="p-2.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-[#131A2A] border border-slate-200 dark:border-slate-700/80 shadow-xs hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-all cursor-pointer flex items-center gap-1.5 text-xs font-semibold"
+            />
+
+            {/* Theme Toggle Button */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label="Toggle color theme"
+              title={theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
+              className="p-2.5 rounded-xl text-slate-600 dark:text-amber-400 hover:text-slate-900 dark:hover:text-amber-300 bg-white dark:bg-[#131A2A] border border-slate-200 dark:border-slate-700/80 shadow-xs hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-all cursor-pointer"
+            >
+              {theme === 'dark' ? (
+                <Sun className="w-4 h-4 text-amber-400" />
+              ) : (
+                <Moon className="w-4 h-4 text-slate-600" />
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Center Main Card - Enlarged with Greater Height & Reduced White Space */}
@@ -118,10 +128,10 @@ export default function Login({
             {/* Title & Guidance */}
             <div className="space-y-2.5">
               <h2 className="text-3xl sm:text-4xl lg:text-[2.65rem] font-black tracking-tight text-slate-900 dark:text-white leading-tight">
-                Sign In
+                {userT('Sign In')}
               </h2>
               <p className="text-base sm:text-lg text-slate-500 dark:text-slate-300 font-normal">
-                Enter your credentials to access your FieldSync account.
+                {userT('Enter your credentials to access your FieldSync account.')}
               </p>
             </div>
 
@@ -137,7 +147,7 @@ export default function Login({
             <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-7">
               <div>
                 <label className="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-2.5">
-                  Email Address
+                  {userT('Email Address')}
                 </label>
                 <div className="relative flex items-center">
                   <div className="absolute left-4 pointer-events-none text-slate-400 dark:text-slate-400 flex items-center justify-center">
@@ -157,7 +167,7 @@ export default function Login({
 
               <div>
                 <label className="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-2.5">
-                  Password
+                  {userT('Password')}
                 </label>
                 <div className="relative flex items-center">
                   <div className="absolute left-4 pointer-events-none text-slate-400 dark:text-slate-400 flex items-center justify-center">
@@ -167,7 +177,7 @@ export default function Login({
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
+                    placeholder={userT('Enter your password')}
                     required
                     autoComplete="current-password"
                     className="w-full h-14 pl-14 pr-14 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-base sm:text-lg placeholder-slate-400 dark:placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/15 dark:focus:ring-blue-400/20 focus:border-[#2563EB] dark:focus:border-blue-400 transition-all shadow-xs"
@@ -190,7 +200,7 @@ export default function Login({
                     onChange={(e) => setRememberMe(e.target.checked)}
                     className="rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-[#2563EB] focus:ring-blue-500 dark:focus:ring-blue-400 w-5 h-5 cursor-pointer"
                   />
-                  <span>Remember this device</span>
+                  <span>{userT('Remember this device')}</span>
                 </label>
               </div>
 
@@ -202,11 +212,11 @@ export default function Login({
                 {loading ? (
                   <div className="flex items-center gap-2.5">
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    <span>Signing In...</span>
+                    <span>{userT('Signing In...')}</span>
                   </div>
                 ) : (
                   <>
-                    <span>Sign In</span>
+                    <span>{userT('Sign In')}</span>
                     <ArrowRight className="w-5 h-5" />
                   </>
                 )}
@@ -217,7 +227,7 @@ export default function Login({
 
         {/* Minimalist Footer */}
         <div className="relative z-10 text-center text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-2xl mx-auto w-full pb-2">
-          FieldSync Platform • 2026
+          {userT('FieldSync Platform • 2026')}
         </div>
       </div>
     </div>

@@ -10,6 +10,7 @@ export default {
     reports: 'Odeeffannoo',
     attendance: 'Argina',
     tasks: 'Hojiiwwan',
+    requests: 'Gaaffiiwwan Koo',
     leaves: 'Baqiisaa',
     permissions: 'Hayyama',
     screentime: 'Yeroo Screen',
@@ -22,6 +23,15 @@ export default {
     alerts: 'Akeekkachiisa',
     all_reports: 'Odeeffannoo Hunda',
     sync: 'Walqabsiisuu',
+    daily_report: 'Gabaasa Hojii Guyyaa',
+    my_reports: 'Gabaasa Koo',
+    activity_logs: 'Galmee Sochii',
+    sessions: 'Marsaa Hojii',
+    verification: 'Mirkaneessa Eenyummaa',
+    chat: 'Haasaa Garee',
+    duplicates: 'Gamaaggama Irra-Deebii',
+    profile: 'Piroofaayilii Koo',
+    notifications: 'Beeksisa',
     logout: 'Baasi'
   },
   auth: {

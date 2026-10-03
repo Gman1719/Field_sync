@@ -20,6 +20,7 @@ import Input from '../ui/Input';
 import Textarea from '../ui/Textarea';
 import StatCard from '../ui/StatCard';
 import Modal from '../ui/Modal';
+import { useUserLanguage } from '../../context/UserLanguageContext';
 
 interface DailyWorkReportViewProps {
   user: any;
@@ -34,6 +35,7 @@ export default function DailyWorkReportView({
   setActiveTab,
   screenTimeInfo,
 }: DailyWorkReportViewProps) {
+  const { userT } = useUserLanguage();
   const role = (user?.role || '').toLowerCase();
   const isOfficer = role === 'field_officer';
   const isSupervisor = role === 'supervisor';
@@ -577,12 +579,12 @@ export default function DailyWorkReportView({
             </div>
             <div>
               <h1 className="text-xl font-bold text-slate-900 dark:text-[#F8FAFC] tracking-tight">
-                {isManager ? 'Organization Daily Work Reports' : 'Team Daily Work Reports & Review'}
+                {userT(isManager ? 'Organization Daily Work Reports' : 'Team Daily Work Reports & Review')}
               </h1>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                {isManager
+                {userT(isManager
                   ? 'Central oversight of all field officer submissions, screen-time telemetry & operational roadblocks'
-                  : 'Review submitted daily field deliverables, verify screen-time, and monitor team roadblocks'}
+                  : 'Review submitted daily field deliverables, verify screen-time, and monitor team roadblocks')}
               </p>
             </div>
           </div>
@@ -592,19 +594,19 @@ export default function DailyWorkReportView({
         {/* Aggregate KPI Stat Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <StatCard
-            title="Reports Filed"
+            title={userT('Reports Filed')}
             value={supervisorStats.totalReports}
             icon={FileText}
             color="blue"
           />
           <StatCard
-            title="Citizens Registered"
+            title={userT('Citizens Registered')}
             value={supervisorStats.totalCitizens}
             icon={Users}
             color="emerald"
           />
           <StatCard
-            title="Total Field Screen Time"
+            title={userT('Total Field Screen Time')}
             value={supervisorStats.totalScreenTimeFormatted}
             icon={Smartphone}
             color="indigo"
@@ -633,7 +635,7 @@ export default function DailyWorkReportView({
                   : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-100 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 dark:hover:border-blue-400 dark:hover:text-white'
               }`}
             >
-              All Dates
+              {userT('All Dates')}
             </button>
           </div>
 
@@ -643,7 +645,7 @@ export default function DailyWorkReportView({
               onChange={(e) => setSelectedOfficerId(e.target.value)}
               className="w-full px-3 py-1.5 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]"
             >
-              <option value="">Filter by Officer (All Officers)</option>
+              <option value="">{userT('Filter by Officer (All Officers)')}</option>
               {officersList.map((off) => (
                 <option key={off.id} value={off.id}>
                   {off.name}
@@ -658,19 +660,19 @@ export default function DailyWorkReportView({
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-base">Field Officer Submissions</CardTitle>
+                <CardTitle className="text-base">{userT('Field Officer Submissions')}</CardTitle>
                 <CardDescription className="text-xs">
-                  Showing {filteredTeamReports.length} reports submitted by field teams
+                  {userT(`Showing ${filteredTeamReports.length} reports submitted by field teams`)}
                 </CardDescription>
               </div>
             </div>
           </CardHeader>
           <CardContent className="p-0">
             {isLoading ? (
-              <div className="p-8 text-center text-xs text-slate-400">Loading daily reports...</div>
+              <div className="p-8 text-center text-xs text-slate-400">{userT('Loading daily reports...')}</div>
             ) : filteredTeamReports.length === 0 ? (
               <div className="p-8 text-center text-xs text-slate-400">
-                No daily reports match the current filters.
+                {userT('No daily reports match the current filters.')}
               </div>
             ) : (
               <div className="divide-y divide-slate-100 dark:divide-[#334155]">

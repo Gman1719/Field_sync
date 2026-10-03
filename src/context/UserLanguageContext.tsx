@@ -1,10 +1,13 @@
 import React, { createContext, useState, useContext, useEffect, type ReactNode } from 'react';
 import i18n, { userLanguages, defaultUserLanguage } from '../locales/index';
+import { setTranslationLanguage, translateText } from '../services/translationEngine';
 
 export interface UserLanguageContextValue {
   currentUserLanguage: string;
+  language: string;
   changeUserLanguage: (langCode: string) => void;
-  userT: (key: string, params?: Record<string, string | number>) => string;
+  userT: (keyOrText: string, params?: Record<string, string | number>) => string;
+  t: (keyOrText: string, params?: Record<string, string | number>) => string;
   userLanguages: typeof userLanguages;
 }
 
@@ -27,55 +30,80 @@ export const UserLanguageProvider: React.FC<{ children: ReactNode }> = ({ childr
     if (i18n.language !== currentUserLanguage) {
       i18n.changeLanguage(currentUserLanguage);
     }
+    // Activate universal DOM translation engine for the selected language
+    setTranslationLanguage(currentUserLanguage);
   }, [currentUserLanguage]);
 
   const changeUserLanguage = (langCode: string) => {
     if ((userLanguages as Record<string, any>)[langCode]) {
       setCurrentUserLanguage(langCode);
-      i18n.changeLanguage(langCode);
+      if (i18n.language !== langCode) {
+        i18n.changeLanguage(langCode);
+      }
+      setTranslationLanguage(langCode);
     }
   };
 
-  const userT = (key: string, params: Record<string, string | number> = {}): string => {
-    const keys = key.split('.');
-    let translation: any = (userLanguages as Record<string, any>)[currentUserLanguage]?.translations;
+  const userT = (keyOrText: string, params: Record<string, string | number> = {}): string => {
+    if (!keyOrText) return '';
 
-    for (const k of keys) {
-      if (translation && translation[k] !== undefined) {
-        translation = translation[k];
-      } else {
-        let fallback: any = (userLanguages as Record<string, any>)['en']?.translations;
-        for (const fk of keys) {
-          if (fallback && fallback[fk] !== undefined) {
-            fallback = fallback[fk];
-          } else {
-            fallback = null;
+    // If key has dots (e.g., 'nav.dashboard'), look up in locales hierarchy
+    if (keyOrText.includes('.')) {
+      const keys = keyOrText.split('.');
+      let translation: any = (userLanguages as Record<string, any>)[currentUserLanguage]?.translations;
+
+      for (const k of keys) {
+        if (translation && translation[k] !== undefined) {
+          translation = translation[k];
+        } else {
+          let fallback: any = (userLanguages as Record<string, any>)['en']?.translations;
+          for (const fk of keys) {
+            if (fallback && fallback[fk] !== undefined) {
+              fallback = fallback[fk];
+            } else {
+              fallback = null;
+              break;
+            }
+          }
+          if (fallback) {
+            translation = fallback;
             break;
           }
-        }
-        if (fallback) {
-          translation = fallback;
+          translation = null;
           break;
         }
-        return key;
+      }
+
+      if (typeof translation === 'string') {
+        if (params && Object.keys(params).length > 0) {
+          Object.keys(params).forEach((param) => {
+            translation = translation.replace(new RegExp(`{${param}}`, 'g'), String(params[param]));
+          });
+        }
+        return translation;
       }
     }
 
-    if (typeof translation === 'string' && params) {
+    // Direct text / phrase translation via dictionary and pattern matching
+    let translated = translateText(keyOrText, currentUserLanguage);
+
+    if (params && Object.keys(params).length > 0) {
       Object.keys(params).forEach((param) => {
-        translation = translation.replace(new RegExp(`{${param}}`, 'g'), String(params[param]));
+        translated = translated.replace(new RegExp(`{${param}}`, 'g'), String(params[param]));
       });
     }
 
-    return typeof translation === 'string' ? translation : key;
+    return translated || keyOrText;
   };
 
   return (
     <UserLanguageContext.Provider
       value={{
         currentUserLanguage,
+        language: currentUserLanguage,
         changeUserLanguage,
         userT,
+        t: userT,
         userLanguages,
       }}
     >

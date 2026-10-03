@@ -451,7 +451,7 @@ html.dark [role="dialog"] label {
 
 /* Modal Subcards & Inset Containers */
 html.dark [role="dialog"] .p-3.bg-slate-50,
-html.dark [role="dialog"] .p-3\\.5.bg-slate-50,
+html.dark [role="dialog"] [class*="p-3.5"].bg-slate-50,
 html.dark [role="dialog"] .p-4.bg-slate-50,
 html.dark [role="dialog"] .p-5.bg-slate-50 {
   background-color: #0F172A !important;

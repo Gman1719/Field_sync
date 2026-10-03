@@ -31,9 +31,12 @@ import AuditLog from '../audit/AuditLog';
 import AllReports from '../reports/AllReports';
 import AlertManagement from '../alerts/AlertManagement';
 import VerificationPage from '../verification/VerificationPage';
+import SupervisorVerifications from '../verification/SupervisorVerifications';
 import MyProfile from '../profile/MyProfile';
 import NotificationCenter from '../notifications/NotificationCenter';
 import ChatConsole from '../chat/ChatConsole';
+import RequestsCenter from '../requests/RequestsCenter';
+import SupervisorSendAlertPage from '../supervisor/SupervisorSendAlertPage';
 import { fetchUnreadCount } from '../../services/notificationApi';
 
 export default function MainLayout({
@@ -355,6 +358,25 @@ export default function MainLayout({
           )}
 
 
+          {/* Requests & Leaves (Officer & Supervisor only, removed from Manager) */}
+          {(activeTab === 'requests' || activeTab === 'leaves' || activeTab === 'permissions') && !isManager && (
+            <RequestsCenter
+              user={user}
+              leaves={leaves}
+              setLeaves={setLeaves}
+              permissions={permissions}
+              setPermissions={setPermissions}
+              users={users}
+              teamMembers={teamMembers}
+              defaultType={activeTab === 'leaves' ? 'leave' : activeTab === 'permissions' ? 'permission' : 'all'}
+            />
+          )}
+
+          {/* Send Alert - Supervisor Dedicated Alert Dispatch Page */}
+          {activeTab === 'send_alert' && isSupervisor && (
+            <SupervisorSendAlertPage user={user} users={users} />
+          )}
+
           {/* Alerts - Manager only */}
           {activeTab === 'alerts' && isManager && (
             <AlertManagement
@@ -366,15 +388,19 @@ export default function MainLayout({
             />
           )}
 
-          {/* Verification - All Roles */}
+          {/* Verification - Supervisor Monitor or Officer Trust Score */}
           {activeTab === 'verification' && (
-            <VerificationPage
-              users={users}
-              liveStatus={liveStatus}
-              reports={reports}
-              citizens={citizens}
-              attendance={attendance}
-            />
+            isSupervisor || isManager ? (
+              <SupervisorVerifications user={user} users={users} />
+            ) : (
+              <VerificationPage
+                users={users}
+                liveStatus={liveStatus}
+                reports={reports}
+                citizens={citizens}
+                attendance={attendance}
+              />
+            )
           )}
 
           {/* User Profile - All Roles */}

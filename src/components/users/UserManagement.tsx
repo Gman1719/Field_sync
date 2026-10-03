@@ -25,12 +25,14 @@ import UserDetailsModal from './UserDetailsModal';
 import UserEditModal from './UserEditModal';
 import UserReassignModal from './UserReassignModal';
 import UserRoleModal from './UserRoleModal';
+import { useUserLanguage } from '../../context/UserLanguageContext';
 
 export default function UserManagement({
   users = [],
   setUsers,
   addNotification
 }) {
+  const { userT } = useUserLanguage();
   // Modal states
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedUserDetails, setSelectedUserDetails] = useState(null);
@@ -206,13 +208,13 @@ export default function UserManagement({
       e.preventDefault();
     }
     if (!validateNewUser()) {
-      toast.error('Please resolve validation errors in the form.');
+      toast.error(userT('Please resolve validation errors in the form.'));
       return;
     }
 
     const emailExists = users.some(u => u && u.email && u.email.toLowerCase() === newUser.email.trim().toLowerCase());
     if (emailExists) {
-      toast.error('A user with this email address already exists');
+      toast.error(userT('A user with this email address already exists'));
       return;
     }
 
@@ -320,7 +322,7 @@ export default function UserManagement({
         setUsers((prev: any[]) => [createdUser, ...prev]);
       }
 
-      toast.success('User account created successfully!');
+      toast.success(userT('User account created successfully!'));
       setShowAddModal(false);
       setNewUser(initialFormState);
       setFormErrors({});
@@ -335,7 +337,7 @@ export default function UserManagement({
       fetchStats();
     } catch (err: any) {
       console.error('User creation failed:', err);
-      toast.error(err.message || 'Could not create user account');
+      toast.error(err.message ? userT(err.message) : userT('Could not create user account'));
     } finally {
       setIsSubmitting(false);
     }
@@ -348,7 +350,7 @@ export default function UserManagement({
     const actionName = newStatus === 'active' ? 'activate' : 'deactivate';
     const displayName = user.fullName || user.name || 'User';
 
-    if (!window.confirm(`Are you sure you want to ${actionName} ${displayName}'s account?`)) {
+    if (!window.confirm(userT(`Are you sure you want to ${actionName} ${displayName}'s account?`))) {
       return;
     }
 
@@ -410,17 +412,17 @@ export default function UserManagement({
         });
       } catch (_e) {}
 
-      toast.success(`User ${actionName}d successfully`);
+      toast.success(userT(`User ${actionName}d successfully`));
       fetchStats();
     } catch (err: any) {
       console.error('Status toggle error:', err);
-      toast.error('Failed to change status: ' + (err.message || 'Unknown error'));
+      toast.error(userT('Failed to change status:') + ' ' + (err.message ? userT(err.message) : userT('Unknown error')));
     }
   };
 
   // 8. Handle Password Reset
   const handleResetPassword = async (user) => {
-    if (!window.confirm(`Reset password for ${user.name}? A new temporary password will be generated and required to change on next login.`)) {
+    if (!window.confirm(userT(`Reset password for ${user.name}? A new temporary password will be generated and required to change on next login.`))) {
       return;
     }
 
@@ -451,7 +453,7 @@ export default function UserManagement({
         setSelectedUserDetails(prev => ({ ...prev, mustChangePassword: true }));
       }
 
-      toast.success('Password reset successfully');
+      toast.success(userT('Password reset successfully'));
       setTempPasswordModalData({
         userName: user.name || user.fullName,
         userEmail: user.email,
@@ -459,7 +461,7 @@ export default function UserManagement({
       });
     } catch (err) {
       console.error('Reset error:', err);
-      toast.error('Failed to reset password: ' + err.message);
+      toast.error(userT('Failed to reset password:') + ' ' + (err.message ? userT(err.message) : userT('Unknown error')));
     }
   };
 
@@ -481,10 +483,10 @@ export default function UserManagement({
         <div>
           <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight flex items-center gap-2.5">
             <ShieldCheck className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-            User & Workstation Management
+            {userT('User & Workstation Management')}
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Administer system accounts, assign Ethiopian administrative hierarchies, and oversee role permissions
+            {userT('Administer system accounts, assign Ethiopian administrative hierarchies, and oversee role permissions')}
           </p>
         </div>
 
@@ -499,7 +501,7 @@ export default function UserManagement({
             className="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-semibold h-10 px-4 rounded-xl shadow-sm shadow-blue-600/20 text-xs sm:text-sm"
           >
             <UserPlus className="w-4 h-4 mr-2" />
-            Create User
+            {userT('Create User')}
           </Button>
         </div>
       </div>
@@ -507,10 +509,10 @@ export default function UserManagement({
       {/* 2. Summary KPI Metrics (6 Evenly Spaced Cards - Responsive on click, No Icons) */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-3.5">
         <StatCard
-          label="Total Personnel"
+          label={userT('Total Personnel')}
           value={stats.totalUsers}
           variant="primary"
-          subtitle="All staff records"
+          subtitle={userT('All staff records')}
           active={roleFilter === 'all' && statusFilter === 'all' && regionFilter === 'all' && specialFilter === 'all' && !searchTerm}
           onClick={() => {
             setRoleFilter('all');
@@ -521,10 +523,10 @@ export default function UserManagement({
           }}
         />
         <StatCard
-          label="Active Accounts"
+          label={userT('Active Accounts')}
           value={stats.activeUsers}
           variant="success"
-          subtitle="Operational"
+          subtitle={userT('Operational')}
           active={statusFilter === 'active' && roleFilter === 'all' && specialFilter === 'all'}
           onClick={() => {
             setStatusFilter(prev => prev === 'active' && roleFilter === 'all' ? 'all' : 'active');
@@ -533,10 +535,10 @@ export default function UserManagement({
           }}
         />
         <StatCard
-          label="Field Officers"
+          label={userT('Field Officers')}
           value={stats.fieldOfficers}
           variant="neutral"
-          subtitle="Frontline agents"
+          subtitle={userT('Frontline agents')}
           active={roleFilter === 'field_officer' && specialFilter === 'all'}
           onClick={() => {
             setRoleFilter(prev => prev === 'field_officer' && specialFilter === 'all' ? 'all' : 'field_officer');
@@ -545,10 +547,10 @@ export default function UserManagement({
           }}
         />
         <StatCard
-          label="Supervisors"
+          label={userT('Supervisors')}
           value={stats.supervisors}
           variant="info"
-          subtitle="Zonal oversight"
+          subtitle={userT('Zonal oversight')}
           active={roleFilter === 'supervisor' && specialFilter === 'all'}
           onClick={() => {
             setRoleFilter(prev => prev === 'supervisor' ? 'all' : 'supervisor');
@@ -557,10 +559,10 @@ export default function UserManagement({
           }}
         />
         <StatCard
-          label="Managers"
+          label={userT('Managers')}
           value={stats.managers}
           variant="primary"
-          subtitle="Command tier"
+          subtitle={userT('Command tier')}
           active={roleFilter === 'manager' && specialFilter === 'all'}
           onClick={() => {
             setRoleFilter(prev => prev === 'manager' ? 'all' : 'manager');
@@ -569,10 +571,10 @@ export default function UserManagement({
           }}
         />
         <StatCard
-          label={stats.unassignedFieldOfficers > 0 ? "Unassigned" : "Inactive"}
+          label={stats.unassignedFieldOfficers > 0 ? userT('Unassigned') : userT('Inactive')}
           value={stats.unassignedFieldOfficers > 0 ? stats.unassignedFieldOfficers : stats.inactiveUsers}
           variant={stats.unassignedFieldOfficers > 0 ? "warning" : "error"}
-          subtitle={stats.unassignedFieldOfficers > 0 ? "Needs assignment" : "Disabled accounts"}
+          subtitle={stats.unassignedFieldOfficers > 0 ? userT('Needs assignment') : userT('Disabled accounts')}
           active={specialFilter === 'unassigned' || (stats.unassignedFieldOfficers === 0 && statusFilter === 'inactive' && roleFilter === 'all')}
           onClick={() => {
             if (stats.unassignedFieldOfficers > 0) {
@@ -598,7 +600,7 @@ export default function UserManagement({
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search by staff name, email, employee ID, or location..."
+              placeholder={userT('Search by staff name, email, employee ID, or location...')}
               className="w-full h-9 pl-9 pr-8 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-900/80 text-slate-900 dark:text-slate-100 text-xs sm:text-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
             />
             {searchTerm && (
@@ -606,7 +608,7 @@ export default function UserManagement({
                 type="button"
                 onClick={() => setSearchTerm('')}
                 className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs p-1"
-                title="Clear search"
+                title={userT('Clear search')}
               >
                 ✕
               </button>
@@ -623,10 +625,10 @@ export default function UserManagement({
               }}
               className="h-9 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/80 text-slate-800 dark:text-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer min-w-[130px]"
             >
-              <option value="all">All Roles</option>
-              <option value="field_officer">Field Officers</option>
-              <option value="supervisor">Supervisors</option>
-              <option value="manager">Managers</option>
+              <option value="all">{userT('All Roles')}</option>
+              <option value="field_officer">{userT('Field Officers')}</option>
+              <option value="supervisor">{userT('Supervisors')}</option>
+              <option value="manager">{userT('Managers')}</option>
             </select>
 
             <select
@@ -637,9 +639,9 @@ export default function UserManagement({
               }}
               className="h-9 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/80 text-slate-800 dark:text-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer min-w-[130px]"
             >
-              <option value="all">All Statuses</option>
-              <option value="active">Active Accounts</option>
-              <option value="inactive">Inactive Accounts</option>
+              <option value="all">{userT('All Statuses')}</option>
+              <option value="active">{userT('Active Accounts')}</option>
+              <option value="inactive">{userT('Inactive Accounts')}</option>
             </select>
 
             <select
@@ -647,9 +649,9 @@ export default function UserManagement({
               onChange={(e) => setRegionFilter(e.target.value)}
               className="h-9 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/80 text-slate-800 dark:text-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer min-w-[140px]"
             >
-              <option value="all">All Regions</option>
+              <option value="all">{userT('All Regions')}</option>
               {availableRegions.map((reg) => (
-                <option key={reg} value={reg}>{reg}</option>
+                <option key={reg} value={reg}>{userT(reg)}</option>
               ))}
             </select>
 
@@ -664,10 +666,10 @@ export default function UserManagement({
                   setSpecialFilter('all');
                 }}
                 className="h-9 px-3.5 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800/90 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer shadow-2xs"
-                title="Reset all filters"
+                title={userT('Reset all filters')}
               >
                 <RefreshCw className="w-3.5 h-3.5" />
-                <span>Clear Filters</span>
+                <span>{userT('Clear Filters')}</span>
               </button>
             )}
           </div>
@@ -679,15 +681,15 @@ export default function UserManagement({
         <CardHeader className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-700/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <CardTitle className="text-base font-bold text-slate-900 dark:text-slate-100">
-              Staff Directory ({filteredUsers.length} records)
+              {userT('Staff Directory')} ({filteredUsers.length} {userT('records')})
             </CardTitle>
             <CardDescription className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Authorized personnel, Ethiopian location hierarchy assignments, and workstation status
+              {userT('Authorized personnel, Ethiopian location hierarchy assignments, and workstation status')}
             </CardDescription>
           </div>
           {(searchTerm || roleFilter !== 'all' || statusFilter !== 'all' || regionFilter !== 'all' || specialFilter !== 'all') && (
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-300 border border-blue-200 dark:border-blue-900">
-              Filtered Records
+              {userT('Filtered Records')}
             </span>
           )}
         </CardHeader>
@@ -696,9 +698,9 @@ export default function UserManagement({
           {filteredUsers.length === 0 ? (
             <div className="py-12 text-center text-slate-400 dark:text-slate-500">
               <User className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
-              <p className="text-sm font-bold text-slate-700 dark:text-slate-300">No staff accounts found</p>
+              <p className="text-sm font-bold text-slate-700 dark:text-slate-300">{userT('No staff accounts found')}</p>
               <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
-                Try adjusting your search criteria or resetting filters
+                {userT('Try adjusting your search criteria or resetting filters')}
               </p>
             </div>
           ) : (
@@ -706,14 +708,14 @@ export default function UserManagement({
               <table className="w-full text-left text-xs sm:text-sm">
                 <thead>
                   <tr className="bg-slate-50/90 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-700/80 text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
-                    <th className="py-3 pl-4 sm:pl-6 pr-3">Staff Member</th>
-                    <th className="py-3 px-3">Role</th>
-                    <th className="py-3 px-3">Contact</th>
-                    <th className="py-3 px-3">Region</th>
-                    <th className="py-3 px-3">Zone</th>
-                    <th className="py-3 px-3">Woreda</th>
-                    <th className="py-3 px-3 text-center">Status</th>
-                    <th className="py-3 pr-4 sm:pr-6 pl-3 text-right">Actions</th>
+                    <th className="py-3 pl-4 sm:pl-6 pr-3">{userT('Staff Member')}</th>
+                    <th className="py-3 px-3">{userT('Role')}</th>
+                    <th className="py-3 px-3">{userT('Contact')}</th>
+                    <th className="py-3 px-3">{userT('Region')}</th>
+                    <th className="py-3 px-3">{userT('Zone')}</th>
+                    <th className="py-3 px-3">{userT('Woreda')}</th>
+                    <th className="py-3 px-3 text-center">{userT('Status')}</th>
+                    <th className="py-3 pr-4 sm:pr-6 pl-3 text-right">{userT('Actions')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60">
@@ -748,7 +750,7 @@ export default function UserManagement({
                               ? 'bg-indigo-50 text-indigo-700 border border-indigo-200/80 dark:bg-indigo-500/10 dark:text-indigo-300 dark:border-indigo-500/30'
                               : 'bg-slate-100 text-slate-700 border border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700'
                           }`}>
-                            {u.role?.replace('_', ' ')}
+                            {userT(u.role?.replace('_', ' '))}
                           </span>
                         </td>
 
@@ -765,21 +767,21 @@ export default function UserManagement({
                         {/* 4. Region */}
                         <td className="py-3 px-3 whitespace-nowrap">
                           <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
-                            {u.role === 'manager' ? 'National' : (u.region || '—')}
+                            {u.role === 'manager' ? userT('National') : (u.region ? userT(u.region) : '—')}
                           </span>
                         </td>
 
                         {/* 5. Zone */}
                         <td className="py-3 px-3 whitespace-nowrap">
                           <span className="text-xs text-slate-600 dark:text-slate-400">
-                            {u.role === 'manager' ? 'All Zones' : (u.zone || '—')}
+                            {u.role === 'manager' ? userT('All Zones') : (u.zone ? userT(u.zone) : '—')}
                           </span>
                         </td>
 
                         {/* 6. Woreda */}
                         <td className="py-3 px-3 whitespace-nowrap">
                           <span className="text-xs text-slate-600 dark:text-slate-400">
-                            {u.role === 'manager' || u.role === 'supervisor' ? 'All Woredas' : (u.woreda || '—')}
+                            {u.role === 'manager' || u.role === 'supervisor' ? userT('All Woredas') : (u.woreda ? userT(u.woreda) : '—')}
                           </span>
                         </td>
 
@@ -791,7 +793,7 @@ export default function UserManagement({
                               : 'bg-slate-100 text-slate-600 border border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'
                           }`}>
                             <span className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-emerald-500' : 'bg-slate-400'}`} />
-                            {isActive ? 'Active' : 'Inactive'}
+                            {isActive ? userT('Active') : userT('Inactive')}
                           </span>
                         </td>
 
@@ -802,7 +804,7 @@ export default function UserManagement({
                             onClick={() => setSelectedUserDetails(u)}
                             className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white transition-all cursor-pointer shadow-xs active:scale-95"
                           >
-                            Detail
+                            {userT('Detail')}
                           </button>
                         </td>
                       </tr>
@@ -819,7 +821,7 @@ export default function UserManagement({
       <Modal
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}
-        title="Add New User"
+        title={userT('Add New User')}
         size="lg"
       >
         <form onSubmit={handleCreateUser} noValidate className="space-y-6">
@@ -828,55 +830,55 @@ export default function UserManagement({
             <div className="flex items-center gap-2 pb-2 border-b border-slate-200 dark:border-slate-700">
               <User className="w-4 h-4 text-[#2563EB] dark:text-blue-400" />
               <h3 className="text-xs font-bold text-[#0F172A] dark:text-slate-100 uppercase tracking-wider">
-                1. Personal Information (Ethiopian Naming)
+                {userT('1. Personal Information (Ethiopian Naming)')}
               </h3>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <Input
-                label="First Name"
+                label={userT('First Name')}
                 value={newUser.firstName}
                 onChange={(e) => setNewUser(p => ({ ...p, firstName: e.target.value }))}
-                placeholder="e.g. Almaz"
+                placeholder={userT('e.g. Almaz')}
                 required
-                error={formErrors.firstName}
+                error={formErrors.firstName ? userT(formErrors.firstName) : undefined}
               />
               <Input
-                label="Middle Name (Father)"
+                label={userT('Middle Name (Father)')}
                 value={newUser.middleName}
                 onChange={(e) => setNewUser(p => ({ ...p, middleName: e.target.value }))}
-                placeholder="e.g. Tadesse"
+                placeholder={userT('e.g. Tadesse')}
                 required
-                error={formErrors.middleName}
+                error={formErrors.middleName ? userT(formErrors.middleName) : undefined}
               />
               <Input
-                label="Last Name (Grandfather)"
+                label={userT('Last Name (Grandfather)')}
                 value={newUser.lastName}
                 onChange={(e) => setNewUser(p => ({ ...p, lastName: e.target.value }))}
-                placeholder="e.g. Kebede"
+                placeholder={userT('e.g. Kebede')}
                 required
-                error={formErrors.lastName}
+                error={formErrors.lastName ? userT(formErrors.lastName) : undefined}
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Input
-                label="Email Address"
+                label={userT('Email Address')}
                 type="email"
                 value={newUser.email}
                 onChange={(e) => setNewUser(p => ({ ...p, email: e.target.value }))}
                 placeholder="staff@fieldsync.com"
                 required
-                error={formErrors.email}
+                error={formErrors.email ? userT(formErrors.email) : undefined}
               />
               <Input
-                label="Phone Number"
+                label={userT('Phone Number')}
                 type="tel"
                 value={newUser.phone}
                 onChange={(e) => setNewUser(p => ({ ...p, phone: e.target.value }))}
-                placeholder="09XXXXXXXX or 07XXXXXXXX"
-                helperText="10 digits starting with 09/07 (or +2519/+2517 with 8 digits)"
-                error={formErrors.phone}
+                placeholder={userT('09XXXXXXXX or 07XXXXXXXX')}
+                helperText={userT('10 digits starting with 09/07 (or +2519/+2517 with 8 digits)')}
+                error={formErrors.phone ? userT(formErrors.phone) : undefined}
               />
             </div>
           </div>
@@ -886,13 +888,13 @@ export default function UserManagement({
             <div className="flex items-center gap-2 pb-2 border-b border-slate-200 dark:border-slate-700">
               <ShieldCheck className="w-4 h-4 text-[#2563EB] dark:text-blue-400" />
               <h3 className="text-xs font-bold text-[#0F172A] dark:text-slate-100 uppercase tracking-wider">
-                2. System Role Assignment
+                {userT('2. System Role Assignment')}
               </h3>
             </div>
 
             <div>
               <Select
-                label="System Role"
+                label={userT('System Role')}
                 value={newUser.role}
                 onChange={(e) => setNewUser(p => ({
                   ...p,
@@ -904,9 +906,9 @@ export default function UserManagement({
                 }))}
                 required
               >
-                <option value="field_officer">Field Officer (Frontline Intake)</option>
-                <option value="supervisor">Supervisor (Zonal Oversight)</option>
-                <option value="manager">Manager (National Command)</option>
+                <option value="field_officer">{userT('Field Officer (Frontline Intake)')}</option>
+                <option value="supervisor">{userT('Supervisor (Zonal Oversight)')}</option>
+                <option value="manager">{userT('Manager (National Command)')}</option>
               </Select>
             </div>
           </div>
@@ -916,7 +918,7 @@ export default function UserManagement({
             <div className="flex items-center gap-2 pb-2 border-b border-slate-200 dark:border-slate-700">
               <MapPin className="w-4 h-4 text-[#2563EB] dark:text-blue-400" />
               <h3 className="text-xs font-bold text-[#0F172A] dark:text-slate-100 uppercase tracking-wider">
-                3. Ethiopian Administrative Hierarchy Assignment
+                {userT('3. Ethiopian Administrative Hierarchy Assignment')}
               </h3>
             </div>
 
@@ -949,7 +951,7 @@ export default function UserManagement({
               disabled={isSubmitting}
               className="dark:bg-slate-700 dark:hover:bg-slate-600 dark:border-slate-600 dark:text-slate-100"
             >
-              Cancel
+              {userT('Cancel')}
             </Button>
             <Button
               type="submit"
@@ -959,7 +961,7 @@ export default function UserManagement({
               className="bg-blue-600 hover:bg-blue-700 text-white font-bold"
             >
               <UserPlus className="w-4 h-4 mr-2" />
-              Create User
+              {userT('Create User')}
             </Button>
           </div>
         </form>

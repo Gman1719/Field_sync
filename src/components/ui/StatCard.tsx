@@ -1,5 +1,6 @@
 import React, { type ElementType } from 'react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
+import { useUserLanguage } from '../../context/UserLanguageContext';
 
 export type StatCardVariant = 'default' | 'primary' | 'info' | 'success' | 'warning' | 'error' | 'neutral' | 'danger';
 
@@ -39,6 +40,7 @@ export default function StatCard({
   onClick,
   className = '',
 }: StatCardProps) {
+  const { userT } = useUserLanguage();
   const displayTitle = title || label || '';
   const isPositive = typeof trend === 'number' && trend > 0;
   const isNegative = typeof trend === 'number' && trend < 0;
@@ -103,7 +105,7 @@ export default function StatCard({
     >
       <div className="flex items-center justify-between gap-2">
         <span className="text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider truncate">
-          {displayTitle}
+          {userT(displayTitle)}
         </span>
         {active && <span className="w-2.5 h-2.5 rounded-full bg-blue-500 dark:bg-blue-400 shrink-0" />}
         {Icon && (
@@ -136,8 +138,8 @@ export default function StatCard({
 
       {(subtitle || trendLabel) && (
         <p className="mt-1 text-xs sm:text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1.5 truncate">
-          {trendLabel && <span className="font-semibold text-slate-900 dark:text-white">{trendLabel}</span>}
-          <span>{subtitle}</span>
+          {trendLabel && <span className="font-semibold text-slate-900 dark:text-white">{userT(trendLabel)}</span>}
+          <span>{userT(subtitle || '')}</span>
         </p>
       )}
     </div>

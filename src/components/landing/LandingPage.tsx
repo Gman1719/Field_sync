@@ -8,6 +8,8 @@ import {
   WifiOff, Layers, Sparkles, ArrowUp
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
+import { useUserLanguage } from '../../context/UserLanguageContext';
+import LanguageSelector from '../common/LanguageSelector';
 import { API_BASE } from '../../config/api';
 import heroImage from '../../assets/field-officer-hero.jpg';
 
@@ -18,6 +20,7 @@ interface LandingPageProps {
 
 export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPageProps) {
   const { theme, toggleTheme } = useTheme();
+  const { userT } = useUserLanguage();
 
   // Dynamic telemetry with user fallback numbers
   const [telemetry, setTelemetry] = useState<{
@@ -116,8 +119,13 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
             </a>
           </nav>
 
-          {/* Actions: Theme Toggle & Login (NO ARROW ICON) */}
+          {/* Actions: Language Selector, Theme Toggle & Login */}
           <div className="flex items-center gap-3">
+            {/* Language Selector */}
+            <LanguageSelector
+              buttonClassName="p-2.5 rounded-xl text-[#475569] dark:text-slate-300 hover:text-[#0F172A] dark:hover:text-white bg-[#F1F5F9] dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 transition-all cursor-pointer flex items-center gap-1.5 text-xs font-semibold"
+            />
+
             {/* Theme Toggle Button */}
             <button
               onClick={toggleTheme}
@@ -137,7 +145,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
               onClick={() => onGoToLogin()}
               className="px-6 py-2.5 rounded-xl bg-[#2563EB] hover:bg-blue-700 active:bg-blue-800 text-white text-sm font-bold shadow-md shadow-blue-600/20 transition-all cursor-pointer"
             >
-              Login
+              {userT('Login')}
             </button>
 
             {/* Mobile Menu Button */}

@@ -21,6 +21,8 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui
 import Badge from '../ui/Badge';
 import Button from '../ui/Button';
 import Modal from '../ui/Modal';
+import { translateText } from '../../services/translationEngine';
+import { useUserLanguage } from '../../context/UserLanguageContext';
 
 // Enterprise Palette
 const CHART_COLORS = ['#1E3A8A', '#0D9488', '#6366F1', '#D97706', '#16A34A', '#2563EB'];
@@ -101,6 +103,8 @@ export default function Dashboard({
   liveStatus,
   setActiveTab
 }: DashboardProps) {
+  const { language, userT } = useUserLanguage();
+
   // ===== LIVE TELEMETRY STATE =====
   const [telemetryData, setTelemetryData] = useState<any>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -623,13 +627,17 @@ export default function Dashboard({
             {/* 1. User Management (from 'users' sidebar tab) */}
             <div onClick={() => setActiveTab && setActiveTab('users')} className="cursor-pointer">
               <StatCard
-                title="User Management"
+                title={userT('User Management')}
                 value={users.length}
-                subtitle={`${users.filter(u => u.status === 'active' || u.isActive).length} active staff accounts`}
+                subtitle={
+                  language === 'am'
+                    ? `${users.filter(u => u.status === 'active' || u.isActive).length} ንቁ የሰራተኞች አካውንቶች`
+                    : `${users.filter(u => u.status === 'active' || u.isActive).length} active staff accounts`
+                }
                 icon={UserCog}
                 iconColor="text-blue-700 dark:text-blue-400"
                 iconBg="bg-blue-50 dark:bg-blue-950/80"
-                badge={`${users.filter(u => u.role === 'field_officer' || u.role === 'FIELD_OFFICER').length} Officers`}
+                badge={`${users.filter(u => u.role === 'field_officer' || u.role === 'FIELD_OFFICER').length} ${userT('Officers')}`}
                 badgeColor="bg-blue-50 text-blue-700 border-blue-200"
               />
             </div>
@@ -637,13 +645,29 @@ export default function Dashboard({
             {/* 2. Registered Citizens (from 'citizens' sidebar tab) */}
             <div onClick={() => setActiveTab && setActiveTab('citizens')} className="cursor-pointer">
               <StatCard
-                title="Registered Citizens"
+                title={userT('Registered Citizens')}
                 value={totalCitizens}
-                subtitle={`${todayCitizens} registered today`}
+                subtitle={
+                  language === 'am'
+                    ? `ዛሬ ${todayCitizens} ተመዝግቧል`
+                    : language === 'om'
+                    ? `Har'a ${todayCitizens} galmaa'eera`
+                    : language === 'ti'
+                    ? `ሎሚ ${todayCitizens} ተመዝጊቡ`
+                    : `${todayCitizens} registered today`
+                }
                 icon={Database}
                 iconColor="text-emerald-700 dark:text-emerald-400"
                 iconBg="bg-emerald-50 dark:bg-emerald-950/80"
-                badge={`${syncedCitizens} Synced`}
+                badge={
+                  language === 'am'
+                    ? `${syncedCitizens} ተመሳስሏል`
+                    : language === 'om'
+                    ? `${syncedCitizens} Qindaa'eera`
+                    : language === 'ti'
+                    ? `${syncedCitizens} ተመሳሲሉ`
+                    : `${syncedCitizens} Synced`
+                }
                 badgeColor="bg-emerald-50 text-emerald-700 border-emerald-200"
               />
             </div>
@@ -651,13 +675,17 @@ export default function Dashboard({
             {/* 3. Field Officers (from 'team' sidebar tab) */}
             <div onClick={() => setActiveTab && setActiveTab('team')} className="cursor-pointer">
               <StatCard
-                title="Field Officers"
+                title={userT('Field Officers')}
                 value={users.filter(u => u.role === 'field_officer' || u.role === 'FIELD_OFFICER').length}
-                subtitle={`${users.filter(u => u.role === 'supervisor' || u.role === 'SUPERVISOR').length} supervisors across all zones`}
+                subtitle={
+                  language === 'am'
+                    ? `በሁሉም ዞኖች ${users.filter(u => u.role === 'supervisor' || u.role === 'SUPERVISOR').length} ተቆጣጣሪዎች`
+                    : `${users.filter(u => u.role === 'supervisor' || u.role === 'SUPERVISOR').length} supervisors across all zones`
+                }
                 icon={Users}
                 iconColor="text-purple-700 dark:text-purple-400"
                 iconBg="bg-purple-50 dark:bg-purple-950/80"
-                badge="Active Staff"
+                badge={userT('Active Personnel')}
                 badgeColor="bg-purple-50 text-purple-700 border-purple-200"
               />
             </div>
@@ -665,13 +693,17 @@ export default function Dashboard({
             {/* 4. All Daily Reports (from 'all_reports' sidebar tab) */}
             <div onClick={() => setActiveTab && setActiveTab('all_reports')} className="cursor-pointer">
               <StatCard
-                title="Daily Work Reports"
+                title={userT('Daily Work Reports')}
                 value={reportsToday}
-                subtitle={`${reports.length} total reports filed`}
+                subtitle={
+                  language === 'am'
+                    ? `ጠቅላላ ${reports.length} ሪፖርቶች ቀርበዋል`
+                    : `${reports.length} total reports filed`
+                }
                 icon={FileText}
                 iconColor="text-indigo-700 dark:text-indigo-400"
                 iconBg="bg-indigo-50 dark:bg-indigo-950/80"
-                badge={`${complianceRate}% Compliance`}
+                badge={`${complianceRate}% ${userT('Daily Report Compliance')}`}
                 badgeColor={complianceRate === 100 ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-amber-50 text-amber-700 border-amber-200"}
               />
             </div>
@@ -679,13 +711,17 @@ export default function Dashboard({
             {/* 5. System Sync Health (from 'sync_center' sidebar tab) */}
             <div onClick={() => setActiveTab && setActiveTab('sync_center')} className="cursor-pointer">
               <StatCard
-                title="System Sync Health"
-                value={pendingCitizens === 0 ? '100%' : `${pendingCitizens} Pending`}
-                subtitle={`${syncedCitizens} records synchronized`}
+                title={userT('System Sync Health')}
+                value={pendingCitizens === 0 ? '100%' : `${pendingCitizens} ${userT('Pending')}`}
+                subtitle={
+                  language === 'am'
+                    ? `${syncedCitizens} መዝገቦች ተመሳስለዋል`
+                    : `${syncedCitizens} records synchronized`
+                }
                 icon={RefreshCw}
                 iconColor="text-sky-700 dark:text-sky-400"
                 iconBg="bg-sky-50 dark:bg-sky-950/80"
-                badge={pendingCitizens === 0 ? "Synced" : "Sync Queue"}
+                badge={pendingCitizens === 0 ? userT('Synced') : userT('Pending')}
                 badgeColor={pendingCitizens === 0 ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-amber-50 text-amber-700 border-amber-200"}
               />
             </div>
@@ -693,9 +729,13 @@ export default function Dashboard({
             {/* 6. Analysis & Detail (from 'analytics' sidebar tab) */}
             <div onClick={() => setActiveTab && setActiveTab('analytics')} className="cursor-pointer">
               <StatCard
-                title="Analysis & Detail"
+                title={userT('Analytics & Trends')}
                 value={totalCitizens > 0 ? `${Math.round((todayCitizens / (totalCitizens || 1)) * 100)}% Pace` : '0%'}
-                subtitle="Demographic & regional analytics"
+                subtitle={
+                  language === 'am'
+                    ? 'የስነ-ሕዝብ እና የክልል ትንታኔ'
+                    : 'Demographic & regional analytics'
+                }
                 icon={BarChart3}
                 iconColor="text-amber-700 dark:text-amber-400"
                 iconBg="bg-amber-50 dark:bg-amber-950/80"
@@ -713,24 +753,48 @@ export default function Dashboard({
       {isSupervisor && (
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-3.5">
           <StatCard
-            title="Registered Citizens"
+            title={userT('Registered Citizens')}
             value={totalCitizens}
-            subtitle={`${todayCitizens} registered today`}
+            subtitle={
+              language === 'am'
+                ? `ዛሬ ${todayCitizens} ተመዝግቧል`
+                : language === 'om'
+                ? `Har'a ${todayCitizens} galmaa'eera`
+                : language === 'ti'
+                ? `ሎሚ ${todayCitizens} ተመዝጊቡ`
+                : `${todayCitizens} registered today`
+            }
             icon={Users}
             iconColor="text-blue-700"
             iconBg="bg-blue-50"
-            badge={`${syncedCitizens} Synced`}
+            badge={
+              language === 'am'
+                ? `${syncedCitizens} ተመሳስሏል`
+                : language === 'om'
+                ? `${syncedCitizens} Qindaa'eera`
+                : language === 'ti'
+                ? `${syncedCitizens} ተመሳሲሉ`
+                : `${syncedCitizens} Synced`
+            }
             badgeColor="bg-emerald-50 text-emerald-700 border-emerald-200"
           />
 
           <StatCard
-            title="Daily Report Compliance"
+            title={userT('Daily Report Compliance')}
             value={`${complianceRate}%`}
-            subtitle={`${reportsToday} of ${totalStaff} submitted today`}
+            subtitle={
+              language === 'am'
+                ? `ዛሬ ከ ${totalStaff} ውስጥ ${reportsToday} ቀርቧል`
+                : language === 'om'
+                ? `Har'a ${totalStaff} keessaa ${reportsToday} dhiyaateera`
+                : language === 'ti'
+                ? `ሎሚ ካብ ${totalStaff} ውሽጢ ${reportsToday} ቀሪቡ`
+                : `${reportsToday} of ${totalStaff} submitted today`
+            }
             icon={FileText}
             iconColor="text-indigo-700"
             iconBg="bg-indigo-50"
-            badge={complianceRate === 100 ? '100% Complete' : 'In Progress'}
+            badge={complianceRate === 100 ? userT('100% Complete') : userT('In Progress')}
             badgeColor={complianceRate === 100 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'}
           />
 
@@ -739,9 +803,17 @@ export default function Dashboard({
             className="cursor-pointer"
           >
             <StatCard
-              title="Sync Status"
+              title={userT('Sync Status')}
               value={`${pendingCitizens === 0 ? '100%' : Math.round((syncedCitizens / (totalCitizens || 1)) * 100) + '%'}`}
-              subtitle={`${pendingCitizens} pending sync`}
+              subtitle={
+                language === 'am'
+                  ? `${pendingCitizens} ማመሳሰል በመጠባበቅ ላይ`
+                  : language === 'om'
+                  ? `${pendingCitizens} walqabsiisa eegaa jira`
+                  : language === 'ti'
+                  ? `${pendingCitizens} ምምስሳል ይጽበ ኣሎ`
+                  : `${pendingCitizens} pending sync`
+              }
               icon={RefreshCw}
               iconColor="text-blue-700"
               iconBg="bg-blue-50"
@@ -886,8 +958,8 @@ export default function Dashboard({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* 7-Day Velocity Chart */}
         <ChartWrapper
-          title="7-Day Registration Velocity"
-          subtitle="Daily citizen registrations recorded and synchronized"
+          title={userT('7-Day Registration Velocity')}
+          subtitle={userT('Daily citizen registrations recorded and synchronized')}
         >
           {registrationTrendData.length === 0 ? (
             <div className="h-full flex items-center justify-center text-xs text-slate-400">
@@ -909,7 +981,7 @@ export default function Dashboard({
                 <Area
                   type="monotone"
                   dataKey="value"
-                  name="Citizens"
+                  name={userT('Citizens')}
                   stroke="#1E3A8A"
                   strokeWidth={2.5}
                   fillOpacity={1}
@@ -922,12 +994,12 @@ export default function Dashboard({
 
         {/* Geographic Distribution Chart */}
         <ChartWrapper
-          title="Geographic Distribution by Region"
-          subtitle="Citizen registration density across administrative regions"
+          title={userT('Geographic Distribution by Region')}
+          subtitle={userT('Citizen registration density across administrative regions')}
           rightElement={
             <div className="flex items-center gap-1.5 bg-teal-50 dark:bg-teal-950/60 border border-teal-200/80 dark:border-teal-900/60 px-2.5 py-1 rounded-full text-xs font-semibold text-teal-700 dark:text-teal-300">
               <MapPin className="w-3.5 h-3.5" />
-              <span>{geographicData.length} Active Regions</span>
+              <span>{geographicData.length} {language === 'am' ? 'ንቁ ክልሎች' : language === 'om' ? "Naannolee Socho'oo" : language === 'ti' ? 'ንጡፋት ክልላት' : 'Active Regions'}</span>
             </div>
           }
         >
@@ -942,7 +1014,7 @@ export default function Dashboard({
                 <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#64748B' }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fontSize: 11, fill: '#64748B' }} axisLine={false} tickLine={false} />
                 <Tooltip content={CustomTooltip} />
-                <Bar dataKey="count" name="Citizens" fill="#0D9488" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="count" name={userT('Citizens')} fill="#0D9488" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           )}
@@ -957,12 +1029,12 @@ export default function Dashboard({
         <Card className="flex flex-col">
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>Demographic Distribution</CardTitle>
-              <CardDescription>Gender breakdown of registered citizens</CardDescription>
+              <CardTitle>{userT('Demographic Distribution')}</CardTitle>
+              <CardDescription>{userT('Gender breakdown of registered citizens')}</CardDescription>
             </div>
             <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-full text-xs font-semibold text-slate-700 dark:text-slate-300">
               <Users className="w-3.5 h-3.5" />
-              <span>{totalCitizens} Total</span>
+              <span>{language === 'am' ? `ጠቅላላ ${totalCitizens}` : language === 'om' ? `Ida'ama ${totalCitizens}` : language === 'ti' ? `ጠቕላላ ${totalCitizens}` : `${totalCitizens} Total`}</span>
             </div>
           </CardHeader>
           <CardContent className="flex-1 flex flex-col justify-center items-center">
@@ -999,7 +1071,7 @@ export default function Dashboard({
                         className="w-3 h-3 rounded-full"
                         style={{ backgroundColor: GENDER_COLORS[g.name] || CHART_COLORS[i % CHART_COLORS.length] }}
                       />
-                      <span className="font-medium text-slate-700 dark:text-slate-300 capitalize">{g.name.toLowerCase()}:</span>
+                      <span className="font-medium text-slate-700 dark:text-slate-300 capitalize">{userT(g.name)}:</span>
                       <span className="font-bold text-slate-900 dark:text-white">{g.value}</span>
                       <span className="text-[11px] text-slate-400 dark:text-slate-500">({g.percent}%)</span>
                     </div>
@@ -1016,9 +1088,9 @@ export default function Dashboard({
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Activity className="w-4 h-4 text-blue-600" />
-                Live Operational Activity Stream
+                {userT('Live Operational Activity Stream')}
               </CardTitle>
-              <CardDescription>Real-time stream of field officer activities & telemetry</CardDescription>
+              <CardDescription>{userT('Real-time stream of field officer activities & telemetry')}</CardDescription>
             </div>
             {setActiveTab && (
               <Button
@@ -1027,7 +1099,7 @@ export default function Dashboard({
                 onClick={() => setActiveTab('activity_logs')}
                 className="text-blue-700 hover:text-blue-800 text-xs flex items-center gap-1"
               >
-                View Full Timeline
+                {userT('View Full Timeline')}
                 <ChevronRight className="w-3.5 h-3.5" />
               </Button>
             )}
@@ -1047,7 +1119,7 @@ export default function Dashboard({
                       </div>
                       <div className="min-w-0">
                         <p className="font-semibold text-slate-900 dark:text-[#F8FAFC] truncate">
-                          {log.description}
+                          {translateText(log.description, language)}
                         </p>
                         <p className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-0.5">
                           <span className="font-medium text-slate-700 dark:text-slate-300">{log.officerName}</span>
@@ -1061,7 +1133,7 @@ export default function Dashboard({
 
                     <div>
                       <Badge variant={log.syncStatus === 'SYNCED' ? 'success' : 'warning'}>
-                        {log.syncStatus === 'SYNCED' ? 'Synced' : 'Pending'}
+                        {log.syncStatus === 'SYNCED' ? userT('Synced') : userT('Pending')}
                       </Badge>
                     </div>
                   </div>
@@ -1208,8 +1280,8 @@ export default function Dashboard({
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>Field Officer Performance & Telemetry</CardTitle>
-              <CardDescription>Click any field officer to inspect detailed individual telemetry</CardDescription>
+              <CardTitle>{userT('Field Officer Performance & Telemetry')}</CardTitle>
+              <CardDescription>{userT('Click any field officer to inspect detailed individual telemetry')}</CardDescription>
             </div>
             {setActiveTab && (
               <Button
@@ -1218,7 +1290,7 @@ export default function Dashboard({
                 onClick={() => setActiveTab('team')}
                 className="text-xs"
               >
-                Manage Force
+                {userT('Manage Force')}
               </Button>
             )}
           </CardHeader>
@@ -1232,12 +1304,12 @@ export default function Dashboard({
                 <table className="w-full text-left text-xs">
                   <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
                     <tr className="border-b border-slate-200 dark:border-slate-700 text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-200">
-                      <th className="py-3.5 pl-6 pr-3">Rank</th>
-                      <th className="py-3.5 px-4">Officer</th>
-                      <th className="py-3.5 px-4">Woreda / Territory</th>
-                      <th className="py-3.5 px-4 text-right">Registrations</th>
-                      <th className="py-3.5 px-4 text-right">Reports</th>
-                      <th className="py-3.5 pr-6 text-right">Action</th>
+                      <th className="py-3.5 pl-6 pr-3">{userT('Rank')}</th>
+                      <th className="py-3.5 px-4">{userT('Officer')}</th>
+                      <th className="py-3.5 px-4">{userT('Woreda / Territory')}</th>
+                      <th className="py-3.5 px-4 text-right">{userT('Registrations')}</th>
+                      <th className="py-3.5 px-4 text-right">{userT('Reports')}</th>
+                      <th className="py-3.5 pr-6 text-right">{userT('Action')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-[#334155]">
@@ -1257,7 +1329,7 @@ export default function Dashboard({
                         <td className="py-3.5 px-4 font-semibold text-slate-900 dark:text-[#F8FAFC] group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors">
                           {emp.name}
                         </td>
-                        <td className="py-3.5 px-4 text-slate-500 dark:text-slate-400">{emp.region}</td>
+                        <td className="py-3.5 px-4 text-slate-500 dark:text-slate-400">{userT(emp.region)}</td>
                         <td className="py-3.5 px-4 text-right font-bold text-slate-900 dark:text-[#F8FAFC] font-mono">{emp.registrations}</td>
                         <td className="py-3.5 px-4 text-right font-medium text-slate-700 dark:text-slate-300 font-mono">{emp.reports}</td>
                         <td className="py-3.5 pr-6 text-right">
@@ -1267,7 +1339,7 @@ export default function Dashboard({
                             className="text-blue-700 dark:text-blue-400 group-hover:bg-blue-50 dark:group-hover:bg-blue-950/40 font-semibold"
                           >
                             <Eye className="w-3.5 h-3.5 mr-1" />
-                            Detail
+                            {userT('Detail')}
                           </Button>
                         </td>
                       </tr>

@@ -288,6 +288,37 @@ export function useAppData(user: any) {
           // Local fallback
         }
 
+        let finalLeaves = leavesData;
+        let finalPermissions = permissionsData;
+        try {
+          if (navigator.onLine) {
+            const [leavesRes, permsRes] = await Promise.all([
+              fetch(`${API_BASE}/leaves`).catch(() => null),
+              fetch(`${API_BASE}/permissions`).catch(() => null),
+            ]);
+            if (leavesRes && leavesRes.ok) {
+              const serverLeaves = await leavesRes.json();
+              if (Array.isArray(serverLeaves) && serverLeaves.length > 0) {
+                finalLeaves = serverLeaves;
+                if (db.leaves) {
+                  await db.leaves.clear();
+                  await db.leaves.bulkPut(finalLeaves as any);
+                }
+              }
+            }
+            if (permsRes && permsRes.ok) {
+              const serverPerms = await permsRes.json();
+              if (Array.isArray(serverPerms) && serverPerms.length > 0) {
+                finalPermissions = serverPerms;
+                if (db.permissions) {
+                  await db.permissions.clear();
+                  await db.permissions.bulkPut(finalPermissions as any);
+                }
+              }
+            }
+          }
+        } catch (_) {}
+
         setUsers(finalUsers);
         setReports(reportsData);
         setAttendance(attendanceData);
@@ -296,11 +327,11 @@ export function useAppData(user: any) {
         setSupervisorReports(supervisorReportsData);
         setScreenTime(screenTimeData);
         setTasks(tasksData);
-        setLeaves(leavesData);
+        setLeaves(finalLeaves);
         setAlerts(alertsData);
         setLiveStatus(liveStatusData);
         setAppNotifications(notificationsData);
-        setPermissions(permissionsData);
+        setPermissions(finalPermissions);
 
         await clearStuckSyncItems();
 
@@ -607,13 +638,29 @@ export function useAppData(user: any) {
 
   const getSupervisorLeaves = useCallback(() => {
     if (!isSupervisor || !user) return leaves;
-    return leaves.filter((l) => l.employeeId === user.employeeId);
-  }, [leaves, isSupervisor, user]);
+    const teamIds = teamMembers.map((m) => m.employeeId || m.id);
+    return leaves.filter(
+      (l) =>
+        teamIds.includes(l.employeeId) ||
+        teamIds.includes(l.employee_id) ||
+        l.employeeId === user.employeeId ||
+        l.supervisorId === user.employeeId ||
+        l.supervisorId === user.id
+    );
+  }, [leaves, isSupervisor, user, teamMembers]);
 
   const getSupervisorPermissions = useCallback(() => {
     if (!isSupervisor || !user) return permissions;
-    return permissions.filter((p) => p.employeeId === user.employeeId);
-  }, [permissions, isSupervisor, user]);
+    const teamIds = teamMembers.map((m) => m.employeeId || m.id);
+    return permissions.filter(
+      (p) =>
+        teamIds.includes(p.employeeId) ||
+        teamIds.includes(p.employee_id) ||
+        p.employeeId === user.employeeId ||
+        p.supervisorId === user.employeeId ||
+        p.supervisorId === user.id
+    );
+  }, [permissions, isSupervisor, user, teamMembers]);
 
   const getSupervisorAttendance = useCallback(() => {
     if (!isSupervisor || !user) return attendance;

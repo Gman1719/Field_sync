@@ -12,6 +12,7 @@ import { API_BASE } from '../../config/api';
 import { db } from '../../services/database';
 import { offlineDb } from '../../db/offlineDb';
 import { ActivityLogger } from '../../services/activityLogger';
+import { useUserLanguage } from '../../context/UserLanguageContext';
 
 interface UserDetailsModalProps {
   user: any;
@@ -42,6 +43,7 @@ export default function UserDetailsModal({
   onResetPassword,
   onUserUpdated,
 }: UserDetailsModalProps) {
+  const { userT } = useUserLanguage();
   const [userDetails, setUserDetails] = useState(user);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [isTogglingStatus, setIsTogglingStatus] = useState(false);
@@ -101,7 +103,7 @@ export default function UserDetailsModal({
     if (!text) return;
     navigator.clipboard.writeText(text);
     setCopiedField(field);
-    toast.success(`Copied ${field}`);
+    toast.success(userT(`Copied ${field}`));
     setTimeout(() => setCopiedField(null), 2000);
   };
 
@@ -180,11 +182,11 @@ export default function UserDetailsModal({
 
       setUserDetails(updated);
       setShowRoleSelector(false);
-      toast.success(`Role updated to ${selectedRole.replace('_', ' ')} successfully`);
+      toast.success(userT(`Role updated to ${selectedRole.replace('_', ' ')} successfully`));
       if (onUserUpdated) onUserUpdated(updated);
     } catch (err: any) {
       console.error('Role update error:', err);
-      toast.error('Failed to change role: ' + (err.message || 'Unknown error'));
+      toast.error(userT('Failed to change role:') + ' ' + (err.message ? userT(err.message) : userT('Unknown error')));
     } finally {
       setIsUpdatingRole(false);
     }
@@ -197,7 +199,7 @@ export default function UserDetailsModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Staff Account & Profile Details"
+      title={userT('Staff Account & Profile Details')}
       size="lg"
     >
       <div className="space-y-5">
@@ -222,14 +224,14 @@ export default function UserDetailsModal({
                 </h3>
                 <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                   <span className="inline-flex items-center gap-1 font-mono text-[11px] text-slate-500 dark:text-slate-300 bg-slate-100 dark:bg-slate-900 px-2 py-0.5 rounded-md border border-slate-200/60 dark:border-slate-700">
-                    <span>ID:</span>
+                    <span>{userT('ID')}:</span>
                     <span className="font-semibold text-slate-700 dark:text-white">{current.employeeId || current.id}</span>
                   </span>
                   <button
                     type="button"
                     onClick={() => copyToClipboard(current.employeeId || current.id, 'Employee ID')}
                     className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-0.5 cursor-pointer"
-                    title="Copy ID"
+                    title={userT('Copy ID')}
                   >
                     {copiedField === 'Employee ID' ? <Check className="w-3 h-3 text-blue-600 dark:text-blue-400" /> : <Copy className="w-3 h-3" />}
                   </button>
@@ -237,7 +239,7 @@ export default function UserDetailsModal({
                 <div className="flex items-center gap-2 mt-2">
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200/80 dark:bg-blue-500/20 dark:text-blue-300 dark:border-blue-500/40 capitalize shadow-2xs">
                     <ShieldCheck className="w-3.5 h-3.5" />
-                    {current.role?.replace('_', ' ')}
+                    {userT(current.role?.replace('_', ' '))}
                   </span>
                   <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold shadow-2xs ${
                     isActive
@@ -245,7 +247,7 @@ export default function UserDetailsModal({
                       : 'bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700'
                   }`}>
                     <span className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
-                    {isActive ? 'ACTIVE ACCOUNT' : 'INACTIVE'}
+                    {isActive ? userT('ACTIVE ACCOUNT') : userT('INACTIVE')}
                   </span>
                 </div>
               </div>
@@ -254,7 +256,7 @@ export default function UserDetailsModal({
             {loadingDetails && (
               <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-300 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xs px-3 py-1.5 rounded-lg border border-slate-200/60 dark:border-slate-700 self-start sm:self-center shadow-2xs">
                 <RefreshCw className="w-3 h-3 animate-spin text-blue-600 dark:text-blue-400" />
-                <span>Syncing live stats...</span>
+                <span>{userT('Syncing live stats...')}</span>
               </div>
             )}
           </div>
@@ -267,13 +269,13 @@ export default function UserDetailsModal({
               <User className="w-3 h-3" />
             </div>
             <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
-              Personal & Contact Information
+              {userT('Personal & Contact Information')}
             </h4>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {/* Full Name */}
             <div className="p-3.5 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 rounded-xl shadow-2xs hover:border-slate-300 dark:hover:border-slate-600 transition-all">
-              <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-0.5">Full Legal Name</span>
+              <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-0.5">{userT('Full Legal Name')}</span>
               <span className="font-semibold text-sm text-slate-900 dark:text-white block leading-snug">
                 {fullName}
               </span>
@@ -282,7 +284,7 @@ export default function UserDetailsModal({
             {/* Email Address */}
             <div className="p-3.5 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 rounded-xl shadow-2xs hover:border-slate-300 dark:hover:border-slate-600 transition-all flex items-center justify-between">
               <div className="min-w-0 pr-2">
-                <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-0.5">Email Address</span>
+                <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-0.5">{userT('Email Address')}</span>
                 <span className="font-semibold text-sm text-slate-900 dark:text-white truncate block">
                   {current.email}
                 </span>
@@ -291,7 +293,7 @@ export default function UserDetailsModal({
                 type="button"
                 onClick={() => copyToClipboard(current.email, 'Email')}
                 className="p-1 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-800 transition-colors shrink-0 cursor-pointer"
-                title="Copy email"
+                title={userT('Copy email')}
               >
                 {copiedField === 'Email' ? <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
               </button>
@@ -300,9 +302,9 @@ export default function UserDetailsModal({
             {/* Phone Number */}
             <div className="p-3.5 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 rounded-xl shadow-2xs hover:border-slate-300 dark:hover:border-slate-600 transition-all flex items-center justify-between">
               <div className="min-w-0 pr-2">
-                <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-0.5">Phone Number</span>
+                <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-0.5">{userT('Phone Number')}</span>
                 <span className="font-semibold text-sm text-slate-900 dark:text-white font-mono block">
-                  {current.phoneNumber || current.phone || 'Not provided'}
+                  {current.phoneNumber || current.phone || userT('Not provided')}
                 </span>
               </div>
               {(current.phoneNumber || current.phone) && (
@@ -310,7 +312,7 @@ export default function UserDetailsModal({
                   type="button"
                   onClick={() => copyToClipboard(current.phoneNumber || current.phone, 'Phone')}
                   className="p-1 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-800 transition-colors shrink-0 cursor-pointer"
-                  title="Copy phone"
+                  title={userT('Copy phone')}
                 >
                   {copiedField === 'Phone' ? <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                 </button>
@@ -326,7 +328,7 @@ export default function UserDetailsModal({
               <MapPin className="w-3 h-3" />
             </div>
             <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
-              Ethiopian Administrative Hierarchy
+              {userT('Ethiopian Administrative Hierarchy')}
             </h4>
           </div>
 
@@ -336,10 +338,10 @@ export default function UserDetailsModal({
                 <Building2 className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" />
                 <div>
                   <span className="text-sm font-bold text-slate-900 dark:text-white block">
-                    National Operational Scope
+                    {userT('National Operational Scope')}
                   </span>
                   <span className="text-xs text-slate-500 dark:text-slate-300">
-                    Federal Democratic Republic of Ethiopia (Organization-wide Authority)
+                    {userT('Federal Democratic Republic of Ethiopia (Organization-wide Authority)')}
                   </span>
                 </div>
               </div>
@@ -347,21 +349,21 @@ export default function UserDetailsModal({
               <div className="space-y-2.5">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                   <div className="p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200/80 dark:border-slate-700 shadow-2xs">
-                    <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-0.5">Region</span>
+                    <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-0.5">{userT('Region')}</span>
                     <span className="text-sm font-semibold text-slate-900 dark:text-white">
-                      {current.region || current.regionName || 'Unassigned'}
+                      {current.region || current.regionName ? userT(current.region || current.regionName) : userT('Unassigned')}
                     </span>
                   </div>
                   <div className="p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200/80 dark:border-slate-700 shadow-2xs">
-                    <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-0.5">Zone / Sub-City</span>
+                    <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-0.5">{userT('Zone / Sub-City')}</span>
                     <span className="text-sm font-semibold text-slate-900 dark:text-white">
-                      {current.zone || current.zoneName || 'Unassigned'}
+                      {current.zone || current.zoneName ? userT(current.zone || current.zoneName) : userT('Unassigned')}
                     </span>
                   </div>
                   <div className="p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200/80 dark:border-slate-700 shadow-2xs">
-                    <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-0.5">Woreda / Station</span>
+                    <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-0.5">{userT('Woreda / Station')}</span>
                     <span className="text-sm font-semibold text-slate-900 dark:text-white">
-                      {current.role === 'supervisor' ? 'All Woredas in Zone' : (current.woreda || current.woredaName || 'Unassigned')}
+                      {current.role === 'supervisor' ? userT('All Woredas in Zone') : (current.woreda || current.woredaName ? userT(current.woreda || current.woredaName) : userT('Unassigned'))}
                     </span>
                   </div>
                 </div>
@@ -373,15 +375,15 @@ export default function UserDetailsModal({
                         <User className="w-3.5 h-3.5" />
                       </div>
                       <div>
-                        <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block">Direct Assigned Supervisor</span>
+                        <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block">{userT('Direct Assigned Supervisor')}</span>
                         <span className="text-sm font-semibold text-slate-900 dark:text-white">
-                          {current.supervisorName || current.supervisorId || 'Unassigned'}
+                          {current.supervisorName || current.supervisorId || userT('Unassigned')}
                         </span>
                       </div>
                     </div>
                     {current.supervisorName && (
                       <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/40 px-2.5 py-0.5 rounded-full border border-blue-200 dark:border-blue-700">
-                        Zonal Supervisor
+                        {userT('Zonal Supervisor')}
                       </span>
                     )}
                   </div>
@@ -401,10 +403,10 @@ export default function UserDetailsModal({
                 </div>
                 <div>
                   <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
-                    Change Operational Role
+                    {userT('Change Operational Role')}
                   </h4>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                    Select new functional authority for this staff member
+                    {userT('Select new functional authority for this staff member')}
                   </p>
                 </div>
               </div>
@@ -413,7 +415,7 @@ export default function UserDetailsModal({
                 onClick={() => setShowRoleSelector(false)}
                 className="text-xs font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors cursor-pointer"
               >
-                Dismiss
+                {userT('Dismiss')}
               </button>
             </div>
 
@@ -433,12 +435,12 @@ export default function UserDetailsModal({
                   >
                     <div className="flex items-center justify-between mb-1">
                       <span className={`text-xs font-bold ${isSelected ? 'text-blue-600 dark:text-blue-400' : 'text-slate-900 dark:text-slate-100'}`}>
-                        {r.label}
+                        {userT(r.label)}
                       </span>
                       {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />}
                     </div>
                     <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
-                      {r.desc}
+                      {userT(r.desc)}
                     </p>
                   </button>
                 );
@@ -452,7 +454,7 @@ export default function UserDetailsModal({
                 onClick={() => setShowRoleSelector(false)}
                 className="font-medium text-xs px-3.5"
               >
-                Cancel
+                {userT('Cancel')}
               </Button>
               <Button
                 type="button"
@@ -461,7 +463,7 @@ export default function UserDetailsModal({
                 onClick={handleSaveRole}
                 className="font-semibold bg-blue-600 hover:bg-blue-500 text-white text-xs px-4 shadow-xs"
               >
-                Confirm Role Change
+                {userT('Confirm Role Change')}
               </Button>
             </div>
           </div>
@@ -471,7 +473,7 @@ export default function UserDetailsModal({
         {(onEdit || onReassign || onChangeRole || onToggleStatus || onResetPassword) && (
           <div className="p-3.5 sm:p-4 bg-slate-50/70 dark:bg-slate-900/60 rounded-xl border border-slate-200/80 dark:border-slate-700/80 space-y-3">
             <h4 className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-              <span>Manager Administrative Actions</span>
+              <span>{userT('Manager Administrative Actions')}</span>
             </h4>
             <div className="flex flex-wrap items-center gap-2">
               {onEdit && (
@@ -481,7 +483,7 @@ export default function UserDetailsModal({
                   className="px-3 py-2 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-100 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-2xs hover:shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
                 >
                   <Edit3 className="w-3.5 h-3.5 text-slate-500 dark:text-slate-300" />
-                  <span>Edit Profile</span>
+                  <span>{userT('Edit Profile')}</span>
                 </button>
               )}
               <button
@@ -496,7 +498,7 @@ export default function UserDetailsModal({
                 className="px-3 py-2 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-100 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-2xs hover:shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
               >
                 <ShieldCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                <span>Change Role</span>
+                <span>{userT('Change Role')}</span>
               </button>
               {onReassign && current.role !== 'manager' && (
                 <button
@@ -505,7 +507,7 @@ export default function UserDetailsModal({
                   className="px-3 py-2 rounded-lg text-xs font-semibold text-blue-700 dark:text-blue-300 bg-white dark:bg-slate-800 border border-blue-200 dark:border-blue-700 hover:bg-blue-50/50 dark:hover:bg-blue-900/40 shadow-2xs hover:shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
                 >
                   <MapPin className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                  <span>Change Location</span>
+                  <span>{userT('Change Location')}</span>
                 </button>
               )}
               {onResetPassword && (
@@ -515,7 +517,7 @@ export default function UserDetailsModal({
                   className="px-3 py-2 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-100 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-2xs hover:shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
                 >
                   <KeyRound className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
-                  <span>Reset Password</span>
+                  <span>{userT('Reset Password')}</span>
                 </button>
               )}
               {onToggleStatus && (
@@ -530,7 +532,7 @@ export default function UserDetailsModal({
                   }`}
                 >
                   <Power className="w-3.5 h-3.5" />
-                  <span>{isActive ? 'Deactivate Account' : 'Activate Account'}</span>
+                  <span>{isActive ? userT('Deactivate Account') : userT('Activate Account')}</span>
                 </button>
               )}
             </div>
@@ -540,7 +542,7 @@ export default function UserDetailsModal({
         {/* Footer */}
         <div className="flex justify-end pt-3 border-t border-slate-200/80 dark:border-slate-700/80">
           <Button variant="secondary" onClick={onClose} className="font-semibold px-6 text-sm">
-            Close Profile
+            {userT('Close')}
           </Button>
         </div>
       </div>

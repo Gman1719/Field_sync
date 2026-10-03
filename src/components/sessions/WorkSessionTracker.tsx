@@ -17,6 +17,7 @@ import {
   Timer,
   ChevronDown,
   ChevronUp,
+  RotateCcw,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { offlineDb } from '../../db/offlineDb';
@@ -115,6 +116,25 @@ export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }:
     }
   };
 
+  const handleResetSession = async () => {
+    if (!screenTime.resetSessionForTesting) return;
+    try {
+      await screenTime.resetSessionForTesting();
+      toast.success('Work session reset! Enforced session start is now triggered.');
+      await loadHistory();
+    } catch (e) {
+      toast.error('Failed to reset session');
+    }
+  };
+
+  useEffect(() => {
+    const handleReset = () => {
+      loadHistory();
+    };
+    window.addEventListener('fieldsync-session-reset', handleReset);
+    return () => window.removeEventListener('fieldsync-session-reset', handleReset);
+  }, [loadHistory]);
+
   const formattedStartTime = sessionStartedAt
     ? new Date(sessionStartedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     : null;
@@ -187,6 +207,19 @@ export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }:
                 : 'Not Started'}
             </span>
           </div>
+
+          {/* Test / Reset Button */}
+          {screenTime.resetSessionForTesting && (
+            <button
+              type="button"
+              onClick={handleResetSession}
+              title="Reset today's session to simulate and test first-time login enforcement"
+              className="px-3 py-1.5 rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/50 text-rose-700 dark:text-rose-300 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Reset Session (Test)</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -295,8 +328,17 @@ export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }:
               </div>
             </div>
 
-            <div className="text-[11px] text-slate-400 dark:text-slate-500 border-t border-slate-100 dark:border-[#202431] pt-3">
-              Finalizes automatically when you submit your Daily Work Report
+            <div className="text-[11px] text-slate-400 dark:text-slate-500 border-t border-slate-100 dark:border-[#202431] pt-3 flex items-center justify-between">
+              <span>Finalizes automatically when you submit your Daily Work Report</span>
+              {isSessionActive && screenTime.resetSessionForTesting && (
+                <button
+                  type="button"
+                  onClick={handleResetSession}
+                  className="text-rose-600 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 font-semibold cursor-pointer underline text-[11px]"
+                >
+                  Reset for testing
+                </button>
+              )}
             </div>
           </div>
 

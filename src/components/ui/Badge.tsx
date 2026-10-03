@@ -1,4 +1,5 @@
 import React, { type ReactNode, type HTMLAttributes } from 'react';
+import { useUserLanguage } from '../../context/UserLanguageContext';
 
 export type BadgeVariant = 'success' | 'warning' | 'error' | 'info' | 'neutral' | 'primary' | 'default' | 'danger' | 'outline' | 'secondary';
 export type BadgeSize = 'sm' | 'md';
@@ -19,6 +20,7 @@ export default function Badge({
   className = '',
   ...props
 }: BadgeProps) {
+  const { userT } = useUserLanguage();
   const variants: Record<BadgeVariant, string> = {
     success: 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60',
     warning: 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/60',
@@ -56,7 +58,7 @@ export default function Badge({
       {...props}
     >
       {dot && <span className={`w-1.5 h-1.5 rounded-full ${dotColors[variant] || 'bg-slate-400'}`} />}
-      {children}
+      {typeof children === 'string' ? userT(children) : children}
     </span>
   );
 }

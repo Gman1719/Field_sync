@@ -11,6 +11,7 @@ import { API_BASE } from '../../config/api';
 import { db } from '../../services/database';
 import { offlineDb } from '../../db/offlineDb';
 import { ActivityLogger } from '../../services/activityLogger';
+import { useUserLanguage } from '../../context/UserLanguageContext';
 
 interface UserRoleModalProps {
   user: any;
@@ -44,6 +45,7 @@ const ROLES = [
 ];
 
 export default function UserRoleModal({ user, isOpen, onClose, onUserUpdated }: UserRoleModalProps) {
+  const { userT } = useUserLanguage();
   const [selectedRole, setSelectedRole] = useState('field_officer');
   const [assignment, setAssignment] = useState({
     regionId: '',
@@ -90,12 +92,12 @@ export default function UserRoleModal({ user, isOpen, onClose, onUserUpdated }: 
     const errs: Record<string, string> = {};
 
     if (selectedRole === 'supervisor') {
-      if (!assignment.regionId) errs.regionId = 'Region is required for Supervisor';
-      if (!assignment.zoneId) errs.zoneId = 'Zone is required for Supervisor';
+      if (!assignment.regionId) errs.regionId = userT('Region is required for Supervisor');
+      if (!assignment.zoneId) errs.zoneId = userT('Zone is required for Supervisor');
     } else if (selectedRole === 'field_officer') {
-      if (!assignment.regionId) errs.regionId = 'Region is required for Field Officer';
-      if (!assignment.zoneId) errs.zoneId = 'Zone is required for Field Officer';
-      if (!assignment.woredaId) errs.woredaId = 'Woreda is required for Field Officer';
+      if (!assignment.regionId) errs.regionId = userT('Region is required for Field Officer');
+      if (!assignment.zoneId) errs.zoneId = userT('Zone is required for Field Officer');
+      if (!assignment.woredaId) errs.woredaId = userT('Woreda is required for Field Officer');
     }
 
     setLocationErrors(errs);
@@ -106,7 +108,7 @@ export default function UserRoleModal({ user, isOpen, onClose, onUserUpdated }: 
     e.preventDefault();
 
     if (!validate()) {
-      toast.error('Please complete all required location fields for this role.');
+      toast.error(userT('Please complete all required location fields for this role.'));
       return;
     }
 
@@ -201,12 +203,12 @@ export default function UserRoleModal({ user, isOpen, onClose, onUserUpdated }: 
         });
       } catch (_logErr) {}
 
-      toast.success(`Role & workstation updated to ${selectedRole.replace('_', ' ')}`);
+      toast.success(userT(`Role & workstation updated to ${selectedRole.replace('_', ' ')}`));
       if (onUserUpdated) onUserUpdated(updatedUser);
       onClose();
     } catch (err: any) {
       console.error('Role update error:', err);
-      toast.error(err.message || 'Failed to update role & location');
+      toast.error(err.message ? userT(err.message) : userT('Failed to update role & location'));
     } finally {
       setIsSubmitting(false);
     }
@@ -216,7 +218,7 @@ export default function UserRoleModal({ user, isOpen, onClose, onUserUpdated }: 
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Change Operational Role & Workstation Location"
+      title={userT('Change Operational Role & Workstation Location')}
       size="lg"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -231,19 +233,19 @@ export default function UserRoleModal({ user, isOpen, onClose, onUserUpdated }: 
                 {user.fullName || user.name}
               </span>
               <span className="text-xs text-slate-500 dark:text-slate-400">
-                {user.email} • ID: {user.employeeId || user.id?.slice(0, 8)}
+                {user.email} • {userT('ID:')} {user.employeeId || user.id?.slice(0, 8)}
               </span>
             </div>
           </div>
           <Badge variant={user.role === 'manager' ? 'primary' : user.role === 'supervisor' ? 'info' : 'neutral'} className="capitalize text-xs font-semibold">
-            Current: {user.role?.replace('_', ' ')}
+            {userT('Current:')} {userT(user.role?.replace('_', ' ') || '')}
           </Badge>
         </div>
 
         {/* Section 1: Role Options */}
         <div className="space-y-2">
           <label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider block">
-            1. Select New Operational Role
+            {userT('1. Select New Operational Role')}
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
             {ROLES.map((role) => {
@@ -272,16 +274,16 @@ export default function UserRoleModal({ user, isOpen, onClose, onUserUpdated }: 
                     </div>
                     {isSelected && (
                       <span className="text-xs font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1">
-                        <UserCheck className="w-3.5 h-3.5" /> Selected
+                        <UserCheck className="w-3.5 h-3.5" /> {userT('Selected')}
                       </span>
                     )}
                   </div>
                   <div>
                     <span className={`text-sm font-bold block mb-1 ${isSelected ? 'text-blue-700 dark:text-blue-400' : 'text-slate-900 dark:text-slate-100'}`}>
-                      {role.title}
+                      {userT(role.title)}
                     </span>
                     <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                      {role.description}
+                      {userT(role.description)}
                     </p>
                   </div>
                 </button>
@@ -295,7 +297,7 @@ export default function UserRoleModal({ user, isOpen, onClose, onUserUpdated }: 
           <div className="flex items-center gap-2">
             <MapPin className="w-4 h-4 text-blue-600 dark:text-blue-400" />
             <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-              2. Workstation Location Assignment
+              {userT('3. Station & Location Assignment')}
             </h4>
           </div>
 
@@ -304,19 +306,19 @@ export default function UserRoleModal({ user, isOpen, onClose, onUserUpdated }: 
               <Building2 className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" />
               <div>
                 <span className="text-sm font-bold text-slate-800 dark:text-slate-100 block">
-                  Organization-wide Coverage (National)
+                  {userT('Organization-Wide Scope')}
                 </span>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Managers operate at the federal level across the Federal Democratic Republic of Ethiopia. No specific regional, zonal, or woreda assignment is required.
+                  {userT('Managers hold system-wide administrative oversight. No Zone or Woreda assignment is required.')}
                 </p>
               </div>
             </div>
           ) : (
             <div className="p-4 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-xl space-y-3">
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                {selectedRole === 'supervisor'
+                {userT(selectedRole === 'supervisor'
                   ? 'Assign the Region and Zone for this Supervisor. Supervisors coordinate all woredas within their assigned Zone.'
-                  : 'Assign the Region, Zone, Woreda/Station, and direct Supervisor for this Field Officer.'}
+                  : 'Assign the Region, Zone, Woreda/Station, and direct Supervisor for this Field Officer.')}
               </p>
               <LocationDropdown
                 role={selectedRole}
@@ -340,7 +342,7 @@ export default function UserRoleModal({ user, isOpen, onClose, onUserUpdated }: 
             disabled={isSubmitting}
             className="font-medium text-xs sm:text-sm px-4"
           >
-            Cancel
+            {userT('Cancel')}
           </Button>
           <Button
             type="submit"
@@ -349,7 +351,7 @@ export default function UserRoleModal({ user, isOpen, onClose, onUserUpdated }: 
             disabled={isSubmitting}
             className="bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs sm:text-sm px-5 shadow-sm shadow-blue-500/20"
           >
-            Save Role & Location
+            {userT('Apply Role Change')}
           </Button>
         </div>
       </form>

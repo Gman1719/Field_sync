@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { KeyRound, Copy, Check, AlertTriangle, ShieldCheck } from 'lucide-react';
 import Button from '../ui/Button';
+import { useUserLanguage } from '../../context/UserLanguageContext';
 
 export default function TempPasswordModal({ userName, userEmail, tempPassword, onClose }) {
+  const { userT } = useUserLanguage();
   const [copied, setCopied] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
 
@@ -11,11 +13,11 @@ export default function TempPasswordModal({ userName, userEmail, tempPassword, o
     try {
       await navigator.clipboard.writeText(tempPassword);
       setCopied(true);
-      toast.success('Temporary password copied to clipboard');
+      toast.success(userT('Temporary password copied to clipboard'));
       setTimeout(() => setCopied(false), 2500);
     } catch (err) {
       console.error('Copy failed:', err);
-      toast.error('Failed to copy to clipboard');
+      toast.error(userT('Failed to copy to clipboard'));
     }
   };
 
@@ -32,9 +34,11 @@ export default function TempPasswordModal({ userName, userEmail, tempPassword, o
             <KeyRound className="w-5 h-5" />
           </div>
           <div className="min-w-0">
-            <h3 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">One-Time Access Password</h3>
+            <h3 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">
+              {userT('One-Time Access Password')}
+            </h3>
             <p className="text-xs text-slate-500 dark:text-slate-300 mt-0.5 truncate">
-              Credentials for <span className="font-semibold text-slate-800 dark:text-slate-100">{userName}</span>
+              {userT('Credentials for')} <span className="font-semibold text-slate-800 dark:text-slate-100">{userName}</span>
               {userEmail ? ` (${userEmail})` : ''}
             </p>
           </div>
@@ -46,15 +50,17 @@ export default function TempPasswordModal({ userName, userEmail, tempPassword, o
           <div className="p-3.5 bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60 rounded-xl flex items-start gap-2.5 text-xs text-amber-900 dark:text-amber-200">
             <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
             <div>
-              <span className="font-bold block mb-0.5 text-slate-900 dark:text-white">Strict One-Time Display</span>
+              <span className="font-bold block mb-0.5 text-slate-900 dark:text-white">
+                {userT('Strict One-Time Display')}
+              </span>
               <p className="text-amber-800/90 dark:text-amber-300 leading-relaxed text-[11px]">
-                For security reasons, this temporary password is never saved in readable form and <strong>cannot be viewed again</strong> once this dialog is closed.
+                {userT('For security reasons, this temporary password is never saved in readable form and cannot be viewed again once this dialog is closed.')}
               </p>
             </div>
           </div>
 
           <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-            Securely deliver this temporary code to the staff member. They will be immediately required to choose a new permanent password upon sign-in.
+            {userT('Securely deliver this temporary code to the staff member. They will be immediately required to choose a new permanent password upon sign-in.')}
           </p>
 
           {/* Cryptographic Password Card */}
@@ -69,7 +75,7 @@ export default function TempPasswordModal({ userName, userEmail, tempPassword, o
               className="h-8 text-xs shrink-0 font-medium"
             >
               {copied ? <Check className="w-3.5 h-3.5 text-emerald-500 mr-1" /> : <Copy className="w-3.5 h-3.5 mr-1" />}
-              {copied ? 'Copied' : 'Copy'}
+              {copied ? userT('Copied') : userT('Copy')}
             </Button>
           </div>
 
@@ -82,7 +88,7 @@ export default function TempPasswordModal({ userName, userEmail, tempPassword, o
               className="w-4 h-4 mt-0.5 text-blue-600 rounded border-slate-300 dark:border-slate-700 focus:ring-blue-500 accent-blue-600"
             />
             <span className="text-[11px] leading-relaxed">
-              I have securely shared or copied this password and acknowledge that it cannot be retrieved again.
+              {userT('I have securely shared or copied this password and acknowledge that it cannot be retrieved again.')}
             </span>
           </label>
         </div>
@@ -96,7 +102,7 @@ export default function TempPasswordModal({ userName, userEmail, tempPassword, o
             className="w-full sm:w-auto"
           >
             <ShieldCheck className="w-4 h-4 mr-1.5" />
-            I Have Saved It — Continue
+            {userT('I Have Saved It — Continue')}
           </Button>
         </div>
       </div>

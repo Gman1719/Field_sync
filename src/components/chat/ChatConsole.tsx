@@ -15,7 +15,7 @@ import {
   Bell, BellOff, ExternalLink, ShieldCheck, ChevronRight,
   Filter, FileSpreadsheet, Eye, AlertCircle,
   CornerUpLeft, CheckSquare, Square, Trash2, Copy, MoreHorizontal,
-  Link2, Play, Volume2, Maximize2
+  Link2, Play, Volume2, Maximize2, WifiOff
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -28,7 +28,9 @@ import {
   markConversationAsRead,
   addMessageReaction,
   getTotalUnreadCount,
-  normalizeUserId
+  normalizeUserId,
+  isChatOnline,
+  deliverPendingChatMessages
 } from '../../services/chatService';
 
 interface ChatConsoleProps {
@@ -205,6 +207,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [priorityAlerts, setPriorityAlerts] = useState(true);
+  const [isOnline, setIsOnline] = useState<boolean>(() => isChatOnline());
 
   // Click-to-action menu state for individual message
   const [activeMenuMessageId, setActiveMenuMessageId] = useState<string | null>(null);
@@ -312,7 +315,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
     try {
       const myId = normalizeUserId(user.id);
       const theirId = normalizeUserId(selectedContact.id);
-      const msgs = await getConversationMessages(myId, theirId);
+      const msgs = await getConversationMessages(myId, theirId, myId);
       setMessages(msgs);
       await markConversationAsRead(myId, theirId, myId);
     } catch (err) {
@@ -328,7 +331,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
       const myId = normalizeUserId(user.id);
       for (const sup of supervisorsList) {
         const theirId = normalizeUserId(sup.id);
-        const msgs = await getConversationMessages(myId, theirId);
+        const msgs = await getConversationMessages(myId, theirId, myId);
         const unread = msgs.filter((m) => normalizeUserId(m.receiverId) === myId && !m.isRead).length;
         counts[sup.id] = unread;
       }
@@ -380,6 +383,25 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
     window.addEventListener('focus', handleChatUpdate);
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
+    // Online & Offline lifecycle: automatically deliver pending messages when reconnecting
+    const handleOnline = async () => {
+      setIsOnline(true);
+      const count = await deliverPendingChatMessages(user?.id);
+      await loadMessages();
+      refreshUnreadCounts();
+      if (count > 0) {
+        toast.success(`${count} pending message${count > 1 ? 's' : ''} delivered.`);
+      }
+    };
+
+    const handleOffline = () => {
+      setIsOnline(false);
+      toast('You are offline. New messages will be queued and delivered once you reconnect.', { icon: '⚠️' });
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
     const pollTimer = setInterval(() => {
       loadMessages();
       refreshUnreadCounts();
@@ -392,6 +414,8 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
       window.removeEventListener('storage', handleStorageEvent);
       window.removeEventListener('focus', handleChatUpdate);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
       clearInterval(pollTimer);
     };
   }, [selectedContact?.id, user?.id]);
@@ -498,6 +522,10 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
         attachment: attToSend,
       });
 
+      if (!isChatOnline()) {
+        toast('Offline: Message queued. It will be delivered once back online.', { icon: '⏳' });
+      }
+
       await loadMessages();
       refreshUnreadCounts();
     } catch (err) {
@@ -533,6 +561,10 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
         receiverName: selectedContact.fullName || selectedContact.name || 'Recipient',
         text: templateText,
       });
+
+      if (!isChatOnline()) {
+        toast('Offline: Template queued. It will be delivered once back online.', { icon: '⏳' });
+      }
 
       await loadMessages();
       refreshUnreadCounts();
@@ -950,7 +982,6 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                           <span>{initials}</span>
                         )}
                       </div>
-                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-[#160F0D] absolute bottom-0 right-0" />
                     </div>
 
                     <div className="flex-1 min-w-0">
@@ -1054,7 +1085,6 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                     <span>{selectedContactInitials}</span>
                   )}
                 </div>
-                <span className="w-3 h-3 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-[#160F0D] absolute bottom-0 right-0" />
               </div>
 
               {/* Name & Role */}
@@ -1062,13 +1092,10 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                 <h4 className="text-sm sm:text-base font-bold text-[#0F172A] dark:text-white tracking-tight truncate">
                   {selectedContact?.fullName || selectedContact?.name || (isSupervisor ? 'አበበ በቀለ' : 'Supervisor')}
                 </h4>
-                <p className="text-xs text-[#64748B] dark:text-slate-400 flex items-center gap-1.5 font-medium truncate">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
-                  <span>
-                    {isSupervisor
-                      ? 'Executive Operations Manager • Active'
-                      : `${selectedContact?.region || 'Regional'} Supervisor • Active`}
-                  </span>
+                <p className="text-xs text-[#64748B] dark:text-slate-400 font-medium truncate">
+                  {isSupervisor
+                    ? 'Executive Operations Manager'
+                    : `${selectedContact?.region || 'Regional'} Supervisor`}
                 </p>
               </div>
             </div>
@@ -1129,6 +1156,19 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
         {/* ============================================================== */}
         {/* MESSAGES FEED AREA (#F8FAFC / dark:bg-[#100B09])               */}
         {/* ============================================================== */}
+        {/* Offline Banner */}
+        {!isOnline && (
+          <div className="px-4 py-2 bg-amber-50 dark:bg-amber-950/40 border-b border-amber-200 dark:border-amber-900/50 text-amber-800 dark:text-amber-300 text-xs flex items-center justify-between font-medium animate-in fade-in duration-200">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+              <span>You are currently offline. Messages will be queued and delivered once you are back online.</span>
+            </div>
+            <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-amber-200/60 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200">
+              Offline
+            </span>
+          </div>
+        )}
+
         <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-5">
           {visibleMessages.length === 0 ? (
             /* Empty State with Operational Starter Templates (Auto-disappears once messages exist) */
@@ -1414,7 +1454,12 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                               <div className="flex items-center gap-1">
                                 <span>{formatMsgTime(msg.timestamp)}</span>
                                 {isMine && (
-                                  msg.status === 'read' ? (
+                                  msg.status === 'sending' ? (
+                                    <span title="Waiting for network" className="text-amber-500/90 dark:text-amber-400/90 flex items-center gap-1 ml-1 text-[10px] font-medium">
+                                      <Clock className="w-3 h-3 animate-spin" />
+                                      <span>Sending...</span>
+                                    </span>
+                                  ) : msg.status === 'read' ? (
                                     <span title="Seen" className="text-blue-600 dark:text-blue-400 flex items-center gap-0.5 font-medium ml-1">
                                       <CheckCheck className="w-3.5 h-3.5" />
                                       <span className="text-[10px]">Seen</span>
@@ -1556,7 +1601,12 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                               <div className="flex items-center gap-1 text-[11px] text-slate-500 dark:text-[#93C5FD]/80">
                                 <span>{formatMsgTime(msg.timestamp)}</span>
                                 {isMine && (
-                                  msg.status === 'read' ? (
+                                  msg.status === 'sending' ? (
+                                    <span title="Waiting for network" className="text-amber-500/90 dark:text-amber-400/90 flex items-center gap-1 ml-1 text-[10px] font-medium">
+                                      <Clock className="w-3 h-3 animate-spin" />
+                                      <span>Sending...</span>
+                                    </span>
+                                  ) : msg.status === 'read' ? (
                                     <span title="Seen" className="text-blue-600 dark:text-blue-400 flex items-center gap-0.5 font-medium ml-1">
                                       <CheckCheck className="w-3.5 h-3.5" />
                                       <span className="text-[10px]">Seen</span>
@@ -1580,7 +1630,9 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                             <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-900/60 dark:bg-black/60 backdrop-blur-md text-white text-[10.5px] font-mono shadow-xs select-none mb-1">
                               <span>{formatMsgTime(msg.timestamp)}</span>
                               {isMine && (
-                                msg.status === 'read' ? (
+                                msg.status === 'sending' ? (
+                                  <Clock className="w-3.5 h-3.5 text-white/60 animate-spin" />
+                                ) : msg.status === 'read' ? (
                                   <CheckCheck className="w-3.5 h-3.5 text-blue-400" />
                                 ) : (
                                   <Check className="w-3.5 h-3.5 text-white/80" />
@@ -1629,7 +1681,12 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                             }`}>
                               <span>{formatMsgTime(msg.timestamp)}</span>
                               {isMine && (
-                                msg.status === 'read' ? (
+                                msg.status === 'sending' ? (
+                                  <span title="Waiting for network" className="text-amber-500/90 dark:text-amber-400/90 flex items-center gap-1 ml-1 font-medium">
+                                    <Clock className="w-3 h-3 animate-spin" />
+                                    <span className="text-[10px]">Sending...</span>
+                                  </span>
+                                ) : msg.status === 'read' ? (
                                   <span title="Read / Seen" className="text-blue-600 dark:text-blue-400 flex items-center gap-0.5 font-medium ml-1">
                                     <CheckCheck className="w-3.5 h-3.5" />
                                     <span className="text-[10px]">Seen</span>
@@ -1948,7 +2005,6 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                     <span>{selectedContactInitials}</span>
                   )}
                 </div>
-                <span className="w-3.5 h-3.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-[#1E293B] absolute bottom-0 right-0" />
               </div>
 
               <div>

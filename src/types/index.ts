@@ -317,7 +317,7 @@ export interface ChatMessage {
   senderRole: 'manager' | 'supervisor';
   timestamp: string;
   isRead: boolean;
-  status: 'sent' | 'delivered' | 'read';
+  status: 'sending' | 'sent' | 'delivered' | 'read';
   reactions?: Record<string, string[]>;
   replyTo?: {
     id: string;
@@ -331,4 +331,51 @@ export interface ChatMessage {
     url?: string;
     dataUrl?: string;
   };
+}
+
+// Leave & Permission Request Models
+export type LeaveType = 'annual' | 'sick' | 'emergency' | 'personal' | 'other';
+export type RequestStatus = 'pending' | 'approved' | 'rejected' | 'cancelled';
+
+export interface LeaveRequest {
+  id: string;
+  employeeId: string;
+  employeeName?: string;
+  supervisorId?: string | null;
+  type: LeaveType;
+  startDate: string; // YYYY-MM-DD
+  endDate: string;   // YYYY-MM-DD
+  reason: string;
+  attachmentName?: string | null;
+  attachmentData?: string | null;
+  status: RequestStatus;
+  decisionNote?: string | null;
+  decidedBy?: string | null;
+  decidedByName?: string | null;
+  decidedAt?: string | null;
+  createdAt?: string;
+  synced?: boolean;
+}
+
+export interface PermissionRequest {
+  id: string;
+  employeeId: string;
+  employeeName?: string;
+  supervisorId?: string | null;
+  date: string;       // YYYY-MM-DD
+  startTime: string;  // HH:mm
+  endTime: string;    // HH:mm
+  durationMinutes?: number;
+  reason: string;
+  type?: string;
+  attachmentName?: string | null;
+  attachmentData?: string | null;
+  status: RequestStatus;
+  decisionNote?: string | null;
+  decidedBy?: string | null;
+  decidedByName?: string | null;
+  decidedAt?: string | null;
+  requestedAt?: string;
+  createdAt?: string;
+  synced?: boolean;
 }

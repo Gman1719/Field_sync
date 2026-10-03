@@ -17,8 +17,12 @@ import {
   Activity,
   Smartphone,
   MessageSquare,
+  ShieldCheck,
+  CalendarClock,
+  AlertTriangle,
   X,
 } from 'lucide-react';
+import { useUserLanguage } from '../../context/UserLanguageContext';
 
 export interface NavItem {
   id: string;
@@ -55,6 +59,7 @@ export default function Sidebar({
   isMobileOpen = false,
   setIsMobileOpen,
 }: SidebarProps) {
+  const { userT } = useUserLanguage();
   const isOfficer = user?.role === 'field_officer';
   const isSupervisor = user?.role === 'supervisor';
   const isManager = user?.role === 'manager';
@@ -96,6 +101,7 @@ export default function Sidebar({
             badge: pendingSync > 0 ? pendingSync : null,
             badgeColor: 'bg-amber-500',
           },
+          { id: 'requests', label: 'My Requests', icon: CalendarClock },
           { id: 'activity_logs', label: 'Activity Logs', icon: Activity },
           { id: 'screentime', label: 'Work Sessions & Time', icon: Smartphone },
         ],
@@ -109,6 +115,7 @@ export default function Sidebar({
           { id: 'chat', label: 'Manager Chat', icon: MessageSquare },
           { id: 'citizens', label: 'Registered Citizens', icon: Database },
           { id: 'team', label: 'Team', icon: Users },
+          { id: 'requests', label: 'Leave & Permissions', icon: CalendarClock },
           {
             id: 'reports',
             label: 'Officer Daily Reports',
@@ -122,8 +129,10 @@ export default function Sidebar({
       sections.push({
         title: '',
         items: [
+          { id: 'verification', label: 'Officer Verifications', icon: ShieldCheck },
           { id: 'activity_logs', label: 'Activity Logs', icon: Activity },
           { id: 'screentime', label: 'Officers Screen Time', icon: Smartphone },
+          { id: 'send_alert', label: 'Send Alert', icon: AlertTriangle },
           { id: 'analytics', label: 'Analysis and Detail', icon: BarChart3 },
         ],
       });
@@ -143,6 +152,7 @@ export default function Sidebar({
       sections.push({
         title: '',
         items: [
+          { id: 'verification', label: 'Officer Verifications', icon: ShieldCheck },
           { id: 'activity_logs', label: 'Activity Logs', icon: Activity },
           { id: 'analytics', label: 'Analysis and Detail', icon: BarChart3 },
           { id: 'audit', label: 'System Audit Trail', icon: History },
@@ -190,7 +200,7 @@ export default function Sidebar({
                 FieldSync
               </span>
               <span className="text-xs text-slate-400 dark:text-slate-500 font-medium block">
-                Offline-First System
+                {userT('Offline-First System')}
               </span>
             </div>
           </div>
@@ -209,7 +219,7 @@ export default function Sidebar({
             <div key={idx} className={section.title ? 'space-y-1.5' : 'space-y-1'}>
               {section.title ? (
                 <h3 className="px-3 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                  {section.title}
+                  {userT(section.title)}
                 </h3>
               ) : null}
               <div className="space-y-1 pt-0.5">
@@ -233,7 +243,7 @@ export default function Sidebar({
                             isActive ? 'text-white' : 'text-slate-400 dark:text-slate-500'
                           }`}
                         />
-                        <span className="truncate">{item.label}</span>
+                        <span className="truncate">{userT(item.label)}</span>
                       </div>
                       {item.badge && (
                         <span
@@ -275,7 +285,7 @@ export default function Sidebar({
                   {user?.fullName || user?.name || 'Authorized Staff'}
                 </p>
                 <p className="text-xs text-slate-500 dark:text-slate-400 capitalize truncate font-medium">
-                  {user?.role?.replace('_', ' ') || 'Staff'}
+                  {userT(user?.role?.replace('_', ' ') || 'Staff')}
                 </p>
               </div>
             </div>
@@ -283,7 +293,7 @@ export default function Sidebar({
             <button
               type="button"
               onClick={onLogout}
-              title="Sign Out"
+              title={userT('Sign Out')}
               className="p-2 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors"
             >
               <LogOut className="w-5 h-5" />
