@@ -37,7 +37,12 @@ import NotificationCenter from '../notifications/NotificationCenter';
 import ChatConsole from '../chat/ChatConsole';
 import RequestsCenter from '../requests/RequestsCenter';
 import SupervisorSendAlertPage from '../supervisor/SupervisorSendAlertPage';
-import { fetchUnreadCount } from '../../services/notificationApi';
+import OfficerAlertModal, { type OfficerAlertNotification } from '../notifications/OfficerAlertModal';
+import {
+  fetchUnreadCount,
+  fetchNotifications,
+  markNotificationRead as apiMarkRead,
+} from '../../services/notificationApi';
 
 export default function MainLayout({
   user,
@@ -49,6 +54,39 @@ export default function MainLayout({
   const [showSyncLog, setShowSyncLog] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [unreadNotifCount, setUnreadNotifCount] = useState(0);
+
+  const isManager = user?.role === 'manager';
+  const isSupervisor = user?.role === 'supervisor';
+  const isOfficer = user?.role === 'field_officer' || user?.role === 'FIELD_OFFICER';
+
+  // Live Supervisory Alert delivery for field officers
+  const [activeSupervisorAlert, setActiveSupervisorAlert] = useState<OfficerAlertNotification | null>(null);
+  const [dismissedAlertIds, setDismissedAlertIds] = useState<Set<string>>(() => {
+    try {
+      const saved = sessionStorage.getItem('fieldsync_dismissed_alerts');
+      return saved ? new Set(JSON.parse(saved)) : new Set();
+    } catch {
+      return new Set();
+    }
+  });
+
+  const checkIncomingAlerts = React.useCallback(async () => {
+    if (!isOfficer || !user?.id) return;
+    try {
+      const res = await fetchNotifications({ page: 1, limit: 10, status: 'unread' });
+      if (res?.success && Array.isArray(res.notifications)) {
+        const found = res.notifications.find(
+          (n: any) =>
+            (n.type === 'SUPERVISOR_ALERT' || n.type === 'ALERT') &&
+            !n.isRead &&
+            !dismissedAlertIds.has(n.id)
+        );
+        if (found) {
+          setActiveSupervisorAlert(found);
+        }
+      }
+    } catch (_e) {}
+  }, [isOfficer, user?.id, dismissedAlertIds]);
 
   useEffect(() => {
     const updateCount = async () => {
@@ -62,17 +100,53 @@ export default function MainLayout({
       }
     };
     updateCount();
-    window.addEventListener('notifications-updated', updateCount);
-    const interval = setInterval(updateCount, 20000);
+    checkIncomingAlerts();
+
+    const handleUpdate = () => {
+      updateCount();
+      checkIncomingAlerts();
+    };
+
+    window.addEventListener('notifications-updated', handleUpdate);
+    const interval = setInterval(handleUpdate, 10000);
+
     return () => {
-      window.removeEventListener('notifications-updated', updateCount);
+      window.removeEventListener('notifications-updated', handleUpdate);
       clearInterval(interval);
     };
-  }, []);
+  }, [checkIncomingAlerts]);
 
-  const isManager = user?.role === 'manager';
-  const isSupervisor = user?.role === 'supervisor';
-  const isOfficer = user?.role === 'field_officer';
+  // Cross-tab broadcast listener (e.g. supervisor sending alert in another tab)
+  useEffect(() => {
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === 'fieldsync_alert_broadcast' && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          if (parsed.recipientId === user?.id) {
+            checkIncomingAlerts();
+          }
+        } catch (_e) {}
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, [user?.id, checkIncomingAlerts]);
+
+  const handleAcknowledgeAlert = async (alertId: string) => {
+    try {
+      await apiMarkRead(alertId);
+      setDismissedAlertIds((prev) => {
+        const next = new Set(prev).add(alertId);
+        try {
+          sessionStorage.setItem('fieldsync_dismissed_alerts', JSON.stringify(Array.from(next)));
+        } catch {}
+        return next;
+      });
+      setActiveSupervisorAlert(null);
+      setUnreadNotifCount((prev) => Math.max(0, prev - 1));
+      window.dispatchEvent(new CustomEvent('notifications-updated'));
+    } catch (_e) {}
+  };
 
   const {
     reports,
@@ -133,6 +207,29 @@ export default function MainLayout({
           }
         }}
       />
+
+      {/* Officer In-App Alert Notification Form Modal */}
+      {isOfficer && activeSupervisorAlert && (
+        <OfficerAlertModal
+          isOpen={Boolean(activeSupervisorAlert)}
+          alert={activeSupervisorAlert}
+          onAcknowledge={handleAcknowledgeAlert}
+          onNavigateToNotifications={() => {
+            handleAcknowledgeAlert(activeSupervisorAlert.id);
+            setActiveTab('notifications');
+          }}
+          onClose={() => {
+            setDismissedAlertIds((prev) => {
+              const next = new Set(prev).add(activeSupervisorAlert.id);
+              try {
+                sessionStorage.setItem('fieldsync_dismissed_alerts', JSON.stringify(Array.from(next)));
+              } catch {}
+              return next;
+            });
+            setActiveSupervisorAlert(null);
+          }}
+        />
+      )}
 
       <Sidebar
         activeTab={activeTab}
@@ -388,9 +485,9 @@ export default function MainLayout({
             />
           )}
 
-          {/* Verification - Supervisor Monitor or Officer Trust Score */}
-          {activeTab === 'verification' && (
-            isSupervisor || isManager ? (
+          {/* Verification - Supervisor Monitor or Officer Trust Score (Removed from Manager) */}
+          {activeTab === 'verification' && !isManager && (
+            isSupervisor ? (
               <SupervisorVerifications user={user} users={users} />
             ) : (
               <VerificationPage

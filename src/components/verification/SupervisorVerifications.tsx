@@ -5,13 +5,15 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
-  ShieldCheck, ShieldAlert, RefreshCw, Search, CheckCircle2,
+  ShieldCheck, ShieldAlert, CheckCircle2,
   XCircle, Clock, AlertTriangle, User, MapPin, ChevronDown, ChevronUp,
-  Calendar, Activity, Filter, Download, LayoutList, Users, HelpCircle
+  Calendar, Activity, Filter, Download, Users, HelpCircle,
+  UserCheck
 } from 'lucide-react';
 import { API_BASE } from '../../config/api';
 import { offlineDb } from '../../db/offlineDb';
 import { db } from '../../services/database';
+import { getZonedTimeComponents } from '../../config/workingHours';
 import { useUserLanguage } from '../../context/UserLanguageContext';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
 import Badge from '../ui/Badge';
@@ -43,12 +45,14 @@ interface SupervisorVerificationsProps {
 
 export default function SupervisorVerifications({ user, users = [] }: SupervisorVerificationsProps) {
   const { userT } = useUserLanguage();
+  const { dateStr: todayDateStr } = getZonedTimeComponents();
   const [loading, setLoading] = useState(true);
   const [records, setRecords] = useState<VerificationRecord[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [assignedOfficers, setAssignedOfficers] = useState<any[]>([]);
+  const [selectedOfficerFilter, setSelectedOfficerFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'confirmed' | 'missed'>('all');
-  const [dateFilter, setDateFilter] = useState<'today' | '7d' | '30d' | 'all'>('7d');
-  const [viewMode, setViewMode] = useState<'officers' | 'table'>('officers');
+  const [dateFilterMode, setDateFilterMode] = useState<'today' | '7d' | 'custom'>('7d');
+  const [selectedDatePickerDate, setSelectedDatePickerDate] = useState<string>(todayDateStr);
   const [expandedOfficer, setExpandedOfficer] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -57,26 +61,46 @@ export default function SupervisorVerifications({ user, users = [] }: Supervisor
     setLoading(true);
     try {
       const isManager = user?.role === 'manager';
-      let myOfficers = users.filter(u =>
-        u.role === 'field_officer' && (
-          isManager ||
-          u.supervisorId === user?.id ||
-          u.supervisorEmployeeId === user?.employeeId ||
-          (user?.zone && u.zone === user?.zone) ||
-          (user?.region && u.region === user?.region)
-        )
-      );
+      let myOfficers: any[] = [];
 
-      // Fallback: If no officer specifically matched supervisor id/zone, show all field officers
+      // 1. First fetch strictly assigned officers from backend DB
+      try {
+        const token = localStorage.getItem('fieldsync_token') || localStorage.getItem('token');
+        if (token && navigator.onLine) {
+          const oRes = await fetch(`${API_BASE}/work-monitoring/officers`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (oRes.ok) {
+            const oJson = await oRes.json();
+            if (oJson.success && Array.isArray(oJson.data)) {
+              myOfficers = oJson.data;
+            }
+          }
+        }
+      } catch (_e) {}
+
+      // 2. If offline or empty, strictly filter from offlineDb or users where supervisorId === user.id
       if (myOfficers.length === 0) {
-        myOfficers = users.filter(u => u.role === 'field_officer');
+        const pool = (offlineDb?.users ? await offlineDb.users.toArray().catch(() => []) : [])
+          .concat(users || []);
+
+        const seen = new Set<string>();
+        for (const u of pool) {
+          const isOfficer = u.role === 'field_officer' || u.role === 'FIELD_OFFICER';
+          if (!isOfficer || seen.has(u.id)) continue;
+          if (isManager || u.supervisorId === user?.id || (user?.employeeId && u.supervisorEmployeeId === user?.employeeId)) {
+            seen.add(u.id);
+            myOfficers.push(u);
+          }
+        }
       }
 
       const officerIds = new Set(myOfficers.map(o => o.id));
       const officerEmpIds = new Set(myOfficers.map(o => o.employeeId).filter(Boolean));
+      setAssignedOfficers(myOfficers);
       const isOfficerInScope = (id?: string) => {
+        if (isManager) return true;
         if (!id) return false;
-        if (myOfficers.length === 0) return true;
         return officerIds.has(id) || officerEmpIds.has(id);
       };
 
@@ -96,15 +120,21 @@ export default function SupervisorVerifications({ user, users = [] }: Supervisor
               rec.respondedAt
             );
 
+            const isLoggedOut = rec.loginState === 'LOGGED_OUT' ||
+              rec.failureReason === 'NO_ACTIVE_SESSION' ||
+              (rec.notes && rec.notes.toLowerCase().includes('logged out'));
+
             const questionText = rec.notes && rec.notes.includes('?')
               ? rec.notes
               : userT('Random Identity & Presence Verification');
 
             const answerText = isAnswered
               ? (rec.notes || userT('Presence Confirmed'))
-              : (rec.failureReason === 'NO_RESPONSE'
-                  ? userT('Missed — No Response (15s Timeout)')
-                  : (rec.failureReason || userT('Missed / Unanswered')));
+              : isLoggedOut
+                ? userT('Missed — Officer Logged Out During Working Hours')
+                : (rec.failureReason === 'NO_RESPONSE'
+                    ? userT('Missed — No Response (15s Timeout)')
+                    : (rec.failureReason || userT('Missed / Unanswered')));
 
             recordMap.set(rec.id, {
               id: rec.id,
@@ -201,50 +231,65 @@ export default function SupervisorVerifications({ user, users = [] }: Supervisor
 
       // 4. Load from backend API if online
       if (navigator.onLine) {
-        const token = localStorage.getItem('fieldsync_token');
+        const token = localStorage.getItem('fieldsync_token') || localStorage.getItem('token');
         if (token) {
           try {
-            const res = await fetch(`${API_BASE}/work-verifications?supervisorId=${user?.id || ''}`, {
+            const res = await fetch(`${API_BASE}/work-monitoring/verifications`, {
               headers: { Authorization: `Bearer ${token}` },
             });
             if (res.ok) {
               const data = await res.json();
-              const apiRecords: any[] = Array.isArray(data) ? data : (data?.data || data?.verifications || []);
+              const apiRecords: any[] = Array.isArray(data) ? data : (data?.data || []);
               for (const rec of apiRecords) {
                 const offId = rec.officerId || rec.officer_id;
                 if (!isOfficerInScope(offId)) continue;
 
                 const officer = myOfficers.find(o => o.id === offId || o.employeeId === offId) ||
+                  rec.officer ||
                   users.find(u => u.id === offId || u.employeeId === offId);
 
-                const isAnswered = rec.success === true ||
-                  String(rec.status || '').includes('CONFIRMED');
+                const isAnswered = rec.status === 'CONFIRMED' ||
+                  rec.status === 'CONFIRMED_OFFLINE' ||
+                  Boolean(rec.respondedAt);
 
-                const questionText = rec.question || userT('Work Verification Check');
-                const answerText = rec.answer || (isAnswered ? userT('Presence Confirmed') : userT('Missed / No Response'));
+                const isLoggedOut = rec.loginState === 'LOGGED_OUT' ||
+                  rec.failureReason === 'NO_ACTIVE_SESSION' ||
+                  (rec.notes && rec.notes.toLowerCase().includes('logged out'));
+
+                const questionText = rec.notes && rec.notes.includes('?')
+                  ? rec.notes
+                  : (rec.question || userT('Work Verification Check'));
+
+                const answerText = isAnswered
+                  ? (rec.notes || userT('Presence Confirmed'))
+                  : isLoggedOut
+                    ? userT('Missed — Officer Logged Out During Working Hours')
+                    : (rec.failureReason === 'NO_RESPONSE'
+                        ? userT('Missed — No Response (15s Timeout)')
+                        : (rec.failureReason || userT('Missed / Unanswered')));
 
                 recordMap.set(rec.id, {
                   id: rec.id,
                   officerId: offId,
-                  officerName: officer?.name || rec.officerName || rec.officer_name || offId,
-                  officerEmployeeId: officer?.employeeId || rec.officerEmployeeId || rec.officer_employee_id,
-                  officerZone: officer?.zone || officer?.region,
+                  officerName: officer?.fullName || officer?.name || rec.officerName || offId,
+                  officerEmployeeId: officer?.employeeId || rec.officerEmployeeId || offId,
+                  officerZone: officer?.zone?.name || officer?.zone || officer?.region?.name || officer?.region,
                   scheduledAt: rec.scheduledAt || rec.timestamp || new Date().toISOString(),
                   respondedAt: rec.respondedAt || (isAnswered ? (rec.timestamp || rec.scheduledAt) : undefined),
-                  status: String(rec.status || (isAnswered ? 'OFFICER_CONFIRMED' : 'MISSED')),
+                  status: isAnswered ? 'OFFICER_CONFIRMED' : 'MISSED',
                   isAnswered,
                   question: questionText,
                   answer: answerText,
-                  responseTimeSeconds: rec.responseTimeSeconds ?? rec.response_time ?? null,
-                  connectionState: rec.connectionState || rec.connection_state || 'ONLINE',
-                  failureReason: rec.failureReason || rec.failure_reason,
+                  responseTimeSeconds: rec.responseTimeSeconds ?? null,
+                  connectionState: rec.connectionState || 'ONLINE',
+                  failureReason: isLoggedOut ? 'LOGGED_OUT' : (rec.failureReason || undefined),
                   syncStatus: rec.syncStatus || 'SYNCED',
-                  workedDate: (rec.scheduledAt || rec.timestamp || '').slice(0, 10),
+                  workedDate: rec.date || (rec.scheduledAt || rec.timestamp || '').slice(0, 10),
                 });
               }
             }
           } catch (_e) {
-            /* offline fallback */
+            console.warn('Failed to load /work-monitoring/verifications:', _e);
           }
         }
       }
@@ -275,38 +320,36 @@ export default function SupervisorVerifications({ user, users = [] }: Supervisor
     };
   }, []);
 
-  // Date filtering
-  const cutoffDate = useMemo(() => {
-    const d = new Date();
-    if (dateFilter === 'today') d.setHours(0, 0, 0, 0);
-    else if (dateFilter === '7d') d.setDate(d.getDate() - 7);
-    else if (dateFilter === '30d') d.setDate(d.getDate() - 30);
-    return dateFilter === 'all' ? null : d;
-  }, [dateFilter]);
-
   // Filtered records
   const filteredRecords = useMemo(() => {
     let list = records;
-    if (cutoffDate) {
-      list = list.filter(r => new Date(r.scheduledAt) >= cutoffDate!);
+
+    // 1. Date filter (Today, 7 days, or Custom Date Picker)
+    if (dateFilterMode === 'today') {
+      list = list.filter(r => (r.workedDate || r.scheduledAt?.slice(0, 10)) === todayDateStr);
+    } else if (dateFilterMode === '7d') {
+      const d = new Date();
+      d.setDate(d.getDate() - 7);
+      d.setHours(0, 0, 0, 0);
+      list = list.filter(r => new Date(r.scheduledAt) >= d);
+    } else if (dateFilterMode === 'custom' && selectedDatePickerDate) {
+      list = list.filter(r => (r.workedDate || r.scheduledAt?.slice(0, 10)) === selectedDatePickerDate);
     }
+
+    // 2. Status filter
     if (statusFilter === 'confirmed') {
       list = list.filter(r => r.isAnswered);
     } else if (statusFilter === 'missed') {
       list = list.filter(r => !r.isAnswered);
     }
-    if (searchTerm) {
-      const q = searchTerm.toLowerCase();
-      list = list.filter(r =>
-        r.officerName?.toLowerCase().includes(q) ||
-        r.officerEmployeeId?.toLowerCase().includes(q) ||
-        r.question?.toLowerCase().includes(q) ||
-        r.answer?.toLowerCase().includes(q) ||
-        r.workedDate?.includes(q)
-      );
+
+    // 3. Officer filter (by dropdown)
+    if (selectedOfficerFilter) {
+      list = list.filter(r => r.officerId === selectedOfficerFilter);
     }
+
     return list;
-  }, [records, cutoffDate, statusFilter, searchTerm]);
+  }, [records, dateFilterMode, selectedDatePickerDate, statusFilter, selectedOfficerFilter, todayDateStr]);
 
   // Group by officer
   const officerGroups = useMemo(() => {
@@ -373,6 +416,20 @@ export default function SupervisorVerifications({ user, users = [] }: Supervisor
         </Badge>
       );
     }
+
+    const isLoggedOut = rec.failureReason === 'LOGGED_OUT' ||
+      rec.failureReason === 'NO_ACTIVE_SESSION' ||
+      (rec.answer && rec.answer.toLowerCase().includes('logged out'));
+
+    if (isLoggedOut) {
+      return (
+        <Badge variant="error" className="px-2 py-0.5 text-xs font-semibold bg-rose-100 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-900/50">
+          <XCircle className="w-3.5 h-3.5 mr-1" />
+          {userT('Missed (Logged Out)')}
+        </Badge>
+      );
+    }
+
     return (
       <Badge variant="error" className="px-2 py-0.5 text-xs font-semibold">
         <XCircle className="w-3.5 h-3.5 mr-1" />
@@ -426,34 +483,6 @@ export default function SupervisorVerifications({ user, users = [] }: Supervisor
         </div>
 
         <div className="flex items-center gap-2">
-          {/* View mode toggle */}
-          <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
-            <button
-              onClick={() => setViewMode('officers')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                viewMode === 'officers'
-                  ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-              }`}
-              title={userT('Group by Officer')}
-            >
-              <Users className="w-3.5 h-3.5" />
-              <span>{userT('Officers')}</span>
-            </button>
-            <button
-              onClick={() => setViewMode('table')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                viewMode === 'table'
-                  ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-              }`}
-              title={userT('All Verifications Table')}
-            >
-              <LayoutList className="w-3.5 h-3.5" />
-              <span>{userT('All Records')}</span>
-            </button>
-          </div>
-
           <button
             onClick={handleExportCSV}
             disabled={filteredRecords.length === 0}
@@ -461,14 +490,6 @@ export default function SupervisorVerifications({ user, users = [] }: Supervisor
           >
             <Download className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">{userT('Export')}</span>
-          </button>
-
-          <button
-            onClick={() => setRefreshKey(k => k + 1)}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
-          >
-            <RefreshCw className="w-3.5 h-3.5" />
-            <span>{userT('Refresh')}</span>
           </button>
         </div>
       </div>
@@ -512,17 +533,23 @@ export default function SupervisorVerifications({ user, users = [] }: Supervisor
 
       {/* Filter and Search Bar */}
       <Card className="p-4">
-        <div className="flex flex-col sm:flex-row gap-3 sm:items-center justify-between">
-          {/* Search */}
-          <div className="relative w-full sm:w-80">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-              placeholder={userT('Search officer, employee ID, question, or answer...')}
-              className="w-full h-9 pl-9 pr-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB]"
-            />
+        <div className="flex flex-col lg:flex-row gap-3 lg:items-center justify-between">
+          {/* Officer dropdown filter */}
+          <div className="relative w-full lg:w-72">
+            <UserCheck className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+            <select
+              value={selectedOfficerFilter}
+              onChange={e => setSelectedOfficerFilter(e.target.value)}
+              className="w-full h-9 pl-9 pr-8 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] appearance-none cursor-pointer"
+            >
+              <option value="">{userT('Filter by officers (All Officers)')}</option>
+              {assignedOfficers.map((off: any) => (
+                <option key={off.id} value={off.id}>
+                  {off.fullName || off.name || off.id} {off.employeeId ? `(${off.employeeId})` : ''}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
@@ -553,22 +580,51 @@ export default function SupervisorVerifications({ user, users = [] }: Supervisor
               );
             })}
 
-            <div className="w-px bg-slate-200 dark:bg-slate-700 mx-1 h-6 self-center" />
+            <div className="w-px bg-slate-200 dark:bg-slate-700 mx-1 h-6 self-center hidden sm:block" />
 
-            {/* Date filters */}
-            {([['today', userT('Today')], ['7d', `7 ${userT('days')}`], ['30d', `30 ${userT('days')}`], ['all', userT('All time')]] as const).map(([k, label]) => (
+            {/* Date Picker Filter with Today & 7 Days buttons next to it */}
+            <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
+              <div className="flex items-center gap-1.5 px-2 py-1 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700">
+                <Calendar className="w-3.5 h-3.5 text-[#1E3A8A] dark:text-blue-400 shrink-0" />
+                <input
+                  type="date"
+                  value={selectedDatePickerDate}
+                  onChange={(e) => {
+                    setSelectedDatePickerDate(e.target.value);
+                    setDateFilterMode('custom');
+                  }}
+                  className="text-xs font-semibold bg-transparent text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer"
+                  title={userT('Select date to filter verifications')}
+                />
+              </div>
+
               <button
-                key={k}
-                onClick={() => setDateFilter(k as any)}
-                className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                  dateFilter === k
-                    ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 font-bold'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                type="button"
+                onClick={() => {
+                  setDateFilterMode('today');
+                  setSelectedDatePickerDate(todayDateStr);
+                }}
+                className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  dateFilterMode === 'today'
+                    ? 'bg-[#1E3A8A] text-white font-bold shadow-xs'
+                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-700'
                 }`}
               >
-                {label}
+                {userT('Today')}
               </button>
-            ))}
+
+              <button
+                type="button"
+                onClick={() => setDateFilterMode('7d')}
+                className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  dateFilterMode === '7d'
+                    ? 'bg-[#1E3A8A] text-white font-bold shadow-xs'
+                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-700'
+                }`}
+              >
+                7 {userT('days')}
+              </button>
+            </div>
           </div>
         </div>
       </Card>
@@ -581,116 +637,6 @@ export default function SupervisorVerifications({ user, users = [] }: Supervisor
           <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
             {userT('Verification data and officer responses will appear here as field officers perform daily sessions.')}
           </p>
-        </Card>
-      ) : viewMode === 'table' ? (
-        /* Flat unified table view showing all verifications */
-        <Card className="overflow-hidden border border-slate-200 dark:border-slate-700">
-          <div className="px-5 py-3.5 border-b border-slate-100 dark:border-slate-700/80 bg-slate-50/50 dark:bg-slate-800/40 flex items-center justify-between">
-            <h3 className="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2">
-              <LayoutList className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-              <span>{userT('All Verification Records')}</span>
-              <span className="text-xs font-normal text-slate-400">({filteredRecords.length} {userT('events')})</span>
-            </h3>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs text-left">
-              <thead className="bg-slate-50/80 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700">
-                <tr className="text-slate-500 dark:text-slate-400">
-                  <th className="py-3 px-4 font-semibold">{userT('Officer')}</th>
-                  <th className="py-3 px-4 font-semibold">{userT('Scheduled Time')}</th>
-                  <th className="py-3 px-4 font-semibold">{userT('Question / Verification')}</th>
-                  <th className="py-3 px-4 font-semibold">{userT('Officer Answer')}</th>
-                  <th className="py-3 px-4 font-semibold">{userT('Status')}</th>
-                  <th className="py-3 px-4 font-semibold">{userT('Response Time')}</th>
-                  <th className="py-3 px-4 font-semibold">{userT('Connection')}</th>
-                  <th className="py-3 px-4 font-semibold">{userT('Sync')}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60">
-                {filteredRecords.map(rec => (
-                  <tr key={rec.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
-                    {/* Officer info */}
-                    <td className="py-3 px-4">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-full bg-[#1E3A8A]/10 dark:bg-blue-900/40 text-[#1E3A8A] dark:text-blue-300 flex items-center justify-center font-bold text-xs shrink-0">
-                          {rec.officerName.charAt(0).toUpperCase()}
-                        </div>
-                        <div className="min-w-0">
-                          <p className="font-bold text-slate-900 dark:text-white truncate">{rec.officerName}</p>
-                          <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">{rec.officerEmployeeId || '—'}</p>
-                        </div>
-                      </div>
-                    </td>
-
-                    {/* Scheduled Time */}
-                    <td className="py-3 px-4 whitespace-nowrap text-slate-700 dark:text-slate-300 font-medium">
-                      {formatTime(rec.scheduledAt)}
-                    </td>
-
-                    {/* Question / Challenge */}
-                    <td className="py-3 px-4 max-w-xs text-slate-800 dark:text-slate-200">
-                      <div className="line-clamp-2 font-medium" title={rec.question}>
-                        {rec.question}
-                      </div>
-                    </td>
-
-                    {/* Officer Answer */}
-                    <td className="py-3 px-4 max-w-xs">
-                      {rec.isAnswered ? (
-                        <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-medium">
-                          <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-                          <span className="truncate" title={rec.answer}>{rec.answer}</span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-1.5 text-rose-600 dark:text-rose-400 font-medium">
-                          <XCircle className="w-3.5 h-3.5 shrink-0" />
-                          <span className="truncate" title={rec.answer}>{rec.answer}</span>
-                        </div>
-                      )}
-                    </td>
-
-                    {/* Status Badge */}
-                    <td className="py-3 px-4 whitespace-nowrap">
-                      {getStatusBadge(rec)}
-                    </td>
-
-                    {/* Response Time */}
-                    <td className="py-3 px-4 whitespace-nowrap font-mono text-slate-600 dark:text-slate-300">
-                      {rec.responseTimeSeconds !== null && rec.responseTimeSeconds !== undefined ? (
-                        <span>{rec.responseTimeSeconds}s</span>
-                      ) : rec.isAnswered ? (
-                        <span>&lt;15s</span>
-                      ) : (
-                        <span className="text-rose-500">{userT('Timed Out (15s)')}</span>
-                      )}
-                    </td>
-
-                    {/* Connection */}
-                    <td className="py-3 px-4 whitespace-nowrap">
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                        rec.connectionState === 'ONLINE'
-                          ? 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300'
-                          : 'bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300'
-                      }`}>
-                        {rec.connectionState || 'ONLINE'}
-                      </span>
-                    </td>
-
-                    {/* Sync Status */}
-                    <td className="py-3 px-4 whitespace-nowrap">
-                      <span className={`text-[10px] font-semibold ${
-                        rec.syncStatus === 'SYNCED'
-                          ? 'text-emerald-600 dark:text-emerald-400'
-                          : 'text-amber-600 dark:text-amber-400'
-                      }`}>
-                        {rec.syncStatus || 'SYNCED'}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
         </Card>
       ) : (
         /* Grouped by officer view (Cards with accordion details) */

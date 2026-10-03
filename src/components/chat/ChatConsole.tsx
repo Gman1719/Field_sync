@@ -30,6 +30,7 @@ import {
   getTotalUnreadCount,
   normalizeUserId,
   isChatOnline,
+  verifyChatOnline,
   deliverPendingChatMessages
 } from '../../services/chatService';
 
@@ -383,14 +384,17 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
     window.addEventListener('focus', handleChatUpdate);
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
-    // Online & Offline lifecycle: automatically deliver pending messages when reconnecting
+    // Online & Offline lifecycle: automatically deliver pending messages when reconnecting with real internet
     const handleOnline = async () => {
-      setIsOnline(true);
-      const count = await deliverPendingChatMessages(user?.id);
-      await loadMessages();
-      refreshUnreadCounts();
-      if (count > 0) {
-        toast.success(`${count} pending message${count > 1 ? 's' : ''} delivered.`);
+      const isReallyOnline = await verifyChatOnline(true);
+      setIsOnline(isReallyOnline);
+      if (isReallyOnline) {
+        const count = await deliverPendingChatMessages(user?.id);
+        await loadMessages();
+        refreshUnreadCounts();
+        if (count > 0) {
+          toast.success(`${count} pending message${count > 1 ? 's' : ''} delivered.`);
+        }
       }
     };
 
@@ -401,6 +405,26 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
+
+    // Initial check
+    verifyChatOnline().then((online) => setIsOnline(online));
+
+    // Active network monitor: detects real internet loss/return even when navigator.onLine is stuck
+    const netCheckTimer = setInterval(async () => {
+      const reallyOnline = await verifyChatOnline();
+      setIsOnline((prev) => {
+        if (!prev && reallyOnline) {
+          deliverPendingChatMessages(user?.id).then((count) => {
+            if (count > 0) {
+              loadMessages();
+              refreshUnreadCounts();
+              toast.success(`${count} pending message${count > 1 ? 's' : ''} delivered.`);
+            }
+          });
+        }
+        return reallyOnline;
+      });
+    }, 2500);
 
     const pollTimer = setInterval(() => {
       loadMessages();
@@ -416,6 +440,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
+      clearInterval(netCheckTimer);
       clearInterval(pollTimer);
     };
   }, [selectedContact?.id, user?.id]);

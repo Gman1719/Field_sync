@@ -7,10 +7,13 @@ import {
   Users,
   Clock,
   CheckCircle2,
-  Search,
   Calendar,
   RefreshCw,
+  AlertCircle,
+  ChevronDown,
+  UserCheck,
 } from 'lucide-react';
+import { offlineDb } from '../../db/offlineDb';
 import { API_BASE } from '../../config/api';
 import { getZonedTimeComponents } from '../../config/workingHours';
 import { useUserLanguage } from '../../context/UserLanguageContext';
@@ -29,8 +32,9 @@ export default function ScreenTimeManagement({
   const { userT } = useUserLanguage();
   const { dateStr: todayDateStr } = getZonedTimeComponents();
   const [selectedDate, setSelectedDate] = useState<string>(todayDateStr);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedOfficerId, setSelectedOfficerId] = useState<string>('');
   const [officers, setOfficers] = useState<any[]>([]);
+  const [officerRoster, setOfficerRoster] = useState<{ id: string; name: string }[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   // Load live officers screen time from server
@@ -64,22 +68,84 @@ export default function ScreenTimeManagement({
     return () => clearInterval(interval);
   }, [loadOfficers]);
 
-  // Filter officers by name / officer search query
+  // Load supervisor officers roster (from local DB and server)
+  useEffect(() => {
+    let isMounted = true;
+    const loadRoster = async () => {
+      const map = new Map<string, string>();
+
+      // 1. From offline DB
+      try {
+        if (offlineDb.users) {
+          const dbUsers = await offlineDb.users.toArray();
+          dbUsers
+            .filter((u: any) => u.role === 'field_officer' && (!isSupervisor || u.supervisorId === user?.id || (user?.zoneId && u.zoneId === user?.zoneId)))
+            .forEach((u: any) => map.set(u.id, u.fullName || u.name || u.email));
+        }
+      } catch (err) {
+        console.error('Failed reading offline users:', err);
+      }
+
+      // 2. From server users API
+      try {
+        const token = localStorage.getItem('fieldsync_token') || localStorage.getItem('token');
+        if (token && navigator.onLine) {
+          const res = await fetch(`${API_BASE}/users`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (res.ok) {
+            const json = await res.json();
+            const list = Array.isArray(json) ? json : (json.data || []);
+            list
+              .filter((u: any) => u.role === 'field_officer' && (!isSupervisor || u.supervisorId === user?.id || (user?.zoneId && u.zoneId === user?.zoneId)))
+              .forEach((u: any) => map.set(u.id, u.fullName || u.name || u.email));
+          }
+        }
+      } catch (err) {
+        console.error('Failed fetching users from server:', err);
+      }
+
+      // 3. Merge with current loaded officers
+      officers.forEach((o: any) => {
+        if (o.id && !map.has(o.id)) {
+          map.set(o.id, o.name || o.fullName || o.email || 'Field Officer');
+        }
+      });
+
+      if (isMounted && map.size > 0) {
+        setOfficerRoster(Array.from(map.entries()).map(([id, name]) => ({ id, name })));
+      }
+    };
+
+    loadRoster();
+    return () => {
+      isMounted = false;
+    };
+  }, [user, isSupervisor, officers]);
+
+  // Dropdown list combining roster and loaded officers
+  const officerDropdownList = useMemo(() => {
+    const map = new Map<string, string>();
+    officerRoster.forEach((o) => map.set(o.id, o.name));
+    officers.forEach((o: any) => {
+      if (o.id && !map.has(o.id)) {
+        map.set(o.id, o.name || o.fullName || o.email || 'Field Officer');
+      }
+    });
+    return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
+  }, [officerRoster, officers]);
+
+  // Filter officers by selected officer dropdown
   const filteredOfficers = useMemo(() => {
     return officers.filter((off) => {
-      const q = searchQuery.toLowerCase().trim();
-      if (!q) return true;
-      const name = (off.name || off.fullName || '').toLowerCase();
-      const email = (off.email || '').toLowerCase();
-      const zone = (off.zone?.name || off.zone || '').toLowerCase();
-      const woreda = (off.woreda?.name || off.woreda || '').toLowerCase();
-      return name.includes(q) || email.includes(q) || zone.includes(q) || woreda.includes(q);
+      if (!selectedOfficerId) return true;
+      return off.id === selectedOfficerId;
     });
-  }, [officers, searchQuery]);
+  }, [officers, selectedOfficerId]);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-150">
-      {/* Header & Filter Controls (Officer & Date Only) */}
+      {/* Header & Filter Controls (Officer Dropdown & Date Only) */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-xs">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
@@ -90,18 +156,24 @@ export default function ScreenTimeManagement({
           </p>
         </div>
 
-        {/* Dedicated Filters: Officer & Date */}
+        {/* Dedicated Filters: Officer Dropdown & Date */}
         <div className="flex flex-wrap items-center gap-3">
-          {/* Filter by Officer */}
+          {/* Dropdown Filter by Officer */}
           <div className="relative min-w-[200px] sm:min-w-[240px]">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder={userT('Filter by officer...')}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-            />
+            <UserCheck className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <select
+              value={selectedOfficerId}
+              onChange={(e) => setSelectedOfficerId(e.target.value)}
+              className="w-full pl-9 pr-8 py-2 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 appearance-none cursor-pointer"
+            >
+              <option value="">{userT('All Officers')}</option>
+              {officerDropdownList.map((off) => (
+                <option key={off.id} value={off.id}>
+                  {off.name}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
 
           {/* Filter by Date */}
@@ -131,7 +203,9 @@ export default function ScreenTimeManagement({
               {userT('No Field Officers Found')}
             </h3>
             <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
-              {searchQuery ? userT('Try changing your officer filter') : userT('No officers assigned to this territory.')}
+              {selectedOfficerId
+                ? userT('No records found for the selected officer on this date.')
+                : userT('No officers assigned to this territory.')}
             </p>
           </div>
         ) : (
@@ -149,7 +223,10 @@ export default function ScreenTimeManagement({
               <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                 {filteredOfficers.map((off) => {
                   const screenTimeFmt = off.todayScreenTimeFormatted || off.screenTimeFormatted || '00:00:00';
-                  const isReportSubmitted = off.dailyReportSubmitted;
+                  const isReportSubmitted = !!off.dailyReportSubmitted;
+                  const rowDate = off.date || selectedDate;
+                  const isPastDate = rowDate < todayDateStr;
+                  const isToday = rowDate === todayDateStr;
 
                   return (
                     <tr
@@ -169,7 +246,7 @@ export default function ScreenTimeManagement({
                       {/* Date */}
                       <td className="py-3.5 px-4 whitespace-nowrap">
                         <span className="font-mono text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-900 px-2.5 py-1 rounded-md border border-slate-200 dark:border-slate-700">
-                          {off.date || selectedDate}
+                          {rowDate}
                         </span>
                       </td>
 
@@ -192,13 +269,23 @@ export default function ScreenTimeManagement({
                       <td className="py-3.5 px-4">
                         {isReportSubmitted ? (
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/40">
-                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                             {userT('Submitted with Report')}
+                          </span>
+                        ) : isPastDate ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200 dark:border-rose-900/40">
+                            <AlertCircle className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
+                            {userT('Missed')}
+                          </span>
+                        ) : isToday ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                            <Clock className="w-3.5 h-3.5 text-slate-500" />
+                            {userT('In Progress')}
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
-                            <Clock className="w-3.5 h-3.5" />
-                            {userT('In Progress')}
+                            <Clock className="w-3.5 h-3.5 text-slate-500" />
+                            {userT('Scheduled')}
                           </span>
                         )}
                       </td>
@@ -212,4 +299,4 @@ export default function ScreenTimeManagement({
       </div>
     </div>
   );
-}
+}

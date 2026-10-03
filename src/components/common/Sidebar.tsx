@@ -114,7 +114,7 @@ export default function Sidebar({
         items: [
           { id: 'chat', label: 'Manager Chat', icon: MessageSquare },
           { id: 'citizens', label: 'Registered Citizens', icon: Database },
-          { id: 'team', label: 'Team', icon: Users },
+          { id: 'team', label: 'Officers', icon: Users },
           { id: 'requests', label: 'Leave & Permissions', icon: CalendarClock },
           {
             id: 'reports',
@@ -152,7 +152,6 @@ export default function Sidebar({
       sections.push({
         title: '',
         items: [
-          { id: 'verification', label: 'Officer Verifications', icon: ShieldCheck },
           { id: 'activity_logs', label: 'Activity Logs', icon: Activity },
           { id: 'analytics', label: 'Analysis and Detail', icon: BarChart3 },
           { id: 'audit', label: 'System Audit Trail', icon: History },

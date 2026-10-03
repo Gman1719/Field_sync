@@ -4,6 +4,7 @@
 import { offlineDb } from '../db/offlineDb';
 import type { ChatMessage } from '../types/index';
 import { SAMPLE_USERS } from '../utils/constants';
+import { checkRealInternet } from './database';
 
 const CHAT_CHANNEL_NAME = 'fieldsync_chat_channel';
 let broadcastChannel: BroadcastChannel | null = null;
@@ -32,12 +33,31 @@ try {
   // BroadcastChannel unavailable in this environment
 }
 
-// Canonical User ID Normalizer: Harmonizes API IDs (u_demo_mgr / u_demo_sup), DB IDs (m1 / s1), and demo IDs (u_mgr / u_sup)
+// Canonical User ID Normalizer: Harmonizes API IDs, DB IDs (m1 / s1), and demo emails/roles
 export function normalizeUserId(id?: string | null): string {
   if (!id) return '';
   const s = String(id).trim();
-  if (s === 'u_mgr' || s === 'u_demo_mgr' || s === 'MGR000' || s === 'MGR001') return 'm1';
-  if (s === 'u_sup' || s === 'u_demo_sup' || s === 'SUP000' || s === 'SUP001') return 's1';
+  const lower = s.toLowerCase();
+  if (
+    s === 'u_mgr' ||
+    s === 'u_demo_mgr' ||
+    s === 'MGR000' ||
+    s === 'MGR001' ||
+    lower === 'abebe@fieldsync.com' ||
+    lower === 'manager@fieldsync.com'
+  ) {
+    return 'm1';
+  }
+  if (
+    s === 'u_sup' ||
+    s === 'u_demo_sup' ||
+    s === 'SUP000' ||
+    s === 'SUP001' ||
+    lower === 'birhan@fieldsync.com' ||
+    lower === 'supervisor@fieldsync.com'
+  ) {
+    return 's1';
+  }
   return s;
 }
 
@@ -45,14 +65,82 @@ export function getConversationId(userIdA: string, userIdB: string): string {
   return [normalizeUserId(userIdA), normalizeUserId(userIdB)].sort().join('__');
 }
 
+// Real internet connectivity state tracking
+let _lastOnlineVerified = typeof navigator !== 'undefined' ? navigator.onLine : true;
+let _lastCheckTimestamp = 0;
+
+/**
+ * Actively probes real internet connectivity (not just local network interface).
+ * Essential for localhost testing and real offline detection.
+ */
+export async function verifyChatOnline(force = false): Promise<boolean> {
+  if (typeof window === 'undefined' || typeof navigator === 'undefined') return true;
+
+  if (!navigator.onLine) {
+    _lastOnlineVerified = false;
+    return false;
+  }
+
+  if (
+    localStorage.getItem('fieldsync_simulated_offline') === 'true' ||
+    localStorage.getItem('fieldsync_offline_toggle') === 'true' ||
+    sessionStorage.getItem('fieldsync_offline') === 'true'
+  ) {
+    _lastOnlineVerified = false;
+    return false;
+  }
+
+  const now = Date.now();
+  if (!force && now - _lastCheckTimestamp < 2000) {
+    return _lastOnlineVerified;
+  }
+
+  _lastCheckTimestamp = now;
+
+  try {
+    const isOnline = await checkRealInternet();
+    _lastOnlineVerified = Boolean(isOnline);
+    return _lastOnlineVerified;
+  } catch {
+    _lastOnlineVerified = false;
+    return false;
+  }
+}
+
+/**
+ * Synchronous network status check leveraging actively verified state.
+ */
 export function isChatOnline(): boolean {
   if (typeof window !== 'undefined') {
     if (!navigator.onLine) return false;
     if (localStorage.getItem('fieldsync_simulated_offline') === 'true') return false;
     if (localStorage.getItem('fieldsync_offline_toggle') === 'true') return false;
     if (sessionStorage.getItem('fieldsync_offline') === 'true') return false;
+    return _lastOnlineVerified;
   }
   return typeof navigator !== 'undefined' ? Boolean(navigator.onLine) : true;
+}
+
+// Global window event listeners and background connectivity polling
+if (typeof window !== 'undefined') {
+  // Initial active probe
+  verifyChatOnline(true).catch(() => {});
+
+  // Periodic active polling every 2.5s
+  setInterval(() => {
+    verifyChatOnline().catch(() => {});
+  }, 2500);
+
+  window.addEventListener('online', async () => {
+    const online = await verifyChatOnline(true);
+    if (online) {
+      deliverPendingChatMessages().catch(() => {});
+    }
+  });
+
+  window.addEventListener('offline', () => {
+    _lastOnlineVerified = false;
+  });
 }
 
 export async function getConversationMessages(
@@ -77,7 +165,7 @@ export async function getConversationMessages(
       if (!isInConv) return false;
 
       // Messages with status 'sending' (offline pending) are ONLY visible to the sender who drafted them,
-      // and NOT delivered to the receiver until connection is restored!
+      // and NEVER delivered or visible to the receiver until real internet connection is restored!
       if (m.status === 'sending') {
         if (!normViewer || s !== normViewer) {
           return false;
@@ -113,7 +201,9 @@ export async function sendMessage(params: {
   const normSenderId = normalizeUserId(params.senderId);
   const normReceiverId = normalizeUserId(params.receiverId);
   const convId = getConversationId(normSenderId, normReceiverId);
-  const online = isChatOnline();
+
+  // CRITICAL: Actively verify real internet connectivity before deciding delivery status
+  const online = await verifyChatOnline(true);
 
   const newMsg: ChatMessage = {
     id: `msg_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
@@ -133,11 +223,11 @@ export async function sendMessage(params: {
 
   await offlineDb.chatMessages.put(newMsg);
 
-  // Dispatch local window event for the sender's UI
+  // Dispatch local window event for the sender's UI so they see the queued message with clock icon
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('fieldsync-chat-update', { detail: { message: newMsg } }));
 
-    // ONLY broadcast/deliver to receiver if online!
+    // ONLY broadcast/deliver to receiver across tabs/network if actually online!
     if (online) {
       if (broadcastChannel) {
         try {
@@ -155,9 +245,10 @@ export async function sendMessage(params: {
   return newMsg;
 }
 
-// Delivers all pending/queued messages when back online
+// Delivers all pending/queued messages when back online with real internet
 export async function deliverPendingChatMessages(currentUserId?: string): Promise<number> {
-  if (!isChatOnline()) return 0;
+  const online = await verifyChatOnline(true);
+  if (!online) return 0;
 
   const all = await offlineDb.chatMessages.toArray();
   const normCurrent = currentUserId ? normalizeUserId(currentUserId) : '';
@@ -193,12 +284,6 @@ export async function deliverPendingChatMessages(currentUserId?: string): Promis
   return pending.length;
 }
 
-if (typeof window !== 'undefined') {
-  window.addEventListener('online', () => {
-    deliverPendingChatMessages().catch(() => {});
-  });
-}
-
 export async function markConversationAsRead(userIdA: string, userIdB: string, currentUserId: string): Promise<void> {
   const normCurrentUserId = normalizeUserId(currentUserId);
   const normOtherUserId = normalizeUserId(userIdA === currentUserId ? userIdB : userIdA);
@@ -209,7 +294,7 @@ export async function markConversationAsRead(userIdA: string, userIdB: string, c
   const unread = all.filter((m) => {
     const s = normalizeUserId(m.senderId);
     const r = normalizeUserId(m.receiverId);
-    return r === normCurrentUserId && s === normOtherUserId && !m.isRead;
+    return r === normCurrentUserId && s === normOtherUserId && !m.isRead && m.status !== 'sending';
   });
 
   if (unread.length > 0) {
@@ -310,7 +395,7 @@ export async function getTotalUnreadCount(currentUserId: string): Promise<number
   try {
     const normUserId = normalizeUserId(currentUserId);
     return await offlineDb.chatMessages
-      .filter((m) => normalizeUserId(m.receiverId) === normUserId && !m.isRead)
+      .filter((m) => normalizeUserId(m.receiverId) === normUserId && !m.isRead && m.status !== 'sending')
       .count();
   } catch {
     return 0;

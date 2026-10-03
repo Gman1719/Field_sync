@@ -653,15 +653,15 @@ export default function DailyWorkReportView({
               ))}
             </select>
           </div>
-        </div>
-
-        {/* Reports Table Card */}
-        <Card>
-          <CardHeader>
+        </div>        {/* Reports Table Card */}
+        <Card className="overflow-hidden border border-slate-200 dark:border-slate-700 shadow-xs">
+          <CardHeader className="border-b border-slate-100 dark:border-slate-700/60 pb-4">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-base">{userT('Field Officer Submissions')}</CardTitle>
-                <CardDescription className="text-xs">
+                <CardTitle className="text-base font-bold text-slate-900 dark:text-white">
+                  {userT('Field Officer Submissions')}
+                </CardTitle>
+                <CardDescription className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                   {userT(`Showing ${filteredTeamReports.length} reports submitted by field teams`)}
                 </CardDescription>
               </div>
@@ -669,81 +669,121 @@ export default function DailyWorkReportView({
           </CardHeader>
           <CardContent className="p-0">
             {isLoading ? (
-              <div className="p-8 text-center text-xs text-slate-400">{userT('Loading daily reports...')}</div>
+              <div className="p-12 text-center text-xs text-slate-400">{userT('Loading daily reports...')}</div>
             ) : filteredTeamReports.length === 0 ? (
-              <div className="p-8 text-center text-xs text-slate-400">
+              <div className="p-12 text-center text-xs text-slate-400">
                 {userT('No daily reports match the current filters.')}
               </div>
             ) : (
-              <div className="divide-y divide-slate-100 dark:divide-[#334155]">
-                {filteredTeamReports.map((report) => {
-                  const details = getStructuredDetails(report);
-                  return (
-                    <div
-                      key={report.id}
-                      className="p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-slate-50/80 dark:hover:bg-[#0F172A]/50 transition-colors"
-                    >
-                      <div className="space-y-1.5 max-w-2xl">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="font-bold text-slate-900 dark:text-[#F8FAFC] text-sm">
-                            {report.officerName || 'Field Officer'}
-                          </span>
-                          <span className="text-slate-400 text-xs">•</span>
-                          <span className="text-slate-600 dark:text-slate-300 text-xs flex items-center gap-1">
-                            <MapPin className="w-3 h-3 text-slate-400" />
-                            {report.officerWoreda || 'Assigned Woreda'}
-                          </span>
-                          <span className="text-slate-400 text-xs">•</span>
-                          <span className="text-slate-500 dark:text-slate-400 font-mono text-xs">{report.reportDate}</span>
-
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                            {report.syncStatus === 'SYNCED' ? 'Synced' : 'Pending Sync'}
-                          </span>
-                        </div>
-
-                        <p className="text-xs text-slate-700 dark:text-slate-300 line-clamp-2">
-                          <strong className="text-slate-900 dark:text-[#F8FAFC]">Summary: </strong>
-                          {details.summary}
-                        </p>
-
-                        <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400 pt-1">
-                          <span>
-                            Citizens:{' '}
-                            <strong className="text-slate-800 dark:text-slate-200">{report.citizenCountLocal}</strong>
-                          </span>
-                          <span>•</span>
-                          <span>
-                            Screen-Time:{' '}
-                            <strong className="text-slate-800 dark:text-slate-200">
-                              {report.screenTimeFormatted || formatTime(report.screenTimeSeconds)}
-                            </strong>
-                          </span>
-                          <span>•</span>
-                          <span>
-                            Sessions: <strong className="text-slate-800 dark:text-slate-200">{report.sessionCount}</strong>
-                          </span>
-                          <span>•</span>
-                          <span>
-                            Activities: <strong className="text-slate-800 dark:text-slate-200">{report.activityCount}</strong>
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2 shrink-0">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="md"
-                          onClick={() => setInspectModalReport(report)}
-                          className="font-bold text-sm"
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs text-left">
+                  <thead>
+                    <tr className="border-b border-slate-100 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-900/50 text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
+                      <th className="py-3.5 px-4">{userT('Field Officer')}</th>
+                      <th className="py-3.5 px-4">{userT('Date')}</th>
+                      <th className="py-3.5 px-4">{userT('Location')}</th>
+                      <th className="py-3.5 px-4">{userT('Citizens')}</th>
+                      <th className="py-3.5 px-4">{userT('Screen Time')}</th>
+                      <th className="py-3.5 px-4">{userT('Summary')}</th>
+                      <th className="py-3.5 px-4">{userT('Status')}</th>
+                      <th className="py-3.5 px-4 text-right">{userT('Action')}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                    {filteredTeamReports.map((report) => {
+                      const details = getStructuredDetails(report);
+                      return (
+                        <tr
+                          key={report.id}
+                          className="hover:bg-slate-50/80 dark:hover:bg-slate-800/60 transition-colors"
                         >
-                          <Eye className="w-4 h-4 mr-1.5 text-[#1E3A8A] dark:text-blue-400" />
-                          Detail Report
-                        </Button>
-                      </div>
-                    </div>
-                  );
-                })}
+                          {/* Field Officer */}
+                          <td className="py-3.5 px-4">
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 font-bold text-xs flex items-center justify-center shrink-0">
+                                {(report.officerName || 'O').charAt(0).toUpperCase()}
+                              </div>
+                              <div className="min-w-0">
+                                <div className="font-semibold text-slate-900 dark:text-white truncate">
+                                  {report.officerName || 'Field Officer'}
+                                </div>
+                                <div className="text-[11px] text-slate-400 dark:text-slate-500 truncate">
+                                  {report.employeeId ? `ID: ${report.employeeId}` : report.officerEmail || 'Field Team'}
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+
+                          {/* Date */}
+                          <td className="py-3.5 px-4 whitespace-nowrap">
+                            <span className="font-mono text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-900 px-2.5 py-1 rounded-md border border-slate-200 dark:border-slate-700">
+                              {report.reportDate}
+                            </span>
+                          </td>
+
+                          {/* Location */}
+                          <td className="py-3.5 px-4">
+                            <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 font-medium">
+                              <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                              <span className="truncate">{report.officerWoreda || report.woreda || report.region || 'Assigned Site'}</span>
+                            </div>
+                          </td>
+
+                          {/* Citizens Registered */}
+                          <td className="py-3.5 px-4">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-900/50">
+                              {report.citizenCountLocal}
+                            </span>
+                          </td>
+
+                          {/* Screen Time */}
+                          <td className="py-3.5 px-4 font-mono font-bold text-xs text-[#2563EB] dark:text-blue-400">
+                            {report.screenTimeFormatted || formatTime(report.screenTimeSeconds)}
+                          </td>
+
+                          {/* Summary Preview */}
+                          <td className="py-3.5 px-4 max-w-xs">
+                            <p className="text-xs text-slate-600 dark:text-slate-400 truncate" title={details.summary}>
+                              {details.summary}
+                            </p>
+                          </td>
+
+                          {/* Sync Status */}
+                          <td className="py-3.5 px-4 whitespace-nowrap">
+                            <span
+                              className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${
+                                report.syncStatus === 'SYNCED'
+                                  ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/40'
+                                  : 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-900/40'
+                              }`}
+                            >
+                              <span
+                                className={`w-1.5 h-1.5 rounded-full ${
+                                  report.syncStatus === 'SYNCED' ? 'bg-emerald-500' : 'bg-amber-500'
+                                }`}
+                              />
+                              {report.syncStatus === 'SYNCED' ? userT('Synced') : userT('Pending Sync')}
+                            </span>
+                          </td>
+
+                          {/* Action */}
+                          <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setInspectModalReport(report)}
+                              className="text-xs font-semibold inline-flex items-center gap-1.5 hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                            >
+                              <Eye className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                              <span>{userT('Detail Report')}</span>
+                            </Button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
             )}
           </CardContent>

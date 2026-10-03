@@ -1,51 +1,28 @@
 // src/components/supervisor/SupervisorSendAlertPage.tsx
-// Dedicated supervisor page to send direct operational alerts and notifications to specific field officers
-// based on their real-time daily screen time and periodic verification history.
+// Dedicated supervisor page to send direct operational alerts and notifications to their assigned field officers.
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   AlertTriangle,
-  Search,
-  Users,
-  Clock,
-  ShieldCheck,
-  ShieldAlert,
-  CheckCircle2,
-  XCircle,
-  RefreshCw,
   Send,
-  Calendar,
-  Radio,
+  UserCheck,
+  Bell,
+  Clock,
+  CheckCircle2,
+  ShieldAlert,
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { API_BASE } from '../../config/api';
 import { offlineDb } from '../../db/offlineDb';
 import { db } from '../../services/database';
-import { getZonedTimeComponents } from '../../config/workingHours';
+import { createLocalNotification } from '../../services/notificationApi';
 import { useUserLanguage } from '../../context/UserLanguageContext';
-import SendOfficerAlertModal from './SendOfficerAlertModal';
-import { Card } from '../ui/Card';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
+import Button from '../ui/Button';
 
 interface SupervisorSendAlertPageProps {
   user: any;
   users?: any[];
-}
-
-interface OfficerTelemetry {
-  id: string;
-  name: string;
-  fullName: string;
-  email: string;
-  employeeId?: string;
-  zone?: string;
-  woreda?: string;
-  screenTimeFmt: string;
-  screenTimeMinutes: number;
-  reportSubmitted: boolean;
-  verifTotal: number;
-  verifConfirmed: number;
-  verifMissed: number;
-  verifRate: number;
-  verificationRecords: any[];
 }
 
 export default function SupervisorSendAlertPage({
@@ -53,422 +30,450 @@ export default function SupervisorSendAlertPage({
   users = [],
 }: SupervisorSendAlertPageProps) {
   const { userT } = useUserLanguage();
-  const { dateStr: todayDateStr } = getZonedTimeComponents();
+  const [assignedOfficers, setAssignedOfficers] = useState<any[]>([]);
+  const [loadingOfficers, setLoadingOfficers] = useState(true);
+  const [selectedOfficerId, setSelectedOfficerId] = useState<string>('');
+  const [title, setTitle] = useState('');
+  const [message, setMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [recentAlerts, setRecentAlerts] = useState<any[]>([]);
 
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterType, setFilterType] = useState<'all' | 'low_screentime' | 'missed_verif'>('all');
-  const [loading, setLoading] = useState(true);
-  const [officerData, setOfficerData] = useState<OfficerTelemetry[]>([]);
-  const [alertingOfficer, setAlertingOfficer] = useState<OfficerTelemetry | null>(null);
-  const [refreshKey, setRefreshKey] = useState(0);
+  // Load supervisor's assigned officers strictly from backend DB or supervisorId match
+  useEffect(() => {
+    let isMounted = true;
+    const loadOfficers = async () => {
+      setLoadingOfficers(true);
+      const map = new Map<string, any>();
 
-  // Load supervised officers, their screen time, and verification records
-  const loadData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const isManager = user?.role === 'manager';
-      let myOfficers = users.filter(
-        (u) =>
-          u.role === 'field_officer' &&
-          (isManager ||
-            u.supervisorId === user?.id ||
-            u.supervisorEmployeeId === user?.employeeId ||
-            (user?.zone && u.zone === user?.zone) ||
-            (user?.region && u.region === user?.region))
-      );
-
-      if (myOfficers.length === 0) {
-        myOfficers = users.filter((u) => u.role === 'field_officer');
-      }
-
-      // Try fetching live screen time monitoring from server if available
-      let liveScreenTimeMap: Record<string, any> = {};
+      // 1. Fetch from backend /work-monitoring/officers (strictly supervisor's assigned officers from DB)
       try {
         const token = localStorage.getItem('fieldsync_token') || localStorage.getItem('token');
         if (token && navigator.onLine) {
-          const res = await fetch(`${API_BASE}/work-monitoring/officers?date=${todayDateStr}`, {
+          const res = await fetch(`${API_BASE}/work-monitoring/officers`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           if (res.ok) {
             const json = await res.json();
             if (json.success && Array.isArray(json.data)) {
-              for (const off of json.data) {
-                liveScreenTimeMap[off.id] = off;
-              }
+              json.data.forEach((o: any) => {
+                map.set(o.id, {
+                  id: o.id,
+                  name: o.name || o.fullName,
+                  fullName: o.fullName || o.name,
+                  email: o.email,
+                  employeeId: o.employeeId,
+                  zone: o.zone,
+                  woreda: o.woreda,
+                });
+              });
             }
           }
         }
       } catch (_e) {}
 
-      // Load all verification records
-      let allVerifs: any[] = [];
-      if (offlineDb.workVerifications) {
-        try {
-          allVerifs = await offlineDb.workVerifications.toArray();
-        } catch (_e) {}
+      // 2. If map is empty (e.g. offline fallback), filter strictly from offlineDb or users where supervisorId matches user.id
+      if (map.size === 0) {
+        const sourcePool = (offlineDb?.users ? await offlineDb.users.toArray().catch(() => []) : [])
+          .concat(users || []);
+
+        sourcePool
+          .filter((u: any) => {
+            const isOfficer = u.role === 'field_officer' || u.role === 'FIELD_OFFICER';
+            if (!isOfficer) return false;
+            if (user?.role === 'manager') return true;
+            // STRICT ASSIGNMENT ONLY: Officer's supervisorId must be current supervisor's id
+            return (
+              (u.supervisorId && u.supervisorId === user?.id) ||
+              (user?.employeeId && u.supervisorEmployeeId && u.supervisorEmployeeId === user?.employeeId)
+            );
+          })
+          .forEach((u: any) => {
+            if (!map.has(u.id)) {
+              map.set(u.id, {
+                id: u.id,
+                name: u.fullName || u.name,
+                fullName: u.fullName || u.name,
+                email: u.email,
+                employeeId: u.employeeId,
+                zone: u.zone,
+                woreda: u.woreda,
+              });
+            }
+          });
       }
-      if (allVerifs.length === 0 && db?.verification_history) {
-        try {
-          allVerifs = await db.verification_history.toArray();
-        } catch (_e) {}
-      }
 
-      // Load all daily screen time records
-      let allScreenTimes: any[] = [];
-      if (offlineDb.dailyScreenTimes) {
-        try {
-          allScreenTimes = await offlineDb.dailyScreenTimes
-            .filter((r) => r.date === todayDateStr)
-            .toArray();
-        } catch (_e) {}
-      }
-
-      const telemetryList: OfficerTelemetry[] = [];
-
-      for (const off of myOfficers) {
-        const offId = off.id;
-        const offEmpId = off.employeeId;
-
-        // 1. Screen Time calculation
-        let screenTimeFmt = '00:00:00';
-        let screenTimeMinutes = 0;
-        let reportSubmitted = Boolean(off.dailyReportSubmitted);
-
-        const liveOff = liveScreenTimeMap[offId];
-        if (liveOff) {
-          screenTimeFmt = liveOff.todayScreenTimeFormatted || liveOff.screenTimeFormatted || '00:00:00';
-          screenTimeMinutes = liveOff.screenTimeMinutes || 0;
-          reportSubmitted = Boolean(liveOff.dailyReportSubmitted);
-        } else {
-          const localDst = allScreenTimes.find((r) => r.officerId === offId);
-          if (localDst) {
-            const sec = localDst.totalEligibleSeconds || (localDst as any).totalSeconds || 0;
-            const h = Math.floor(sec / 3600);
-            const m = Math.floor((sec % 3600) / 60);
-            const s = sec % 60;
-            screenTimeFmt = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-            screenTimeMinutes = Math.floor(sec / 60);
-          }
+      if (isMounted) {
+        const list = Array.from(map.values());
+        setAssignedOfficers(list);
+        if (list.length > 0 && (!selectedOfficerId || !list.some(o => o.id === selectedOfficerId))) {
+          setSelectedOfficerId(list[0].id);
+        } else if (list.length === 0) {
+          setSelectedOfficerId('');
         }
-
-        // 2. Verification History calculation
-        const officerVerifs = allVerifs.filter(
-          (v) =>
-            v.officerId === offId ||
-            (offEmpId && (v.officerEmployeeId === offEmpId || v.officerId === offEmpId))
-        );
-
-        const verifTotal = officerVerifs.length;
-        const verifConfirmed = officerVerifs.filter(
-          (v) =>
-            v.isAnswered ||
-            v.success ||
-            String(v.status || '').includes('CONFIRMED') ||
-            v.respondedAt
-        ).length;
-        const verifMissed = verifTotal - verifConfirmed;
-        const verifRate = verifTotal > 0 ? Math.round((verifConfirmed / verifTotal) * 100) : 100;
-
-        telemetryList.push({
-          id: off.id,
-          name: off.fullName || off.name || 'Field Officer',
-          fullName: off.fullName || off.name || 'Field Officer',
-          email: off.email || '',
-          employeeId: off.employeeId,
-          zone: typeof off.zone === 'object' ? off.zone?.name : off.zone,
-          woreda: typeof off.woreda === 'object' ? off.woreda?.name : off.woreda,
-          screenTimeFmt,
-          screenTimeMinutes,
-          reportSubmitted,
-          verifTotal,
-          verifConfirmed,
-          verifMissed,
-          verifRate,
-          verificationRecords: officerVerifs,
-        });
+        setLoadingOfficers(false);
       }
+    };
 
-      setOfficerData(telemetryList);
-    } catch (err) {
-      console.error('Failed to load supervisor alert data:', err);
-    } finally {
-      setLoading(false);
+    loadOfficers();
+    return () => {
+      isMounted = false;
+    };
+  }, [user, users]);
+
+  // Load recently sent alerts
+  const loadRecentAlerts = useCallback(async () => {
+    try {
+      if (db?.alerts) {
+        const allAlerts = await db.alerts.toArray();
+        const supervisorId = user?.id || 'supervisor';
+        const mine = allAlerts
+          .filter((a: any) => a.sentBy === supervisorId || a.type === 'supervisor_notice')
+          .sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+          .slice(0, 10);
+        setRecentAlerts(mine);
+      }
+    } catch (_err) {
+      console.warn('Failed to load recent alerts:', _err);
     }
-  }, [user, users, todayDateStr]);
+  }, [user]);
 
   useEffect(() => {
-    loadData();
-  }, [loadData, refreshKey]);
+    loadRecentAlerts();
+  }, [loadRecentAlerts]);
 
-  // Filtered officers list
-  const filteredOfficers = useMemo(() => {
-    return officerData.filter((off) => {
-      const q = searchQuery.toLowerCase().trim();
-      const matchesQuery =
-        !q ||
-        off.name.toLowerCase().includes(q) ||
-        off.email.toLowerCase().includes(q) ||
-        (off.employeeId && off.employeeId.toLowerCase().includes(q)) ||
-        (off.zone && off.zone.toLowerCase().includes(q)) ||
-        (off.woreda && off.woreda.toLowerCase().includes(q));
+  const selectedOfficer = useMemo(() => {
+    return assignedOfficers.find((o) => o.id === selectedOfficerId) || null;
+  }, [assignedOfficers, selectedOfficerId]);
 
-      if (!matchesQuery) return false;
+  // Submit Alert
+  const handleSendAlert = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedOfficerId || !selectedOfficer) {
+      toast.error(userT('Please select an assigned officer'));
+      return;
+    }
 
-      if (filterType === 'low_screentime') {
-        // Less than 2 hours (120 min) or 00:00:00
-        return off.screenTimeMinutes < 120;
+    if (!message.trim()) {
+      toast.error(userT('Please enter an alert message'));
+      return;
+    }
+
+    setIsSubmitting(true);
+    const alertId = `alert_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+    const supervisorName = user?.fullName || user?.name || userT('Supervisor');
+    const officerName = selectedOfficer.fullName || selectedOfficer.name || userT('Field Officer');
+
+    try {
+      const nowIso = new Date().toISOString();
+      const metadataPayload = {
+        senderId: user?.id,
+        senderName: supervisorName,
+        senderEmail: user?.email,
+        senderRole: user?.role,
+      };
+
+      // 1. Dispatch directly to PostgreSQL /api/notifications with sender metadata
+      const token = localStorage.getItem('fieldsync_token') || localStorage.getItem('token');
+      if (token && navigator.onLine) {
+        try {
+          const res = await fetch(`${API_BASE}/notifications`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              recipientId: selectedOfficer.id,
+              title: title.trim(),
+              message: message.trim(),
+              type: 'SUPERVISOR_ALERT',
+              priority: 'IMPORTANT',
+              relatedRecordId: alertId,
+              actionUrl: '/notifications',
+              metadata: metadataPayload,
+            }),
+          });
+          if (!res.ok) {
+            const err = await res.json().catch(() => null);
+            console.warn('Dispatch notification warning:', err);
+          }
+        } catch (apiErr) {
+          console.warn('Online notification dispatch failed:', apiErr);
+        }
       }
-      if (filterType === 'missed_verif') {
-        return off.verifMissed > 0;
-      }
-      return true;
-    });
-  }, [officerData, searchQuery, filterType]);
 
-  // Quick stats
-  const stats = useMemo(() => {
-    const total = officerData.length;
-    const lowScreenTimeCount = officerData.filter((o) => o.screenTimeMinutes < 120).length;
-    const missedVerifCount = officerData.filter((o) => o.verifMissed > 0).length;
-    return { total, lowScreenTimeCount, missedVerifCount };
-  }, [officerData]);
+      // 2. Persist in offlineDb notifications and db.notifications
+      const notifItem = {
+        id: alertId,
+        recipientId: selectedOfficer.id,
+        title: title.trim(),
+        message: message.trim(),
+        type: 'SUPERVISOR_ALERT',
+        priority: 'IMPORTANT' as const,
+        isRead: false,
+        readAt: null,
+        relatedRecordId: alertId,
+        actionUrl: '/notifications',
+        metadata: metadataPayload,
+        createdAt: nowIso,
+        updatedAt: nowIso,
+      };
+
+      try {
+        if (offlineDb?.notifications) {
+          await offlineDb.notifications.put(notifItem);
+        }
+      } catch (_e) {}
+
+      try {
+        if (db?.notifications) {
+          await db.notifications.put({
+            id: alertId,
+            userId: selectedOfficer.id,
+            title: title.trim(),
+            message: message.trim(),
+            type: 'SUPERVISOR_ALERT',
+            read: false,
+            timestamp: nowIso,
+            link: '/notifications',
+          });
+        }
+      } catch (_e) {}
+
+      // 3. Persist in Dexie database `alerts` table
+      const alertRecord = {
+        id: alertId,
+        title: title.trim(),
+        message: message.trim(),
+        priority: 'normal',
+        type: 'supervisor_notice',
+        timestamp: nowIso,
+        read: false,
+        targetAll: false,
+        targetEmployeeId: selectedOfficer.employeeId || selectedOfficer.id,
+        targetUsers: [
+          {
+            id: selectedOfficer.id,
+            name: officerName,
+            employeeId: selectedOfficer.employeeId,
+            role: 'field_officer',
+          },
+        ],
+        sentBy: user?.id || 'supervisor',
+        sentByName: supervisorName,
+        synced: navigator.onLine,
+      };
+
+      if (db?.alerts) {
+        try {
+          await db.alerts.add(alertRecord);
+        } catch (_dbErr) {
+          await db.alerts.put(alertRecord);
+        }
+      }
+
+      // 4. Online sync to server alerts endpoint if available
+      if (navigator.onLine) {
+        try {
+          fetch(`${API_BASE}/alerts`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+            body: JSON.stringify(alertRecord),
+          }).catch(() => {});
+        } catch (_syncErr) {}
+      }
+
+      // 5. Broadcast real-time notifications event and cross-tab storage trigger
+      window.dispatchEvent(new CustomEvent('notifications-updated'));
+      try {
+        localStorage.setItem(
+          'fieldsync_alert_broadcast',
+          JSON.stringify({
+            alertId,
+            recipientId: selectedOfficer.id,
+            title: title.trim(),
+            message: message.trim(),
+            senderName: supervisorName,
+            timestamp: Date.now(),
+          })
+        );
+      } catch (_e) {}
+
+      toast.success(`${userT('Alert notification sent to')} ${officerName}`);
+      setTitle('');
+      setMessage('');
+      loadRecentAlerts();
+    } catch (err) {
+      console.error('Failed to dispatch officer alert:', err);
+      toast.error(userT('Failed to send alert. Please try again.'));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-150">
+    <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in duration-150">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-xs">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center">
-              <AlertTriangle className="w-5 h-5" />
-            </div>
-            <div>
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-                {userT('Send Alert')}
-              </h1>
-              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-                {userT('Send direct operational alert messages to field officers based on their screen time and verification history')}
-              </p>
-            </div>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center border border-amber-200 dark:border-amber-900/40 shrink-0">
+            <AlertTriangle className="w-5 h-5" />
           </div>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => setRefreshKey((k) => k + 1)}
-          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer self-start sm:self-auto"
-        >
-          <RefreshCw className="w-3.5 h-3.5" />
-          <span>{userT('Refresh')}</span>
-        </button>
-      </div>
-
-      {/* Filter and Search Bar */}
-      <div className="p-4 rounded-2xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
-        {/* Search */}
-        <div className="relative w-full sm:w-80">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            placeholder={userT('Search officer, employee ID, territory...')}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-          />
-        </div>
-
-        {/* Filter Pills */}
-        <div className="flex flex-wrap items-center gap-1.5 w-full sm:w-auto">
-          <button
-            type="button"
-            onClick={() => setFilterType('all')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-              filterType === 'all'
-                ? 'bg-[#2563EB] text-white shadow-2xs'
-                : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'
-            }`}
-          >
-            {userT('All Officers')} ({stats.total})
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setFilterType('low_screentime')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-              filterType === 'low_screentime'
-                ? 'bg-amber-600 text-white shadow-2xs'
-                : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'
-            }`}
-          >
-            <Clock className="w-3.5 h-3.5" />
-            <span>{userT('Low Screen Time')} ({stats.lowScreenTimeCount})</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setFilterType('missed_verif')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-              filterType === 'missed_verif'
-                ? 'bg-rose-600 text-white shadow-2xs'
-                : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'
-            }`}
-          >
-            <ShieldAlert className="w-3.5 h-3.5" />
-            <span>{userT('Missed Verif.')} ({stats.missedVerifCount})</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Officers List Table */}
-      <div className="rounded-2xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-xs overflow-hidden">
-        {loading && officerData.length === 0 ? (
-          <div className="py-16 text-center text-slate-400">
-            <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-[#2563EB]" />
-            <p className="text-xs font-medium">{userT('Loading officers telemetry...')}</p>
-          </div>
-        ) : filteredOfficers.length === 0 ? (
-          <div className="py-16 text-center">
-            <Users className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
-            <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-              {userT('No Field Officers Found')}
-            </h3>
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
-              {searchQuery ? userT('Try adjusting your search query') : userT('No officers assigned to this territory.')}
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+              {userT('Send Alert')}
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+              {userT('Send direct operational alert messages to your assigned field officers')}
             </p>
           </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs text-left">
-              <thead>
-                <tr className="border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/40 text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
-                  <th className="py-3 px-4">{userT('Field Officer')}</th>
-                  <th className="py-3 px-4">{userT('Territory')}</th>
-                  <th className="py-3 px-4">{userT('Screen Time (Today)')}</th>
-                  <th className="py-3 px-4">{userT('Verification History')}</th>
-                  <th className="py-3 px-4 text-right">{userT('Action')}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                {filteredOfficers.map((off) => {
-                  const isLowScreenTime = off.screenTimeMinutes < 120;
-                  const hasMissedVerif = off.verifMissed > 0;
-
-                  return (
-                    <tr
-                      key={off.id}
-                      className="hover:bg-slate-50/80 dark:hover:bg-slate-800/60 transition-colors"
-                    >
-                      {/* Officer Identity */}
-                      <td className="py-3.5 px-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
-                            {(off.name[0] || 'O').toUpperCase()}
-                          </div>
-                          <div className="min-w-0">
-                            <div className="font-bold text-slate-900 dark:text-white truncate">
-                              {off.name}
-                            </div>
-                            <div className="text-[11px] text-slate-400 dark:text-slate-500 font-mono">
-                              {off.employeeId || off.email}
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* Territory */}
-                      <td className="py-3.5 px-4 text-slate-600 dark:text-slate-400">
-                        <div className="font-medium text-slate-800 dark:text-slate-200">
-                          {off.zone || '—'}
-                        </div>
-                        <div className="text-[11px] text-slate-400">
-                          {off.woreda || ''}
-                        </div>
-                      </td>
-
-                      {/* Screen Time Telemetry */}
-                      <td className="py-3.5 px-4">
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={`font-mono font-bold text-sm ${
-                              isLowScreenTime
-                                ? 'text-amber-600 dark:text-amber-400'
-                                : 'text-[#2563EB] dark:text-blue-400'
-                            }`}
-                          >
-                            {off.screenTimeFmt}
-                          </span>
-                          {isLowScreenTime && (
-                            <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800/50">
-                              {userT('Low')}
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-[11px] text-slate-400 mt-0.5">
-                          {off.reportSubmitted ? (
-                            <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
-                              ✓ {userT('Report Submitted')}
-                            </span>
-                          ) : (
-                            <span>{userT('Report In Progress')}</span>
-                          )}
-                        </div>
-                      </td>
-
-                      {/* Verification Telemetry */}
-                      <td className="py-3.5 px-4">
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={`font-mono font-bold text-sm ${
-                              off.verifRate >= 80
-                                ? 'text-emerald-600 dark:text-emerald-400'
-                                : off.verifRate >= 60
-                                ? 'text-amber-600 dark:text-amber-400'
-                                : 'text-rose-600 dark:text-rose-400'
-                            }`}
-                          >
-                            {off.verifRate}%
-                          </span>
-                          {hasMissedVerif && (
-                            <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200 dark:border-rose-800/50 flex items-center gap-0.5">
-                              <XCircle className="w-2.5 h-2.5" />
-                              {off.verifMissed} {userT('missed')}
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-[11px] text-slate-400 mt-0.5">
-                          {off.verifTotal} {userT('total events')}
-                        </div>
-                      </td>
-
-                      {/* Action: Send Alert */}
-                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                        <button
-                          type="button"
-                          onClick={() => setAlertingOfficer(off)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-[#2563EB] hover:bg-blue-700 text-white transition-colors shadow-2xs cursor-pointer active:scale-95"
-                          title={userT('Send Alert')}
-                        >
-                          <Send className="w-3.5 h-3.5" />
-                          <span>{userT('Send Alert')}</span>
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
+        </div>
       </div>
 
-      {/* Targeted Officer Alert Modal */}
-      {alertingOfficer && (
-        <SendOfficerAlertModal
-          isOpen={Boolean(alertingOfficer)}
-          onClose={() => setAlertingOfficer(null)}
-          officer={alertingOfficer}
-          currentUser={user}
-        />
+      {/* Main Alert Dispatch Form */}
+      <Card className="border border-slate-200 dark:border-slate-700 shadow-xs">
+        <CardHeader className="border-b border-slate-100 dark:border-slate-700/60 pb-4">
+          <CardTitle className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <Bell className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <span>{userT('Dispatch Alert Notification')}</span>
+          </CardTitle>
+          <CardDescription className="text-xs text-slate-500 dark:text-slate-400">
+            {userT('Select an assigned field officer and compose an operational directive or reminder.')}
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent className="p-6">
+          {loadingOfficers ? (
+            <div className="py-12 text-center text-xs text-slate-400">
+              {userT('Loading assigned officers...')}
+            </div>
+          ) : assignedOfficers.length === 0 ? (
+            <div className="py-12 text-center space-y-2">
+              <ShieldAlert className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto" />
+              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                {userT('No Field Officers Assigned')}
+              </p>
+              <p className="text-xs text-slate-400 dark:text-slate-500">
+                {userT('There are currently no field officers assigned under your supervisory command.')}
+              </p>
+            </div>
+          ) : (
+            <form onSubmit={handleSendAlert} className="space-y-5">
+              {/* Field 1: Assigned Officer Selector */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-1.5">
+                  <UserCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                  <span>{userT('Select Field Officer')}</span>
+                  <span className="text-rose-500">*</span>
+                </label>
+                <select
+                  value={selectedOfficerId}
+                  onChange={(e) => setSelectedOfficerId(e.target.value)}
+                  required
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 cursor-pointer"
+                >
+                  <option value="">{userT('Select an assigned officer...')}</option>
+                  {assignedOfficers.map((off) => (
+                    <option key={off.id} value={off.id}>
+                      {off.fullName || off.name} {off.email ? `• ${off.email}` : ''}
+                    </option>
+                  ))}
+                </select>
+                {selectedOfficer && (
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    {userT('Officer territory')}:{' '}
+                    <span className="font-semibold text-slate-600 dark:text-slate-300">
+                      {typeof selectedOfficer.zone === 'object' ? selectedOfficer.zone?.name : selectedOfficer.zone || userT('Assigned Territory')}
+                      {selectedOfficer.woreda ? ` • ${typeof selectedOfficer.woreda === 'object' ? selectedOfficer.woreda?.name : selectedOfficer.woreda}` : ''}
+                    </span>
+                  </p>
+                )}
+              </div>
+
+              {/* Field 2: Alert Title (Optional) */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center justify-between">
+                  <span>{userT('Alert Subject / Title')}</span>
+                  <span className="text-slate-400 font-normal text-[11px]">({userT('Optional')})</span>
+                </label>
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder={userT('e.g., Immediate Check-In Required')}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              {/* Field 3: Alert Message Textarea */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  {userT('Alert Message')} <span className="text-rose-500">*</span>
+                </label>
+                <textarea
+                  rows={4}
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder={userT('Type your operational message or instructions for the officer here...')}
+                  required
+                  className="w-full p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 leading-relaxed"
+                />
+              </div>
+
+              {/* Action Button */}
+              <div className="flex justify-end pt-2">
+                <Button
+                  type="submit"
+                  disabled={isSubmitting || !selectedOfficerId || !message.trim()}
+                  className="px-5 py-2.5 rounded-xl font-bold text-xs bg-[#2563EB] hover:bg-blue-700 text-white flex items-center justify-center gap-2 cursor-pointer shadow-xs disabled:opacity-50"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>{isSubmitting ? userT('Sending Alert...') : userT('Send Alert')}</span>
+                </Button>
+              </div>
+            </form>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Recently Sent Alerts */}
+      {recentAlerts.length > 0 && (
+        <Card className="border border-slate-200 dark:border-slate-700 shadow-xs">
+          <CardHeader className="border-b border-slate-100 dark:border-slate-700/60 pb-3">
+            <CardTitle className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <Clock className="w-4 h-4 text-slate-400" />
+              <span>{userT('Recently Sent Alerts')}</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="divide-y divide-slate-100 dark:divide-slate-700/60">
+              {recentAlerts.map((alt) => {
+                const targetName = alt.targetUsers?.[0]?.name || alt.targetEmployeeId || userT('Assigned Officer');
+                return (
+                  <div key={alt.id} className="p-4 hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors">
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-xs text-slate-900 dark:text-white">{alt.title}</span>
+                        <span className="text-[11px] text-blue-600 dark:text-blue-400 font-medium">
+                          → {targetName}
+                        </span>
+                      </div>
+                      <span className="text-[10px] text-slate-400 font-mono">
+                        {new Date(alt.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed">
+                      {alt.message}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

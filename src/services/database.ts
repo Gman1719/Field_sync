@@ -131,38 +131,50 @@ export const syncQueue = {
 
 syncQueue.load();
 
-let _networkOnline = true;
+let _networkOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
 
 const checkNetworkWithImage = (): Promise<boolean> => {
   return new Promise((resolve) => {
-    const img = new Image();
     let resolved = false;
-
-    img.onload = () => {
+    const finish = (result: boolean) => {
       if (!resolved) {
         resolved = true;
-        _networkOnline = true;
-        resolve(true);
+        _networkOnline = result;
+        resolve(result);
       }
     };
 
-    img.onerror = () => {
-      if (!resolved) {
-        resolved = true;
-        _networkOnline = false;
-        resolve(false);
-      }
-    };
-
+    // 1. Fast image probe (standard CORS-safe cache-busted probe)
+    const img = new Image();
+    img.onload = () => finish(true);
+    img.onerror = () => finish(false);
     img.src = 'https://www.google.com/favicon.ico?_=' + Date.now();
 
+    // 2. Fast fetch probe (fails rapidly on broken WAN / disconnected internet)
+    if (typeof fetch === 'function') {
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 1500);
+        fetch('https://www.google.com/favicon.ico?_=' + Date.now(), {
+          method: 'HEAD',
+          mode: 'no-cors',
+          cache: 'no-store',
+          signal: controller.signal,
+        })
+          .then(() => {
+            clearTimeout(timeout);
+            finish(true);
+          })
+          .catch(() => {
+            clearTimeout(timeout);
+          });
+      } catch (_e) {}
+    }
+
+    // Safety timeout: 1500ms max wait
     setTimeout(() => {
-      if (!resolved) {
-        resolved = true;
-        _networkOnline = false;
-        resolve(false);
-      }
-    }, 3000);
+      finish(false);
+    }, 1500);
   });
 };
 

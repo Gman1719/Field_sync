@@ -1,9 +1,10 @@
 import { API_BASE } from '../config/api';
 import offlineDb from '../db/offlineDb';
+import { db } from './database';
 import type { AppNotification } from '../types';
 
 function getAuthHeaders(): HeadersInit {
-  const token = localStorage.getItem('fieldsync_token');
+  const token = localStorage.getItem('fieldsync_token') || localStorage.getItem('token');
   return {
     'Content-Type': 'application/json',
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -56,6 +57,19 @@ export async function fetchNotifications({
       if (json.success && json.data) {
         try {
           await offlineDb.notifications.bulkPut(json.data);
+          if (db?.notifications) {
+            const mappedLegacy = json.data.map((d: any) => ({
+              id: d.id,
+              userId: d.recipientId,
+              title: d.title,
+              message: d.message,
+              type: d.type,
+              read: Boolean(d.isRead),
+              timestamp: d.createdAt,
+              link: d.actionUrl || '/notifications',
+            }));
+            await db.notifications.bulkPut(mappedLegacy);
+          }
         } catch (_err) {
           // Dexie cache error handled gracefully
         }
@@ -75,7 +89,13 @@ export async function fetchNotifications({
     if (status === 'unread') items = items.filter((n) => !n.isRead);
     if (status === 'read') items = items.filter((n) => n.isRead);
     if (priority && priority !== 'ALL') items = items.filter((n) => n.priority === priority);
-    if (category && category !== 'ALL') items = items.filter((n) => n.type === category);
+    if (category && category !== 'ALL') {
+      if (category === 'ALERT' || category === 'SUPERVISOR_ALERT') {
+        items = items.filter((n) => n.type === 'ALERT' || n.type === 'SUPERVISOR_ALERT');
+      } else {
+        items = items.filter((n) => n.type === category);
+      }
+    }
     if (search && search.trim()) {
       const q = search.toLowerCase();
       items = items.filter((n) => n.title.toLowerCase().includes(q) || n.message.toLowerCase().includes(q));
@@ -133,6 +153,9 @@ export async function markNotificationRead(id: string): Promise<AppNotification 
       const json = await res.json();
       try {
         await offlineDb.notifications.update(id, { isRead: true, readAt: new Date().toISOString() });
+        if (db?.notifications) {
+          await db.notifications.update(id, { read: true });
+        }
       } catch (_e) {
         // Dexie cache update handled gracefully
       }
@@ -144,6 +167,9 @@ export async function markNotificationRead(id: string): Promise<AppNotification 
 
   try {
     await offlineDb.notifications.update(id, { isRead: true, readAt: new Date().toISOString() });
+    if (db?.notifications) {
+      await db.notifications.update(id, { read: true });
+    }
   } catch (_e) {
     // Dexie cache update handled gracefully
   }
@@ -160,6 +186,9 @@ export async function markNotificationUnread(id: string): Promise<AppNotificatio
       const json = await res.json();
       try {
         await offlineDb.notifications.update(id, { isRead: false, readAt: null });
+        if (db?.notifications) {
+          await db.notifications.update(id, { read: false });
+        }
       } catch (_e) {
         // Dexie cache update handled gracefully
       }
@@ -171,6 +200,9 @@ export async function markNotificationUnread(id: string): Promise<AppNotificatio
 
   try {
     await offlineDb.notifications.update(id, { isRead: false, readAt: null });
+    if (db?.notifications) {
+      await db.notifications.update(id, { read: false });
+    }
   } catch (_e) {
     // Dexie cache update handled gracefully
   }
