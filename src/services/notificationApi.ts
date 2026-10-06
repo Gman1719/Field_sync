@@ -2,6 +2,7 @@ import { API_BASE } from '../config/api';
 import offlineDb from '../db/offlineDb';
 import { db } from './database';
 import type { AppNotification } from '../types';
+import { generateNotificationId } from '../utils/idGenerator';
 
 function getAuthHeaders(): HeadersInit {
   const token = localStorage.getItem('fieldsync_token') || localStorage.getItem('token');
@@ -282,7 +283,7 @@ export async function createLocalNotification(params: {
   actionUrl?: string | null;
 }): Promise<AppNotification> {
   const notif: AppNotification = {
-    id: `notif_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+    id: generateNotificationId(),
     recipientId: params.recipientId,
     title: params.title,
     message: params.message,
@@ -308,7 +309,18 @@ export async function createLocalNotification(params: {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(notif),
-    }).catch(() => {});
+    })
+      .then(async (res) => {
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && json.data && json.data.id && offlineDb?.notifications) {
+            await offlineDb.notifications.put(json.data).catch(() => {});
+          }
+        }
+      })
+      .catch((err) => {
+        console.warn('Network dispatch error for notification, stored locally:', err.message);
+      });
   }
 
   window.dispatchEvent(new CustomEvent('notifications-updated'));

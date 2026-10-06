@@ -23,6 +23,7 @@ const syncRouter = require('./routes/sync');
 const locationsRouter = require('./routes/locations');
 const workSessionsRouter = require('./routes/workSessions');
 const notificationsRouter = require('./routes/notifications');
+const activityLogsRouter = require('./routes/activityLogs');
 
 
 const app = express();
@@ -74,6 +75,7 @@ app.use('/api/sync', syncRouter);
 app.use('/api/locations', locationsRouter);
 app.use('/api/work-sessions', workSessionsRouter);
 app.use('/api/notifications', notificationsRouter);
+app.use('/api/activity-logs', activityLogsRouter);
 
 // Start server
 app.listen(PORT, () => {

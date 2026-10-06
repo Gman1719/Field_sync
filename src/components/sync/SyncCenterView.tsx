@@ -10,13 +10,16 @@ import toast from 'react-hot-toast';
 import { syncEngine } from '../../services/unifiedSyncEngine';
 import { offlineDb } from '../../db/offlineDb';
 import { API_BASE } from '../../config/api';
+import ActivityLogger from '../../services/activityLogger';
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
 import Button from '../ui/Button';
 import Badge from '../ui/Badge';
 import StatCard from '../ui/StatCard';
+import { useUserLanguage } from '../../context/UserLanguageContext';
 
 export default function SyncCenterView({ user }) {
+  const { userT } = useUserLanguage();
   const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'queue' | 'errors' | 'conflicts'
 
   const [summary, setSummary] = useState({
@@ -121,6 +124,11 @@ export default function SyncCenterView({ user }) {
 
       if (result.success) {
         toast.success(`Successfully synchronized ${result.syncedCount} records with PostgreSQL!`);
+        ActivityLogger.log('SYNC_COMPLETED', `Synchronized ${result.syncedCount} records with central database`, {
+          officerId: user?.id,
+          officerName: user?.name || user?.fullName,
+          metadata: { syncedCount: result.syncedCount },
+        }).catch(() => {});
       } else {
         toast.error(`Sync finished with issues: ${result.errors[0] || 'Unknown problem'}`);
       }
@@ -191,10 +199,10 @@ export default function SyncCenterView({ user }) {
           </div>
           <div>
             <h1 className="text-xl font-bold text-slate-900 dark:text-[#F8FAFC] tracking-tight">
-              Central Synchronization Center
+              {userT('Central Synchronization Center')}
             </h1>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Bidirectional sync pipeline, offline queue diagnostics, and conflict resolution engine
+              {userT('Bidirectional sync pipeline, offline queue diagnostics, and conflict resolution engine')}
             </p>
           </div>
         </div>
@@ -203,12 +211,12 @@ export default function SyncCenterView({ user }) {
           {isOnline ? (
             <Badge variant="success" className="gap-1.5 py-1 px-3">
               <Wifi className="w-3.5 h-3.5" />
-              <span>Connected Online</span>
+              <span>{userT('Connected Online')}</span>
             </Badge>
           ) : (
             <Badge variant="warning" className="gap-1.5 py-1 px-3">
               <WifiOff className="w-3.5 h-3.5" />
-              <span>Offline Mode</span>
+              <span>{userT('Offline Mode')}</span>
             </Badge>
           )}
 
@@ -222,7 +230,7 @@ export default function SyncCenterView({ user }) {
             className="text-xs"
           >
             <ArrowDownToLine className="w-3.5 h-3.5 mr-1.5 text-[#1E3A8A] dark:text-blue-400" />
-            Pull Server Updates
+            {userT('Pull Server Updates')}
           </Button>
 
           <Button
@@ -235,7 +243,7 @@ export default function SyncCenterView({ user }) {
             className="text-xs font-semibold"
           >
             <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
-            Sync All Pending ({summary.totalPending})
+            {userT('Sync All Pending')} ({summary.totalPending})
           </Button>
         </div>
       </div>
@@ -257,25 +265,25 @@ export default function SyncCenterView({ user }) {
           <div>
             <span className="font-bold text-sm block">
               {summary.totalPending === 0
-                ? 'All Local Records are Synchronized with PostgreSQL'
-                : `${summary.totalPending} Offline Records Pending Central Synchronization`}
+                ? userT('All Local Records are Synchronized with PostgreSQL')
+                : `${summary.totalPending} ${userT('Offline Records Pending Central Synchronization')}`}
             </span>
             <span className="text-[11px] opacity-80">
               {summary.lastSyncTime
-                ? `Last successful synchronization: ${new Date(summary.lastSyncTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`
-                : 'No synchronization performed during this session.'}
+                ? `${userT('Last successful synchronization')}: ${new Date(summary.lastSyncTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`
+                : userT('No synchronization performed during this session.')}
             </span>
           </div>
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-auto font-mono text-xs">
           <span className="px-3 py-1 rounded-lg bg-white/80 dark:bg-slate-800/80 font-bold border border-current">
-            Pending: {summary.totalPending}
+            {userT('Pending')}: {summary.totalPending}
           </span>
           {summary.unresolvedErrorsCount > 0 && (
             <span className="px-3 py-1 rounded-lg bg-red-100 dark:bg-red-950/60 text-red-800 dark:text-red-300 font-bold border border-red-200 dark:border-red-800 flex items-center gap-1">
               <AlertTriangle className="w-3.5 h-3.5" />
-              {summary.unresolvedErrorsCount} Errors
+              {summary.unresolvedErrorsCount} {userT('Errors')}
             </span>
           )}
         </div>
@@ -284,37 +292,37 @@ export default function SyncCenterView({ user }) {
       {/* Aggregate Metric Stat Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         <StatCard
-          title="Citizens"
+          title={userT('Citizens')}
           value={summary.citizensPending}
           icon={Users}
           color="blue"
         />
         <StatCard
-          title="Verifications"
+          title={userT('Verifications')}
           value={(summary as any).verificationsPending || 0}
           icon={ShieldCheck}
           color="purple"
         />
         <StatCard
-          title="Screen Time"
+          title={userT('Screen Time')}
           value={(summary as any).screenTimesPending || 0}
           icon={Clock}
           color="indigo"
         />
         <StatCard
-          title="Work Sessions"
+          title={userT('Work Sessions')}
           value={summary.workSessionsPending}
           icon={Smartphone}
           color="amber"
         />
         <StatCard
-          title="Daily Reports"
+          title={userT('Daily Reports')}
           value={summary.dailyReportsPending}
           icon={FileText}
           color="emerald"
         />
         <StatCard
-          title="Activity Logs"
+          title={userT('Activity Logs')}
           value={summary.activityLogsPending}
           icon={Activity}
           color="slate"
@@ -332,7 +340,7 @@ export default function SyncCenterView({ user }) {
               : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
           }`}
         >
-          Pipeline Overview & Detail
+          {userT('Pipeline Overview & Detail')}
         </button>
 
         <button
@@ -344,7 +352,7 @@ export default function SyncCenterView({ user }) {
               : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
           }`}
         >
-          Sync Queue Detail
+          {userT('Sync Queue Detail')}
           {queueItems.length > 0 && (
             <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
               {queueItems.length}
@@ -361,7 +369,7 @@ export default function SyncCenterView({ user }) {
               : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
           }`}
         >
-          Failure Diagnostics & Logs
+          {userT('Failure Diagnostics & Logs')}
           {summary.unresolvedErrorsCount > 0 && (
             <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-300 font-bold">
               {summary.unresolvedErrorsCount}
@@ -378,7 +386,7 @@ export default function SyncCenterView({ user }) {
               : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
           }`}
         >
-          Conflict Resolution Rules
+          {userT('Conflict Resolution Rules')}
         </button>
       </div>
 

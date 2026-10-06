@@ -3,7 +3,6 @@ import {
   Menu,
   Bell,
   Clock,
-  Globe,
   ChevronRight,
   User,
   LogOut,
@@ -13,7 +12,6 @@ import {
   Moon,
 } from 'lucide-react';
 import SyncBadge from '../ui/SyncBadge';
-import LanguageSelector from './LanguageSelector';
 import { useUserLanguage } from '../../context/UserLanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import {
@@ -212,8 +210,6 @@ export default function Header({
             <Moon className="w-4 h-4 text-slate-600" />
           )}
         </button>
-
-        <LanguageSelector />
 
         <div className="relative">
           <button

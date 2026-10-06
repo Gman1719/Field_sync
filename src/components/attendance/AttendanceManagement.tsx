@@ -18,6 +18,7 @@ import Input from '../ui/Input';
 import Select from '../ui/Select';
 import Textarea from '../ui/Textarea';
 import Modal from '../ui/Modal';
+import { useUserLanguage } from '../../context/UserLanguageContext';
 
 export interface AttendanceManagementProps {
   filteredAttendance?: any;
@@ -51,6 +52,7 @@ export default function AttendanceManagement({
   setAttendanceFilter: externalSetAttendanceFilter,
   addNotification
 }: AttendanceManagementProps) {
+  const { userT } = useUserLanguage();
   const [internalSelectedDate, setInternalSelectedDate] = useState(getToday());
   const selectedDate = externalSelectedDate !== undefined ? externalSelectedDate : internalSelectedDate;
   const setSelectedDate = externalSetSelectedDate || setInternalSelectedDate;
@@ -357,10 +359,10 @@ export default function AttendanceManagement({
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
             <CalendarCheck className="w-6 h-6 text-[#2563EB] dark:text-blue-400" />
-            Attendance Management
+            {userT('Attendance Management')}
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            {isOfficer ? 'Review your daily shift attendance and verification log' : 'Log and manage shift attendance for your field team'}
+            {isOfficer ? userT('Review your daily shift attendance and verification log') : userT('Log and manage shift attendance for your field team')}
           </p>
         </div>
 
@@ -377,7 +379,7 @@ export default function AttendanceManagement({
             onClick={() => setSelectedDate(getToday())}
             className="h-9"
           >
-            Today
+            {userT('Today')}
           </Button>
         </div>
       </div>
@@ -385,33 +387,33 @@ export default function AttendanceManagement({
       {/* Summary Stat Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <StatCard
-          title="Total Scheduled"
+          title={userT('Total Scheduled')}
           value={totalSelected}
-          subtitle={`On ${selectedDate}`}
+          subtitle={`${userT('On')} ${selectedDate}`}
           icon={User}
           iconColor="text-blue-700"
           iconBg="bg-blue-50"
         />
         <StatCard
-          title="Present"
+          title={userT('Present')}
           value={presentCount}
-          subtitle="On-time check-ins"
+          subtitle={userT('On-time check-ins')}
           icon={CheckCircle2}
           iconColor="text-emerald-700"
           iconBg="bg-emerald-50"
         />
         <StatCard
-          title="Late"
+          title={userT('Late')}
           value={lateCount}
-          subtitle="Tardy arrivals"
+          subtitle={userT('Tardy arrivals')}
           icon={Clock}
           iconColor="text-amber-700"
           iconBg="bg-amber-50"
         />
         <StatCard
-          title="Absent"
+          title={userT('Absent')}
           value={absentCount}
-          subtitle="Unexcused or missed"
+          subtitle={userT('Unexcused or missed')}
           icon={XCircle}
           iconColor="text-rose-700"
           iconBg="bg-rose-50"
@@ -423,8 +425,8 @@ export default function AttendanceManagement({
         <Card>
           <CardHeader>
             <div>
-              <CardTitle className="text-sm">Team Roster (Today)</CardTitle>
-              <CardDescription>Click any officer to record or adjust their check-in time</CardDescription>
+              <CardTitle className="text-sm">{userT('Team Roster (Today)')}</CardTitle>
+              <CardDescription>{userT('Click any officer to record or adjust their check-in time')}</CardDescription>
             </div>
           </CardHeader>
           <CardContent className="p-4">
@@ -465,8 +467,8 @@ export default function AttendanceManagement({
       <Card>
         <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <CardTitle className="text-sm">Attendance Records</CardTitle>
-            <CardDescription>Verified check-in timestamps and logged hours</CardDescription>
+            <CardTitle className="text-sm">{userT('Attendance Records')}</CardTitle>
+            <CardDescription>{userT('Verified check-in timestamps and logged hours')}</CardDescription>
           </div>
 
           <div className="flex items-center gap-2">
@@ -475,11 +477,11 @@ export default function AttendanceManagement({
               onChange={(e) => setAttendanceFilter(e.target.value)}
               className="text-xs h-9 w-36"
             >
-              <option value="all">All Statuses</option>
-              <option value="present">Present</option>
-              <option value="late">Late</option>
-              <option value="half_day">Half Day</option>
-              <option value="absent">Absent</option>
+              <option value="all">{userT('All Statuses')}</option>
+              <option value="present">{userT('Present')}</option>
+              <option value="late">{userT('Late')}</option>
+              <option value="half_day">{userT('Half Day')}</option>
+              <option value="absent">{userT('Absent')}</option>
             </Select>
           </div>
         </CardHeader>
@@ -488,20 +490,20 @@ export default function AttendanceManagement({
           {displayList.length === 0 ? (
             <div className="py-12 text-center text-xs text-slate-400 dark:text-slate-500">
               <CalendarCheck className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
-              <span>No attendance logs found for this filter criteria</span>
+              <span>{userT('No attendance logs found for this filter criteria')}</span>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
                   <tr className="border-b border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-200 font-bold uppercase tracking-wider bg-slate-50/90 dark:bg-slate-900 text-[11px]">
-                    <th className="py-3.5 pl-6">Officer</th>
-                    <th className="py-3.5 px-4">Date</th>
-                    <th className="py-3.5 px-4">Status</th>
-                    <th className="py-3.5 px-4">Check-In</th>
-                    <th className="py-3.5 px-4">Check-Out</th>
-                    <th className="py-3.5 px-4">Hours</th>
-                    <th className="py-3.5 pr-6 text-right">Notes</th>
+                    <th className="py-3.5 pl-6">{userT('Officer')}</th>
+                    <th className="py-3.5 px-4">{userT('Date')}</th>
+                    <th className="py-3.5 px-4">{userT('Status')}</th>
+                    <th className="py-3.5 px-4">{userT('Check-In')}</th>
+                    <th className="py-3.5 px-4">{userT('Check-Out')}</th>
+                    <th className="py-3.5 px-4">{userT('Hours')}</th>
+                    <th className="py-3.5 pr-6 text-right">{userT('Notes')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-[#334155]">
@@ -517,12 +519,12 @@ export default function AttendanceManagement({
                           variant={rec.status === 'present' ? 'success' : rec.status === 'late' ? 'warning' : 'error'}
                           dot
                         >
-                          {rec.status.toUpperCase()}
+                          {userT(rec.status)}
                         </Badge>
                       </td>
                       <td className="py-4 px-4 font-mono text-slate-600 dark:text-slate-300">{rec.checkIn || '--:--'}</td>
                       <td className="py-4 px-4 font-mono text-slate-600 dark:text-slate-300">{rec.checkOut || '--:--'}</td>
-                      <td className="py-4 px-4 font-mono font-semibold text-slate-900 dark:text-white">{rec.workHours || 0} hrs</td>
+                      <td className="py-4 px-4 font-mono font-semibold text-slate-900 dark:text-white">{rec.workHours || 0} {userT('hrs')}</td>
                       <td className="py-4 pr-6 text-right text-slate-500 dark:text-slate-400 truncate max-w-xs">{rec.notes || '--'}</td>
                     </tr>
                   ))}
@@ -537,31 +539,31 @@ export default function AttendanceManagement({
       <Modal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
-        title={`Log Attendance: ${selectedOfficer?.name || ''}`}
+        title={`${userT('Log Attendance')}: ${selectedOfficer?.name || ''}`}
         size="md"
       >
         <div className="space-y-4">
           <Select
-            label="Shift Status"
+            label={userT('Shift Status')}
             value={form.status}
             onChange={(e) => setForm(prev => ({ ...prev, status: e.target.value }))}
           >
-            <option value="present">Present (On Duty)</option>
-            <option value="late">Late Arrival</option>
-            <option value="half_day">Half Day Shift</option>
-            <option value="absent">Absent</option>
+            <option value="present">{userT('Present (On Duty)')}</option>
+            <option value="late">{userT('Late Arrival')}</option>
+            <option value="half_day">{userT('Half Day Shift')}</option>
+            <option value="absent">{userT('Absent')}</option>
           </Select>
 
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Check-In Time"
+              label={userT('Check-In Time')}
               type="time"
               value={form.checkIn}
               onChange={(e) => setForm(prev => ({ ...prev, checkIn: e.target.value }))}
             />
 
             <Input
-              label="Check-Out Time"
+              label={userT('Check-Out Time')}
               type="time"
               value={form.checkOut}
               onChange={(e) => setForm(prev => ({ ...prev, checkOut: e.target.value }))}
@@ -570,7 +572,7 @@ export default function AttendanceManagement({
 
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Break Time (hours)"
+              label={`${userT('Break Time')} (${userT('hours')})`}
               type="number"
               step="0.5"
               min="0"
@@ -579,7 +581,7 @@ export default function AttendanceManagement({
             />
 
             <Input
-              label="Overtime (hours)"
+              label={`${userT('Overtime')} (${userT('hours')})`}
               type="number"
               step="0.5"
               min="0"
@@ -589,10 +591,10 @@ export default function AttendanceManagement({
           </div>
 
           <Textarea
-            label="Field Attendance Notes"
+            label={userT('Field Attendance Notes')}
             value={form.notes}
             onChange={(e) => setForm(prev => ({ ...prev, notes: e.target.value }))}
-            placeholder="Reason for late arrival or schedule change..."
+            placeholder={userT('Reason for late arrival or schedule change...')}
             rows={2}
           />
 
@@ -601,13 +603,13 @@ export default function AttendanceManagement({
               variant="outline"
               onClick={() => setShowModal(false)}
             >
-              Cancel
+              {userT('Cancel')}
             </Button>
             <Button
               variant="primary"
               onClick={handleSubmitAttendance}
             >
-              Save Attendance Record
+              {userT('Save Attendance Record')}
             </Button>
           </div>
         </div>

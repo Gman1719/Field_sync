@@ -26,8 +26,8 @@ export const DEFAULT_WORKING_HOURS_CONFIG: WorkingHoursConfig = {
   afternoonEnd: '17:30',
   minVerificationGapMinutes: 10,
   minVerificationIntervalMinutes: 10,
-  maxVerificationIntervalMinutes: 60,
-  maxDailyChecks: 12,
+  maxVerificationIntervalMinutes: 20,
+  maxDailyChecks: 40,
   verificationTimeoutSeconds: 15,
 };
 
@@ -198,3 +198,53 @@ export function evaluateWorkingHours(
     timeStr,
   };
 }
+
+/**
+ * Deterministically generates the verification slots across the 8-hour workday
+ * (08:30-12:30 and 13:30-17:30 = 480 minutes total, excluding 12:30-13:30 lunch).
+ * Intervals are strictly randomized between 10 and 20 minutes (average ~15 min),
+ * producing ~30-32 checks per day.
+ */
+export function getDailyVerificationSlots(
+  dateStr: string,
+  seedString: string = ''
+): Array<{ minuteOfDay: number; timeStr: string; isoDate: string }> {
+  let seed = 0;
+  const fullSeedStr = `${dateStr}_${seedString}`;
+  for (let i = 0; i < fullSeedStr.length; i++) {
+    seed = (seed * 31 + fullSeedStr.charCodeAt(i)) & 0xffffffff;
+  }
+  const nextRandom = () => {
+    seed = (seed * 1664525 + 1013904223) & 0xffffffff;
+    return (seed >>> 0) / 4294967296;
+  };
+
+  const slots: Array<{ minuteOfDay: number; timeStr: string; isoDate: string }> = [];
+
+  // Morning: 08:30 (510 min) to 12:30 (750 min)
+  let currMin = 510 + Math.floor(nextRandom() * 6) + 8; // ~08:38 - 08:44
+  while (currMin < 750) {
+    const h = Math.floor(currMin / 60);
+    const m = currMin % 60;
+    const timeStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:00`;
+    const isoDate = `${dateStr}T${timeStr}+03:00`;
+    slots.push({ minuteOfDay: currMin, timeStr, isoDate });
+    const step = 10 + Math.floor(nextRandom() * 11); // 10..20 minutes
+    currMin += step;
+  }
+
+  // Afternoon: 13:30 (810 min) to 17:30 (1050 min)
+  currMin = 810 + Math.floor(nextRandom() * 6) + 8; // ~13:38 - 13:44
+  while (currMin < 1050) {
+    const h = Math.floor(currMin / 60);
+    const m = currMin % 60;
+    const timeStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:00`;
+    const isoDate = `${dateStr}T${timeStr}+03:00`;
+    slots.push({ minuteOfDay: currMin, timeStr, isoDate });
+    const step = 10 + Math.floor(nextRandom() * 11); // 10..20 minutes
+    currMin += step;
+  }
+
+  return slots;
+}
+

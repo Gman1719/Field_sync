@@ -13,7 +13,8 @@ import {
 import { API_BASE } from '../../config/api';
 import { offlineDb } from '../../db/offlineDb';
 import { db } from '../../services/database';
-import { getZonedTimeComponents } from '../../config/workingHours';
+import { getZonedTimeComponents, getDailyVerificationSlots } from '../../config/workingHours';
+import { generateVerificationId, formatDisplayUserId } from '../../utils/idGenerator';
 import { useUserLanguage } from '../../context/UserLanguageContext';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
 import Badge from '../ui/Badge';
@@ -294,6 +295,74 @@ export default function SupervisorVerifications({ user, users = [] }: Supervisor
         }
       }
 
+      // 5. Ensure full 8-hour working-period slots (10-20 min intervals, ~30-32 checks total)
+      // for officers who did not work / have no active session today
+      const { totalMinutes: currentMinute } = getZonedTimeComponents();
+      for (const officer of myOfficers) {
+        const offId = officer.id;
+        const slots = getDailyVerificationSlots(todayDateStr, offId);
+        // Only slots that have arrived so far (or all ~30-32 slots if past 17:30 / 1050 min)
+        const applicableSlots = slots.filter(s => currentMinute >= 1050 || s.minuteOfDay <= currentMinute);
+
+        // Find existing records for this officer today in recordMap
+        const existingOfficerToday = Array.from(recordMap.values()).filter(
+          r => (r.officerId === offId || r.officerEmployeeId === officer.employeeId) &&
+               (r.workedDate === todayDateStr || r.scheduledAt?.slice(0, 10) === todayDateStr)
+        );
+
+        for (const slot of applicableSlots) {
+          const slotTime = new Date(slot.isoDate).getTime();
+          const hasCheck = existingOfficerToday.some(r => {
+            const rTime = new Date(r.scheduledAt).getTime();
+            return Math.abs(rTime - slotTime) <= 5 * 60 * 1000;
+          });
+
+          if (!hasCheck) {
+            const vId = generateVerificationId();
+            const rec: VerificationRecord = {
+              id: vId,
+              officerId: offId,
+              officerName: officer.name || officer.fullName || offId,
+              officerEmployeeId: officer.employeeId || formatDisplayUserId({ id: offId, role: 'field_officer' }),
+              officerZone: officer.zone || officer.region,
+              scheduledAt: slot.isoDate,
+              status: 'MISSED',
+              isAnswered: false,
+              question: userT('Random Identity & Presence Verification'),
+              answer: userT('Missed — Officer Logged Out During Working Hours'),
+              responseTimeSeconds: null,
+              connectionState: 'OFFLINE',
+              failureReason: 'NO_ACTIVE_SESSION',
+              syncStatus: 'SYNCED',
+              workedDate: todayDateStr,
+            };
+            recordMap.set(vId, rec);
+
+            // Persist to local Dexie so it is saved
+            if (offlineDb?.workVerifications) {
+              offlineDb.workVerifications.put({
+                id: vId,
+                officerId: offId,
+                officerName: officer.name || officer.fullName || offId,
+                scheduledAt: slot.isoDate,
+                triggeredAt: slot.isoDate,
+                deadlineAt: new Date(new Date(slot.isoDate).getTime() + 15000).toISOString(),
+                status: 'MISSED',
+                responseTimeSeconds: null,
+                failureReason: 'NO_ACTIVE_SESSION',
+                connectionState: 'OFFLINE',
+                loginState: 'LOGGED_OUT',
+                trackingStateBefore: 'NOT_TRACKING',
+                trackingStateAfter: 'NOT_TRACKING',
+                date: todayDateStr,
+                notes: 'Missed — Officer was logged out during official working hours',
+                syncStatus: 'SYNCED',
+              }).catch(() => {});
+            }
+          }
+        }
+      }
+
       const allRecords = Array.from(recordMap.values());
       // Sort most recent first
       allRecords.sort((a, b) => new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime());
@@ -314,9 +383,13 @@ export default function SupervisorVerifications({ user, users = [] }: Supervisor
     const handler = () => setRefreshKey(k => k + 1);
     window.addEventListener('sync-complete', handler);
     window.addEventListener('verification-update', handler);
+    window.addEventListener('verification-missed', handler);
+    window.addEventListener('fieldsync-activity-logged', handler);
     return () => {
       window.removeEventListener('sync-complete', handler);
       window.removeEventListener('verification-update', handler);
+      window.removeEventListener('verification-missed', handler);
+      window.removeEventListener('fieldsync-activity-logged', handler);
     };
   }, []);
 
@@ -670,7 +743,7 @@ export default function SupervisorVerifications({ user, users = [] }: Supervisor
                           </span>
                         )}
                       </div>
-                      <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">{officer.employeeId || officer.id}</span>
+                      <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">{officer.employeeId || formatDisplayUserId({ id: officer.id, role: 'field_officer' })}</span>
                     </div>
                   </div>
 

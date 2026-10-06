@@ -3,6 +3,7 @@
 import { offlineDb } from '../db/offlineDb';
 import type { WorkSession } from '../types/index';
 import ActivityLogger from './activityLogger';
+import { generateSessionId, generateId } from '../utils/idGenerator';
 
 const INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes inactivity timeout
 const DESIGNATED_WORK_TABS = ['register', 'tasks', 'assignments', 'dashboard', 'reports'];
@@ -99,7 +100,7 @@ export class SessionTracker {
       return SessionTracker.activeSession;
     }
 
-    const sessionId = crypto.randomUUID();
+    const sessionId = generateSessionId();
     const session: WorkSession = {
       id: sessionId,
       officerId,
@@ -232,7 +233,7 @@ export class SessionTracker {
 
       // Enqueue closed session for sync
       await offlineDb.syncQueue.put({
-        id: crypto.randomUUID(),
+        id: generateId('syn'),
         entityType: 'work_session',
         entityId: closedSession.id,
         payload: closedSession,

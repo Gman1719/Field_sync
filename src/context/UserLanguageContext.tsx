@@ -1,6 +1,5 @@
 import React, { createContext, useState, useContext, useEffect, type ReactNode } from 'react';
 import i18n, { userLanguages, defaultUserLanguage } from '../locales/index';
-import { setTranslationLanguage, translateText } from '../services/translationEngine';
 
 export interface UserLanguageContextValue {
   currentUserLanguage: string;
@@ -20,7 +19,7 @@ export const UserLanguageProvider: React.FC<{ children: ReactNode }> = ({ childr
     if (normalized && (userLanguages as Record<string, any>)[normalized]) {
       return normalized;
     }
-    return defaultUserLanguage;
+    return i18n.language ? i18n.language.split('-')[0] : defaultUserLanguage;
   });
 
   useEffect(() => {
@@ -30,70 +29,37 @@ export const UserLanguageProvider: React.FC<{ children: ReactNode }> = ({ childr
     if (i18n.language !== currentUserLanguage) {
       i18n.changeLanguage(currentUserLanguage);
     }
-    // Activate universal DOM translation engine for the selected language
-    setTranslationLanguage(currentUserLanguage);
+  }, [currentUserLanguage]);
+
+  // Synchronize state if i18n language is changed externally
+  useEffect(() => {
+    const onLanguageChanged = (lng: string) => {
+      const code = lng ? lng.split('-')[0] : 'en';
+      if (code !== currentUserLanguage && (userLanguages as Record<string, any>)[code]) {
+        setCurrentUserLanguage(code);
+      }
+    };
+    i18n.on('languageChanged', onLanguageChanged);
+    return () => {
+      i18n.off('languageChanged', onLanguageChanged);
+    };
   }, [currentUserLanguage]);
 
   const changeUserLanguage = (langCode: string) => {
     if ((userLanguages as Record<string, any>)[langCode]) {
       setCurrentUserLanguage(langCode);
-      if (i18n.language !== langCode) {
-        i18n.changeLanguage(langCode);
-      }
-      setTranslationLanguage(langCode);
+      i18n.changeLanguage(langCode);
+      localStorage.setItem('user-app-language', langCode);
+      localStorage.setItem('i18nextLng', langCode);
+      document.documentElement.lang = langCode;
     }
   };
 
   const userT = (keyOrText: string, params: Record<string, string | number> = {}): string => {
     if (!keyOrText) return '';
-
-    // If key has dots (e.g., 'nav.dashboard'), look up in locales hierarchy
-    if (keyOrText.includes('.')) {
-      const keys = keyOrText.split('.');
-      let translation: any = (userLanguages as Record<string, any>)[currentUserLanguage]?.translations;
-
-      for (const k of keys) {
-        if (translation && translation[k] !== undefined) {
-          translation = translation[k];
-        } else {
-          let fallback: any = (userLanguages as Record<string, any>)['en']?.translations;
-          for (const fk of keys) {
-            if (fallback && fallback[fk] !== undefined) {
-              fallback = fallback[fk];
-            } else {
-              fallback = null;
-              break;
-            }
-          }
-          if (fallback) {
-            translation = fallback;
-            break;
-          }
-          translation = null;
-          break;
-        }
-      }
-
-      if (typeof translation === 'string') {
-        if (params && Object.keys(params).length > 0) {
-          Object.keys(params).forEach((param) => {
-            translation = translation.replace(new RegExp(`{${param}}`, 'g'), String(params[param]));
-          });
-        }
-        return translation;
-      }
-    }
-
-    // Direct text / phrase translation via dictionary and pattern matching
-    let translated = translateText(keyOrText, currentUserLanguage);
-
-    if (params && Object.keys(params).length > 0) {
-      Object.keys(params).forEach((param) => {
-        translated = translated.replace(new RegExp(`{${param}}`, 'g'), String(params[param]));
-      });
-    }
-
-    return translated || keyOrText;
+    // Query i18next engine with default fallback
+    const res = i18n.t(keyOrText, { defaultValue: keyOrText, ...params });
+    return res || keyOrText;
   };
 
   return (

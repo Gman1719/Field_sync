@@ -659,7 +659,7 @@ export default function TeamManagement({
               return (
                 <div
                   key={officer.id || officer.employeeId}
-                  className="rounded-2xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-slate-950/40 hover:border-blue-400 dark:hover:border-blue-500 transition-all flex flex-col justify-between overflow-hidden p-5"
+                  className="rounded-2xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-slate-950/40 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-md transition-all flex flex-col justify-between overflow-hidden p-5"
                 >
                   {/* Top: Avatar, Name & Live Status */}
                   <div>
@@ -744,7 +744,7 @@ export default function TeamManagement({
                       {officer.phone && (
                         <a
                           href={`tel:${officer.phone}`}
-                          className="p-2 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors"
+                          className="p-2 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                           title={`${userT('Call')} ${officer.phone}`}
                         >
                           <Phone className="w-3.5 h-3.5" />
@@ -753,7 +753,7 @@ export default function TeamManagement({
                       {officer.email && (
                         <a
                           href={`mailto:${officer.email}`}
-                          className="p-2 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors"
+                          className="p-2 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                           title={`${userT('Email')} ${officer.email}`}
                         >
                           <Mail className="w-3.5 h-3.5" />
@@ -1193,7 +1193,7 @@ export default function TeamManagement({
                                 <button
                                   type="button"
                                   onClick={() => setSelectedOfficer(officer)}
-                                  className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-blue-600 hover:text-white dark:bg-slate-800 dark:hover:bg-blue-600 text-slate-700 dark:text-slate-200 transition-colors cursor-pointer border border-transparent dark:border-slate-700"
+                                  className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors cursor-pointer border border-transparent dark:border-slate-700"
                                 >
                                   {userT('Detail')}
                                 </button>

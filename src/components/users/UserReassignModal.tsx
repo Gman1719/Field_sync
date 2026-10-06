@@ -10,6 +10,7 @@ import LocationDropdown from './LocationDropdown';
 import { API_BASE } from '../../config/api';
 import { db } from '../../services/database';
 import { useUserLanguage } from '../../context/UserLanguageContext';
+import ActivityLogger from '../../services/activityLogger';
 
 interface UserReassignModalProps {
   user: any;
@@ -84,6 +85,23 @@ export default function UserReassignModal({ user, isOpen, onClose, onUserUpdated
 
       // Update in Dexie local DB as well
       await db.users.update(user.id, updatedUser);
+
+      // Record Activity Log
+      await ActivityLogger.log(
+        'WORKSTATION_REASSIGNED',
+        `Reassigned workstation & supervisor for ${user.name || user.fullName}`,
+        {
+          relatedRecordId: user.id,
+          metadata: {
+            targetUserId: user.id,
+            targetUserName: user.name || user.fullName,
+            regionId: assignment.regionId,
+            zoneId: assignment.zoneId,
+            woredaId: assignment.woredaId,
+            supervisorId: assignment.supervisorId,
+          },
+        }
+      );
 
       toast.success(userT(`Workstation location reassigned for ${user.name}`));
       if (onUserUpdated) onUserUpdated(updatedUser);

@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import { offlineDb } from '../../db/offlineDb';
 import { API_BASE } from '../../config/api';
 import { formatEthiopianPhone } from '../../utils/phoneUtils';
+import { formatDisplayUserId } from '../../utils/idGenerator';
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
 import Button from '../ui/Button';
@@ -646,7 +647,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
               <table className="w-full text-left text-xs sm:text-sm">
                 <thead>
                   <tr className="bg-slate-50/90 dark:bg-slate-900 border-b border-[#E2E8F0] dark:border-slate-700 text-xs font-bold text-slate-600 dark:text-slate-200 uppercase tracking-wider">
-                    <th className="py-4 pl-4 sm:pl-6 pr-3">{userT('Citizen Name & 12-Digit ID')}</th>
+                    <th className="py-4 pl-4 sm:pl-6 pr-3">{userT('Citizen Name & Citizen ID')}</th>
                     <th className="py-4 px-3">{userT('Contact')}</th>
                     <th className="py-4 px-3">{userT('Gender')}</th>
                     <th className="py-4 px-3">{userT('Age')}</th>
@@ -670,7 +671,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
                           idx % 2 === 1 ? 'bg-slate-50/40 dark:bg-slate-800/30' : 'bg-white dark:bg-slate-800'
                         }`}
                       >
-                        {/* 1. Name & 12-Digit ID */}
+                        {/* 1. Name & Citizen ID */}
                         <td className="py-3.5 pl-4 sm:pl-6 pr-3 whitespace-nowrap">
                           <p className="font-bold text-slate-900 dark:text-[#F8FAFC] text-sm">
                             {[citizen.firstName, citizen.middleName, citizen.lastName].filter(Boolean).join(' ') || userT('Unnamed Citizen')}
@@ -683,7 +684,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
                               type="button"
                               onClick={() => copyCitizenId(citizenId)}
                               className="text-[11px] font-semibold text-slate-400 hover:text-[#2563EB] dark:hover:text-[#60A5FA] px-1 py-0.5 rounded transition-colors"
-                              title={userT('Copy 12-digit Citizen ID')}
+                              title={userT('Copy Citizen ID')}
                             >
                               {userT('Copy')}
                             </button>
@@ -814,7 +815,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
                       type="button"
                       onClick={() => copyCitizenId(selectedCitizen.clientRecordId || selectedCitizen.nationalId || selectedCitizen.idNumber || selectedCitizen.id)}
                       className="text-xs font-semibold text-slate-500 hover:text-[#2563EB] dark:hover:text-[#60A5FA] px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 transition-colors"
-                      title={userT('Copy full 12-digit record ID')}
+                      title={userT('Copy full citizen record ID')}
                     >
                       {copiedId ? userT('Copied') : userT('Copy ID')}
                     </button>
@@ -952,7 +953,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
                   <strong className="text-slate-900 dark:text-[#F8FAFC] font-mono">
                     {selectedCitizen.registeredByEmployeeId ||
                       (users || []).find(u => u.id === selectedCitizen.registeredById || u.employeeId === selectedCitizen.registeredById)?.employeeId ||
-                      (selectedCitizen.registeredById === user?.id ? user?.employeeId : selectedCitizen.registeredById) || '—'}
+                      (selectedCitizen.registeredById === user?.id ? (user?.employeeId || formatDisplayUserId(user)) : formatDisplayUserId({ id: selectedCitizen.registeredById, role: 'field_officer' })) || '—'}
                   </strong>
                 </div>
                 <div>

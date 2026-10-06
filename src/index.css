@@ -140,7 +140,7 @@ html[data-theme='dark'] aside {
 /* Header Navigation Bar */
 html.dark header,
 html[data-theme='dark'] header {
-  background-color: #1C2128 !important;
+  background-color: #2D333B !important;
   border-bottom-color: #444C56 !important;
 }
 
@@ -170,20 +170,35 @@ html.dark .lg\:pl-64 {
 /* Universal Card Elevation in Dark Mode                          */
 /* ============================================================== */
 
-/* Cards: warm charcoal surface */
+/* Cards: clean simple charcoal surface (#2D333B from image 2) */
 html.dark .bg-white:not(input):not(select):not(textarea),
-html[data-theme='dark'] .bg-white:not(input):not(select):not(textarea) {
-  background-color: #2D333B !important;
-}
-
+html[data-theme='dark'] .bg-white:not(input):not(select):not(textarea),
+html.dark .bg-\[\#F8FAFC\]:not(input):not(select):not(textarea),
+html[data-theme='dark'] .bg-\[\#F8FAFC\]:not(input):not(select):not(textarea),
+html.dark .dark\:bg-slate-800:not(thead):not(tr):not(th):not(input):not(select):not(textarea),
+html[data-theme='dark'] .dark\:bg-slate-800:not(thead):not(tr):not(th):not(input):not(select):not(textarea),
 html.dark .dark\:bg-slate-900:not(body):not(main):not(.min-h-screen):not(input):not(select):not(textarea):not(thead):not(tr):not(th),
 html[data-theme='dark'] .dark\:bg-slate-900:not(body):not(main):not(.min-h-screen):not(input):not(select):not(textarea):not(thead):not(tr):not(th) {
   background-color: #2D333B !important;
 }
 
+/* Universal Inputs in Dark Mode */
+html.dark input:not([type="checkbox"]):not([type="radio"]),
+html.dark select,
+html.dark textarea,
+html[data-theme='dark'] input:not([type="checkbox"]):not([type="radio"]),
+html[data-theme='dark'] select,
+html[data-theme='dark'] textarea {
+  background-color: #2D333B !important;
+  border-color: #444C56 !important;
+  color: #CDD9E5 !important;
+}
+
 /* Card borders */
+html.dark .rounded-3xl.border,
 html.dark .rounded-2xl.border,
 html.dark .rounded-xl.border,
+html[data-theme='dark'] .rounded-3xl.border,
 html[data-theme='dark'] .rounded-2xl.border,
 html[data-theme='dark'] .rounded-xl.border {
   border-color: #444C56 !important;
@@ -199,8 +214,12 @@ html[data-theme='dark'] .bg-slate-50:not(input):not(select):not(textarea) {
 /* Faint borders */
 html.dark [class*="border-slate-700/"],
 html.dark [class*="border-slate-800/"],
+html.dark .dark\:border-slate-700,
+html.dark .dark\:border-slate-800,
 html[data-theme='dark'] [class*="border-slate-700/"],
-html[data-theme='dark'] [class*="border-slate-800/"] {
+html[data-theme='dark'] [class*="border-slate-800/"],
+html[data-theme='dark'] .dark\:border-slate-700,
+html[data-theme='dark'] .dark\:border-slate-800 {
   border-color: #444C56 !important;
 }
 

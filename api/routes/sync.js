@@ -3,6 +3,50 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db');
 
+// POST /api/sync/batch - Batch ingestion for offline queues
+router.post('/batch', async (req, res) => {
+    try {
+        const { citizens = [], activityLogs = [], workSessions = [], dailyReports = [] } = req.body;
+        let count = 0;
+
+        // Process activity logs
+        for (const log of activityLogs) {
+            try {
+                await pool.query(
+                    `INSERT INTO audit_logs (id, user_id, user_name, action, details, timestamp, ip)
+                     VALUES ($1, $2, $3, $4, $5, $6, $7)
+                     ON CONFLICT (id) DO UPDATE SET
+                         user_name = EXCLUDED.user_name,
+                         action = EXCLUDED.action,
+                         details = EXCLUDED.details,
+                         timestamp = EXCLUDED.timestamp`,
+                    [
+                        log.id || require('crypto').randomUUID(),
+                        log.officerId || log.userId || 'system',
+                        log.officerName || log.userName || 'User',
+                        log.eventType || log.action || 'ACTIVITY',
+                        log.description || log.details || '',
+                        log.deviceTimestamp || log.timestamp || new Date().toISOString(),
+                        req.ip || '127.0.0.1'
+                    ]
+                );
+                count++;
+            } catch (itemErr) {
+                console.warn('Batch log insert error:', itemErr.message);
+            }
+        }
+
+        res.json({
+            success: true,
+            syncedCount: count + citizens.length + workSessions.length + dailyReports.length,
+            message: 'Batch sync ingested successfully'
+        });
+    } catch (err) {
+        console.error('Batch sync endpoint error:', err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
 // POST /api/sync
 router.post('/', async (req, res) => {
     try {
@@ -329,22 +373,27 @@ router.post('/', async (req, res) => {
                 );
                 break;
 
+            case 'activity_log':
+            case 'activityLogs':
+            case 'activity_logs':
             case 'audit':
                 result = await pool.query(
                     `INSERT INTO audit_logs (id, user_id, user_name, action, details, timestamp, ip)
                      VALUES ($1, $2, $3, $4, $5, $6, $7)
                      ON CONFLICT (id) DO UPDATE SET
+                         user_name = EXCLUDED.user_name,
+                         action = EXCLUDED.action,
                          details = EXCLUDED.details,
                          timestamp = EXCLUDED.timestamp
                      RETURNING *`,
                     [
-                        data.id,
-                        data.userId,
-                        data.userName,
-                        data.action,
-                        data.details || '',
-                        data.timestamp || new Date().toISOString(),
-                        data.ip || '127.0.0.1'
+                        data.id || require('crypto').randomUUID(),
+                        data.userId || data.officerId || 'system',
+                        data.userName || data.officerName || 'User',
+                        data.action || data.eventType || 'ACTIVITY',
+                        data.details || data.description || '',
+                        data.timestamp || data.deviceTimestamp || new Date().toISOString(),
+                        data.ip || req.ip || '127.0.0.1'
                     ]
                 );
                 break;

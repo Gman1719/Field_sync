@@ -7,6 +7,7 @@ import {
 import { db, syncQueue, checkRealInternet } from '../../services/database';
 import { uid } from '../../utils/helpers';
 import { API_BASE } from '../../config/api';
+import ActivityLogger from '../../services/activityLogger';
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
 import Button from '../ui/Button';
@@ -15,6 +16,7 @@ import Input from '../ui/Input';
 import Select from '../ui/Select';
 import Textarea from '../ui/Textarea';
 import Modal from '../ui/Modal';
+import { useUserLanguage } from '../../context/UserLanguageContext';
 
 export default function LeaveManagement({
   filteredLeaves,
@@ -28,6 +30,7 @@ export default function LeaveManagement({
   users = [],
   addNotification
 }) {
+  const { userT } = useUserLanguage();
   const [showModal, setShowModal] = useState(false);
   const [selectedTab, setSelectedTab] = useState('requests');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -218,12 +221,69 @@ export default function LeaveManagement({
         toast('Leave request saved offline! Will sync when connected.', { icon: '💾' });
       }
 
+      // Resolve Assigned Supervisor
+      const targetSupervisor = users?.find(
+        (u) => (u.id && u.id === user?.supervisorId) || (u.employeeId && u.employeeId === user?.supervisorId)
+      ) || teamMembers?.find((m) => m.supervisorId);
+      const targetSupervisorId = user?.supervisorId || targetSupervisor?.id || targetSupervisor?.employeeId;
+      const supervisorName = targetSupervisor?.fullName || targetSupervisor?.name || 'Assigned Supervisor';
+
       if (addNotification) {
         addNotification(
           user.id,
-          'Leave Request Submitted',
-          `Leave request submitted for ${leave.startDate} to ${leave.endDate}`,
+          'Leave Request Sent',
+          `Your leave request for ${leave.startDate} to ${leave.endDate} was sent to supervisor ${supervisorName}.`,
           'info'
+        );
+        if (targetSupervisorId) {
+          addNotification(
+            targetSupervisorId,
+            'New Leave Request Received',
+            `${leave.employeeName || 'Field Officer'} submitted a leave request for ${leave.startDate} to ${leave.endDate}.`,
+            'info'
+          );
+        }
+      }
+
+      // Record Activity Log for Officer ("request send")
+      await ActivityLogger.log(
+        'REQUEST_SENT',
+        `Request sent: ${leave.type} leave (${leave.startDate} to ${leave.endDate}) to supervisor ${supervisorName}`,
+        {
+          officerId: user?.id || leave.employeeId,
+          officerName: leave.employeeName,
+          relatedRecordId: leave.id,
+          metadata: {
+            requestType: 'leave',
+            leaveType: leave.type,
+            startDate: leave.startDate,
+            endDate: leave.endDate,
+            reason: leave.reason,
+            supervisorId: targetSupervisorId,
+            supervisorName,
+          },
+        }
+      );
+
+      // Record Activity Log for Supervisor ("add request in supervisor activity log")
+      if (targetSupervisorId) {
+        await ActivityLogger.log(
+          'REQUEST_RECEIVED',
+          `Request received: ${leave.employeeName || 'Field Officer'} submitted ${leave.type} leave request (${leave.startDate} to ${leave.endDate})`,
+          {
+            officerId: targetSupervisorId,
+            userId: targetSupervisorId,
+            officerName: supervisorName,
+            relatedRecordId: leave.id,
+            metadata: {
+              requestType: 'leave',
+              leaveType: leave.type,
+              startDate: leave.startDate,
+              endDate: leave.endDate,
+              fromOfficerId: user?.id || leave.employeeId,
+              fromOfficerName: leave.employeeName,
+            },
+          }
         );
       }
     } catch (error) {
@@ -315,17 +375,53 @@ export default function LeaveManagement({
         toast(`Leave ${approve ? 'approved' : 'rejected'} locally! Queued for sync.`, { icon: '💾' });
       }
 
+      const supervisorDisplayName = user?.name || user?.fullName || 'Supervisor';
+
       if (addNotification) {
-        const officer = users?.find(u => u.employeeId === leave.employeeId);
+        const officer = users?.find(u => u.employeeId === leave.employeeId || u.id === leave.employeeId);
         if (officer) {
           addNotification(
             officer.id,
-            'Leave Request Decision',
-            `Your leave request has been ${approve ? 'approved' : 'rejected'} by ${user.name}`,
+            approve ? 'Leave Request Approved' : 'Leave Request Rejected',
+            `Your leave request has been ${approve ? 'approved' : 'rejected'} by ${supervisorDisplayName}`,
             approve ? 'success' : 'error'
           );
         }
       }
+
+      // 1. Record Confirmation from Supervisor in Officer's Activity Log ("confirmation from supervisor")
+      await ActivityLogger.log(
+        'SUPERVISOR_CONFIRMATION',
+        `Confirmation from supervisor: Leave request ${approve ? 'approved' : 'rejected'} by ${supervisorDisplayName}`,
+        {
+          officerId: leave.employeeId,
+          officerName: leave.employeeName,
+          relatedRecordId: leaveId,
+          metadata: {
+            status,
+            requestType: 'leave',
+            supervisorId: user?.id || user?.employeeId,
+            supervisorName: supervisorDisplayName,
+          },
+        }
+      );
+
+      // 2. Record Supervisor Activity Log
+      await ActivityLogger.log(
+        approve ? 'REQUEST_APPROVED' : 'REQUEST_REJECTED',
+        `${approve ? 'Approved' : 'Rejected'} leave request for ${leave.employeeName} (${leave.startDate} to ${leave.endDate})`,
+        {
+          officerId: user?.id || user?.employeeId,
+          officerName: supervisorDisplayName,
+          relatedRecordId: leaveId,
+          metadata: {
+            status,
+            requestType: 'leave',
+            targetEmployeeId: leave.employeeId,
+            targetEmployeeName: leave.employeeName,
+          },
+        }
+      );
     } catch (error) {
       console.error('Error updating leave:', error);
       toast.error('Error updating leave: ' + error.message);
@@ -348,10 +444,10 @@ export default function LeaveManagement({
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-[#F8FAFC] tracking-tight flex items-center gap-2">
             <Calendar className="w-6 h-6 text-[#1E3A8A] dark:text-blue-400" />
-            Leave Management
+            {userT('Leave Management')}
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            {isOfficer ? 'Submit and track your annual and sick leave requests' : 'Review and manage staff leave applications'}
+            {isOfficer ? userT('Submit and track your annual and sick leave requests') : userT('Review and manage staff leave applications')}
           </p>
         </div>
 
@@ -361,17 +457,17 @@ export default function LeaveManagement({
           className="w-full sm:w-auto"
         >
           <CalendarPlus className="w-4 h-4 mr-2" />
-          Request Leave
+          {userT('Request Leave')}
         </Button>
       </div>
 
       {/* Status Filter Tabs */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1">
         {[
-          { id: 'requests', label: 'All Requests', count: displayLeaves.length },
-          { id: 'pending', label: 'Pending Review', count: pendingLeaves.length, badge: 'warning' },
-          { id: 'approved', label: 'Approved', count: approvedLeaves.length, badge: 'success' },
-          { id: 'rejected', label: 'Rejected', count: rejectedLeaves.length, badge: 'error' }
+          { id: 'requests', label: userT('All Requests'), count: displayLeaves.length },
+          { id: 'pending', label: userT('Pending Review'), count: pendingLeaves.length, badge: 'warning' },
+          { id: 'approved', label: userT('Approved'), count: approvedLeaves.length, badge: 'success' },
+          { id: 'rejected', label: userT('Rejected'), count: rejectedLeaves.length, badge: 'error' }
         ].map(tab => (
           <button
             key={tab.id}
@@ -401,19 +497,19 @@ export default function LeaveManagement({
           {currentList.length === 0 ? (
             <div className="py-12 text-center text-xs text-slate-400 dark:text-slate-500">
               <Calendar className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
-              <span>No leave requests found in this view</span>
+              <span>{userT('No leave requests found in this view')}</span>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
                   <tr className="border-b border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-200 font-bold uppercase tracking-wider bg-slate-50/90 dark:bg-slate-900 text-[11px]">
-                    <th className="py-3.5 pl-6">Employee</th>
-                    <th className="py-3.5 px-4">Leave Type</th>
-                    <th className="py-3.5 px-4">Date Range</th>
-                    <th className="py-3.5 px-4">Reason</th>
-                    <th className="py-3.5 px-4">Status</th>
-                    {(isManager || isSupervisor) && <th className="py-3.5 pr-6 text-right">Actions</th>}
+                    <th className="py-3.5 pl-6">{userT('Employee')}</th>
+                    <th className="py-3.5 px-4">{userT('Leave Type')}</th>
+                    <th className="py-3.5 px-4">{userT('Date Range')}</th>
+                    <th className="py-3.5 px-4">{userT('Reason')}</th>
+                    <th className="py-3.5 px-4">{userT('Status')}</th>
+                    {(isManager || isSupervisor) && <th className="py-3.5 pr-6 text-right">{userT('Actions')}</th>}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60">
@@ -430,7 +526,7 @@ export default function LeaveManagement({
 
                         <td className="py-4 px-4">
                           <Badge variant="neutral" className="capitalize">
-                            {item.type || 'Annual'}
+                            {userT(item.type) || 'Annual'}
                           </Badge>
                         </td>
 
@@ -449,7 +545,7 @@ export default function LeaveManagement({
                             variant={item.status === 'approved' ? 'success' : item.status === 'rejected' ? 'error' : 'warning'}
                             dot
                           >
-                            {item.status ? item.status.toUpperCase() : 'PENDING'}
+                            {userT(item.status || 'pending')}
                           </Badge>
                         </td>
 
@@ -464,7 +560,7 @@ export default function LeaveManagement({
                                   className="h-8 px-2.5 text-xs"
                                 >
                                   <Check className="w-3.5 h-3.5 mr-1" />
-                                  Approve
+                                  {userT('Approve')}
                                 </Button>
                                 <Button
                                   variant="danger"
@@ -473,12 +569,12 @@ export default function LeaveManagement({
                                   className="h-8 px-2.5 text-xs"
                                 >
                                   <X className="w-3.5 h-3.5 mr-1" />
-                                  Reject
+                                  {userT('Reject')}
                                 </Button>
                               </div>
                             ) : (
                               <span className="text-[11px] text-slate-400">
-                                {item.approvedBy ? `Reviewed by ${item.approvedBy}` : '--'}
+                                {item.approvedBy ? `${userT('Reviewed by')} ${item.approvedBy}` : '--'}
                               </span>
                             )}
                           </td>
@@ -497,13 +593,13 @@ export default function LeaveManagement({
       <Modal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
-        title="Submit Leave Application"
+        title={userT('Submit Leave Application')}
         size="md"
       >
         <form onSubmit={handleRequestLeave} noValidate className="space-y-4">
           {isManager && (
             <Select
-              label="Select Employee"
+              label={userT('Select Employee')}
               value={newLeave.employeeId}
               onChange={(e) => {
                 setNewLeave(prev => ({ ...prev, employeeId: e.target.value }));
@@ -512,7 +608,7 @@ export default function LeaveManagement({
               required
               error={errors.employeeId}
             >
-              <option value="">Choose Staff Member</option>
+              <option value="">{userT('Choose Staff Member')}</option>
               {users.map(u => (
                 <option key={u.id} value={u.employeeId}>{u.name} ({u.employeeId})</option>
               ))}
@@ -520,21 +616,21 @@ export default function LeaveManagement({
           )}
 
           <Select
-            label="Leave Type"
+            label={userT('Leave Type')}
             value={newLeave.type}
             onChange={(e) => setNewLeave(prev => ({ ...prev, type: e.target.value }))}
             required
           >
-            <option value="annual">Annual Leave</option>
-            <option value="sick">Sick Leave</option>
-            <option value="maternity">Maternity / Paternity Leave</option>
-            <option value="emergency">Family Emergency</option>
-            <option value="unpaid">Unpaid Leave</option>
+            <option value="annual">{userT('Annual Leave')}</option>
+            <option value="sick">{userT('Sick Leave')}</option>
+            <option value="maternity">{userT('Maternity / Paternity Leave')}</option>
+            <option value="emergency">{userT('Family Emergency')}</option>
+            <option value="unpaid">{userT('Unpaid Leave')}</option>
           </Select>
 
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Start Date"
+              label={userT('Start Date')}
               type="date"
               value={newLeave.startDate}
               onChange={(e) => {
@@ -546,7 +642,7 @@ export default function LeaveManagement({
             />
 
             <Input
-              label="End Date"
+              label={userT('End Date')}
               type="date"
               value={newLeave.endDate}
               onChange={(e) => {
@@ -559,13 +655,13 @@ export default function LeaveManagement({
           </div>
 
           <Textarea
-            label="Reason for Request"
+            label={userT('Reason for Request')}
             value={newLeave.reason}
             onChange={(e) => {
               setNewLeave(prev => ({ ...prev, reason: e.target.value }));
               if (errors.reason) setErrors(prev => ({ ...prev, reason: '' }));
             }}
-            placeholder="Briefly state reason for leave request..."
+            placeholder={userT('Briefly state reason for leave request...')}
             rows={3}
             required
             error={errors.reason}
@@ -577,14 +673,14 @@ export default function LeaveManagement({
               variant="outline"
               onClick={() => setShowModal(false)}
             >
-              Cancel
+              {userT('Cancel')}
             </Button>
             <Button
               type="submit"
               variant="primary"
               loading={isSubmitting}
             >
-              Submit Application
+              {userT('Submit Application')}
             </Button>
           </div>
         </form>

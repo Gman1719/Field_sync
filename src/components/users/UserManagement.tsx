@@ -10,6 +10,7 @@ import { offlineDb } from '../../db/offlineDb';
 import ActivityLogger from '../../services/activityLogger';
 import { validateEthiopianPhone } from '../../utils/phoneValidation';
 import { API_BASE } from '../../config/api';
+import { generateUserId, formatDisplayUserId } from '../../utils/idGenerator';
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
 import StatCard from '../ui/StatCard';
@@ -224,7 +225,10 @@ export default function UserManagement({
 
     try {
       const token = localStorage.getItem('fieldsync_token');
+      const customId = generateUserId(newUser.role);
       const payload = {
+        id: customId,
+        employeeId: customId,
         firstName: newUser.firstName.trim(),
         middleName: newUser.middleName.trim(),
         lastName: newUser.lastName.trim(),
@@ -265,14 +269,14 @@ export default function UserManagement({
 
       // If offline or backend didn't respond, create locally with complete schema
       if (!createdUser) {
-        const id = crypto.randomUUID();
+        const id = customId;
         const genTempPass = `FieldSync#${Math.floor(1000 + Math.random() * 9000)}!`;
         temporaryPassword = genTempPass;
         const fullName = [newUser.firstName, newUser.middleName, newUser.lastName].filter(Boolean).join(' ');
 
         createdUser = {
           id,
-          employeeId: `EMP-${Math.floor(10000 + Math.random() * 90000)}`,
+          employeeId: customId,
           firstName: newUser.firstName.trim(),
           middleName: newUser.middleName.trim(),
           lastName: newUser.lastName.trim(),
@@ -454,6 +458,19 @@ export default function UserManagement({
       }
 
       toast.success(userT('Password reset successfully'));
+
+      // Log activity
+      try {
+        await ActivityLogger.log(
+          'USER_PASSWORD_RESET',
+          `Generated temporary password for ${user.name || user.fullName} (${user.email})`,
+          {
+            relatedRecordId: user.id,
+            metadata: { targetUserId: user.id, email: user.email },
+          }
+        );
+      } catch (_e) {}
+
       setTempPasswordModalData({
         userName: user.name || user.fullName,
         userEmail: user.email,

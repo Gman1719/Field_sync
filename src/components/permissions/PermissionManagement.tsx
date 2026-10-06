@@ -7,6 +7,7 @@ import {
 import { db, syncQueue, checkRealInternet } from '../../services/database';
 import { uid } from '../../utils/helpers';
 import { API_BASE } from '../../config/api';
+import ActivityLogger from '../../services/activityLogger';
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
 import Button from '../ui/Button';
@@ -15,6 +16,7 @@ import Input from '../ui/Input';
 import Select from '../ui/Select';
 import Textarea from '../ui/Textarea';
 import Modal from '../ui/Modal';
+import { useUserLanguage } from '../../context/UserLanguageContext';
 
 export default function PermissionManagement({
   filteredPermissions,
@@ -28,6 +30,7 @@ export default function PermissionManagement({
   users = [],
   addNotification
 }) {
+  const { userT } = useUserLanguage();
   const [showModal, setShowModal] = useState(false);
   const [selectedTab, setSelectedTab] = useState('requests');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -211,6 +214,23 @@ export default function PermissionManagement({
           'info'
         );
       }
+
+      // Record Activity Log
+      await ActivityLogger.log(
+        'PERMISSION_REQUESTED',
+        `Submitted ${newPermission.permissionType} permission request for ${newPermission.startDate} to ${newPermission.endDate}`,
+        {
+          officerId: user?.id || permission.employeeId,
+          officerName: permission.employeeName,
+          relatedRecordId: permission.id,
+          metadata: {
+            permissionType: newPermission.permissionType,
+            startDate: newPermission.startDate,
+            endDate: newPermission.endDate,
+            reason: newPermission.reason,
+          },
+        }
+      );
     } catch (error) {
       console.error('Error submitting permission:', error);
       toast.error('Error submitting permission request: ' + error.message);
@@ -311,6 +331,22 @@ export default function PermissionManagement({
           );
         }
       }
+
+      // Record Activity Log
+      await ActivityLogger.log(
+        'PERMISSION_REVIEWED',
+        `${approve ? 'Approved' : 'Rejected'} permission request for ${permission.employeeName}`,
+        {
+          officerId: user?.id || user?.employeeId,
+          officerName: user?.name || user?.fullName || 'Reviewer',
+          relatedRecordId: permissionId,
+          metadata: {
+            status,
+            targetEmployeeId: permission.employeeId,
+            targetEmployeeName: permission.employeeName,
+          },
+        }
+      );
     } catch (error) {
       console.error('Error updating permission:', error);
       toast.error('Error updating permission: ' + error.message);
@@ -333,10 +369,10 @@ export default function PermissionManagement({
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-[#F8FAFC] tracking-tight flex items-center gap-2">
             <Clock className="w-6 h-6 text-[#1E3A8A] dark:text-blue-400" />
-            Permission Requests
+            {userT('Permission Requests')}
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            {isOfficer ? 'Submit and track short-term duty permissions and absences' : 'Review and approve short-term staff permission requests'}
+            {isOfficer ? userT('Submit and track short-term duty permissions and absences') : userT('Review and approve short-term staff permission requests')}
           </p>
         </div>
 
@@ -346,17 +382,17 @@ export default function PermissionManagement({
           className="w-full sm:w-auto"
         >
           <Plus className="w-4 h-4 mr-2" />
-          Request Permission
+          {userT('Request Permission')}
         </Button>
       </div>
 
       {/* Status Filter Tabs */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1">
         {[
-          { id: 'requests', label: 'All Permissions', count: displayPermissions.length },
-          { id: 'pending', label: 'Pending Review', count: pendingPermissions.length, badge: 'warning' },
-          { id: 'approved', label: 'Approved', count: approvedPermissions.length, badge: 'success' },
-          { id: 'rejected', label: 'Rejected', count: rejectedPermissions.length, badge: 'error' }
+          { id: 'requests', label: userT('All Permissions'), count: displayPermissions.length },
+          { id: 'pending', label: userT('Pending Review'), count: pendingPermissions.length, badge: 'warning' },
+          { id: 'approved', label: userT('Approved'), count: approvedPermissions.length, badge: 'success' },
+          { id: 'rejected', label: userT('Rejected'), count: rejectedPermissions.length, badge: 'error' }
         ].map(tab => (
           <button
             key={tab.id}
@@ -386,19 +422,19 @@ export default function PermissionManagement({
           {currentList.length === 0 ? (
             <div className="py-12 text-center text-xs text-slate-400 dark:text-slate-500">
               <Clock className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
-              <span>No permission requests found in this view</span>
+              <span>{userT('No permission requests found in this view')}</span>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
                   <tr className="border-b border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-200 font-bold uppercase tracking-wider bg-slate-50/90 dark:bg-slate-900 text-[11px]">
-                    <th className="py-3.5 pl-6">Employee</th>
-                    <th className="py-3.5 px-4">Type</th>
-                    <th className="py-3.5 px-4">Time Window</th>
-                    <th className="py-3.5 px-4">Reason</th>
-                    <th className="py-3.5 px-4">Status</th>
-                    {(isManager || isSupervisor) && <th className="py-3.5 pr-6 text-right">Actions</th>}
+                    <th className="py-3.5 pl-6">{userT('Employee')}</th>
+                    <th className="py-3.5 px-4">{userT('Type')}</th>
+                    <th className="py-3.5 px-4">{userT('Time Window')}</th>
+                    <th className="py-3.5 px-4">{userT('Reason')}</th>
+                    <th className="py-3.5 px-4">{userT('Status')}</th>
+                    {(isManager || isSupervisor) && <th className="py-3.5 pr-6 text-right">{userT('Actions')}</th>}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60">
@@ -415,7 +451,7 @@ export default function PermissionManagement({
 
                         <td className="py-4 px-4">
                           <Badge variant="neutral" className="capitalize">
-                            {item.permissionType || 'Personal'}
+                            {userT(item.permissionType) || userT('Personal')}
                           </Badge>
                         </td>
 
@@ -434,7 +470,7 @@ export default function PermissionManagement({
                             variant={item.status === 'approved' ? 'success' : item.status === 'rejected' ? 'error' : 'warning'}
                             dot
                           >
-                            {item.status ? item.status.toUpperCase() : 'PENDING'}
+                            {userT(item.status || 'pending')}
                           </Badge>
                         </td>
 
@@ -449,7 +485,7 @@ export default function PermissionManagement({
                                   className="h-8 px-2.5 text-xs"
                                 >
                                   <Check className="w-3.5 h-3.5 mr-1" />
-                                  Approve
+                                  {userT('Approve')}
                                 </Button>
                                 <Button
                                   variant="danger"
@@ -458,12 +494,12 @@ export default function PermissionManagement({
                                   className="h-8 px-2.5 text-xs"
                                 >
                                   <X className="w-3.5 h-3.5 mr-1" />
-                                  Reject
+                                  {userT('Reject')}
                                 </Button>
                               </div>
                             ) : (
                               <span className="text-[11px] text-slate-400">
-                                {item.approvedBy ? `Reviewed by ${item.approvedBy}` : '--'}
+                                {item.approvedBy ? `${userT('Reviewed by')} ${item.approvedBy}` : '--'}
                               </span>
                             )}
                           </td>
@@ -482,13 +518,13 @@ export default function PermissionManagement({
       <Modal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
-        title="Submit Permission Request"
+        title={userT('Submit Permission Request')}
         size="md"
       >
         <form onSubmit={handleRequestPermission} noValidate className="space-y-4">
           {isManager && (
             <Select
-              label="Select Employee"
+              label={userT('Select Employee')}
               value={newPermission.employeeId}
               onChange={(e) => {
                 setNewPermission(prev => ({ ...prev, employeeId: e.target.value }));
@@ -497,7 +533,7 @@ export default function PermissionManagement({
               required
               error={errors.employeeId}
             >
-              <option value="">Choose Staff Member</option>
+              <option value="">{userT('Choose Staff Member')}</option>
               {users.map(u => (
                 <option key={u.id} value={u.employeeId}>{u.name} ({u.employeeId})</option>
               ))}
@@ -505,7 +541,7 @@ export default function PermissionManagement({
           )}
 
           <Select
-            label="Permission Type"
+            label={userT('Permission Type')}
             value={newPermission.permissionType}
             onChange={(e) => {
               setNewPermission(prev => ({ ...prev, permissionType: e.target.value }));
@@ -514,17 +550,17 @@ export default function PermissionManagement({
             required
             error={errors.permissionType}
           >
-            <option value="">Select Permission Reason</option>
-            <option value="Personal Appointment">Personal Appointment</option>
-            <option value="Medical Visit">Medical Visit / Clinical</option>
-            <option value="Official Duty Transfer">Official Duty Transfer</option>
-            <option value="Field Logistics Emergency">Field Logistics Emergency</option>
-            <option value="Other">Other</option>
+            <option value="">{userT('Select Permission Reason')}</option>
+            <option value="Personal Appointment">{userT('Personal Appointment')}</option>
+            <option value="Medical Visit">{userT('Medical Visit / Clinical')}</option>
+            <option value="Official Duty Transfer">{userT('Official Duty Transfer')}</option>
+            <option value="Field Logistics Emergency">{userT('Field Logistics Emergency')}</option>
+            <option value="Other">{userT('Other')}</option>
           </Select>
 
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Start Date / Time"
+              label={userT('Start Date / Time')}
               type="datetime-local"
               value={newPermission.startDate}
               onChange={(e) => {
@@ -536,7 +572,7 @@ export default function PermissionManagement({
             />
 
             <Input
-              label="End Date / Time"
+              label={userT('End Date / Time')}
               type="datetime-local"
               value={newPermission.endDate}
               onChange={(e) => {
@@ -549,13 +585,13 @@ export default function PermissionManagement({
           </div>
 
           <Textarea
-            label="Reason Details"
+            label={userT('Reason Details')}
             value={newPermission.reason}
             onChange={(e) => {
               setNewPermission(prev => ({ ...prev, reason: e.target.value }));
               if (errors.reason) setErrors(prev => ({ ...prev, reason: '' }));
             }}
-            placeholder="Explain why short-term leave is needed..."
+            placeholder={userT('Explain why short-term leave is needed...')}
             rows={3}
             required
             error={errors.reason}
@@ -567,14 +603,14 @@ export default function PermissionManagement({
               variant="outline"
               onClick={() => setShowModal(false)}
             >
-              Cancel
+              {userT('Cancel')}
             </Button>
             <Button
               type="submit"
               variant="primary"
               loading={isSubmitting}
             >
-              Submit Request
+              {userT('Submit Request')}
             </Button>
           </div>
         </form>

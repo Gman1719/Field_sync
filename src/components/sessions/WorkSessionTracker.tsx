@@ -17,13 +17,13 @@ import {
   Timer,
   ChevronDown,
   ChevronUp,
-  RotateCcw,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { offlineDb } from '../../db/offlineDb';
 import { useScreenTime, type ScreenTimeHookResult } from '../../hooks/useScreenTime';
 import { getZonedTimeComponents } from '../../config/workingHours';
 import type { DailyScreenTime, WorkVerification } from '../../types/index';
+import { useUserLanguage } from '../../context/UserLanguageContext';
 
 interface WorkSessionTrackerProps {
   user: any;
@@ -31,6 +31,7 @@ interface WorkSessionTrackerProps {
 }
 
 export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }: WorkSessionTrackerProps) {
+  const { userT } = useUserLanguage();
   const internalInfo = useScreenTime(passedInfo ? null : user);
   const screenTime = passedInfo || internalInfo;
 
@@ -116,16 +117,6 @@ export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }:
     }
   };
 
-  const handleResetSession = async () => {
-    if (!screenTime.resetSessionForTesting) return;
-    try {
-      await screenTime.resetSessionForTesting();
-      toast.success('Work session reset! Enforced session start is now triggered.');
-      await loadHistory();
-    } catch (e) {
-      toast.error('Failed to reset session');
-    }
-  };
 
   useEffect(() => {
     const handleReset = () => {
@@ -145,9 +136,6 @@ export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }:
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-xs">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-[#3B82F6] border border-blue-200 dark:border-blue-900/40">
-              Field Officer Workstation
-            </span>
             <span
               className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${
                 isOnline
@@ -156,15 +144,15 @@ export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }:
               }`}
             >
               {isOnline ? <Wifi className="w-3 h-3" /> : <WifiOff className="w-3 h-3" />}
-              {isOnline ? 'Online' : 'Offline (Saved Locally)'}
+              {isOnline ? userT('Online') : userT('Offline (Saved Locally)')}
             </span>
           </div>
 
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white mt-2">
-            Work Session & Screen Time
+            {userT('Work Session & Screen Time')}
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            Official Work Hours: 08:30 – 17:30 (Lunch: 12:30 – 13:30)
+            {userT('Official Work Hours: 08:30 – 17:30 (Lunch: 12:30 – 13:30)')}
           </p>
         </div>
 
@@ -172,7 +160,7 @@ export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }:
         <div className="flex items-center gap-3">
           <div className="flex flex-col items-end">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-              Session Status
+              {userT('Session Status')}
             </span>
             <span
               className={`text-sm font-semibold flex items-center gap-1.5 ${
@@ -197,29 +185,18 @@ export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }:
                 }`}
               />
               {trackingStatus === 'TRACKING'
-                ? 'Actively Counting'
+                ? userT('Actively Counting')
                 : trackingStatus === 'FINALIZED'
-                ? 'Session Finalized'
+                ? userT('Session Finalized')
                 : trackingStatus === 'VERIFICATION_PENDING'
-                ? 'Verification Active'
+                ? userT('Verification Active')
                 : isSessionActive
-                ? (!isTabActive ? 'Paused (Page Inactive/Minimized)' : isLunch ? 'Paused (Lunch Break)' : 'Paused')
-                : 'Not Started'}
+                ? (!isTabActive ? userT('Paused (Page Inactive/Minimized)') : isLunch ? userT('Paused (Lunch Break)') : userT('Paused'))
+                : userT('Not Started')}
             </span>
           </div>
 
-          {/* Test / Reset Button */}
-          {screenTime.resetSessionForTesting && (
-            <button
-              type="button"
-              onClick={handleResetSession}
-              title="Reset today's session to simulate and test first-time login enforcement"
-              className="px-3 py-1.5 rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/50 text-rose-700 dark:text-rose-300 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span>Reset Session (Test)</span>
-            </button>
-          )}
+
         </div>
       </div>
 
@@ -232,24 +209,23 @@ export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }:
           </div>
 
           <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
-            {trackingStatus === 'FINALIZED' ? 'Ready to start a new work session?' : "Ready to start today's work session?"}
+            {trackingStatus === 'FINALIZED' ? userT('Ready to start a new work session?') : userT("Ready to start today's work session?")}
           </h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto mt-2">
-            Click Start Work Session below. Screen time counts continuously while you remain on the
-            FieldSync page and automatically pauses if you minimize or switch tabs.
+            {userT('Click Start Work Session below. Screen time counts continuously while you remain on the FieldSync page and automatically pauses if you minimize or switch tabs.')}
           </p>
 
           <div className="my-6 inline-flex flex-col sm:flex-row items-center gap-3 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300">
             <div className="flex items-center gap-2">
               <Clock className="w-4 h-4 text-blue-500" />
               <span>
-                <strong>Official Work Period:</strong> 08:30 – 17:30
+                <strong>{userT('Official Work Period:')}</strong> 08:30 – 17:30
               </span>
             </div>
             <span className="hidden sm:inline text-slate-300 dark:text-slate-600">•</span>
             <div>
               <span>
-                <strong>Lunch Break:</strong> 12:30 – 13:30 (Paused)
+                <strong>{userT('Lunch Break:')}</strong> 12:30 – 13:30 ({userT('Paused')})
               </span>
             </div>
           </div>
@@ -261,7 +237,7 @@ export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }:
               disabled={isStarting}
               className="py-3 px-8 rounded-xl font-semibold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 dark:bg-[#3B82F6] dark:hover:bg-blue-500 shadow-lg shadow-blue-500/25 transition-all text-sm sm:text-base cursor-pointer disabled:opacity-50"
             >
-              {isStarting ? 'Starting Session...' : (trackingStatus === 'FINALIZED' ? 'Start New Work Session' : 'Start Work Session')}
+              {isStarting ? userT('Starting Session...') : (trackingStatus === 'FINALIZED' ? userT('Start New Work Session') : userT('Start Work Session'))}
             </button>
           </div>
         </div>
@@ -272,7 +248,7 @@ export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }:
           <div className="p-6 rounded-2xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-xs flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                Today's Cumulative Screen Time
+                {userT("Today's Cumulative Screen Time")}
               </span>
               <Clock className="w-4 h-4 text-blue-500" />
             </div>
@@ -282,7 +258,7 @@ export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }:
                 {screenTimeDisplay}
               </div>
               <div className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1">
-                {screenTimeShort} total active usage
+                {screenTimeShort} {userT('total active usage')}
               </div>
             </div>
 
@@ -303,7 +279,7 @@ export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }:
           <div className="p-6 rounded-2xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-xs flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                Work Session
+                {userT('Work Session')}
               </span>
               <Timer className="w-4 h-4 text-emerald-500" />
             </div>
@@ -320,25 +296,16 @@ export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }:
                   }`}
                 />
                 <span className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
-                  {trackingStatus === 'FINALIZED' ? 'Finalized' : 'Active'}
+                  {trackingStatus === 'FINALIZED' ? userT('Finalized') : userT('Active')}
                 </span>
               </div>
               <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                {formattedStartTime ? `Started at ${formattedStartTime}` : 'Started Today'}
+                {formattedStartTime ? `${userT('Started at')} ${formattedStartTime}` : userT('Started Today')}
               </div>
             </div>
 
-            <div className="text-[11px] text-slate-400 dark:text-slate-500 border-t border-slate-100 dark:border-[#202431] pt-3 flex items-center justify-between">
-              <span>Finalizes automatically when you submit your Daily Work Report</span>
-              {isSessionActive && screenTime.resetSessionForTesting && (
-                <button
-                  type="button"
-                  onClick={handleResetSession}
-                  className="text-rose-600 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 font-semibold cursor-pointer underline text-[11px]"
-                >
-                  Reset for testing
-                </button>
-              )}
+            <div className="text-[11px] text-slate-400 dark:text-slate-500 border-t border-slate-100 dark:border-[#202431] pt-3">
+              <span>{userT('Finalizes automatically when you submit your Daily Work Report')}</span>
             </div>
           </div>
 
@@ -346,7 +313,7 @@ export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }:
           <div className="p-6 rounded-2xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-xs flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                Last Verification
+                {userT('Last Verification')}
               </span>
               <ShieldCheck className="w-4 h-4 text-purple-500" />
             </div>
@@ -362,7 +329,7 @@ export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }:
                           : 'text-amber-600 dark:text-amber-400'
                       }`}
                     >
-                      {lastVerification.status.includes('CONFIRMED') ? 'Confirmed' : 'Missed'}
+                      {lastVerification.status.includes('CONFIRMED') ? userT('Confirmed') : userT('Missed')}
                     </span>
                     {lastVerification.responseTimeSeconds !== null && lastVerification.responseTimeSeconds !== undefined && (
                       <span className="text-xs font-mono text-slate-400 dark:text-slate-500">
@@ -379,13 +346,13 @@ export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }:
                 </div>
               ) : (
                 <div className="text-sm text-slate-500 dark:text-slate-400">
-                  No verification checks yet today
+                  {userT('No verification checks yet today')}
                 </div>
               )}
             </div>
 
             <div className="text-[11px] text-slate-400 dark:text-slate-500 border-t border-slate-100 dark:border-[#202431] pt-3">
-              Official random checks occur during work hours
+              {userT('Official random checks occur during work hours')}
             </div>
           </div>
         </div>
@@ -400,7 +367,7 @@ export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }:
           <div className="flex items-center gap-2">
             <History className="w-5 h-5 text-slate-400" />
             <h3 className="font-semibold text-sm sm:text-base text-slate-900 dark:text-white">
-              My Screen Time & Verification History
+              {userT('My Screen Time & Verification History')}
             </h3>
           </div>
           <button className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
@@ -421,7 +388,7 @@ export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }:
                     : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
                 }`}
               >
-                Screen Time Records ({pastScreenTimes.length})
+                {userT('Screen Time Records')} ({pastScreenTimes.length})
               </button>
               <button
                 type="button"
@@ -432,7 +399,7 @@ export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }:
                     : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
                 }`}
               >
-                Verification Events ({pastVerifications.length})
+                {userT('Verification Events')} ({pastVerifications.length})
               </button>
             </div>
 
@@ -441,17 +408,17 @@ export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }:
               <div className="overflow-x-auto">
                 {pastScreenTimes.length === 0 ? (
                   <div className="py-8 text-center text-xs text-slate-400 dark:text-slate-500">
-                    No historical screen-time records recorded yet.
+                    {userT('No historical screen-time records recorded yet.')}
                   </div>
                 ) : (
                   <table className="w-full text-xs text-left">
                     <thead>
                       <tr className="border-b border-slate-100 dark:border-slate-700 text-slate-400 dark:text-slate-500">
-                        <th className="py-2 px-3 font-semibold">Date</th>
-                        <th className="py-2 px-3 font-semibold">Active Screen Time</th>
-                        <th className="py-2 px-3 font-semibold">Status</th>
-                        <th className="py-2 px-3 font-semibold">Finalized</th>
-                        <th className="py-2 px-3 font-semibold">Sync</th>
+                        <th className="py-2 px-3 font-semibold">{userT('Date')}</th>
+                        <th className="py-2 px-3 font-semibold">{userT('Active Screen Time')}</th>
+                        <th className="py-2 px-3 font-semibold">{userT('Status')}</th>
+                        <th className="py-2 px-3 font-semibold">{userT('Finalized')}</th>
+                        <th className="py-2 px-3 font-semibold">{userT('Sync')}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
@@ -476,7 +443,7 @@ export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }:
                                     : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400'
                                 }`}
                               >
-                                {st.status}
+                                {userT(st.status)}
                               </span>
                             </td>
                             <td className="py-2.5 px-3 text-slate-500 dark:text-slate-400">
@@ -512,17 +479,17 @@ export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }:
               <div className="overflow-x-auto">
                 {pastVerifications.length === 0 ? (
                   <div className="py-8 text-center text-xs text-slate-400 dark:text-slate-500">
-                    No verification records available.
+                    {userT('No verification records available.')}
                   </div>
                 ) : (
                   <table className="w-full text-xs text-left">
                     <thead>
                       <tr className="border-b border-slate-100 dark:border-slate-700 text-slate-400 dark:text-slate-500">
-                        <th className="py-2 px-3 font-semibold">Scheduled Time</th>
-                        <th className="py-2 px-3 font-semibold">Status</th>
-                        <th className="py-2 px-3 font-semibold">Response Window</th>
-                        <th className="py-2 px-3 font-semibold">Connection</th>
-                        <th className="py-2 px-3 font-semibold">Sync</th>
+                        <th className="py-2 px-3 font-semibold">{userT('Scheduled Time')}</th>
+                        <th className="py-2 px-3 font-semibold">{userT('Status')}</th>
+                        <th className="py-2 px-3 font-semibold">{userT('Response Window')}</th>
+                        <th className="py-2 px-3 font-semibold">{userT('Connection')}</th>
+                        <th className="py-2 px-3 font-semibold">{userT('Sync')}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
@@ -545,7 +512,7 @@ export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }:
                                   : 'bg-amber-50 text-amber-600 dark:bg-amber-950/60 dark:text-amber-400'
                               }`}
                             >
-                              {v.status}
+                              {userT(v.status)}
                             </span>
                           </td>
                           <td className="py-2.5 px-3 text-slate-600 dark:text-slate-300 font-mono">

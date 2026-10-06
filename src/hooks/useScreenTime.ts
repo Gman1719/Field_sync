@@ -6,6 +6,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { offlineDb } from '../db/offlineDb';
 import { API_BASE } from '../config/api';
+import ActivityLogger from '../services/activityLogger';
 import {
   evaluateWorkingHours,
   getZonedTimeComponents,
@@ -13,6 +14,7 @@ import {
 } from '../config/workingHours';
 import { db } from '../services/database';
 import { timeStringToMinutes } from '../utils/requestValidation';
+import { generateSessionId } from '../utils/idGenerator';
 import type { ScreenTimeStatus, DailyScreenTime, WorkSession } from '../types/index';
 
 export interface ScreenTimeHookResult {
@@ -446,7 +448,7 @@ export function useScreenTime(user: any): ScreenTimeHookResult {
 
     const { dateStr } = getZonedTimeComponents();
     const nowIso = new Date().toISOString();
-    const sessionId = `ws_${officerId}_${dateStr}_${Date.now()}`;
+    const sessionId = generateSessionId();
     const screenTimeId = `st_${officerId}_${dateStr}`;
 
     try {
@@ -490,6 +492,20 @@ export function useScreenTime(user: any): ScreenTimeHookResult {
       setTrackingStatus('TRACKING');
       statusRef.current = 'TRACKING';
       setStatusMessage('Work Session Active');
+
+      // Record Activity Log
+      ActivityLogger.log(
+        'WORK_SESSION_STARTED',
+        `Started daily work session (${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})`,
+        {
+          officerId,
+          officerName: user?.fullName || user?.name || 'Field Officer',
+          metadata: {
+            sessionId,
+            reportDate: dateStr,
+          },
+        }
+      ).catch(() => {});
 
       // 3. Notify server if online
       if (navigator.onLine) {
@@ -550,6 +566,19 @@ export function useScreenTime(user: any): ScreenTimeHookResult {
       setStatusMessage('Session Finalized');
       setScreenTimeCounter(0);
       counterRef.current = 0;
+
+      // Record Activity Log
+      ActivityLogger.log(
+        'WORK_SESSION_ENDED',
+        `Finalized daily work session for ${dateStr}`,
+        {
+          officerId,
+          officerName: user?.fullName || user?.name || 'Field Officer',
+          metadata: {
+            reportDate: dateStr,
+          },
+        }
+      ).catch(() => {});
     } catch (e) {
       console.error('Failed to finalize work session:', e);
     }

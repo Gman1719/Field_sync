@@ -3,6 +3,7 @@ import { Briefcase, User, Calendar, MapPin, Target, X, Check } from 'lucide-reac
 import toast from 'react-hot-toast';
 import { offlineDb } from '../../db/offlineDb';
 import { API_BASE } from '../../config/api';
+import ActivityLogger from '../../services/activityLogger';
 
 import Button from '../ui/Button';
 import Input from '../ui/Input';
@@ -201,6 +202,25 @@ export default function CreateAssignmentModal({
         startDate: created.startDate,
         endDate: created.endDate,
       });
+
+      // Record in Activity Log
+      const assignedOfficer = officers.find(o => o.id === created.assignedOfficerId);
+      await ActivityLogger.log(
+        'TASK_ASSIGNED',
+        `Assigned task "${created.title}" to ${assignedOfficer?.name || 'Field Officer'} (Target: ${created.targetCount})`,
+        {
+          officerId: currentUser?.id || created.assignedSupervisorId || 'supervisor',
+          officerName: currentUser?.name || currentUser?.fullName || 'Supervisor',
+          assignmentId: created.id,
+          relatedRecordId: created.id,
+          metadata: {
+            targetOfficerId: created.assignedOfficerId,
+            targetOfficerName: assignedOfficer?.name,
+            targetCount: created.targetCount,
+            deadline: created.endDate,
+          },
+        }
+      );
 
       toast.success('Assignment created & deployed to Field Officer!');
       if (onAssignmentCreated) {

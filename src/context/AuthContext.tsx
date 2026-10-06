@@ -76,6 +76,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
               setUser(liveUser);
               setToken(storedToken);
               setMustChangePassword(Boolean(liveUser.mustChangePassword));
+              localStorage.setItem('fieldsync_user', JSON.stringify(liveUser));
 
               await db.users.put(liveUser);
               await db.auth.put({ id: 'session', userId: liveUser.id, token: storedToken });
@@ -107,6 +108,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             }
 
             setUser(foundUser);
+            localStorage.setItem('fieldsync_user', JSON.stringify(foundUser));
             if (session.token) {
               setToken(session.token);
               localStorage.setItem('fieldsync_token', session.token);
@@ -154,6 +156,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setUser(authenticatedUser);
         setToken(authToken);
         localStorage.setItem('fieldsync_token', authToken);
+        localStorage.setItem('fieldsync_user', JSON.stringify(authenticatedUser));
 
         await db.users.put(authenticatedUser);
         await db.auth.put({ id: 'session', userId: authenticatedUser.id, token: authToken });
@@ -198,6 +201,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
 
         setUser(foundUser);
+        localStorage.setItem('fieldsync_user', JSON.stringify(foundUser));
         await db.auth.put({ id: 'session', userId: foundUser.id });
         setMustChangePassword(Boolean(foundUser.mustChangePassword));
 
@@ -244,6 +248,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setToken(null);
     setMustChangePassword(false);
     localStorage.removeItem('fieldsync_token');
+    localStorage.removeItem('fieldsync_user');
     await db.auth.delete('session');
   }, [token, user]);
 

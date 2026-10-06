@@ -12,6 +12,7 @@ import { API_BASE } from '../../config/api';
 import ActivityLogger from '../../services/activityLogger';
 import SessionTracker from '../../services/sessionTracker';
 import { getZonedTimeComponents } from '../../config/workingHours';
+import { generateReportId, generateId, formatDisplayUserId } from '../../utils/idGenerator';
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
 import Button from '../ui/Button';
@@ -396,7 +397,7 @@ export default function DailyWorkReportView({
         urgentReason: form.urgentReason.trim(),
       };
 
-      const reportId = todayReport?.id || crypto.randomUUID();
+      const reportId = todayReport?.id || generateReportId();
 
       const reportPayload = {
         id: reportId,
@@ -428,20 +429,36 @@ export default function DailyWorkReportView({
       await offlineDb.dailyWorkReports.put(reportPayload as any);
       window.dispatchEvent(new CustomEvent('daily-report-submitted', { detail: reportPayload }));
 
+      // Clear any pending daily report reminder notification
+      try {
+        const reminderId = `alert_report_${todayStr}_${user?.id}`;
+        if (offlineDb.notifications) {
+          await offlineDb.notifications.update(reminderId, { isRead: true });
+        }
+      } catch (_) {}
+      window.dispatchEvent(new CustomEvent('notifications-updated'));
+
       // Step 4: Record in local Activity Log
-      await (ActivityLogger.log as any)(
+      await ActivityLogger.log(
         'DAILY_REPORT_SUBMITTED',
         `Daily work report submitted for ${todayStr} (Citizens: ${localCitizenCount}, Screen time: ${formatTime(finalScreenTime)})`,
         {
-          reportId,
-          isUrgent: reportPayload.isUrgent,
-          screenTimeSeconds: finalScreenTime,
+          officerId: user?.id || user?.employeeId || 'officer',
+          officerName: user?.fullName || user?.name || 'Field Officer',
+          woredaName: user?.woreda?.name || user?.region,
+          relatedRecordId: reportId,
+          metadata: {
+            reportId,
+            isUrgent: reportPayload.isUrgent,
+            screenTimeSeconds: finalScreenTime,
+            citizensCount: localCitizenCount,
+          },
         }
       );
 
       // Step 5: Enqueue into offline sync queue
       await offlineDb.syncQueue.put({
-        id: crypto.randomUUID(),
+        id: generateId('syn'),
         entityType: 'daily_report',
         entityId: reportId,
         payload: reportPayload,

@@ -9,7 +9,6 @@ import {
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { useUserLanguage } from '../../context/UserLanguageContext';
-import LanguageSelector from '../common/LanguageSelector';
 import { API_BASE } from '../../config/api';
 import heroImage from '../../assets/field-officer-hero.jpg';
 
@@ -74,84 +73,81 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0B0F17] text-[#0F172A] dark:text-[#F8FAFC] font-sans antialiased selection:bg-[#2563EB] selection:text-white flex flex-col transition-colors duration-200">
+    <div className="min-h-screen bg-[#F8FAFC] dark:bg-slate-900 text-[#0F172A] dark:text-[#F8FAFC] font-sans antialiased selection:bg-[#2563EB] selection:text-white flex flex-col transition-colors duration-200">
       
       {/* ============================================================== */}
       {/* 1. TOP NAVIGATION BAR                                          */}
       {/* ============================================================== */}
-      <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#111827]/95 backdrop-blur-md border-b border-[#E2E8F0] dark:border-[#1F2937] shadow-xs transition-colors duration-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <header className="sticky top-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 shadow-2xs transition-colors duration-200">
+        <div className="max-w-[1440px] 2xl:max-w-[1560px] mx-auto px-4 sm:px-6 lg:px-8 h-18 sm:h-20 flex items-center justify-between gap-4">
           
-          {/* Logo & Platform Name */}
-          <div className="flex items-center gap-3.5">
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-[#2563EB] to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-600/25">
-              <Radio className="w-5 h-5 animate-pulse" />
+          {/* Left: Brand Identity */}
+          <a href="#" className="flex items-center gap-3 shrink-0 group focus:outline-none">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#2563EB] to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-600/20 group-hover:scale-105 transition-transform duration-200 ring-1 ring-blue-500/20">
+              <Radio className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-2xl font-black tracking-tight text-[#0F172A] dark:text-[#F8FAFC] block">
+              <span className="text-xl sm:text-2xl font-black tracking-tight text-[#0F172A] dark:text-white block">
                 FieldSync
               </span>
-              <p className="text-xs text-[#475569] dark:text-[#94A3B8] font-medium hidden sm:block">
-                Connecting Field Teams to the National Registry
-              </p>
             </div>
-          </div>
+          </a>
 
-          {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-8 text-[15px] font-semibold text-[#475569] dark:text-slate-300">
-            <a href="#built-for-field" className="hover:text-[#2563EB] dark:hover:text-[#60A5FA] transition-colors">
-              Features
-            </a>
-            <a href="#how-it-works" className="hover:text-[#2563EB] dark:hover:text-[#60A5FA] transition-colors">
-              How It Works
-            </a>
-            <a href="#field-conditions" className="hover:text-[#2563EB] dark:hover:text-[#60A5FA] transition-colors">
-              Field Conditions
-            </a>
-            <a href="#roles" className="hover:text-[#2563EB] dark:hover:text-[#60A5FA] transition-colors">
-              User Portals
-            </a>
-            <a href="#operations" className="hover:text-[#2563EB] dark:hover:text-[#60A5FA] transition-colors">
-              Operations
-            </a>
-            <a href="#security" className="hover:text-[#2563EB] dark:hover:text-[#60A5FA] transition-colors">
-              Security
-            </a>
+          {/* Center: Desktop Navigation Links */}
+          <nav className="hidden lg:flex items-center gap-1 xl:gap-2">
+            {[
+              { href: '#built-for-field', label: 'Features' },
+              { href: '#how-it-works', label: 'How It Works' },
+              { href: '#field-conditions', label: 'Field Conditions' },
+              { href: '#roles', label: 'User Portals' },
+              { href: '#operations', label: 'Operations' },
+              { href: '#security', label: 'Security' },
+            ].map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className="px-3 py-1.5 xl:px-3.5 xl:py-2 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/80 dark:hover:bg-slate-800/70 transition-all duration-150"
+              >
+                {link.label}
+              </a>
+            ))}
           </nav>
 
-          {/* Actions: Language Selector, Theme Toggle & Login */}
-          <div className="flex items-center gap-3">
-            {/* Language Selector */}
-            <LanguageSelector
-              buttonClassName="p-2.5 rounded-xl text-[#475569] dark:text-slate-300 hover:text-[#0F172A] dark:hover:text-white bg-[#F1F5F9] dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 transition-all cursor-pointer flex items-center gap-1.5 text-xs font-semibold"
-            />
-
+          {/* Right: Actions (Theme Toggle, Divider & Login Button) */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {/* Theme Toggle Button */}
             <button
+              type="button"
               onClick={toggleTheme}
               aria-label="Toggle color theme"
               title={theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
-              className="p-2.5 rounded-xl text-[#475569] dark:text-slate-300 hover:text-[#0F172A] dark:hover:text-white bg-[#F1F5F9] dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 transition-all cursor-pointer"
+              className="p-2 sm:p-2.5 rounded-xl text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors cursor-pointer"
             >
               {theme === 'dark' ? (
                 <Sun className="w-4 h-4 text-amber-400" />
               ) : (
-                <Moon className="w-4 h-4 text-slate-600" />
+                <Moon className="w-4 h-4 text-slate-600 dark:text-slate-300" />
               )}
             </button>
 
-            {/* Login Button with NO arrow icon */}
+            {/* Subtle Divider */}
+            <div className="h-5 w-px bg-slate-200 dark:bg-slate-700/80 hidden sm:block" />
+
+            {/* Login CTA Button */}
             <button
+              type="button"
               onClick={() => onGoToLogin()}
-              className="px-6 py-2.5 rounded-xl bg-[#2563EB] hover:bg-blue-700 active:bg-blue-800 text-white text-sm font-bold shadow-md shadow-blue-600/20 transition-all cursor-pointer"
+              className="px-5 sm:px-6 py-2.5 rounded-xl bg-[#2563EB] hover:bg-blue-700 active:bg-blue-800 text-white text-sm font-bold shadow-sm hover:shadow-md hover:shadow-blue-600/25 transition-all duration-150 cursor-pointer flex items-center gap-2"
             >
-              {userT('Login')}
+              <span>{userT('Login')}</span>
             </button>
 
             {/* Mobile Menu Button */}
             <button
+              type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-xl text-[#64748B] dark:text-[#94A3B8] hover:text-[#0F172A] dark:hover:text-white bg-[#F1F5F9] dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 cursor-pointer"
+              className="lg:hidden p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              aria-label="Toggle menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -160,49 +156,36 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
 
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-[#E2E8F0] dark:border-[#1F2937] bg-white dark:bg-[#111827] px-4 py-4 space-y-3">
-            <a
-              href="#built-for-field"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block text-sm font-semibold text-[#0F172A] dark:text-[#F8FAFC] py-1.5"
-            >
-              Features
-            </a>
-            <a
-              href="#how-it-works"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block text-sm font-semibold text-[#0F172A] dark:text-[#F8FAFC] py-1.5"
-            >
-              How It Works
-            </a>
-            <a
-              href="#field-conditions"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block text-sm font-semibold text-[#0F172A] dark:text-[#F8FAFC] py-1.5"
-            >
-              Field Conditions
-            </a>
-            <a
-              href="#roles"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block text-sm font-semibold text-[#0F172A] dark:text-[#F8FAFC] py-1.5"
-            >
-              User Portals
-            </a>
-            <a
-              href="#operations"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block text-sm font-semibold text-[#0F172A] dark:text-[#F8FAFC] py-1.5"
-            >
-              Operations
-            </a>
-            <a
-              href="#security"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block text-sm font-semibold text-[#0F172A] dark:text-[#F8FAFC] py-1.5"
-            >
-              Security
-            </a>
+          <div className="lg:hidden border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl px-4 py-4 space-y-1.5 animate-in slide-in-from-top-2 duration-150">
+            {[
+              { href: '#built-for-field', label: 'Features' },
+              { href: '#how-it-works', label: 'How It Works' },
+              { href: '#field-conditions', label: 'Field Conditions' },
+              { href: '#roles', label: 'User Portals' },
+              { href: '#operations', label: 'Operations' },
+              { href: '#security', label: 'Security' },
+            ].map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-[#2563EB] dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors"
+              >
+                {link.label}
+              </a>
+            ))}
+            <div className="pt-2 border-t border-slate-100 dark:border-slate-800 mt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onGoToLogin();
+                }}
+                className="w-full py-2.5 px-4 rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white text-sm font-bold text-center shadow-xs"
+              >
+                {userT('Login')}
+              </button>
+            </div>
           </div>
         )}
       </header>
@@ -210,7 +193,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
       {/* ============================================================== */}
       {/* 2. HERO SECTION                                                */}
       {/* ============================================================== */}
-      <section className="relative pt-16 pb-20 lg:pt-24 lg:pb-28 bg-[#F8FAFC] dark:bg-[#0B0F17] border-b border-[#E2E8F0] dark:border-[#1F2937] overflow-hidden transition-colors duration-200">
+      <section className="relative pt-16 pb-20 lg:pt-24 lg:pb-28 bg-[#F8FAFC] dark:bg-slate-900 border-b border-[#E2E8F0] dark:border-slate-800 overflow-hidden transition-colors duration-200">
         
         {/* Subtle Engineering Dot Grid */}
         <div className="absolute inset-0 bg-[radial-gradient(#CBD5E1_1px,transparent_1px)] dark:bg-[radial-gradient(#1E293B_1px,transparent_1px)] [background-size:24px_24px] opacity-40 dark:opacity-25 pointer-events-none" />
@@ -228,7 +211,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
               <div className="absolute -inset-2 bg-gradient-to-r from-blue-600/20 via-indigo-600/20 to-teal-500/20 rounded-3xl blur-2xl opacity-60 dark:opacity-40 pointer-events-none" />
               
               {/* Image Container */}
-              <div className="relative rounded-2xl lg:rounded-3xl overflow-hidden border border-[#E2E8F0] dark:border-[#1F2937] shadow-xl hover:shadow-2xl transition-all duration-300">
+              <div className="relative rounded-2xl lg:rounded-3xl overflow-hidden border border-[#E2E8F0] dark:border-slate-800 shadow-xl hover:shadow-2xl transition-all duration-300">
                 <img
                   src={heroImage}
                   alt="FieldSync Officer performing offline citizen registration in remote Ethiopia"
@@ -277,7 +260,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
       {/* ============================================================== */}
       {/* 3. BUILT FOR THE FIELD (4 Key Pillars)                         */}
       {/* ============================================================== */}
-      <section id="built-for-field" className="py-24 bg-white dark:bg-[#111827] border-b border-[#E2E8F0] dark:border-[#1F2937] transition-colors duration-200">
+      <section id="built-for-field" className="py-24 bg-white dark:bg-slate-900 border-b border-[#E2E8F0] dark:border-slate-800 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="text-center max-w-3xl mx-auto mb-16">
@@ -292,7 +275,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             
             {/* Feature 1: Offline-First Mode */}
-            <div className="p-6 sm:p-7 rounded-2xl bg-[#F8FAFC] dark:bg-[#0B0F17] border border-[#E2E8F0] dark:border-[#1F2937] shadow-xs hover:shadow-lg transition-all duration-200 flex flex-col justify-between">
+            <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200 flex flex-col justify-between">
               <div>
                 <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/80 text-[#2563EB] dark:text-blue-400 flex items-center justify-center mb-5 shadow-xs">
                   <WifiOff className="w-6 h-6" />
@@ -307,7 +290,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
             </div>
 
             {/* Feature 2: Secure Local Storage */}
-            <div className="p-6 sm:p-7 rounded-2xl bg-[#F8FAFC] dark:bg-[#0B0F17] border border-[#E2E8F0] dark:border-[#1F2937] shadow-xs hover:shadow-lg transition-all duration-200 flex flex-col justify-between">
+            <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200 flex flex-col justify-between">
               <div>
                 <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/80 text-[#16A34A] dark:text-emerald-400 flex items-center justify-center mb-5 shadow-xs">
                   <Database className="w-6 h-6" />
@@ -322,7 +305,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
             </div>
 
             {/* Feature 3: Duplicate Prevention */}
-            <div className="p-6 sm:p-7 rounded-2xl bg-[#F8FAFC] dark:bg-[#0B0F17] border border-[#E2E8F0] dark:border-[#1F2937] shadow-xs hover:shadow-lg transition-all duration-200 flex flex-col justify-between">
+            <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200 flex flex-col justify-between">
               <div>
                 <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-5 shadow-xs">
                   <ShieldCheck className="w-6 h-6" />
@@ -337,7 +320,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
             </div>
 
             {/* Feature 4: Automatic Synchronization */}
-            <div className="p-6 sm:p-7 rounded-2xl bg-[#F8FAFC] dark:bg-[#0B0F17] border border-[#E2E8F0] dark:border-[#1F2937] shadow-xs hover:shadow-lg transition-all duration-200 flex flex-col justify-between">
+            <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200 flex flex-col justify-between">
               <div>
                 <div className="w-12 h-12 rounded-xl bg-teal-50 dark:bg-teal-950/80 text-[#0F766E] dark:text-[#2DD4BF] flex items-center justify-center mb-5 shadow-xs">
                   <RefreshCw className="w-6 h-6" />
@@ -354,11 +337,10 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
           </div>
         </div>
       </section>
-
       {/* ============================================================== */}
       {/* 4. HOW FIELDSYNC WORKS (Workflow Steps)                        */}
       {/* ============================================================== */}
-      <section id="how-it-works" className="py-20 bg-[#F8FAFC] dark:bg-[#0B0F17] border-b border-[#E2E8F0] dark:border-[#1F2937] transition-colors duration-200">
+      <section id="how-it-works" className="py-20 bg-[#F8FAFC] dark:bg-slate-900 border-b border-[#E2E8F0] dark:border-slate-800 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="text-center max-w-3xl mx-auto mb-16">
@@ -373,7 +355,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
             
             {/* Step 1: Register Offline */}
-            <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-[#111827] border border-[#E2E8F0] dark:border-[#1F2937] shadow-xs hover:shadow-lg transition-all duration-200">
+            <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200">
               <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/70 text-[#2563EB] dark:text-blue-400 flex items-center justify-center border border-blue-100 dark:border-blue-900/40 mb-4 shadow-2xs">
                 <WifiOff className="w-6 h-6" />
               </div>
@@ -386,7 +368,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
             </div>
 
             {/* Step 2: Store Securely */}
-            <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-[#111827] border border-[#E2E8F0] dark:border-[#1F2937] shadow-xs hover:shadow-lg transition-all duration-200">
+            <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200">
               <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/70 text-[#16A34A] dark:text-emerald-400 flex items-center justify-center border border-emerald-100 dark:border-emerald-900/40 mb-4 shadow-2xs">
                 <Database className="w-6 h-6" />
               </div>
@@ -399,7 +381,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
             </div>
 
             {/* Step 3: Sync Automatically */}
-            <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-[#111827] border border-[#E2E8F0] dark:border-[#1F2937] shadow-xs hover:shadow-lg transition-all duration-200">
+            <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200">
               <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 flex items-center justify-center border border-indigo-100 dark:border-indigo-900/40 mb-4 shadow-2xs">
                 <RefreshCw className="w-6 h-6" />
               </div>
@@ -412,7 +394,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
             </div>
 
             {/* Step 4: Verify & Monitor */}
-            <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-[#111827] border border-[#E2E8F0] dark:border-[#1F2937] shadow-xs hover:shadow-lg transition-all duration-200">
+            <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200">
               <div className="w-12 h-12 rounded-xl bg-teal-50 dark:bg-teal-950/70 text-[#0F766E] dark:text-[#2DD4BF] flex items-center justify-center border border-teal-100 dark:border-teal-900/40 mb-4 shadow-2xs">
                 <Activity className="w-6 h-6" />
               </div>
@@ -431,7 +413,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
       {/* ============================================================== */}
       {/* 5. BUILT FOR REAL FIELD CONDITIONS                             */}
       {/* ============================================================== */}
-      <section id="field-conditions" className="py-24 bg-white dark:bg-[#111827] border-b border-[#E2E8F0] dark:border-[#1F2937] transition-colors duration-200">
+      <section id="field-conditions" className="py-24 bg-white dark:bg-slate-900 border-b border-[#E2E8F0] dark:border-slate-800 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="text-center max-w-3xl mx-auto mb-16">
@@ -446,7 +428,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
             
             {/* Condition 1 */}
-            <div className="p-6 sm:p-7 rounded-2xl bg-[#F8FAFC] dark:bg-[#0B0F17] border border-[#E2E8F0] dark:border-[#1F2937] shadow-xs hover:shadow-lg transition-all duration-200 flex items-start gap-5">
+            <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200 flex items-start gap-5">
               <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/80 text-[#2563EB] dark:text-blue-400 flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
                 <WifiOff className="w-6 h-6" />
               </div>
@@ -461,7 +443,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
             </div>
 
             {/* Condition 2 */}
-            <div className="p-6 sm:p-7 rounded-2xl bg-[#F8FAFC] dark:bg-[#0B0F17] border border-[#E2E8F0] dark:border-[#1F2937] shadow-xs hover:shadow-lg transition-all duration-200 flex items-start gap-5">
+            <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200 flex items-start gap-5">
               <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/80 text-[#16A34A] dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
                 <ShieldCheck className="w-6 h-6" />
               </div>
@@ -476,7 +458,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
             </div>
 
             {/* Condition 3 */}
-            <div className="p-6 sm:p-7 rounded-2xl bg-[#F8FAFC] dark:bg-[#0B0F17] border border-[#E2E8F0] dark:border-[#1F2937] shadow-xs hover:shadow-lg transition-all duration-200 flex items-start gap-5">
+            <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200 flex items-start gap-5">
               <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
                 <Database className="w-6 h-6" />
               </div>
@@ -491,8 +473,8 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
             </div>
 
             {/* Condition 4 */}
-            <div className="p-6 sm:p-7 rounded-2xl bg-[#F8FAFC] dark:bg-[#0B0F17] border border-[#E2E8F0] dark:border-[#1F2937] shadow-xs hover:shadow-lg transition-all duration-200 flex items-start gap-5">
-              <div className="w-12 h-12 rounded-xl bg-teal-50 dark:bg-teal-950/80 text-[#0F766E] dark:text-[#2DD4BF] flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+            <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200 flex items-start gap-5">
+              <div className="w-12 h-12 rounded-xl bg-teal-50 dark:bg-teal-950/80 text-[#0F766E] dark:text-blue-400 flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
                 <Activity className="w-6 h-6" />
               </div>
               <div>
@@ -512,7 +494,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
       {/* ============================================================== */}
       {/* 6. ONE PLATFORM. THREE ROLES.                                  */}
       {/* ============================================================== */}
-      <section id="roles" className="py-20 bg-[#F8FAFC] dark:bg-[#0B0F17] border-b border-[#E2E8F0] dark:border-[#1F2937] transition-colors duration-200">
+      <section id="roles" className="py-20 bg-[#F8FAFC] dark:bg-slate-900 border-b border-[#E2E8F0] dark:border-slate-800 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="text-center max-w-3xl mx-auto mb-16">
@@ -527,7 +509,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
             {/* Role 1: Field Officer */}
-            <div className="bg-white dark:bg-[#111827] rounded-2xl border border-[#E2E8F0] dark:border-[#1F2937] p-6 sm:p-7 flex flex-col justify-between shadow-xs hover:shadow-lg transition-all duration-200">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl border border-[#E2E8F0] dark:border-slate-700 p-6 sm:p-7 flex flex-col justify-between shadow-xs hover:shadow-lg transition-all duration-200">
               <div>
                 <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/80 text-[#2563EB] dark:text-blue-400 flex items-center justify-center mb-4 shadow-xs">
                   <Smartphone className="w-6 h-6" />
@@ -569,7 +551,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
             </div>
 
             {/* Role 2: Zonal Supervisor */}
-            <div className="bg-white dark:bg-[#111827] rounded-2xl border border-[#E2E8F0] dark:border-[#1F2937] p-6 sm:p-7 flex flex-col justify-between shadow-xs hover:shadow-lg transition-all duration-200">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl border border-[#E2E8F0] dark:border-slate-700 p-6 sm:p-7 flex flex-col justify-between shadow-xs hover:shadow-lg transition-all duration-200">
               <div>
                 <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-4 shadow-xs">
                   <Building2 className="w-6 h-6" />
@@ -611,7 +593,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
             </div>
 
             {/* Role 3: National Manager */}
-            <div className="bg-white dark:bg-[#111827] rounded-2xl border border-[#E2E8F0] dark:border-[#1F2937] p-6 sm:p-7 flex flex-col justify-between shadow-xs hover:shadow-lg transition-all duration-200">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl border border-[#E2E8F0] dark:border-slate-700 p-6 sm:p-7 flex flex-col justify-between shadow-xs hover:shadow-lg transition-all duration-200">
               <div>
                 <div className="w-12 h-12 rounded-xl bg-teal-50 dark:bg-teal-950/80 text-[#0F766E] dark:text-[#2DD4BF] flex items-center justify-center mb-4 shadow-xs">
                   <BarChart3 className="w-6 h-6" />
@@ -659,7 +641,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
       {/* ============================================================== */}
       {/* 7. FIELD OPERATIONS ACROSS ETHIOPIA                            */}
       {/* ============================================================== */}
-      <section id="operations" className="py-20 sm:py-24 bg-white dark:bg-[#111827] border-b border-[#E2E8F0] dark:border-[#1F2937] transition-colors duration-200">
+      <section id="operations" className="py-20 sm:py-24 bg-white dark:bg-slate-900 border-b border-[#E2E8F0] dark:border-slate-800 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="text-center max-w-3xl mx-auto mb-14">
@@ -674,7 +656,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 sm:gap-6">
             
             {/* Stat 1: 14 Regions */}
-            <div className="p-6 sm:p-7 rounded-2xl bg-[#F8FAFC] dark:bg-[#0B0F17] border border-[#E2E8F0] dark:border-[#1F2937] shadow-xs hover:shadow-lg transition-all duration-200 text-center">
+            <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200 text-center">
               <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/80 text-[#2563EB] dark:text-blue-400 flex items-center justify-center mx-auto mb-4 shadow-xs">
                 <Globe className="w-6 h-6" />
               </div>
@@ -687,7 +669,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
             </div>
 
             {/* Stat 2: 107 Zones */}
-            <div className="p-6 sm:p-7 rounded-2xl bg-[#F8FAFC] dark:bg-[#0B0F17] border border-[#E2E8F0] dark:border-[#1F2937] shadow-xs hover:shadow-lg transition-all duration-200 text-center">
+            <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200 text-center">
               <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto mb-4 shadow-xs">
                 <Building2 className="w-6 h-6" />
               </div>
@@ -700,7 +682,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
             </div>
 
             {/* Stat 3: 929 Districts */}
-            <div className="p-6 sm:p-7 rounded-2xl bg-[#F8FAFC] dark:bg-[#0B0F17] border border-[#E2E8F0] dark:border-[#1F2937] shadow-xs hover:shadow-lg transition-all duration-200 text-center">
+            <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200 text-center">
               <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/80 text-[#16A34A] dark:text-emerald-400 flex items-center justify-center mx-auto mb-4 shadow-xs">
                 <MapPin className="w-6 h-6" />
               </div>
@@ -713,7 +695,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
             </div>
 
             {/* Stat 4: 14 Registered Citizens */}
-            <div className="p-6 sm:p-7 rounded-2xl bg-[#F8FAFC] dark:bg-[#0B0F17] border border-[#E2E8F0] dark:border-[#1F2937] shadow-xs hover:shadow-lg transition-all duration-200 text-center">
+            <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200 text-center">
               <div className="w-12 h-12 rounded-xl bg-cyan-50 dark:bg-cyan-950/80 text-cyan-600 dark:text-cyan-400 flex items-center justify-center mx-auto mb-4 shadow-xs">
                 <Users className="w-6 h-6" />
               </div>
@@ -726,7 +708,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
             </div>
 
             {/* Stat 5: 19 Field Staff */}
-            <div className="col-span-2 md:col-span-1 p-6 sm:p-7 rounded-2xl bg-[#F8FAFC] dark:bg-[#0B0F17] border border-[#E2E8F0] dark:border-[#1F2937] shadow-xs hover:shadow-lg transition-all duration-200 text-center">
+            <div className="col-span-2 md:col-span-1 p-6 sm:p-7 rounded-2xl bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200 text-center">
               <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/80 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto mb-4 shadow-xs">
                 <ShieldCheck className="w-6 h-6" />
               </div>
@@ -745,14 +727,14 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
       {/* ============================================================== */}
       {/* 8. SECURITY BUILT INTO EVERY REGISTRATION                      */}
       {/* ============================================================== */}
-      <section id="security" className="py-20 sm:py-24 bg-[#F8FAFC] dark:bg-[#0B0F17] border-b border-[#E2E8F0] dark:border-[#1F2937] transition-colors duration-200">
+      <section id="security" className="py-20 sm:py-24 bg-[#F8FAFC] dark:bg-slate-900 border-b border-[#E2E8F0] dark:border-slate-800 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
             
-            {/* Left Column: Heading & 5 Restyled Security Modular Cards */}
+            {/* Left Column: Heading & 4 Restyled Security Modular Cards */}
             <div className="lg:col-span-7 space-y-6">
               <div>
-                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#0F172A] dark:text-[#F8FAFC] tracking-tight leading-tight">
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#0F172A] dark:text-[#F8FAFC]">
                   Security Built Into Every Registration
                 </h2>
                 <p className="text-[#334155] dark:text-slate-300 text-lg sm:text-xl font-medium leading-relaxed mt-3">
@@ -764,7 +746,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                 
                 {/* 1. Role-Based Access */}
-                <div className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-[#111827] border border-[#E2E8F0] dark:border-[#1F2937] shadow-xs hover:shadow-lg transition-all duration-200 flex items-start gap-4">
+                <div className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200 flex items-start gap-4">
                   <div className="w-11 h-11 rounded-xl bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 shadow-xs">
                     <Lock className="w-5 h-5" />
                   </div>
@@ -779,7 +761,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                 </div>
 
                 {/* 2. Secure Local Storage */}
-                <div className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-[#111827] border border-[#E2E8F0] dark:border-[#1F2937] shadow-xs hover:shadow-lg transition-all duration-200 flex items-start gap-4">
+                <div className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200 flex items-start gap-4">
                   <div className="w-11 h-11 rounded-xl bg-teal-50 dark:bg-teal-950/80 text-[#0F766E] dark:text-[#2DD4BF] flex items-center justify-center shrink-0 shadow-xs">
                     <Database className="w-5 h-5" />
                   </div>
@@ -794,7 +776,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                 </div>
 
                 {/* 3. Activity History */}
-                <div className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-[#111827] border border-[#E2E8F0] dark:border-[#1F2937] shadow-xs hover:shadow-lg transition-all duration-200 flex items-start gap-4">
+                <div className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200 flex items-start gap-4">
                   <div className="w-11 h-11 rounded-xl bg-blue-50 dark:bg-blue-950/80 text-[#2563EB] dark:text-blue-400 flex items-center justify-center shrink-0 shadow-xs">
                     <Activity className="w-5 h-5" />
                   </div>
@@ -809,7 +791,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                 </div>
 
                 {/* 4. Protected Synchronization */}
-                <div className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-[#111827] border border-[#E2E8F0] dark:border-[#1F2937] shadow-xs hover:shadow-lg transition-all duration-200 flex items-start gap-4">
+                <div className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200 flex items-start gap-4">
                   <div className="w-11 h-11 rounded-xl bg-emerald-50 dark:bg-emerald-950/80 text-[#16A34A] dark:text-emerald-400 flex items-center justify-center shrink-0 shadow-xs">
                     <RefreshCw className="w-5 h-5" />
                   </div>
@@ -823,26 +805,11 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                   </div>
                 </div>
 
-                {/* 5. Geographic Access Control (Full-width spanning card) */}
-                <div className="sm:col-span-2 p-5 sm:p-6 rounded-2xl bg-white dark:bg-[#111827] border border-[#E2E8F0] dark:border-[#1F2937] shadow-xs hover:shadow-lg transition-all duration-200 flex items-start gap-4">
-                  <div className="w-11 h-11 rounded-xl bg-amber-50 dark:bg-amber-950/80 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 shadow-xs">
-                    <MapPin className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-bold text-[#0F172A] dark:text-[#F8FAFC]">
-                      Geographic Access Control
-                    </h4>
-                    <p className="text-sm sm:text-base text-[#334155] dark:text-slate-300 mt-1.5 leading-relaxed">
-                      Field personnel can be restricted to their assigned operational areas.
-                    </p>
-                  </div>
-                </div>
-
               </div>
             </div>
 
             {/* Right Column: Secure by Design Card (Continuous Protection Active removed) */}
-            <div className="lg:col-span-5 bg-white dark:bg-[#111827] rounded-2xl p-7 sm:p-9 border border-[#E2E8F0] dark:border-[#1F2937] shadow-xs hover:shadow-lg transition-all duration-200 text-center space-y-6">
+            <div className="lg:col-span-5 bg-white dark:bg-slate-800 rounded-2xl p-7 sm:p-9 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200 text-center space-y-6">
               <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl bg-blue-50 dark:bg-blue-950/80 text-[#2563EB] dark:text-blue-400 flex items-center justify-center mx-auto shadow-xs">
                 <Shield className="w-9 h-9 sm:w-10 sm:h-10" />
               </div>
@@ -864,10 +831,10 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
       {/* ============================================================== */}
       {/* 9. READY TO CONNECT YOUR FIELD OPERATIONS? (Bottom CTA)        */}
       {/* ============================================================== */}
-      <section className="py-20 sm:py-24 bg-gradient-to-b from-blue-50/70 to-white dark:from-[#0B0F17] dark:to-[#111827] text-center border-t border-blue-100 dark:border-[#1F2937] transition-colors duration-200">
+      <section className="py-20 sm:py-24 bg-blue-50/50 dark:bg-slate-900 text-center border-t border-blue-100/80 dark:border-slate-800 transition-colors duration-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black text-[#0F172A] dark:text-white tracking-tight leading-tight">
+          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black text-[#0F172A] dark:text-[#F8FAFC] tracking-tight leading-tight">
             Ready to Connect Your Field Operations?
           </h2>
 
@@ -891,10 +858,10 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
       {/* ============================================================== */}
       {/* 10. COMPREHENSIVE FOOTER WITH NAVIGATION LINKS                */}
       {/* ============================================================== */}
-      <footer className="bg-slate-50/70 dark:bg-[#0B0F17] text-[#475569] dark:text-[#94A3B8] pt-16 pb-12 text-sm border-t border-[#E2E8F0] dark:border-[#1F2937] transition-colors duration-200">
+      <footer className="bg-slate-50/70 dark:bg-slate-900 text-[#475569] dark:text-[#94A3B8] pt-16 pb-12 text-sm border-t border-[#E2E8F0] dark:border-slate-800 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-10 lg:gap-12 pb-12 border-b border-[#E2E8F0] dark:border-[#1F2937]">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-10 lg:gap-12 pb-12 border-b border-[#E2E8F0] dark:border-slate-800">
             
             {/* Brand Column */}
             <div className="col-span-2 space-y-4">

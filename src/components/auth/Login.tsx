@@ -5,7 +5,6 @@ import {
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { useUserLanguage } from '../../context/UserLanguageContext';
-import LanguageSelector from '../common/LanguageSelector';
 import heroImage from '../../assets/field-officer-hero.jpg';
 
 interface LoginProps {
@@ -61,7 +60,7 @@ export default function Login({
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0A0E1A] flex flex-col lg:flex-row font-sans selection:bg-[#2563EB] selection:text-white transition-colors duration-200">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col lg:flex-row font-sans selection:bg-[#2563EB] selection:text-white transition-colors duration-200">
       
       {/* ============================================================== */}
       {/* LEFT PANEL: Field Officer Hero Image Display (With Outer Margin) */}
@@ -79,7 +78,7 @@ export default function Login({
       {/* ============================================================== */}
       {/* RIGHT PANEL: Refined Authentication Workspace                  */}
       {/* ============================================================== */}
-      <div className="lg:w-1/2 bg-slate-50 dark:bg-[#0A0E1A] flex flex-col justify-between p-4 sm:p-6 lg:p-8 xl:p-10 transition-colors duration-200 relative overflow-hidden">
+      <div className="lg:w-1/2 bg-slate-50 dark:bg-slate-900 flex flex-col justify-between p-4 sm:p-6 lg:p-8 xl:p-10 transition-colors duration-200 relative overflow-hidden">
         
         {/* Subtle Ambient Depth Glow (gives depth in dark mode) */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[560px] h-[560px] bg-blue-500/5 dark:bg-blue-600/10 rounded-full blur-3xl pointer-events-none -z-0" />
@@ -90,7 +89,7 @@ export default function Login({
             <button
               type="button"
               onClick={onBackToHome}
-              className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white px-3.5 py-2 rounded-xl hover:bg-slate-200/60 dark:hover:bg-slate-850/80 transition-colors cursor-pointer"
+              className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white px-3.5 py-2 rounded-xl hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             >
               {userT('Back to Home')}
             </button>
@@ -99,18 +98,13 @@ export default function Login({
           )}
 
           <div className="flex items-center gap-2">
-            {/* Language Selector */}
-            <LanguageSelector
-              buttonClassName="p-2.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-[#131A2A] border border-slate-200 dark:border-slate-700/80 shadow-xs hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-all cursor-pointer flex items-center gap-1.5 text-xs font-semibold"
-            />
-
             {/* Theme Toggle Button */}
             <button
               type="button"
               onClick={toggleTheme}
               aria-label="Toggle color theme"
               title={theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
-              className="p-2.5 rounded-xl text-slate-600 dark:text-amber-400 hover:text-slate-900 dark:hover:text-amber-300 bg-white dark:bg-[#131A2A] border border-slate-200 dark:border-slate-700/80 shadow-xs hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-all cursor-pointer"
+              className="p-2.5 rounded-xl text-slate-600 dark:text-amber-400 hover:text-slate-900 dark:hover:text-amber-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xs hover:bg-slate-50 dark:hover:bg-slate-700 transition-all cursor-pointer"
             >
               {theme === 'dark' ? (
                 <Sun className="w-4 h-4 text-amber-400" />
@@ -123,7 +117,7 @@ export default function Login({
 
         {/* Center Main Card - Enlarged with Greater Height & Reduced White Space */}
         <div className="relative z-10 w-full max-w-2xl mx-auto my-auto py-4 sm:py-6">
-          <div className="bg-white dark:bg-[#131A2A] rounded-3xl border border-slate-200/90 dark:border-slate-700/60 p-8 sm:p-14 lg:p-16 min-h-[580px] lg:min-h-[640px] flex flex-col justify-center shadow-xl shadow-slate-200/60 dark:shadow-2xl dark:shadow-black/60 space-y-8">
+          <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200/90 dark:border-slate-700 p-8 sm:p-14 lg:p-16 min-h-[580px] lg:min-h-[640px] flex flex-col justify-center shadow-xl shadow-slate-200/60 dark:shadow-2xl dark:shadow-black/60 space-y-8">
             
             {/* Title & Guidance */}
             <div className="space-y-2.5">

@@ -475,6 +475,7 @@ export const translationDictionary: Record<string, DictionaryItem> = {
   },
   'Middle Name (Optional)': { am: 'የአባት ስም (አማራጭ)', om: 'Maqaa Abbaa (Filannoo)', ti: 'ስም ኣቦ (ኣማራጺ)' },
   'Middle Name (Father)': { am: 'የአባት ስም', om: 'Maqaa Abbaa', ti: 'ስም ኣቦ' },
+  '2. Contact Channels': { am: '2. የመገናኛ መንገዶች', om: '2. Karaalee Qunnamtii', ti: '2. መራኸቢ መስመራት' },
   '2. Contact Channels (Optional)': { am: '2. የመገናኛ መንገዶች (አማራጭ)', om: '2. Karaalee Qunnamtii (Filannoo)', ti: '2. መራኸቢ መስመራት (ኣማራጺ)' },
   'Phone Number (Optional)': { am: 'የስልክ ቁጥር (አማራጭ)', om: 'Lakkoofsa Bilbilaa (Filannoo)', ti: 'ቁጽሪ ተሌፎን (ኣማራጺ)' },
   'Email Address (Optional)': { am: 'የኢሜይል አድራሻ (አማራጭ)', om: 'Teessoo Iimeelii (Filannoo)', ti: 'ኣድራሻ ኢመይል (ኣማራጺ)' },
@@ -2446,6 +2447,175 @@ export const translationDictionary: Record<string, DictionaryItem> = {
     am: "ይህ ማስጠንቀቂያ በመተግበሪያ ውስጥ ማሳወቂያ በቀጥታ ለባለስልጣኑ ይደርሳል።",
     om: "Akeekkachiisni kun kallattiin akka beeksisa keessaatti hojjetaaf ergama.",
     ti: "እዚ መጠንቀቕታ ብውሽጢ-መተግበሪ ምልክታ ቀጥታ ንሰራሕተኛ ይበጽሕ።"
+  },
+
+  // Work Sessions & Screen Time
+  "Ready to start today's work session?": {
+    am: "የዛሬውን የስራ ክፍለ ጊዜ ለመጀመር ዝግጁ ነዎት?",
+    om: "Marsaa hojii har'aa jalqabuuf qophiidhaa?",
+    ti: "ናይ ሎሚ ናይ ስራሕ እዋን ንምጅማር ድሉው ዲኹም?"
+  },
+  "Ready to start a new work session?": {
+    am: "አዲስ የስራ ክፍለ ጊዜ ለመጀመር ዝግጁ ነዎት?",
+    om: "Marsaa hojii haaraa jalqabuuf qophiidhaa?",
+    ti: "ሓድሽ ናይ ስራሕ እዋን ንምጅማር ድሉው ዲኹም?"
+  },
+  "Click Start Work Session below. Screen time counts continuously while you remain on the FieldSync page and automatically pauses if you minimize or switch tabs.": {
+    am: "ከታች 'የስራ ክፍለ ጊዜ ጀምር' የሚለውን ይጫኑ። በፊልድሲንክ ገጽ ላይ እስካሉ ድረስ የስክሪን ሰዓት ያለማቋረጥ ይቆጠራል፤ መስኮቱን ካሳነሱት ወይም ወደ ሌላ ትር ከቀየሩ በራስ-ሰር ይቆማል።",
+    om: "Kallattii gadii 'Marsaa Hojii Jalqabi' cuqaasaa. Fuula FieldSync irratti yeroo jirtan yeroon iskiriinii ni lakkaa'ama, yoo cufame ammoo ofumaan dhaabbata.",
+    ti: "ኣብ ታሕቲ 'ናይ ስራሕ እዋን ጀምር' ጠውቑ። ኣብ ገጽ ፊልድሲንክ ክሳብ ዘለኹም ናይ ስክሪን ግዜ ይቑጸር፣ እንተተዓጽዩ ድማ ብባዕሉ ደው ይብል።"
+  },
+  "Official Work Period:": {
+    am: "መደበኛ የስራ ክፍለ ጊዜ፡",
+    om: "Yeroo Hojii Idilee:",
+    ti: "ስሩዕ ናይ ስራሕ እዋን:"
+  },
+  "Lunch Break:": {
+    am: "የምሳ እረፍት፡",
+    om: "Boqonnaa Laaqanaa:",
+    ti: "ዕረፍቲ ምሳሕ:"
+  },
+  "Start New Work Session": {
+    am: "አዲስ የስራ ክፍለ ጊዜ ጀምር",
+    om: "Marsaa Hojii Haaraa Jalqabi",
+    ti: "ሓድሽ ናይ ስራሕ እዋን ጀምር"
+  },
+  "total active usage": {
+    am: "ጠቅላላ ንቁ አጠቃቀም",
+    om: "fayyadamummaa waliigalaa",
+    ti: "ጠቕላላ ንጡፍ ኣጠቓቕማ"
+  },
+  "Started Today": {
+    am: "ዛሬ ተጀምሯል",
+    om: "Har'a Jalqabe",
+    ti: "ሎሚ ተጀሚሩ"
+  },
+  "No verification checks yet today": {
+    am: "ዛሬ ምንም የማረጋገጫ ፍተሻ አልተደረገም",
+    om: "Har'a mirkaneessi hin gaggeeffamne",
+    ti: "ሎሚ ዝኾነ ናይ መረጋገጺ ፍተሻ ኣይተገብረን"
+  },
+  "My Screen Time & Verification History": {
+    am: "የስክሪን ሰዓት እና የማረጋገጫ ታሪኬ",
+    om: "Seenaa Yeroo Iskiriinii fi Mirkaneessa Koo",
+    ti: "ናተይ ናይ ስክሪን ግዜን ናይ መረጋገጺ ታሪኽን"
+  },
+  "Screen Time Records": {
+    am: "የስክሪን ሰዓት መዝገቦች",
+    om: "Galmee Yeroo Iskiriinii",
+    ti: "መዛግብቲ ናይ ስክሪን ግዜ"
+  },
+  "Verification Events": {
+    am: "የማረጋገጫ ክስተቶች",
+    om: "Taateewwan Mirkaneessaa",
+    ti: "ፍጻመታት መረጋገጺ"
+  },
+  "Active Screen Time": {
+    am: "ንቁ የስክሪን ሰዓት",
+    om: "Yeroo Iskiriinii Hojjetamaa",
+    ti: "ንጡፍ ናይ ስክሪን ግዜ"
+  },
+  "Finalized": {
+    am: "የተጠናቀቀ",
+    om: "Xumurameera",
+    ti: "ዝተዛዘመ"
+  },
+  "No historical screen-time records recorded yet.": {
+    am: "እስካሁን ምንም የተመዘገበ የስክሪን ሰዓት የለም።",
+    om: "Hamma ammaatti galmeen yeroo iskiriinii hin jiru.",
+    ti: "ክሳብ ሕጂ ዝተመዝገበ ናይ ስክሪን ግዜ የለን።"
+  },
+  "No verification records available.": {
+    am: "ምንም የማረጋገጫ መዝገቦች አልተገኙም።",
+    om: "Galmeen mirkaneessaa hin jiru.",
+    ti: "ዝኾነ ናይ መረጋገጺ መዛግብቲ ኣይተረኽበን።"
+  },
+  "Scheduled Time": {
+    am: "የተያዘለት ሰዓት",
+    om: "Yeroo Qabame",
+    ti: "ዝተመደበ ግዜ"
+  },
+  "Response Window": {
+    am: "የምላሽ መስኮት",
+    om: "Yeroo Deebii",
+    ti: "ናይ ምላሽ መስኮት"
+  },
+  "Connection": {
+    am: "ግንኙነት",
+    om: "Walqunnamtii",
+    ti: "ርክብ"
+  },
+
+  // Task & Roster & Attendance
+  "Task Management": {
+    am: "የስራዎች አስተዳደር",
+    om: "Bulchiinsa Hojii",
+    ti: "ምሕደራ ስራሕቲ"
+  },
+  "Create Task": {
+    am: "አዲስ ስራ ፍጠር",
+    om: "Hojii Haaraa Uumi",
+    ti: "ሓድሽ ስራሕ ፍጠር"
+  },
+  "Assign Task": {
+    am: "ስራ መድብ",
+    om: "Hojii Ramadi",
+    ti: "ስራሕ መድብ"
+  },
+  "Task Title": {
+    am: "የስራው ርዕስ",
+    om: "Mata-duree Hojii",
+    ti: "ኣርእስቲ ስራሕ"
+  },
+  "Due Date": {
+    am: "የማብቂያ ቀን",
+    om: "Guyyaa Xumuraa",
+    ti: "መዛዘሚ ዕለት"
+  },
+  "Assigned To": {
+    am: "የተመደበለት",
+    om: "Kan Ramadameef",
+    ti: "ዝተመደበሉ"
+  },
+  "Priority": {
+    am: "ቅድሚያ",
+    om: "Dursa",
+    ti: "ቀዳምነት"
+  },
+  "Mark Attendance": {
+    am: "እንደሪ መዝግብ",
+    om: "Argama Galmeessi",
+    ti: "ህላወ መዝግብ"
+  },
+  "Clock In": {
+    am: "መግቢያ ሰዓት መዝግብ",
+    om: "Sa'aatii Galmee Seensaa",
+    ti: "ሰዓት ምእታው መዝግብ"
+  },
+  "Clock Out": {
+    am: "መውጫ ሰዓት መዝግብ",
+    om: "Sa'aatii Galmee Ba'uu",
+    ti: "ሰዓት ምውጻእ መዝግብ"
+  },
+  "Excused": {
+    am: "ፈቃድ ያለው",
+    om: "Hayyamameera",
+    ti: "ፍቓድ ዘለዎ"
+  },
+  "Leave Request": {
+    am: "የእረፍት ፈቃድ ጥያቄ",
+    om: "Gaaffii Boqonnaa",
+    ti: "ሕቶ ዕረፍቲ"
+  },
+  "Permission Request": {
+    am: "የሰዓት ፈቃድ ጥያቄ",
+    om: "Gaaffii Hayyamaa",
+    ti: "ሕቶ ፍቓድ"
+  },
+  "Activity Timeline": {
+    am: "የእንቅስቃሴ የጊዜ ቅደም ተከተል",
+    om: "Tartiiba Yeroo Sochii",
+    ti: "ተኸታታሊ ናይ ንጥፈት መደብ"
   }
 };
 

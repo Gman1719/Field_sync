@@ -25,6 +25,7 @@ import { createLocalNotification } from '../../services/notificationApi';
 import { API_BASE } from '../../config/api';
 import { getZonedTimeComponents } from '../../config/workingHours';
 import { ActivityLogger } from '../../services/activityLogger';
+import { generateAlertId } from '../../utils/idGenerator';
 
 interface SendOfficerAlertModalProps {
   isOpen: boolean;
@@ -217,7 +218,7 @@ export default function SendOfficerAlertModal({
     }
 
     setIsSubmitting(true);
-    const alertId = `alert_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+    const alertId = generateAlertId();
     const supervisorName = currentUser?.fullName || currentUser?.name || userT('Supervisor');
 
     try {

@@ -6,6 +6,9 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { offlineDb } from '../db/offlineDb';
 import { db } from '../services/database';
 import { API_BASE } from '../config/api';
+import ActivityLogger from '../services/activityLogger';
+import { createLocalNotification } from '../services/notificationApi';
+import { generateVerificationId } from '../utils/idGenerator';
 import {
   evaluateWorkingHours,
   getZonedTimeComponents,
@@ -176,15 +179,6 @@ export function useVerification(officerId?: string | null, officerName?: string 
 
       const { dateStr } = getZonedTimeComponents();
 
-      // Check if session is active today
-      const todaySession = await offlineDb.workSessions
-        .where('officerId')
-        .equals(officerId)
-        .filter((s) => s.reportDate === dateStr && !s.endedAt)
-        .first();
-
-      if (!todaySession) return;
-
       // Check today's existing verifications count and last verification time
       const todayVerifications = await offlineDb.workVerifications
         .where('officerId')
@@ -210,7 +204,7 @@ export function useVerification(officerId?: string | null, officerName?: string 
       // Trigger local offline verification
       const scheduledIso = new Date().toISOString();
       const deadlineIso = new Date(now + 15000).toISOString();
-      const vId = `v_off_${officerId}_${Date.now()}`;
+      const vId = generateVerificationId();
 
       triggerVerification({
         id: vId,
@@ -265,6 +259,22 @@ export function useVerification(officerId?: string | null, officerName?: string 
         await offlineDb.workVerifications.put(record);
       }
 
+      // Record Activity Log
+      ActivityLogger.log(
+        'VERIFICATION_CONFIRMED',
+        `Successfully confirmed presence check in ${responseSeconds}s`,
+        {
+          officerId,
+          officerName,
+          relatedRecordId: pendingVerification.id,
+          metadata: {
+            responseTimeSeconds: responseSeconds,
+            status,
+            connectionState: isOnline ? 'ONLINE' : 'OFFLINE',
+          },
+        }
+      ).catch(() => {});
+
       // If online, send confirmation to server immediately
       if (isOnline) {
         const token = localStorage.getItem('fieldsync_token');
@@ -280,6 +290,7 @@ export function useVerification(officerId?: string | null, officerName?: string 
         }
       }
 
+      window.dispatchEvent(new CustomEvent('verification-update'));
       loadRecentVerifications();
     } catch (err) {
       console.error('Error confirming verification:', err);
@@ -298,6 +309,19 @@ export function useVerification(officerId?: string | null, officerName?: string 
     const status: VerificationStatus = isOnline ? 'MISSED' : 'MISSED_OFFLINE';
     const { dateStr } = getZonedTimeComponents();
 
+    // Check if session was started
+    let todaySession: any = null;
+    try {
+      todaySession = await offlineDb.workSessions
+        .where('officerId')
+        .equals(officerId)
+        .filter((s) => s.reportDate === dateStr && !s.endedAt)
+        .first();
+    } catch (_) {}
+
+    const sessionNote = todaySession ? 'Work session active' : 'Session not started yet';
+    const noteText = `Work verification missed — no response within 15 seconds (${sessionNote})`;
+
     try {
       const record: WorkVerification = {
         id: pendingVerification.id,
@@ -309,18 +333,58 @@ export function useVerification(officerId?: string | null, officerName?: string 
         deadlineAt: pendingVerification.deadlineAt,
         status,
         responseTimeSeconds: null,
-        failureReason: 'NO_RESPONSE',
+        failureReason: todaySession ? 'NO_RESPONSE' : 'SESSION_NOT_ACTIVE',
         connectionState: isOnline ? 'ONLINE' : 'OFFLINE',
         loginState: 'LOGGED_IN',
         offlineCreated: !isOnline,
         syncStatus: 'PENDING',
         syncedAt: null,
         date: dateStr,
-        notes: 'Work verification missed — FieldSync did not receive a response within 15 seconds.',
+        notes: noteText,
       };
 
       if (offlineDb.workVerifications) {
         await offlineDb.workVerifications.put(record);
+      }
+
+      // Record Activity Log
+      ActivityLogger.log(
+        'VERIFICATION_MISSED',
+        noteText,
+        {
+          officerId,
+          officerName: officerName || 'Field Officer',
+          relatedRecordId: pendingVerification.id,
+          metadata: {
+            status,
+            hasActiveSession: Boolean(todaySession),
+            connectionState: isOnline ? 'ONLINE' : 'OFFLINE',
+          },
+        }
+      ).catch(() => {});
+
+      // Dispatch alert notification directly to assigned supervisor
+      let supervisorId: string | null = null;
+      try {
+        const u = await offlineDb.users.get(officerId);
+        if (u?.supervisorId) supervisorId = u.supervisorId;
+      } catch (_) {}
+      if (!supervisorId) {
+        try {
+          const raw = localStorage.getItem('fieldsync_user');
+          if (raw) supervisorId = JSON.parse(raw)?.supervisorId || null;
+        } catch (_) {}
+      }
+
+      if (supervisorId) {
+        createLocalNotification({
+          recipientId: supervisorId,
+          title: 'Missed Verification: Field Officer',
+          message: `${officerName || 'Field Officer'} missed a scheduled verification check-in (${sessionNote}).`,
+          type: 'SECURITY',
+          priority: 'IMPORTANT',
+          actionUrl: '/verification',
+        }).catch(() => {});
       }
 
       // Notify supervisor via backend API if online
@@ -335,12 +399,15 @@ export function useVerification(officerId?: string | null, officerName?: string 
             },
             body: JSON.stringify({
               verificationId: pendingVerification.id,
-              reason: 'NO_RESPONSE',
+              reason: todaySession ? 'NO_RESPONSE' : 'SESSION_NOT_ACTIVE',
+              notes: noteText,
             }),
           }).catch((err) => console.warn('Failed to notify supervisor of missed verification:', err));
         }
       }
 
+      window.dispatchEvent(new CustomEvent('verification-update'));
+      window.dispatchEvent(new CustomEvent('verification-missed', { detail: { record } }));
       loadRecentVerifications();
     } catch (err) {
       console.error('Error recording missed verification:', err);

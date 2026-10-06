@@ -31,12 +31,14 @@ import { db } from '../../services/database';
 import { API_BASE } from '../../config/api';
 import { useUserLanguage } from '../../context/UserLanguageContext';
 import { createLocalNotification } from '../../services/notificationApi';
+import { ActivityLogger } from '../../services/activityLogger';
 import {
   validateLeaveRequest,
   validatePermissionRequest,
   LEAVE_TYPES,
   timeStringToMinutes,
 } from '../../utils/requestValidation';
+import { generateLeaveId, generatePermissionId } from '../../utils/idGenerator';
 import type { LeaveRequest, PermissionRequest, LeaveType } from '../../types/index';
 
 interface RequestsCenterProps {
@@ -271,7 +273,7 @@ export default function RequestsCenter({
     }
 
     setIsSubmittingLeave(true);
-    const newLeaveId = `leave_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+    const newLeaveId = generateLeaveId();
     const newRecord: LeaveRequest = {
       id: newLeaveId,
       employeeId: officerId,
@@ -327,27 +329,74 @@ export default function RequestsCenter({
 
       toast.success(userT('Leave request submitted successfully! Sent to supervisor for review.'));
 
-      // Notify Officer
+      // Resolve Assigned Supervisor
+      const targetSupervisor = users.find(
+        (u) => (u.id && u.id === user?.supervisorId) || (u.employeeId && u.employeeId === user?.supervisorId)
+      ) || teamMembers.find((m) => m.supervisorId);
+      const targetSupervisorId = user?.supervisorId || targetSupervisor?.id || targetSupervisor?.employeeId || 'supervisor';
+      const supervisorName = targetSupervisor?.fullName || targetSupervisor?.name || userT('Assigned Supervisor');
+
+      // 1. Notify Officer
       createLocalNotification({
         recipientId: officerId,
-        title: userT('Leave Request Submitted'),
-        message: userT(`Your ${leaveForm.type} leave request (${leaveForm.startDate} to ${leaveForm.endDate}) has been submitted and is pending review.`),
+        title: userT('Leave Request Sent'),
+        message: `${userT('Your')} ${leaveForm.type} ${userT('leave request')} (${leaveForm.startDate} ${userT('to')} ${leaveForm.endDate}) ${userT('was sent to supervisor')} ${supervisorName}.`,
         type: 'LEAVE_REQUEST',
         priority: 'NORMAL',
         actionUrl: '/requests',
       }).catch(() => {});
 
-      // Notify Supervisor
-      const targetSupervisorId = user?.supervisorId || (teamMembers[0]?.supervisorId) || 'all';
+      // 2. Notify Supervisor
       if (targetSupervisorId) {
         createLocalNotification({
           recipientId: targetSupervisorId,
-          title: userT('New Leave Request'),
-          message: userT(`${user?.fullName || user?.name || 'Field Officer'} requested ${leaveForm.type} leave (${leaveForm.startDate} to ${leaveForm.endDate}).`),
+          title: userT('New Leave Request Received'),
+          message: `${user?.fullName || user?.name || userT('Field Officer')} ${userT('submitted')} ${leaveForm.type} ${userT('leave request')} (${leaveForm.startDate} ${userT('to')} ${leaveForm.endDate}).`,
           type: 'LEAVE_REQUEST',
           priority: 'IMPORTANT',
           actionUrl: '/requests',
         }).catch(() => {});
+      }
+
+      // 3. Log in Officer Activity Log ("request send")
+      ActivityLogger.log(
+        'REQUEST_SENT',
+        `Request sent: ${leaveForm.type} leave (${leaveForm.startDate} to ${leaveForm.endDate}) to supervisor ${supervisorName}`,
+        {
+          officerId: officerId,
+          officerName: user?.fullName || user?.name || 'Field Officer',
+          relatedRecordId: newLeaveId,
+          metadata: {
+            requestType: 'leave',
+            leaveType: leaveForm.type,
+            startDate: leaveForm.startDate,
+            endDate: leaveForm.endDate,
+            supervisorId: targetSupervisorId,
+            supervisorName,
+          },
+        }
+      ).catch(() => {});
+
+      // 4. Log in Supervisor Activity Log ("add request in supervisor activity log")
+      if (targetSupervisorId && targetSupervisorId !== 'all') {
+        ActivityLogger.log(
+          'REQUEST_RECEIVED',
+          `Request received: ${user?.fullName || user?.name || 'Field Officer'} submitted ${leaveForm.type} leave request (${leaveForm.startDate} to ${leaveForm.endDate})`,
+          {
+            officerId: targetSupervisorId,
+            userId: targetSupervisorId,
+            officerName: supervisorName,
+            relatedRecordId: newLeaveId,
+            metadata: {
+              requestType: 'leave',
+              leaveType: leaveForm.type,
+              startDate: leaveForm.startDate,
+              endDate: leaveForm.endDate,
+              fromOfficerId: officerId,
+              fromOfficerName: user?.fullName || user?.name || 'Field Officer',
+            },
+          }
+        ).catch(() => {});
       }
 
       window.dispatchEvent(new CustomEvent('fieldsync-request-updated'));
@@ -386,7 +435,7 @@ export default function RequestsCenter({
     }
 
     setIsSubmittingPermission(true);
-    const newPermId = `perm_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+    const newPermId = generatePermissionId();
     const startMins = timeStringToMinutes(permissionForm.startTime);
     const endMins = timeStringToMinutes(permissionForm.endTime);
     const duration = Math.max(0, endMins - startMins);
@@ -448,27 +497,74 @@ export default function RequestsCenter({
 
       toast.success(userT('Permission request submitted successfully! Sent to supervisor for review.'));
 
-      // Notify Officer
+      // Resolve Assigned Supervisor
+      const targetSupervisor = users.find(
+        (u) => (u.id && u.id === user?.supervisorId) || (u.employeeId && u.employeeId === user?.supervisorId)
+      ) || teamMembers.find((m) => m.supervisorId);
+      const targetSupervisorId = user?.supervisorId || targetSupervisor?.id || targetSupervisor?.employeeId || 'supervisor';
+      const supervisorName = targetSupervisor?.fullName || targetSupervisor?.name || userT('Assigned Supervisor');
+
+      // 1. Notify Officer
       createLocalNotification({
         recipientId: officerId,
-        title: userT('Permission Request Submitted'),
-        message: userT(`Your permission request for ${permissionForm.date} (${permissionForm.startTime} – ${permissionForm.endTime}) has been submitted and is pending review.`),
+        title: userT('Permission Request Sent'),
+        message: `${userT('Your permission request for')} ${permissionForm.date} (${permissionForm.startTime} – ${permissionForm.endTime}) ${userT('was sent to supervisor')} ${supervisorName}.`,
         type: 'PERMISSION_REQUEST',
         priority: 'NORMAL',
         actionUrl: '/requests',
       }).catch(() => {});
 
-      // Notify Supervisor
-      const targetSupervisorId = user?.supervisorId || (teamMembers[0]?.supervisorId) || 'all';
+      // 2. Notify Supervisor
       if (targetSupervisorId) {
         createLocalNotification({
           recipientId: targetSupervisorId,
-          title: userT('New Permission Request'),
-          message: userT(`${user?.fullName || user?.name || 'Field Officer'} requested permission for ${permissionForm.date} (${permissionForm.startTime} – ${permissionForm.endTime}).`),
+          title: userT('New Permission Request Received'),
+          message: `${user?.fullName || user?.name || userT('Field Officer')} ${userT('requested permission for')} ${permissionForm.date} (${permissionForm.startTime} – ${permissionForm.endTime}).`,
           type: 'PERMISSION_REQUEST',
           priority: 'IMPORTANT',
           actionUrl: '/requests',
         }).catch(() => {});
+      }
+
+      // 3. Log in Officer Activity Log ("request send")
+      ActivityLogger.log(
+        'REQUEST_SENT',
+        `Request sent: Permission request on ${permissionForm.date} (${permissionForm.startTime} – ${permissionForm.endTime}) to supervisor ${supervisorName}`,
+        {
+          officerId: officerId,
+          officerName: user?.fullName || user?.name || 'Field Officer',
+          relatedRecordId: newPermId,
+          metadata: {
+            requestType: 'permission',
+            date: permissionForm.date,
+            startTime: permissionForm.startTime,
+            endTime: permissionForm.endTime,
+            supervisorId: targetSupervisorId,
+            supervisorName,
+          },
+        }
+      ).catch(() => {});
+
+      // 4. Log in Supervisor Activity Log ("add request in supervisor activity log")
+      if (targetSupervisorId && targetSupervisorId !== 'all') {
+        ActivityLogger.log(
+          'REQUEST_RECEIVED',
+          `Request received: ${user?.fullName || user?.name || 'Field Officer'} submitted permission request on ${permissionForm.date} (${permissionForm.startTime} – ${permissionForm.endTime})`,
+          {
+            officerId: targetSupervisorId,
+            userId: targetSupervisorId,
+            officerName: supervisorName,
+            relatedRecordId: newPermId,
+            metadata: {
+              requestType: 'permission',
+              date: permissionForm.date,
+              startTime: permissionForm.startTime,
+              endTime: permissionForm.endTime,
+              fromOfficerId: officerId,
+              fromOfficerName: user?.fullName || user?.name || 'Field Officer',
+            },
+          }
+        ).catch(() => {});
       }
 
       window.dispatchEvent(new CustomEvent('fieldsync-request-updated'));
@@ -597,6 +693,42 @@ export default function RequestsCenter({
           actionUrl: '/requests',
         }).catch(() => {});
       }
+
+      // 1. Log Confirmation from Supervisor in Officer's Activity Log ("confirmation from supervisor")
+      ActivityLogger.log(
+        'SUPERVISOR_CONFIRMATION',
+        `Confirmation from supervisor: ${reqLabel} request ${type === 'approve' ? 'approved' : 'rejected'} by ${supervisorName}${decisionNote.trim() ? ` (${decisionNote.trim()})` : ''}`,
+        {
+          officerId: item.employeeId || item.employee_id || item.officerId,
+          officerName: item.employeeName,
+          relatedRecordId: item.id,
+          metadata: {
+            status: newStatus,
+            requestCategory,
+            supervisorId: user?.id,
+            supervisorName,
+            decisionNote: decisionNote.trim(),
+          },
+        }
+      ).catch(() => {});
+
+      // 2. Log in Supervisor's Activity Log
+      ActivityLogger.log(
+        type === 'approve' ? 'REQUEST_APPROVED' : 'REQUEST_REJECTED',
+        `${type === 'approve' ? 'Approved' : 'Rejected'} ${reqLabel} request for ${item.employeeName || 'Field Officer'}${decisionNote.trim() ? ` (${decisionNote.trim()})` : ''}`,
+        {
+          officerId: user?.id || user?.employeeId,
+          officerName: supervisorName,
+          relatedRecordId: item.id,
+          metadata: {
+            status: newStatus,
+            requestCategory,
+            targetOfficerId: item.employeeId || item.employee_id || item.officerId,
+            targetOfficerName: item.employeeName,
+            decisionNote: decisionNote.trim(),
+          },
+        }
+      ).catch(() => {});
 
       setDetailModal((prev) => prev.isOpen && prev.item?.id === item.id ? { ...prev, item: { ...prev.item, ...updatePayload } } : prev);
       window.dispatchEvent(new CustomEvent('fieldsync-request-updated'));

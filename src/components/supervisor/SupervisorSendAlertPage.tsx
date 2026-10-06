@@ -16,6 +16,7 @@ import { API_BASE } from '../../config/api';
 import { offlineDb } from '../../db/offlineDb';
 import { db } from '../../services/database';
 import { createLocalNotification } from '../../services/notificationApi';
+import { generateAlertId } from '../../utils/idGenerator';
 import { useUserLanguage } from '../../context/UserLanguageContext';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
 import Button from '../ui/Button';
@@ -159,7 +160,7 @@ export default function SupervisorSendAlertPage({
     }
 
     setIsSubmitting(true);
-    const alertId = `alert_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+    const alertId = generateAlertId();
     const supervisorName = user?.fullName || user?.name || userT('Supervisor');
     const officerName = selectedOfficer.fullName || selectedOfficer.name || userT('Field Officer');
 

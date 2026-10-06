@@ -5,10 +5,9 @@ export const ETHIOPIAN_PHONE_REGEX = /^(?:\+251[97]\d{8}|0[97]\d{8})$/;
 /**
  * Validates whether a phone number matches standard Ethiopian mobile format:
  * +2519XXXXXXXX, +2517XXXXXXXX, 09XXXXXXXX, or 07XXXXXXXX
- * Returns true if empty (since phone is optional).
  */
-export const validateEthiopianPhone = (phone?: string | null): boolean => {
-  if (!phone || phone.trim() === '') return true; // Phone is optional
+export const validateEthiopianPhone = (phone?: string | null, required: boolean = false): boolean => {
+  if (!phone || phone.trim() === '') return !required;
   const cleanPhone = phone.trim().replace(/\s+/g, '');
   return ETHIOPIAN_PHONE_REGEX.test(cleanPhone);
 };

@@ -38,10 +38,15 @@ import ChatConsole from '../chat/ChatConsole';
 import RequestsCenter from '../requests/RequestsCenter';
 import SupervisorSendAlertPage from '../supervisor/SupervisorSendAlertPage';
 import OfficerAlertModal, { type OfficerAlertNotification } from '../notifications/OfficerAlertModal';
+import { offlineDb } from '../../db/offlineDb';
+import { db } from '../../services/database';
+import { getZonedTimeComponents } from '../../config/workingHours';
+import { generateAlertId } from '../../utils/idGenerator';
 import {
   fetchUnreadCount,
   fetchNotifications,
   markNotificationRead as apiMarkRead,
+  createLocalNotification,
 } from '../../services/notificationApi';
 
 export default function MainLayout({
@@ -73,6 +78,7 @@ export default function MainLayout({
   const checkIncomingAlerts = React.useCallback(async () => {
     if (!isOfficer || !user?.id) return;
     try {
+      // 1. Fetch unread direct supervisor alerts
       const res = await fetchNotifications({ page: 1, limit: 10, status: 'unread' });
       if (res?.success && Array.isArray(res.notifications)) {
         const found = res.notifications.find(
@@ -83,10 +89,95 @@ export default function MainLayout({
         );
         if (found) {
           setActiveSupervisorAlert(found);
+          return;
+        }
+      }
+
+      // 2. Automated Daily Report Alert:
+      // Triggered when report submission time has arrived (official working hours end at 17:30)
+      // and the officer has not submitted today's daily work report.
+      const { totalMinutes, dateStr: todayDate } = getZonedTimeComponents();
+      const isSubmissionTimeArrived = totalMinutes >= 1050; // 17:30 (official working hours end)
+
+      if (isSubmissionTimeArrived) {
+        let reportReminderId = sessionStorage.getItem(`fieldsync_report_alert_${todayDate}_${user.id}`);
+        if (!reportReminderId) {
+          reportReminderId = generateAlertId();
+          try {
+            sessionStorage.setItem(`fieldsync_report_alert_${todayDate}_${user.id}`, reportReminderId);
+          } catch {}
+        }
+
+        if (!dismissedAlertIds.has(reportReminderId)) {
+          let hasReportToday = false;
+          if (offlineDb.dailyWorkReports) {
+            const localRep = await offlineDb.dailyWorkReports
+              .where('officerId')
+              .equals(user.id)
+              .filter((r) => r.reportDate === todayDate)
+              .first();
+            if (localRep) hasReportToday = true;
+          }
+
+          if (!hasReportToday && db.reports) {
+            const legacyRep = await db.reports
+              .where('employeeId')
+              .equals(user.employeeId || user.id)
+              .filter((r: any) => r.date === todayDate)
+              .first();
+            if (legacyRep) hasReportToday = true;
+          }
+
+          if (!hasReportToday) {
+            // Resolve assigned supervisor
+            const allUsers = appData?.users || [];
+            const assignedSupervisor = allUsers.find(
+              (u: any) =>
+                (u.id && u.id === user?.supervisorId) ||
+                (u.employeeId && u.employeeId === user?.supervisorId) ||
+                (u.role === 'supervisor')
+            );
+            const supervisorName = assignedSupervisor?.fullName || assignedSupervisor?.name || 'Assigned Supervisor';
+            const supervisorId = user?.supervisorId || assignedSupervisor?.id || 'supervisor';
+
+            const reminderAlert: OfficerAlertNotification = {
+              id: reportReminderId,
+              recipientId: user.id,
+              title: "Daily Work Report Required",
+              message: `Hello ${user.fullName || user.name || 'Field Officer'}, official working hours have ended (17:30) and you have not submitted your daily work report for today (${todayDate}) to your assigned supervisor (${supervisorName}). Please submit your daily report now.`,
+              type: 'SUPERVISOR_ALERT',
+              priority: 'IMPORTANT',
+              actionUrl: 'report_new',
+              createdAt: new Date().toISOString(),
+              metadata: {
+                senderId: supervisorId,
+                senderName: supervisorName,
+                senderRole: 'supervisor',
+                isDailyReportReminder: true,
+              },
+            };
+
+            try {
+              const existing = await offlineDb.notifications.get(reportReminderId);
+              if (!existing) {
+                await offlineDb.notifications.put(reminderAlert as any);
+                createLocalNotification({
+                  recipientId: user.id || user.employeeId || 'o1',
+                  title: reminderAlert.title,
+                  message: reminderAlert.message,
+                  type: 'SUPERVISOR_ALERT',
+                  priority: 'IMPORTANT',
+                  actionUrl: 'report_new',
+                }).catch(() => {});
+              }
+            } catch (_) {}
+
+            setActiveSupervisorAlert(reminderAlert);
+          }
         }
       }
     } catch (_e) {}
-  }, [isOfficer, user?.id, dismissedAlertIds]);
+  }, [isOfficer, user?.id, user?.employeeId, user?.supervisorId, user?.fullName, user?.name, appData?.users, dismissedAlertIds]);
 
   useEffect(() => {
     const updateCount = async () => {
@@ -135,6 +226,9 @@ export default function MainLayout({
   const handleAcknowledgeAlert = async (alertId: string) => {
     try {
       await apiMarkRead(alertId);
+      if (offlineDb.notifications) {
+        await offlineDb.notifications.update(alertId, { isRead: true }).catch(() => {});
+      }
       setDismissedAlertIds((prev) => {
         const next = new Set(prev).add(alertId);
         try {
@@ -213,10 +307,21 @@ export default function MainLayout({
         <OfficerAlertModal
           isOpen={Boolean(activeSupervisorAlert)}
           alert={activeSupervisorAlert}
-          onAcknowledge={handleAcknowledgeAlert}
+          onAcknowledge={(alertId) => {
+            const isReportReminder = activeSupervisorAlert?.metadata?.isDailyReportReminder;
+            handleAcknowledgeAlert(alertId);
+            if (isReportReminder) {
+              setActiveTab('report_new');
+            }
+          }}
           onNavigateToNotifications={() => {
+            const isReportReminder = activeSupervisorAlert?.metadata?.isDailyReportReminder;
             handleAcknowledgeAlert(activeSupervisorAlert.id);
-            setActiveTab('notifications');
+            if (isReportReminder) {
+              setActiveTab('report_new');
+            } else {
+              setActiveTab('notifications');
+            }
           }}
           onClose={() => {
             setDismissedAlertIds((prev) => {

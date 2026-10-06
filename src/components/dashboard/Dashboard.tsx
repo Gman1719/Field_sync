@@ -978,41 +978,8 @@ export default function Dashboard({
           )}
         </ChartWrapper>
 
-        {/* Geographic Distribution Chart */}
-        <ChartWrapper
-          title={userT('Geographic Distribution by Region')}
-          subtitle={userT('Citizen registration density across administrative regions')}
-          rightElement={
-            <div className="flex items-center gap-1.5 bg-teal-50 dark:bg-teal-950/60 border border-teal-200/80 dark:border-teal-900/60 px-2.5 py-1 rounded-full text-xs font-semibold text-teal-700 dark:text-teal-300">
-              <MapPin className="w-3.5 h-3.5" />
-              <span>{geographicData.length} {language === 'am' ? 'ንቁ ክልሎች' : language === 'om' ? "Naannolee Socho'oo" : language === 'ti' ? 'ንጡፋት ክልላት' : 'Active Regions'}</span>
-            </div>
-          }
-        >
-          {geographicData.length === 0 ? (
-            <div className="h-full flex items-center justify-center text-xs text-slate-400">
-              No geographic distribution data available
-            </div>
-          ) : (
-            <ResponsiveContainer width="100%" height={260}>
-              <BarChart data={geographicData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
-                <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#64748B' }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 11, fill: '#64748B' }} axisLine={false} tickLine={false} />
-                <Tooltip content={CustomTooltip} />
-                <Bar dataKey="count" name={userT('Citizens')} fill="#0D9488" radius={[6, 6, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          )}
-        </ChartWrapper>
-      </div>
-
-      {/* ============================================================
-          DEMOGRAPHIC DISTRIBUTION
-         ============================================================ */}
-      <div className="grid grid-cols-1 gap-5">
-        {/* Demographics / Gender Card */}
-        <Card className="flex flex-col">
+        {/* Demographics / Gender Card (Compact 2-Column Grid Slot) */}
+        <Card className="h-full flex flex-col">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <div>
               <CardTitle>{userT('Demographic Distribution')}</CardTitle>
@@ -1023,20 +990,20 @@ export default function Dashboard({
               <span>{language === 'am' ? `ጠቅላላ ${totalCitizens}` : language === 'om' ? `Ida'ama ${totalCitizens}` : language === 'ti' ? `ጠቕላላ ${totalCitizens}` : `${totalCitizens} Total`}</span>
             </div>
           </CardHeader>
-          <CardContent className="flex-1 flex flex-col md:flex-row justify-around items-center py-6">
+          <CardContent className="flex-1 flex flex-col sm:flex-row justify-around items-center py-4 min-h-[260px]">
             {genderData.length === 0 ? (
-              <div className="text-xs text-slate-400 py-10">No demographic data recorded</div>
+              <div className="text-xs text-slate-400 py-10 flex items-center justify-center h-full">No demographic data recorded</div>
             ) : (
               <>
-                <div className="w-full md:w-1/2 flex justify-center">
+                <div className="w-full sm:w-1/2 flex justify-center">
                   <ResponsiveContainer width="100%" height={200}>
                     <PieChart>
                       <Pie
                         data={genderData}
                         cx="50%"
                         cy="50%"
-                        innerRadius={55}
-                        outerRadius={85}
+                        innerRadius={50}
+                        outerRadius={80}
                         paddingAngle={4}
                         dataKey="value"
                       >
@@ -1052,11 +1019,11 @@ export default function Dashboard({
                   </ResponsiveContainer>
                 </div>
 
-                <div className="flex flex-wrap md:flex-col items-center md:items-start justify-center gap-4 mt-4 md:mt-0 text-xs md:text-sm">
+                <div className="flex flex-wrap sm:flex-col items-center sm:items-start justify-center gap-3 mt-3 sm:mt-0 text-xs">
                   {genderData.map((g: any, i) => (
-                    <div key={i} className="flex items-center gap-2.5">
+                    <div key={i} className="flex items-center gap-2">
                       <span
-                        className="w-3.5 h-3.5 rounded-full"
+                        className="w-3 h-3 rounded-full shrink-0"
                         style={{ backgroundColor: GENDER_COLORS[g.name] || CHART_COLORS[i % CHART_COLORS.length] }}
                       />
                       <span className="font-medium text-slate-700 dark:text-slate-300 capitalize">{userT(g.name)}:</span>
@@ -1069,6 +1036,39 @@ export default function Dashboard({
             )}
           </CardContent>
         </Card>
+      </div>
+
+      {/* ============================================================
+          GEOGRAPHIC DISTRIBUTION BY REGION (EXPANDED FULL-WIDTH CAPACITY)
+         ============================================================ */}
+      <div className="grid grid-cols-1 gap-5">
+        {/* Geographic Distribution Chart */}
+        <ChartWrapper
+          title={userT('Geographic Distribution by Region')}
+          subtitle={userT('Citizen registration density across administrative regions')}
+          rightElement={
+            <div className="flex items-center gap-1.5 bg-teal-50 dark:bg-teal-950/60 border border-teal-200/80 dark:border-teal-900/60 px-2.5 py-1 rounded-full text-xs font-semibold text-teal-700 dark:text-teal-300">
+              <MapPin className="w-3.5 h-3.5" />
+              <span>{geographicData.length} {language === 'am' ? 'ንቁ ክልሎች' : language === 'om' ? "Naannolee Socho'oo" : language === 'ti' ? 'ንጡፋት ክልላት' : 'Active Regions'}</span>
+            </div>
+          }
+        >
+          {geographicData.length === 0 ? (
+            <div className="h-full flex items-center justify-center text-xs text-slate-400 py-12">
+              No geographic distribution data available
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart data={geographicData} margin={{ top: 10, right: 20, left: -10, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
+                <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#64748B' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: '#64748B' }} axisLine={false} tickLine={false} />
+                <Tooltip content={CustomTooltip} />
+                <Bar dataKey="count" name={userT('Citizens')} fill="#0D9488" radius={[6, 6, 0, 0]} maxBarSize={48} />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+        </ChartWrapper>
       </div>
 
       {/* ============================================================

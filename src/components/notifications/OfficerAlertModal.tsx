@@ -203,7 +203,11 @@ export default function OfficerAlertModal({
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 active:from-blue-800 active:to-blue-900 text-white text-xs font-bold shadow-md shadow-blue-500/20 transition-all cursor-pointer"
           >
             <CheckCircle2 className="w-4 h-4" />
-            <span>{userT('I Acknowledge / Got it')}</span>
+            <span>
+              {alert.metadata?.isDailyReportReminder
+                ? userT("Submit Today's Report Now")
+                : userT('I Acknowledge / Got it')}
+            </span>
           </button>
         </div>
       </div>

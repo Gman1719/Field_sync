@@ -10,14 +10,17 @@ import {
 
 import { offlineDb } from '../../db/offlineDb';
 import { API_BASE } from '../../config/api';
+import ActivityLogger from '../../services/activityLogger';
 import CreateAssignmentModal from './CreateAssignmentModal';
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
 import Button from '../ui/Button';
 import Badge from '../ui/Badge';
 import StatCard from '../ui/StatCard';
+import { useUserLanguage } from '../../context/UserLanguageContext';
 
 export default function TaskManagement({ user, addNotification }) {
+  const { userT } = useUserLanguage();
   const [assignments, setAssignments] = useState([]);
   const [filterStatus, setFilterStatus] = useState('ALL');
   const [isLoading, setIsLoading] = useState(true);
@@ -128,15 +131,21 @@ export default function TaskManagement({ user, addNotification }) {
       await offlineDb.assignments.update(assignmentId, { status: newStatus });
 
       // Step B: Record local activity log
-      await offlineDb.activityLogs.put({
-        id: crypto.randomUUID(),
-        officerId: user?.id || assignment.assignedOfficerId,
-        assignmentId,
+      await ActivityLogger.log(
         eventType,
-        description: `Assignment "${assignment.title}" moved to ${newStatus}`,
-        deviceTimestamp: new Date().toISOString(),
-        syncStatus: 'PENDING',
-      });
+        `Assignment "${assignment.title}" moved to ${newStatus}`,
+        {
+          officerId: user?.id || assignment.assignedOfficerId,
+          officerName: user?.fullName || user?.name || 'Field Officer',
+          assignmentId,
+          relatedRecordId: assignmentId,
+          metadata: {
+            title: assignment.title,
+            newStatus,
+            previousStatus,
+          },
+        }
+      );
 
       // Step C: If online, update server
       const authToken = localStorage.getItem('fieldsync_token');
@@ -206,12 +215,12 @@ export default function TaskManagement({ user, addNotification }) {
             </div>
             <div>
               <h1 className="text-xl font-bold text-slate-900 dark:text-[#F8FAFC] tracking-tight">
-                {isOfficer ? 'My Fieldwork Assignments' : 'Fieldwork Missions & Assignments'}
+                {isOfficer ? userT('My Fieldwork Assignments') : userT('Fieldwork Missions & Assignments')}
               </h1>
               <p className="text-xs text-slate-500 dark:text-slate-400">
                 {isOfficer
-                  ? 'Track citizen registration targets, update mission status, and monitor completion progress'
-                  : 'Deploy registration quotas, monitor officer fieldwork progress, and manage assignments'}
+                  ? userT('Track citizen registration targets, update mission status, and monitor completion progress')
+                  : userT('Deploy registration quotas, monitor officer fieldwork progress, and manage assignments')}
               </p>
             </div>
           </div>
@@ -228,7 +237,7 @@ export default function TaskManagement({ user, addNotification }) {
               className="text-xs"
             >
               <Plus className="w-4 h-4 mr-1.5" />
-              Deploy Assignment
+              {userT('Deploy Assignment')}
             </Button>
           )}
         </div>
@@ -237,25 +246,25 @@ export default function TaskManagement({ user, addNotification }) {
       {/* KPI Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          title="Total Assigned"
+          title={userT('Total Assigned')}
           value={stats.total}
           icon={Briefcase}
           color="blue"
         />
         <StatCard
-          title="Missions In Progress"
+          title={userT('Missions In Progress')}
           value={stats.inProgress}
           icon={Clock}
           color="amber"
         />
         <StatCard
-          title="Completed Targets"
+          title={userT('Completed Targets')}
           value={stats.completed}
           icon={CheckCircle2}
           color="emerald"
         />
         <StatCard
-          title="Pending / Paused"
+          title={userT('Pending / Paused')}
           value={stats.pending}
           icon={AlertCircle}
           color="indigo"
@@ -265,11 +274,11 @@ export default function TaskManagement({ user, addNotification }) {
       {/* Status Filter Tabs */}
       <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-900 rounded-xl max-w-fit text-xs font-semibold border border-transparent dark:border-slate-700">
         {[
-          { key: 'ALL', label: 'All Tasks' },
-          { key: 'ASSIGNED', label: 'Assigned' },
-          { key: 'IN_PROGRESS', label: 'In Progress' },
-          { key: 'PAUSED', label: 'Paused' },
-          { key: 'COMPLETED', label: 'Completed' },
+          { key: 'ALL', label: userT('All Tasks') },
+          { key: 'ASSIGNED', label: userT('Assigned') },
+          { key: 'IN_PROGRESS', label: userT('In Progress') },
+          { key: 'PAUSED', label: userT('Paused') },
+          { key: 'COMPLETED', label: userT('Completed') },
         ].map((tab) => (
           <button
             key={tab.key}
@@ -291,20 +300,20 @@ export default function TaskManagement({ user, addNotification }) {
         <Card>
           <CardContent className="p-12 text-center text-xs text-slate-500 dark:text-slate-400">
             <RefreshCw className="w-6 h-6 text-[#1E3A8A] dark:text-blue-400 animate-spin mx-auto mb-2" />
-            Loading fieldwork assignments...
+            {userT('Loading fieldwork assignments...')}
           </CardContent>
         </Card>
       ) : filteredAssignments.length === 0 ? (
         <Card>
           <CardContent className="p-12 text-center text-xs text-slate-500 dark:text-slate-400 space-y-2">
             <Briefcase className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto" />
-            <p className="font-semibold text-slate-700 dark:text-slate-200 text-sm">No Assignments Found</p>
+            <p className="font-semibold text-slate-700 dark:text-slate-200 text-sm">{userT('No Assignments Found')}</p>
             <p className="text-slate-400 dark:text-slate-500">
               {filterStatus !== 'ALL'
-                ? `No assignments currently in ${filterStatus} status.`
+                ? `${userT('No assignments currently in')} ${userT(filterStatus)} ${userT('status')}.`
                 : isOfficer
-                ? 'You do not have any pending fieldwork assignments assigned to your workstation.'
-                : 'No assignments have been deployed yet. Click "Deploy Assignment" above to assign quotas.'}
+                ? userT('You do not have any pending fieldwork assignments assigned to your workstation.')
+                : userT('No assignments have been deployed yet. Click "Deploy Assignment" above to assign quotas.')}
             </p>
           </CardContent>
         </Card>
@@ -350,7 +359,7 @@ export default function TaskManagement({ user, addNotification }) {
                       }
                       className="shrink-0"
                     >
-                      {assignment.status}
+                      {userT(assignment.status)}
                     </Badge>
                   </div>
 
@@ -359,10 +368,10 @@ export default function TaskManagement({ user, addNotification }) {
                     <div className="flex items-center justify-between text-xs font-semibold">
                       <span className="text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
                         <Target className="w-3.5 h-3.5 text-[#1E3A8A] dark:text-blue-400" />
-                        Target Progress
+                        {userT('Target Progress')}
                       </span>
                       <span className="text-[#1E3A8A] dark:text-blue-400">
-                        {regCount} / {target} Citizens ({progress}%)
+                        {regCount} / {target} {userT('Citizens')} ({progress}%)
                       </span>
                     </div>
 
@@ -387,19 +396,19 @@ export default function TaskManagement({ user, addNotification }) {
                     <div className="flex items-center gap-1.5 truncate">
                       <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                       <span className="truncate">
-                        {[assignment.woredaName, assignment.kebeleName].filter(Boolean).join(', ') || 'Assigned District'}
+                        {[assignment.woredaName, assignment.kebeleName].filter(Boolean).join(', ') || userT('Assigned District')}
                       </span>
                     </div>
 
                     <div className="flex items-center gap-1.5 truncate">
                       <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                      <span>Due: {assignment.endDate || 'Ongoing'}</span>
+                      <span>{userT('Due')}: {assignment.endDate || userT('Ongoing')}</span>
                     </div>
 
                     {!isOfficer && (
                       <div className="col-span-2 flex items-center gap-1.5 text-slate-700 dark:text-slate-300 font-medium pt-1 border-t border-slate-100 dark:border-slate-700">
                         <User className="w-3.5 h-3.5 text-[#1E3A8A] dark:text-blue-400 shrink-0" />
-                        <span>Officer: {assignment.officerName || 'Field Officer'}</span>
+                        <span>{userT('Officer')}: {assignment.officerName || userT('Field Officer')}</span>
                       </div>
                     )}
                   </div>
@@ -417,7 +426,7 @@ export default function TaskManagement({ user, addNotification }) {
                           className="w-full sm:w-auto text-xs"
                         >
                           <Play className="w-3.5 h-3.5 mr-1.5" />
-                          Start Assignment
+                          {userT('Start Assignment')}
                         </Button>
                       )}
 
@@ -432,7 +441,7 @@ export default function TaskManagement({ user, addNotification }) {
                             className="text-xs"
                           >
                             <Pause className="w-3.5 h-3.5 mr-1" />
-                            Pause
+                            {userT('Pause')}
                           </Button>
 
                           <Button
@@ -444,7 +453,7 @@ export default function TaskManagement({ user, addNotification }) {
                             className="text-xs bg-emerald-600 hover:bg-emerald-700 text-white"
                           >
                             <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" />
-                            Report Completion
+                            {userT('Report Completion')}
                           </Button>
                         </>
                       )}
@@ -459,7 +468,7 @@ export default function TaskManagement({ user, addNotification }) {
                           className="w-full sm:w-auto text-xs"
                         >
                           <Play className="w-3.5 h-3.5 mr-1.5" />
-                          Resume Assignment
+                          {userT('Resume Assignment')}
                         </Button>
                       )}
                     </div>
@@ -468,7 +477,7 @@ export default function TaskManagement({ user, addNotification }) {
                   {isCompleted && (
                     <div className="pt-2 border-t border-slate-100 dark:border-slate-700 flex items-center justify-center text-xs font-semibold text-emerald-700 dark:text-emerald-400 gap-1.5">
                       <Award className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                      <span>Mission Successfully Completed & Reported</span>
+                      <span>{userT('Mission Successfully Completed & Reported')}</span>
                     </div>
                   )}
                 </CardContent>

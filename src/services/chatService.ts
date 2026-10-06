@@ -5,6 +5,7 @@ import { offlineDb } from '../db/offlineDb';
 import type { ChatMessage } from '../types/index';
 import { SAMPLE_USERS } from '../utils/constants';
 import { checkRealInternet } from './database';
+import { generateMessageId } from '../utils/idGenerator';
 
 const CHAT_CHANNEL_NAME = 'fieldsync_chat_channel';
 let broadcastChannel: BroadcastChannel | null = null;
@@ -206,7 +207,7 @@ export async function sendMessage(params: {
   const online = await verifyChatOnline(true);
 
   const newMsg: ChatMessage = {
-    id: `msg_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+    id: generateMessageId(),
     senderId: normSenderId,
     senderName: params.senderName,
     senderRole: params.senderRole,

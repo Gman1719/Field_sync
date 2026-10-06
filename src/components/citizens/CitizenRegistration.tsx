@@ -8,7 +8,8 @@ import {
 } from 'lucide-react';
 import { offlineDb } from '../../db/offlineDb';
 import { API_BASE } from '../../config/api';
-import { normalizeEthiopianPhone, formatEthiopianPhone } from '../../utils/phoneUtils';
+import ActivityLogger from '../../services/activityLogger';
+import { normalizeEthiopianPhone, formatEthiopianPhone, validateEthiopianPhone } from '../../utils/phoneUtils';
 import { detectLocalDuplicates } from '../../utils/duplicateDetector';
 import DuplicateWarningModal from '../citizens/DuplicateWarningModal';
 
@@ -17,12 +18,7 @@ import Input from '../ui/Input';
 import Button from '../ui/Button';
 import Badge from '../ui/Badge';
 
-// Helper to generate a 12-digit numeric unique ID upon registration
-const generate12DigitId = () => {
-  const part1 = Math.floor(100000 + Math.random() * 900000).toString();
-  const part2 = Math.floor(100000 + Math.random() * 900000).toString();
-  return `${part1}${part2}`;
-};
+import { generateCitizenId, formatDisplayUserId } from '../../utils/idGenerator';
 
 // Helper to calculate age from Date of Birth
 const calculateAge = (dobString) => {
@@ -55,7 +51,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
   const [gender, setGender] = useState('MALE');
   const [maritalStatus, setMaritalStatus] = useState('');
 
-  // Optional Contact State (Phone optional, no strict validation, Alternative Phone removed, Email added)
+  // Required Contact State (Phone number is mandatory for registry records)
   const [phoneNumber, setPhoneNumber] = useState('');
   const [email, setEmail] = useState('');
 
@@ -63,7 +59,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
   const [regionId, setRegionId] = useState('');
   const [zoneId, setZoneId] = useState('');
   const [woredaId, setWoredaId] = useState('');
-  const [kebeleId, setKebeleId] = useState('');
+  const [kebeleName, setKebeleName] = useState('');
   const [village, setVillage] = useState('');
 
   // --- Location Division Options (Cached from Dexie / API) ---
@@ -84,6 +80,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
   const [registeredCitizen, setRegisteredCitizen] = useState(null);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [copiedId, setCopiedId] = useState(false);
+
 
   // Compute live calculated age from Date of Birth
   const calculatedAge = useMemo(() => calculateAge(dateOfBirth), [dateOfBirth]);
@@ -197,16 +194,15 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
     const loadKebeles = async () => {
       if (!woredaId) {
         setKebeles([]);
-        setKebeleId('');
         return;
       }
       try {
         const foundKebeles = await offlineDb.kebeles.where('woredaId').equals(woredaId).sortBy('name');
         setKebeles(foundKebeles);
-        if (user?.kebeleId && foundKebeles.some((k) => k.id === user.kebeleId)) {
-          setKebeleId(user.kebeleId);
-        } else {
-          setKebeleId('');
+        if (user?.kebeleName) {
+          setKebeleName(user.kebeleName);
+        } else if (user?.kebele) {
+          setKebeleName(user.kebele);
         }
       } catch (e) {
         console.error('Error loading kebeles:', e);
@@ -223,6 +219,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
     setDateOfBirth('');
     setPhoneNumber('');
     setEmail('');
+    setKebeleName('');
     setVillage('');
     setMaritalStatus('');
     setRegisteredCitizen(null);
@@ -250,19 +247,37 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
       toast.error('Date of birth is required');
       return;
     }
-    if (!regionId || !zoneId || !woredaId || !kebeleId || !village.trim()) {
+
+    // Phone number is required and must be valid Ethiopian mobile
+    if (!phoneNumber.trim()) {
+      toast.error('Phone number is required');
+      return;
+    }
+    if (!validateEthiopianPhone(phoneNumber.trim(), true)) {
+      toast.error('Please enter a valid Ethiopian mobile phone number (09XXXXXXXX, 07XXXXXXXX, or +251...)');
+      return;
+    }
+
+    if (!regionId || !zoneId || !woredaId || !kebeleName.trim() || !village.trim()) {
       toast.error('All administrative address levels (Region, Zone, Woreda, Kebele, Village) are required');
       return;
     }
 
-    // Phone is optional: if provided, normalize it; if empty, store null
-    const normalizedPhone = phoneNumber.trim() ? normalizeEthiopianPhone(phoneNumber.trim()) : null;
+    // Match typed kebele with cached list if available, or generate resolved kebele ID
+    const matchedKebele = kebeles.find(
+      (k) => k.name.toLowerCase() === kebeleName.trim().toLowerCase()
+    );
+    const resolvedKebeleId = matchedKebele?.id || `keb_${woredaId}_${kebeleName.trim().toLowerCase().replace(/\s+/g, '_')}`;
 
-    // Generate 12-digit numeric unique ID upon clicking Register Citizen
-    const generatedCitizenId = generate12DigitId();
+    // Normalize phone number for standard storage
+    const normalizedPhone = normalizeEthiopianPhone(phoneNumber.trim());
+
+    // Generate unique Citizen ID: 'cit' + 8 digits (e.g. cit12345678)
+    const generatedCitizenId = generateCitizenId();
+    const officerDisplayId = user?.employeeId || formatDisplayUserId(user);
 
     const candidateData = {
-      id: crypto.randomUUID(),
+      id: generatedCitizenId,
       clientRecordId: generatedCitizenId,
       nationalId: generatedCitizenId,
       idNumber: generatedCitizenId,
@@ -278,15 +293,15 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
       regionId,
       zoneId,
       woredaId,
-      kebeleId,
+      kebeleId: resolvedKebeleId,
       village: village.trim(),
       regionName: regions.find((r) => r.id === regionId)?.name || '',
       zoneName: zones.find((z) => z.id === zoneId)?.name || '',
       woredaName: woredas.find((w) => w.id === woredaId)?.name || '',
-      kebeleName: kebeles.find((k) => k.id === kebeleId)?.name || '',
-      registeredById: user?.id || 'offline_officer',
+      kebeleName: kebeleName.trim(),
+      registeredById: officerDisplayId,
       registeredByName: user?.name || user?.fullName || 'Field Officer',
-      registeredByEmployeeId: user?.employeeId || null,
+      registeredByEmployeeId: officerDisplayId,
       assignmentId: user?.assignmentId || null,
       registrationTimestamp: new Date().toISOString(),
       createdAt: new Date().toISOString(),
@@ -322,22 +337,24 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
       window.dispatchEvent(new CustomEvent('citizen-registered', { detail: finalRecord }));
 
       // Step B: Record Activity Log locally
-      await offlineDb.activityLogs.put({
-        id: crypto.randomUUID(),
-        officerId: user?.id || 'officer',
-        assignmentId: user?.assignmentId || null,
-        eventType: 'CITIZEN_REGISTERED',
-        description: `Registered citizen ${finalRecord.firstName} ${finalRecord.lastName} (12-Digit ID: ${finalRecord.clientRecordId})`,
-        deviceTimestamp: new Date().toISOString(),
-        relatedRecordId: finalRecord.clientRecordId,
-        metadata: {
-          clientRecordId: finalRecord.clientRecordId,
-          regionId: finalRecord.regionId,
-          woredaId: finalRecord.woredaId,
-          kebeleId: finalRecord.kebeleId,
-        },
-        syncStatus: 'PENDING',
-      });
+      await ActivityLogger.log(
+        'CITIZEN_REGISTERED',
+        `Registered citizen ${finalRecord.firstName} ${finalRecord.lastName} (ID: ${finalRecord.clientRecordId})`,
+        {
+          officerId: user?.id || 'officer',
+          officerName: user?.fullName || user?.name || 'Field Officer',
+          woredaName: user?.woreda?.name || user?.region,
+          assignmentId: user?.assignmentId || null,
+          relatedRecordId: finalRecord.clientRecordId,
+          metadata: {
+            citizenName: `${finalRecord.firstName} ${finalRecord.lastName}`,
+            clientRecordId: finalRecord.clientRecordId,
+            regionId: finalRecord.regionId,
+            woredaId: finalRecord.woredaId,
+            kebeleId: finalRecord.kebeleId,
+          },
+        }
+      );
 
       // Step C: If online, attempt central server persistence
       const authToken = localStorage.getItem('fieldsync_token');
@@ -386,6 +403,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
       }
 
       setRegisteredCitizen(finalRecord);
+
 
       if (isSyncedServer) {
         toast.success(`Citizen registered & synced! ID: ${finalRecord.clientRecordId}`);
@@ -448,7 +466,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
             <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-[#E2E8F0] dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300">
               <User className="w-3.5 h-3.5 text-[#2563EB] dark:text-blue-400" />
               <span>Officer: {user.name}</span>
-              {user.employeeId && <span className="font-mono text-slate-400">({user.employeeId})</span>}
+              <span className="font-mono text-slate-400">({user.employeeId || formatDisplayUserId(user)})</span>
             </div>
           )}
 
@@ -478,7 +496,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
                 </h3>
                 <div className="flex flex-wrap items-center gap-2 mt-1">
                   <span className="text-xs font-semibold text-emerald-800 dark:text-emerald-300">
-                    12-Digit Citizen ID:
+                    Citizen ID:
                   </span>
                   <span className="font-mono font-bold text-sm bg-white dark:bg-slate-900 px-2.5 py-0.5 rounded-lg border border-emerald-300 dark:border-emerald-700 text-emerald-900 dark:text-emerald-200 tracking-wider">
                     {registeredCitizen.clientRecordId}
@@ -487,10 +505,15 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
                     type="button"
                     onClick={() => handleCopyId(registeredCitizen.clientRecordId)}
                     className="p-1 rounded-md bg-white dark:bg-slate-900 border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 transition-colors"
-                    title="Copy 12-Digit ID"
+                    title="Copy Citizen ID"
                   >
                     {copiedId ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                   </button>
+                  {registeredCitizen.phoneNumber && (
+                    <span className="text-xs text-emerald-700 dark:text-emerald-400 font-medium">
+                      • Mobile: <strong className="font-mono text-emerald-900 dark:text-emerald-200">{formatEthiopianPhone(registeredCitizen.phoneNumber)}</strong>
+                    </span>
+                  )}
                   <span className="text-xs text-emerald-700 dark:text-emerald-400">
                     • {registeredCitizen.syncStatus === 'SYNCED' ? 'Synced to Cloud' : 'Buffered locally in Dexie'}
                   </span>
@@ -498,7 +521,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
               </div>
             </div>
 
-            <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+            <div className="flex flex-wrap items-center gap-2 self-end sm:self-center shrink-0">
               {setActiveTab && (
                 <Button
                   size="sm"
@@ -641,7 +664,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
           </CardContent>
         </Card>
 
-        {/* Section 2: Contact Information (Optional) */}
+        {/* Section 2: Contact Channels */}
         <Card className="bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 rounded-2xl shadow-xs overflow-hidden">
           <CardHeader className="p-5 border-b border-[#E2E8F0] dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800">
             <div className="flex items-center gap-2.5">
@@ -650,21 +673,23 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
               </div>
               <div>
                 <CardTitle className="text-base font-bold text-slate-900 dark:text-[#F8FAFC]">
-                  2. Contact Channels (Optional)
+                  2. Contact Channels
                 </CardTitle>
               </div>
             </div>
           </CardHeader>
           <CardContent className="p-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Optional Phone Number */}
+              {/* Mandatory Phone Number */}
               <div>
                 <Input
-                  label="Phone Number (Optional)"
+                  label="Phone Number"
                   type="tel"
+                  required
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
-                  placeholder="e.g. 0912345678 or +251912345678 (Optional)"
+                  placeholder="e.g. 0912345678 or +251912345678"
+                  helperText="Standard Ethiopian mobile format (+2519... or 09...)"
                 />
               </div>
 
@@ -778,30 +803,23 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
                 </div>
               </div>
 
-              {/* Kebele */}
-              <div className="flex flex-col">
-                <div className="h-6 flex items-center justify-between mb-1.5">
-                  <label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1">
-                    Kebele Unit <span className="text-[#DC2626] dark:text-rose-400">*</span>
-                  </label>
-                </div>
-                <div className="relative">
-                  <select
-                    value={kebeleId}
-                    onChange={(e) => setKebeleId(e.target.value)}
-                    disabled={!woredaId || kebeles.length === 0}
-                    className="w-full h-11 pl-3.5 pr-10 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-[#F8FAFC] text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-blue-500 hover:border-slate-400 dark:hover:border-slate-600 transition-all disabled:bg-slate-100 dark:disabled:bg-[#1E293B]/50 disabled:text-slate-400 font-medium cursor-pointer shadow-xs"
-                    required
-                  >
-                    <option value="">{woredaId ? 'Select Kebele' : 'Choose Woreda First'}</option>
+              {/* Kebele Unit (Input Field) */}
+              <div className="flex flex-col justify-end">
+                <Input
+                  label="Kebele Unit"
+                  required
+                  value={kebeleName}
+                  onChange={(e) => setKebeleName(e.target.value)}
+                  placeholder="e.g. Kebele 01 or Kebele 04"
+                  list="kebele-suggestions-list"
+                />
+                {kebeles.length > 0 && (
+                  <datalist id="kebele-suggestions-list">
                     {kebeles.map((k) => (
-                      <option key={k.id} value={k.id}>
-                        {k.name}
-                      </option>
+                      <option key={k.id} value={k.name} />
                     ))}
-                  </select>
-                  <ChevronDown className="w-4 h-4 pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
-                </div>
+                  </datalist>
+                )}
               </div>
             </div>
 
@@ -856,6 +874,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
           duplicates={duplicateRecords}
         />
       )}
+
     </div>
   );
 }
