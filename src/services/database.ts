@@ -2,6 +2,7 @@ import Dexie, { type Table } from 'dexie';
 import { SAMPLE_USERS, type SampleUser } from '../utils/constants';
 import { uid, getToday } from '../utils/helpers';
 import { API_URL } from '../config/api';
+import { offlineDb } from '../db/offlineDb';
 
 export interface PendingSyncItem {
   id: string;
@@ -712,8 +713,293 @@ export const pullSupervisorReportsFromServer = async () => {
   }
 };
 
+export const purgeLegacyDirectionalUsers = async () => {
+  try {
+    const legacyMockNames = [
+      'መሠረት አለሙ', 'Meseret Alemu',
+      'ቤተልሔም አበበ', 'Betelhem Abebe',
+      'ዳዊት ገብረእግዚአብሔር', 'Dawit Gebreegziabher',
+      'ረሃቤል ተሰማ', 'Rehabel Tessema', 'Rehabel Tesema',
+      'ቀዳማዊ ገብረእግዚአብሔር', 'Kedamawi Gebreegziabher',
+      'ዘነበ አስፋው', 'Zenebe Asfaw',
+      'መለስ ዘነበ', 'Meles Zenebe',
+      'ተስፋዬ በቀለ', 'Tesfaye Bekele',
+      'ኤልሳቤት አለሙ', 'Elsabet Alemu',
+      'ፍቅሬ ገብረእግዚአብሔር', 'Fikre Gebreegziabher',
+      'ሀና አረጋዊ', 'Hana Aregawi',
+      'ዮናስ አስፋው', 'Yonas Asfaw',
+      'ብርሃን ገብረእግዚአብሔር', 'Birhan Gebreegziabher', 'Birhan Alemayehu',
+      'ሣህለ ሙሉጌታ', 'Sahle Mulugeta',
+      'ኪዳን ጥላሁን', 'Kidan Tilahun',
+      'Dawit Haile Mariam'
+    ];
+
+    const legacyMockEmails = [
+      'meseret@fieldsync.com',
+      'betelhem@fieldsync.com',
+      'dawit@fieldsync.com',
+      'rehabel@fieldsync.com',
+      'kedamawi@fieldsync.com',
+      'zenebe@fieldsync.com',
+      'meles@fieldsync.com',
+      'tesfaye@fieldsync.com',
+      'elsabet@fieldsync.com',
+      'fikre@fieldsync.com',
+      'hana@fieldsync.com',
+      'yonas@fieldsync.com',
+      'birhan@fieldsync.com',
+      'sahle@fieldsync.com',
+      'kidan@fieldsync.com'
+    ];
+
+    const isTargetUser = (u: any) => {
+      if (!u) return false;
+      const reg = (u.region || '').trim().toLowerCase();
+      const zone = (u.zone || '').trim().toLowerCase();
+      const email = (u.email || '').trim().toLowerCase();
+      const name = (u.name || u.fullName || '').trim();
+      const empId = (u.employeeId || '').trim();
+      const id = String(u.id || '').trim();
+
+      if (['north', 'south', 'east', 'west'].includes(reg)) return true;
+      if (zone.includes('zonal jurisdiction') || reg.includes('organization-wide')) return true;
+      if (/^([so]\d+|m1)$/i.test(id)) return true;
+      if (/^FO00[1-9]/i.test(empId) || /^SUP00[1-9]/i.test(empId)) return true;
+      if (['u_demo_off', 'u_demo_sup'].includes(id)) return true;
+      if (legacyMockEmails.includes(email)) return true;
+      if (legacyMockNames.some(n => name.toLowerCase() === n.toLowerCase())) return true;
+      return false;
+    };
+
+    // 1. Collect all target user IDs from db.users and offlineDb.users
+    const allDbUsers = await db.users.toArray();
+    const allOfflineUsers = await offlineDb.users.toArray();
+    
+    const targetDbUserIds = new Set<string>();
+    const targetEmpIds = new Set<string>();
+    const targetNames = new Set<string>(legacyMockNames.map(n => n.toLowerCase()));
+
+    allDbUsers.forEach(u => {
+      if (isTargetUser(u)) {
+        if (u.id) targetDbUserIds.add(u.id);
+        if (u.employeeId) targetEmpIds.add(u.employeeId);
+        if (u.name) targetNames.add(u.name.toLowerCase());
+      }
+    });
+
+    allOfflineUsers.forEach(u => {
+      if (isTargetUser(u)) {
+        if (u.id) targetDbUserIds.add(u.id);
+        if (u.employeeId) targetEmpIds.add(u.employeeId);
+        if (u.fullName) targetNames.add(u.fullName.toLowerCase());
+      }
+    });
+
+    // Also include known legacy IDs and employee IDs
+    ['o1', 'o2', 'o3', 'o4', 'o5', 'o6', 'o7', 'o8', 'o9', 'o10', 'o11', 'o12', 's1', 's2', 's3', 'u_demo_off', 'u_demo_sup'].forEach(id => targetDbUserIds.add(id));
+    ['FO001', 'FO002', 'FO003', 'FO004', 'FO005', 'FO006', 'FO007', 'FO008', 'FO009', 'FO010', 'FO011', 'FO012', 'SUP001', 'SUP002', 'SUP003'].forEach(eid => targetEmpIds.add(eid));
+
+    const idList = Array.from(targetDbUserIds);
+    const empIdList = Array.from(targetEmpIds);
+
+    // Delete users from db.users and offlineDb.users
+    await db.users.bulkDelete(idList);
+    await offlineDb.users.bulkDelete(idList);
+
+    // 2. Cascade delete from all Dexie tables
+    const isTargetRecord = (r: any) => {
+      if (!r) return false;
+      const uid = String(r.userId || r.officerId || r.supervisorId || r.registeredBy || r.targetEmployeeId || '');
+      const eid = String(r.employeeId || '');
+      const reg = String(r.region || r.officerRegion || '').trim().toLowerCase();
+      const name = String(r.name || r.userName || r.employeeName || r.officerName || r.supervisorName || r.registeredByName || '').trim().toLowerCase();
+      
+      if (idList.includes(uid) || empIdList.includes(eid)) return true;
+      if (['north', 'south', 'east', 'west'].includes(reg)) return true;
+      if (targetNames.has(name)) return true;
+      return false;
+    };
+
+    // db.reports
+    try {
+      const reports = await db.reports.toArray();
+      const deleteReports = reports.filter(isTargetRecord).map(r => r.id);
+      if (deleteReports.length) await db.reports.bulkDelete(deleteReports);
+    } catch (_e) {}
+
+    // db.attendance
+    try {
+      const attendance = await db.attendance.toArray();
+      const deleteAttendance = attendance.filter(isTargetRecord).map(a => a.id);
+      if (deleteAttendance.length) await db.attendance.bulkDelete(deleteAttendance);
+    } catch (_e) {}
+
+    // db.citizens
+    try {
+      const citizens = await db.citizens.toArray();
+      const deleteCitizens = citizens.filter(isTargetRecord).map(c => c.id);
+      if (deleteCitizens.length) await db.citizens.bulkDelete(deleteCitizens);
+    } catch (_e) {}
+
+    // db.leaves
+    try {
+      const leaves = await db.leaves.toArray();
+      const deleteLeaves = leaves.filter(isTargetRecord).map(l => l.id);
+      if (deleteLeaves.length) await db.leaves.bulkDelete(deleteLeaves);
+    } catch (_e) {}
+
+    // db.permissions
+    try {
+      const permissions = await db.permissions.toArray();
+      const deletePermissions = permissions.filter(isTargetRecord).map(p => p.id);
+      if (deletePermissions.length) await db.permissions.bulkDelete(deletePermissions);
+    } catch (_e) {}
+
+    // db.supervisor_reports
+    try {
+      const supReports = await db.supervisor_reports.toArray();
+      const deleteSupReports = supReports.filter(isTargetRecord).map(sr => sr.id);
+      if (deleteSupReports.length) await db.supervisor_reports.bulkDelete(deleteSupReports);
+    } catch (_e) {}
+
+    // db.status
+    try {
+      const statuses = await db.status.toArray();
+      const deleteStatus = statuses.filter(isTargetRecord).map(s => s.id);
+      if (deleteStatus.length) await db.status.bulkDelete(deleteStatus);
+    } catch (_e) {}
+
+    // db.screen_time
+    try {
+      const screenTime = await db.screen_time.toArray();
+      const deleteScreenTime = screenTime.filter(isTargetRecord).map(st => st.id);
+      if (deleteScreenTime.length) await db.screen_time.bulkDelete(deleteScreenTime);
+    } catch (_e) {}
+
+    // db.audit
+    try {
+      const auditLogs = await db.audit.toArray();
+      const deleteAudit = auditLogs.filter(isTargetRecord).map(a => a.id);
+      if (deleteAudit.length) await db.audit.bulkDelete(deleteAudit);
+    } catch (_e) {}
+
+    // db.notifications
+    try {
+      const notifs = await db.notifications.toArray();
+      const deleteNotifs = notifs.filter(isTargetRecord).map(n => n.id);
+      if (deleteNotifs.length) await db.notifications.bulkDelete(deleteNotifs);
+    } catch (_e) {}
+
+    // db.tasks
+    try {
+      const tasks = await db.tasks.toArray();
+      const deleteTasks = tasks.filter(isTargetRecord).map(t => t.id);
+      if (deleteTasks.length) await db.tasks.bulkDelete(deleteTasks);
+    } catch (_e) {}
+
+    // db.verification_history
+    try {
+      const verif = await db.verification_history.toArray();
+      const deleteVerif = verif.filter(isTargetRecord).map(v => v.id);
+      if (deleteVerif.length) await db.verification_history.bulkDelete(deleteVerif);
+    } catch (_e) {}
+
+    // db.gps_locations
+    try {
+      const gps = await db.gps_locations.toArray();
+      const deleteGps = gps.filter(isTargetRecord).map(g => g.id);
+      if (deleteGps.length) await db.gps_locations.bulkDelete(deleteGps);
+    } catch (_e) {}
+
+    // db.check_ins
+    try {
+      const checkIns = await db.check_ins.toArray();
+      const deleteCheckIns = checkIns.filter(isTargetRecord).map(ci => ci.id);
+      if (deleteCheckIns.length) await db.check_ins.bulkDelete(deleteCheckIns);
+    } catch (_e) {}
+
+    // 3. Cascade delete from offlineDb tables
+    try {
+      const offlineCitizens = await offlineDb.citizens.toArray();
+      const delOffCit = offlineCitizens.filter(c => idList.includes(c.registeredById) || ['north', 'south', 'east', 'west'].includes((c.region || '').toLowerCase())).map(c => c.id);
+      if (delOffCit.length) await offlineDb.citizens.bulkDelete(delOffCit);
+    } catch (_e) {}
+
+    try {
+      const offReports = await offlineDb.dailyWorkReports.toArray();
+      const delOffRep = offReports.filter(r => idList.includes(r.userId)).map(r => r.id);
+      if (delOffRep.length) await offlineDb.dailyWorkReports.bulkDelete(delOffRep);
+    } catch (_e) {}
+
+    try {
+      const offSessions = await offlineDb.workSessions.toArray();
+      const delOffSess = offSessions.filter(s => idList.includes(s.userId)).map(s => s.id);
+      if (delOffSess.length) await offlineDb.workSessions.bulkDelete(delOffSess);
+    } catch (_e) {}
+
+    try {
+      const offLogs = await offlineDb.activityLogs.toArray();
+      const delOffLogs = offLogs.filter(l => idList.includes(l.userId)).map(l => l.id);
+      if (delOffLogs.length) await offlineDb.activityLogs.bulkDelete(delOffLogs);
+    } catch (_e) {}
+
+    try {
+      const offVerif = await offlineDb.workVerifications.toArray();
+      const delOffVer = offVerif.filter(v => idList.includes(v.userId)).map(v => v.id);
+      if (delOffVer.length) await offlineDb.workVerifications.bulkDelete(delOffVer);
+    } catch (_e) {}
+
+    try {
+      const offScTime = await offlineDb.dailyScreenTimes.toArray();
+      const delOffScTime = offScTime.filter(st => idList.includes(st.userId)).map(st => st.id);
+      if (delOffScTime.length) await offlineDb.dailyScreenTimes.bulkDelete(delOffScTime);
+    } catch (_e) {}
+
+    try {
+      const offChat = await offlineDb.chatMessages.toArray();
+      const delOffChat = offChat.filter(m => 
+        idList.includes(m.senderId) || 
+        idList.includes(m.receiverId) || 
+        targetNames.has((m.senderName || '').toLowerCase()) ||
+        m.conversationId?.includes('s1') ||
+        m.conversationId?.includes('s2') ||
+        m.conversationId?.includes('s3')
+      ).map(m => m.id);
+      if (delOffChat.length) await offlineDb.chatMessages.bulkDelete(delOffChat);
+    } catch (_e) {}
+
+    // Ensure u_sup and u_off have real Bole Sub-City attributes
+    const existingSup = await db.users.get('u_sup');
+    if (existingSup) {
+      await db.users.update('u_sup', {
+        name: 'alemu kebede ayele',
+        region: 'Addis Ababa',
+        regionId: 'reg-addis-ababa',
+        zone: 'Bole Sub-City',
+        zoneId: 'zone-aa-bole',
+      });
+    }
+    const existingOff = await db.users.get('u_off');
+    if (existingOff) {
+      await db.users.update('u_off', {
+        name: 'Meseret Hailu Tadesse',
+        region: 'Addis Ababa',
+        regionId: 'reg-addis-ababa',
+        zone: 'Bole Sub-City',
+        zoneId: 'zone-aa-bole',
+        woreda: 'Bole Woreda 01',
+        woredaId: 'wor-aa-bol-01',
+        supervisorId: 'u_sup',
+      });
+    }
+  } catch (err) {
+    console.warn('Error purging legacy directional users:', err);
+  }
+};
+
 export const initializeAllData = async () => {
   try {
+    await purgeLegacyDirectionalUsers();
     const userCount = await db.users.count();
     if (userCount > 0) {
       return;
@@ -807,26 +1093,12 @@ export const initializeAllData = async () => {
     const leaves = [
       {
         id: uid(),
-        employeeId: 'FO001',
-        employeeName: 'Meseret Alemu',
-        startDate: '2024-02-15',
-        endDate: '2024-02-17',
-        reason: 'Family event',
+        employeeId: 'u_off',
+        employeeName: 'Meseret Hailu Tadesse',
+        startDate: '2026-10-15',
+        endDate: '2026-10-17',
+        reason: 'Personal leave',
         type: 'annual',
-        status: 'pending',
-        createdAt: new Date().toISOString(),
-        approvedBy: null,
-        approvedAt: null,
-        synced: true,
-      },
-      {
-        id: uid(),
-        employeeId: 'FO004',
-        employeeName: 'Meles Zenebe',
-        startDate: '2024-02-20',
-        endDate: '2024-02-22',
-        reason: 'Sick',
-        type: 'sick',
         status: 'pending',
         createdAt: new Date().toISOString(),
         approvedBy: null,
@@ -841,91 +1113,31 @@ export const initializeAllData = async () => {
         id: uid(),
         reportId: 'RPT-001',
         reportDate: today,
-        region: 'North',
-        siteName: 'Site A',
-        employeeId: 'FO001',
-        employeeName: 'Meseret Alemu',
-        supervisorId: 's1',
-        registrations: 15,
-        registrationEfficiency: 75,
+        region: 'Addis Ababa',
+        siteName: 'Bole Registration Center',
+        employeeId: 'u_off',
+        employeeName: 'Meseret Hailu Tadesse',
+        supervisorId: 'u_sup',
+        registrations: 18,
+        registrationEfficiency: 90,
         operationalStatus: 'Active',
         attendance: 'present',
         workHours: 8,
         issues: 'None',
-        comments: 'Good progress',
-        challenges: 'Weather',
-        activities: 'Registration',
+        comments: 'Operations progressing smoothly',
+        challenges: 'None',
+        activities: 'Biometric Enrollment',
         equipmentStatus: 'operational',
-        materialsUsed: 'Forms',
-        teamMembers: 'Team A',
-        weatherConditions: 'Sunny',
+        materialsUsed: 'Intake Forms',
+        teamMembers: 'Team Bole 01',
+        weatherConditions: 'Clear',
         communityFeedback: 'Positive',
         submittedAt: new Date().toISOString(),
         synced: true,
         syncAttempts: 0,
         syncError: null,
         reviewed: true,
-        reviewedBy: 'System',
-      },
-      {
-        id: uid(),
-        reportId: 'RPT-002',
-        reportDate: today,
-        region: 'South',
-        siteName: 'Site B',
-        employeeId: 'FO004',
-        employeeName: 'Meles Zenebe',
-        supervisorId: 's2',
-        registrations: 10,
-        registrationEfficiency: 50,
-        operationalStatus: 'Active',
-        attendance: 'present',
-        workHours: 7,
-        issues: 'None',
-        comments: 'Good',
-        challenges: 'None',
-        activities: 'Registration',
-        equipmentStatus: 'operational',
-        materialsUsed: 'Forms',
-        teamMembers: 'Team B',
-        weatherConditions: 'Cloudy',
-        communityFeedback: 'Good',
-        submittedAt: new Date().toISOString(),
-        synced: true,
-        syncAttempts: 0,
-        syncError: null,
-        reviewed: true,
-        reviewedBy: 'System',
-      },
-      {
-        id: uid(),
-        reportId: 'RPT-003',
-        reportDate: today,
-        region: 'East',
-        siteName: 'Site C',
-        employeeId: 'FO007',
-        employeeName: 'Fikre Gebreegziabher',
-        supervisorId: 's3',
-        registrations: 8,
-        registrationEfficiency: 40,
-        operationalStatus: 'Active',
-        attendance: 'present',
-        workHours: 6,
-        issues: 'None',
-        comments: 'Good',
-        challenges: 'None',
-        activities: 'Registration',
-        equipmentStatus: 'operational',
-        materialsUsed: 'Forms',
-        teamMembers: 'Team C',
-        weatherConditions: 'Sunny',
-        communityFeedback: 'Good',
-        submittedAt: new Date().toISOString(),
-        synced: true,
-        syncAttempts: 0,
-        syncError: null,
-        reviewed: true,
-        reviewedBy: 'System',
+        reviewedBy: 'alemu kebede ayele',
       },
     ];
     await db.reports.bulkAdd(reports);
@@ -939,67 +1151,19 @@ export const initializeAllData = async () => {
         dateOfBirth: '1990-01-01',
         gender: 'Male',
         phone: '+251-911-000001',
-        email: 'abebe@test.com',
-        address: 'Addis Ababa',
-        region: 'North',
-        district: 'District 1',
-        village: 'Village 1',
+        email: 'abebe.citizen@example.com',
+        address: 'Addis Ababa, Bole Sub-City, Woreda 01',
+        region: 'Addis Ababa',
+        district: 'Bole Sub-City',
+        village: 'Kebele 01',
         occupation: 'Teacher',
         maritalStatus: 'Married',
         registrationDate: new Date().toISOString(),
-        registeredBy: 'FO001',
-        registeredByName: 'Meseret Alemu',
+        registeredBy: 'u_off',
+        registeredByName: 'Meseret Hailu Tadesse',
         idType: 'National ID',
         idNumber: 'NID-001',
-        biometrics: false,
-        status: 'active',
-        synced: true,
-      },
-      {
-        id: uid(),
-        nationalId: 'NID-002',
-        firstName: 'Sahle',
-        lastName: 'Work',
-        dateOfBirth: '1985-06-15',
-        gender: 'Female',
-        phone: '+251-911-000002',
-        email: 'sahle@test.com',
-        address: 'Addis Ababa',
-        region: 'South',
-        district: 'District 2',
-        village: 'Village 2',
-        occupation: 'Nurse',
-        maritalStatus: 'Single',
-        registrationDate: new Date().toISOString(),
-        registeredBy: 'FO004',
-        registeredByName: 'Meles Zenebe',
-        idType: 'National ID',
-        idNumber: 'NID-002',
-        biometrics: false,
-        status: 'active',
-        synced: true,
-      },
-      {
-        id: uid(),
-        nationalId: 'NID-003',
-        firstName: 'Kidan',
-        lastName: 'Tesema',
-        dateOfBirth: '1992-03-20',
-        gender: 'Male',
-        phone: '+251-911-000003',
-        email: 'kidan@test.com',
-        address: 'Addis Ababa',
-        region: 'East',
-        district: 'District 3',
-        village: 'Village 3',
-        occupation: 'Engineer',
-        maritalStatus: 'Single',
-        registrationDate: new Date().toISOString(),
-        registeredBy: 'FO007',
-        registeredByName: 'Fikre Gebreegziabher',
-        idType: 'National ID',
-        idNumber: 'NID-003',
-        biometrics: false,
+        biometrics: true,
         status: 'active',
         synced: true,
       },
@@ -1009,11 +1173,11 @@ export const initializeAllData = async () => {
     const supervisorReports = [
       {
         id: uid(),
-        supervisorId: 's1',
-        supervisorName: 'Birhan Gebreegziabher',
-        officerId: 'o1',
-        officerName: 'Meseret Alemu',
-        officerRegion: 'North',
+        supervisorId: 'u_sup',
+        supervisorName: 'alemu kebede ayele',
+        officerId: 'u_off',
+        officerName: 'Meseret Hailu Tadesse',
+        officerRegion: 'Addis Ababa',
         reportDate: today,
         performance: 'good',
         attendance: 'good',
@@ -1021,12 +1185,12 @@ export const initializeAllData = async () => {
         punctuality: 'good',
         teamwork: 'good',
         communication: 'good',
-        comments: 'Good performance',
-        recommendations: 'Keep it up',
-        overallRating: 4,
+        comments: 'Excellent registration throughput and attendance compliance',
+        recommendations: 'Continue standard protocol',
+        overallRating: 5,
         status: 'submitted',
         submittedAt: new Date().toISOString(),
-        region: 'North',
+        region: 'Addis Ababa',
         type: 'officer_report',
         synced: true,
       },
@@ -1036,8 +1200,8 @@ export const initializeAllData = async () => {
     const audit = [
       {
         id: uid(),
-        userId: 'MGR001',
-        userName: 'Abebe Bekele',
+        userId: 'u_mgr',
+        userName: 'System Manager',
         action: 'LOGIN',
         details: 'User logged in',
         timestamp: new Date().toISOString(),
@@ -1045,10 +1209,10 @@ export const initializeAllData = async () => {
       },
       {
         id: uid(),
-        userId: 'FO001',
-        userName: 'Meseret Alemu',
+        userId: 'u_off',
+        userName: 'Meseret Hailu Tadesse',
         action: 'SUBMIT_REPORT',
-        details: 'Report submitted for Site A',
+        details: 'Daily report submitted for Bole Registration Center',
         timestamp: new Date().toISOString(),
         ip: '127.0.0.1',
       },
@@ -1058,16 +1222,16 @@ export const initializeAllData = async () => {
     const alerts = [
       {
         id: uid(),
-        title: 'Emergency Meeting',
-        message: 'All officers must attend emergency meeting at 2pm today',
+        title: 'Operations Briefing',
+        message: 'All field officers must review weekly synchronization metrics by end of day',
         priority: 'high',
-        type: 'emergency',
+        type: 'operational',
         timestamp: new Date().toISOString(),
         read: false,
         targetAll: true,
         targetEmployeeId: null,
-        sentBy: 'MGR001',
-        sentByName: 'Abebe Bekele',
+        sentBy: 'u_mgr',
+        sentByName: 'System Manager',
       },
     ];
     await db.alerts.bulkAdd(alerts);
@@ -1075,12 +1239,12 @@ export const initializeAllData = async () => {
     const permissions = [
       {
         id: uid(),
-        employeeId: 'FO001',
-        employeeName: 'Meseret Alemu',
+        employeeId: 'u_off',
+        employeeName: 'Meseret Hailu Tadesse',
         permissionType: 'Work Permission',
-        startDate: '2024-02-25',
-        endDate: '2024-02-25',
-        reason: 'Medical appointment',
+        startDate: '2026-10-25',
+        endDate: '2026-10-25',
+        reason: 'Medical checkup',
         status: 'pending',
         requestedAt: new Date().toISOString(),
         approvedBy: null,

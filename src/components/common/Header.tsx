@@ -10,8 +10,10 @@ import {
   KeyRound,
   Sun,
   Moon,
+  Home,
 } from 'lucide-react';
 import SyncBadge from '../ui/SyncBadge';
+import LanguageSelector from './LanguageSelector';
 import { useUserLanguage } from '../../context/UserLanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import {
@@ -83,6 +85,8 @@ export default function Header({
     notifications: 'Notifications & Alerts',
     profile: 'My Profile & Workstation',
     profile_security: 'Security & Change Password',
+    activity_logs: 'Activity Logs',
+    chat: user?.role === 'supervisor' ? 'Manager Chat' : 'Supervisor Chat',
   };
 
   const [recentNotifications, setRecentNotifications] = useState<any[]>([]);
@@ -210,6 +214,8 @@ export default function Header({
             <Moon className="w-4 h-4 text-slate-600" />
           )}
         </button>
+
+        <LanguageSelector />
 
         <div className="relative">
           <button
@@ -381,6 +387,18 @@ export default function Header({
                 >
                   <KeyRound className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                   Change Password
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    window.location.hash = '#home';
+                    window.dispatchEvent(new HashChangeEvent('hashchange'));
+                    setShowUserMenu(false);
+                  }}
+                  className="w-full px-3 py-2 text-left text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg flex items-center gap-2.5 transition-colors cursor-pointer"
+                >
+                  <Home className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  {userT('Home Page')}
                 </button>
                 <div className="h-px bg-slate-100 dark:bg-[#334155] my-1" />
                 <button

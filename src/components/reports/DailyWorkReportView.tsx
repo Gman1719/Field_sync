@@ -907,11 +907,11 @@ export default function DailyWorkReportView({
         <div>
           <div className="flex flex-wrap items-center gap-2.5">
             <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-[#F8FAFC] tracking-tight">
-              Today's Report — {todayStr}
+              {userT("Today's Report")} — {todayStr}
             </h1>
           </div>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-[#94A3B8] mt-1">
-            Official daily operational summary, citizen totals, and screen-time telemetry submission
+            {userT('Official daily operational summary, citizen totals, and screen-time telemetry submission')}
           </p>
         </div>
 
@@ -925,7 +925,7 @@ export default function DailyWorkReportView({
               className="h-10 px-4 rounded-xl border-[#E2E8F0] dark:border-slate-700 text-[#2563EB] dark:text-blue-400 font-bold text-sm dark:hover:bg-[#0F172A]"
             >
               <FileText className="w-4 h-4 mr-2" />
-              View My Reports
+              {userT('View My Reports')}
             </Button>
           )}
         </div>
@@ -936,13 +936,13 @@ export default function DailyWorkReportView({
         {/* Metric 1: Citizens Registered */}
         <div className="p-3.5 sm:p-4">
           <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">
-            Citizens Registered
+            {userT('Citizens Registered')}
           </span>
           <div className="flex items-baseline gap-1.5">
             <span className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white font-mono leading-none">
               {todayReport && !screenTimeInfo?.isSessionActive ? 0 : localCitizenCount}
             </span>
-            <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold">Today</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold">{userT('Today')}</span>
           </div>
         </div>
 
@@ -950,8 +950,8 @@ export default function DailyWorkReportView({
         <div className="p-3.5 sm:p-4">
           <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">
             {todayReport && !screenTimeInfo?.isSessionActive
-              ? 'Finalized Screen Time'
-              : 'Recorded Screen Time'}
+              ? userT('Finalized Screen Time')
+              : userT('Recorded Screen Time')}
           </span>
           <span className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white font-mono leading-none block">
             {todayReport && !screenTimeInfo?.isSessionActive
@@ -963,10 +963,10 @@ export default function DailyWorkReportView({
         {/* Metric 3: Reporting Officer */}
         <div className="p-3.5 sm:p-4">
           <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">
-            Reporting Officer
+            {userT('Reporting Officer')}
           </span>
           <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate block leading-snug">
-            {user?.fullName || user?.name || user?.email || 'Field Staff'}
+            {user?.fullName || user?.name || user?.email || userT('Field Staff')}
           </span>
           {user?.employeeId && (
             <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400">
@@ -978,7 +978,7 @@ export default function DailyWorkReportView({
         {/* Metric 4: Report Date */}
         <div className="p-3.5 sm:p-4">
           <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">
-            Report Date
+            {userT('Report Date')}
           </span>
           <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white block leading-snug font-mono">
             {todayStr}
@@ -995,7 +995,7 @@ export default function DailyWorkReportView({
             <CardHeader className="p-5 border-b border-[#E2E8F0] dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800">
               <div>
                 <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-[#F8FAFC] tracking-tight">
-                  Daily Work & Field Observations
+                  {userT('Daily Work & Field Observations')}
                 </h3>
               </div>
             </CardHeader>
@@ -1006,7 +1006,7 @@ export default function DailyWorkReportView({
                     htmlFor="dailyWorkNarrative"
                     className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-200 block"
                   >
-                    Daily Work Narrative & Completed Deliverables <span className="text-rose-500 font-bold">*</span>
+                    {userT('Daily Work Narrative & Completed Deliverables')} <span className="text-rose-500 font-bold">*</span>
                   </label>
                 </div>
                 <Textarea
@@ -1015,7 +1015,7 @@ export default function DailyWorkReportView({
                   onChange={(e) => setForm({ ...form, summary: e.target.value })}
                   rows={4}
                   required
-                  placeholder="Enter details of today's citizen intake, site visits, and completed registrations..."
+                  placeholder={userT("Enter details of today's citizen intake, site visits, and completed registrations...")}
                   className="w-full text-sm leading-relaxed"
                 />
               </div>
@@ -1025,14 +1025,14 @@ export default function DailyWorkReportView({
                   htmlFor="roadblocksInput"
                   className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-200 block mb-1.5"
                 >
-                  Roadblocks & Operational Challenges
+                  {userT('Roadblocks & Operational Challenges')}
                 </label>
                 <Textarea
                   id="roadblocksInput"
                   value={form.challenges}
                   onChange={(e) => setForm({ ...form, challenges: e.target.value })}
                   rows={4}
-                  placeholder="Describe any field obstacles, network issues, or equipment challenges..."
+                  placeholder={userT('Describe any field obstacles, network issues, or equipment challenges...')}
                   className="w-full text-sm leading-relaxed"
                 />
               </div>
@@ -1047,7 +1047,7 @@ export default function DailyWorkReportView({
             <CardHeader className="p-5 border-b border-[#E2E8F0] dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800">
               <div>
                 <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-[#F8FAFC] tracking-tight">
-                  Shift Logistics & Next Steps
+                  {userT('Shift Logistics & Next Steps')}
                 </h3>
               </div>
             </CardHeader>
@@ -1057,14 +1057,14 @@ export default function DailyWorkReportView({
                   htmlFor="resourcesInput"
                   className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-200 block mb-1.5"
                 >
-                  Resources Used & Logistics Needed
+                  {userT('Resources Used & Logistics Needed')}
                 </label>
                 <Textarea
                   id="resourcesInput"
                   value={form.resources}
                   onChange={(e) => setForm({ ...form, resources: e.target.value })}
                   rows={4}
-                  placeholder="Biometric kits, tablets, vehicle/fuel, battery packs..."
+                  placeholder={userT('Biometric kits, tablets, vehicle/fuel, battery packs...')}
                   className="w-full text-sm leading-relaxed"
                 />
               </div>
@@ -1074,14 +1074,14 @@ export default function DailyWorkReportView({
                   htmlFor="nextDayPlanInput"
                   className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-200 block mb-1.5"
                 >
-                  Tomorrow's Priorities & Target Kebeles
+                  {userT("Tomorrow's Priorities & Target Kebeles")}
                 </label>
                 <Textarea
                   id="nextDayPlanInput"
                   value={form.nextDayPlan}
                   onChange={(e) => setForm({ ...form, nextDayPlan: e.target.value })}
                   rows={4}
-                  placeholder="Target kebeles, prioritized registration sites for next shift..."
+                  placeholder={userT('Target kebeles, prioritized registration sites for next shift...')}
                   className="w-full text-sm leading-relaxed"
                 />
               </div>
@@ -1098,7 +1098,7 @@ export default function DailyWorkReportView({
               className="w-full text-base font-bold py-3.5 rounded-xl shadow-md shadow-blue-600/20"
             >
               <Send className="w-5 h-5 mr-2" />
-              Submit Daily Report
+              {userT('Submit Daily Report')}
             </Button>
           </Card>
         </div>

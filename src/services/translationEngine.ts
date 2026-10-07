@@ -124,6 +124,31 @@ export function translateText(rawText: string, lang: string): string {
     return `${prefix} ${rest}`;
   }
 
+  // Pattern: "Started daily work session (time)"
+  const startedSessionMatch = trimmed.match(/^started daily work session\s*\((.+?)\)$/i);
+  if (startedSessionMatch) {
+    const time = startedSessionMatch[1];
+    if (lang === 'am') return `የዕለት የስራ ክፍለ-ጊዜ ጀምሯል (${time})`;
+    if (lang === 'om') return `Kutaa hojii guyyaa jalqabeera (${time})`;
+    if (lang === 'ti') return `ናይ መዓልቲ ስራሕ ክፍለ-ግዜ ጀሚሩ (${time})`;
+  }
+
+  // Pattern: "Started daily work session"
+  if (/^started daily work session$/i.test(trimmed)) {
+    if (lang === 'am') return 'የዕለት የስራ ክፍለ-ጊዜ ጀምሯል';
+    if (lang === 'om') return 'Kutaa hojii guyyaa jalqabeera';
+    if (lang === 'ti') return 'ናይ መዓልቲ ስራሕ ክፍለ-ግዜ ጀሚሩ';
+  }
+
+  // Pattern: "Finalized daily work session for {date}"
+  const finalizedSessionMatch = trimmed.match(/^finalized daily work session for\s+(.+)$/i);
+  if (finalizedSessionMatch) {
+    const dStr = finalizedSessionMatch[1].trim();
+    if (lang === 'am') return `የ${dStr} የዕለት የስራ ክፍለ-ጊዜ ተጠናቋል`;
+    if (lang === 'om') return `Kutaa hojii guyyaa ${dStr} xumurameera`;
+    if (lang === 'ti') return `ናይ ${dStr} ናይ መዓልቲ ስራሕ ክፍለ-ግዜ ተዛዚሙ`;
+  }
+
   // Pattern: "Reset password for {name}? A new temporary password will be generated..."
   if (/^reset password for\s+/i.test(trimmed) && /new temporary password/i.test(trimmed)) {
     const match = trimmed.match(/^reset password for\s+(.+?)\?\s*(.+)$/i);
@@ -201,6 +226,227 @@ export function translateText(rawText: string, lang: string): string {
     if (lang === 'am') return `ይህ ጊዜያዊ የይለፍ ቃል የተፈጠረው ለ ${name}`;
     if (lang === 'om') return `Jechi icciitii yeroo kun kan uumameef ${name}`;
     if (lang === 'ti') return `እዚ ግዝያዊ መሕለፊ ቃል ዝተፈጥረ ን ${name}`;
+  }
+
+  // --- Dynamic Notifications Patterns ---
+  // Helper for translating role in patterns
+  const getSubRole = (rStr: string) => {
+    const raw = (rStr || '').trim().toLowerCase().replace(/[\s_]+/g, '_');
+    if (raw === 'supervisor') return lang === 'am' ? 'ተቆጣጣሪ' : lang === 'om' ? "To'ataa" : 'ተቖጻጻሪ';
+    if (raw === 'field_officer' || raw === 'field officer' || raw === 'officer') return lang === 'am' ? 'የመስክ መኮንን' : lang === 'om' ? 'Hojjetaa Dirree' : 'ናይ ግዳም መኮንን';
+    if (raw === 'manager') return lang === 'am' ? 'ስራ-አስኪያጅ' : lang === 'om' ? 'Hogganaa' : 'ኣካያዲ ስራሕ';
+    if (raw === 'admin' || raw === 'system_admin') return lang === 'am' ? 'አስተዳዳሪ' : lang === 'om' ? 'Bulchaa' : 'ኣመሓዳሪ';
+    return translateText(rStr, lang);
+  };
+
+  // Pattern: "{name} ({role}) has been reassigned to a new administrative territory."
+  const reassignedNotifMatch = trimmed.match(/^(.+?)\s*\((.+?)\)\s*has been reassigned to a new administrative territory\.?$/i);
+  if (reassignedNotifMatch) {
+    const name = reassignedNotifMatch[1].trim();
+    const role = getSubRole(reassignedNotifMatch[2].trim());
+    if (lang === 'am') return `${name} (${role}) ወደ አዲስ የአስተዳደር ክልል ተመድቧል።`;
+    if (lang === 'om') return `${name} (${role}) gara daangaa bulchiinsa haaraatti ramadameera.`;
+    if (lang === 'ti') return `${name} (${role}) ናብ ሓድሽ ምምሕዳራዊ ዞባ ተመዲቡ።`;
+  }
+
+  // Pattern: "{name}'s role has been changed from {role1} to {role2}."
+  const roleChangedNotifMatch = trimmed.match(/^(.+?)'s role has been changed from\s+(.+?)\s+to\s+(.+?)\.?$/i);
+  if (roleChangedNotifMatch) {
+    const name = roleChangedNotifMatch[1].trim();
+    const r1 = getSubRole(roleChangedNotifMatch[2].trim());
+    const r2 = getSubRole(roleChangedNotifMatch[3].trim());
+    if (lang === 'am') return `የ${name} የስራ ድርሻ ከ${r1} ወደ ${r2} ተቀይሯል።`;
+    if (lang === 'om') return `Gaheen hojii ${name} ${r1} irraa gara ${r2}-tti jijjiirameera.`;
+    if (lang === 'ti') return `ናይ ${name} ናይ ስራሕ ተራ ካብ ${r1} ናብ ${r2} ተቐይሩ።`;
+  }
+
+  // Pattern: "{name}'s account has been deactivated/activated."
+  const acctStatusNotifMatch = trimmed.match(/^(.+?)'s account has been\s+(deactivated|activated)\.?$/i);
+  if (acctStatusNotifMatch) {
+    const name = acctStatusNotifMatch[1].trim();
+    const isDeact = /deactivated/i.test(acctStatusNotifMatch[2]);
+    if (lang === 'am') return isDeact ? `የ${name} መለያ ተሰናክሏል።` : `የ${name} መለያ ነቅቷል።`;
+    if (lang === 'om') return isDeact ? `Herregni ${name} cufameera.` : `Herregni ${name} hojjetameera.`;
+    if (lang === 'ti') return isDeact ? `ናይ ${name} ሕሳብ ተዓጽዩ።` : `ናይ ${name} ሕሳብ ነቒሑ።`;
+  }
+
+  // Pattern: "{name} ({role}) was provisioned in the system."
+  const provisionedRoleMatch = trimmed.match(/^(.+?)\s*\((.+?)\)\s*was provisioned in the system\.?$/i);
+  if (provisionedRoleMatch) {
+    const name = provisionedRoleMatch[1].trim();
+    const role = getSubRole(provisionedRoleMatch[2].trim());
+    if (lang === 'am') return `${name} (${role}) በስርዓቱ ውስጥ ተመዝግቧል።`;
+    if (lang === 'om') return `${name} (${role}) sirna kana keessatti uumameera.`;
+    if (lang === 'ti') return `${name} (${role}) ኣብቲ ስርዓት ተመዝጊቡ።`;
+  }
+
+  // Pattern: "{name} was provisioned in the system."
+  const provisionedSimpleMatch = trimmed.match(/^(.+?)\s*was provisioned in the system\.?$/i);
+  if (provisionedSimpleMatch) {
+    const name = provisionedSimpleMatch[1].trim();
+    if (lang === 'am') return `${name} በስርዓቱ ውስጥ ተመዝግቧል።`;
+    if (lang === 'om') return `${name} sirna kana keessatti uumameera.`;
+    if (lang === 'ti') return `${name} ኣብቲ ስርዓት ተመዝጊቡ።`;
+  }
+
+  // Pattern: "{name} has been reassigned to another zone."
+  const reassignedOtherZoneMatch = trimmed.match(/^(.+?)\s*has been reassigned to another zone\.?$/i);
+  if (reassignedOtherZoneMatch) {
+    const name = reassignedOtherZoneMatch[1].trim();
+    if (lang === 'am') return `${name} ወደ ሌላ ዞን ተዛውሯል።`;
+    if (lang === 'om') return `${name} gara godina biraatti jijjiirameera.`;
+    if (lang === 'ti') return `${name} ናብ ካልእ ዞባ ተዛዊሩ።`;
+  }
+
+  // Pattern: "{name} has been transferred and assigned to your zone."
+  const assignedYourZoneMatch = trimmed.match(/^(.+?)\s*has been transferred and assigned to your zone\.?$/i);
+  if (assignedYourZoneMatch) {
+    const name = assignedYourZoneMatch[1].trim();
+    if (lang === 'am') return `${name} ተዛውሮ ወደ እርስዎ ዞን ተመድቧል።`;
+    if (lang === 'om') return `${name} jijjiiramee gara godina keessaniitti ramadameera.`;
+    if (lang === 'ti') return `${name} ተዛዊሩ ናብ ዞባኹም ተመዲቡ።`;
+  }
+
+  // Pattern: "Field officer {name} failed to answer a scheduled work verification because they were logged out during official working hours."
+  const missedLoggedOutMatch = trimmed.match(/^field officer\s+(.+?)\s+failed to answer a scheduled work verification because they were logged out during official working hours\.?$/i);
+  if (missedLoggedOutMatch) {
+    const name = missedLoggedOutMatch[1].trim();
+    if (lang === 'am') return `የመስክ መኮንን ${name} በይፋዊ የስራ ሰዓት ውስጥ ከመለያው ወጥቶ ስለነበር የታቀደውን የስራ ማረጋገጫ መመለስ አልቻለም።`;
+    if (lang === 'om') return `Oofisarri dirree ${name} sa'aatii hojii idilee keessatti herrega keessaa waan baheef mirkaneessa hojii karoorfame deebisuu hin dandeenye.`;
+    if (lang === 'ti') return `ናይ መሮር ሰራሕተኛ ${name} ኣብ ስሩዕ ናይ ስራሕ ሰዓት ካብ ሕሳቡ ወጺኡ ስለዝነበረ ዝተመደበ ናይ ስራሕ ምርግጋጽ ክምልስ ኣይከኣለን።`;
+  }
+
+  // Pattern: "Field officer {name} failed to answer a scheduled work verification."
+  const missedVerifSimpleMatch = trimmed.match(/^field officer\s+(.+?)\s+failed to answer a scheduled work verification\.?$/i);
+  if (missedVerifSimpleMatch) {
+    const name = missedVerifSimpleMatch[1].trim();
+    if (lang === 'am') return `የመስክ መኮንን ${name} የታቀደውን የስራ ማረጋገጫ መመለስ አልቻለም።`;
+    if (lang === 'om') return `Oofisarri dirree ${name} mirkaneessa hojii karoorfame deebisuu hin dandeenye.`;
+    if (lang === 'ti') return `ናይ መሮር ሰራሕተኛ ${name} ዝተመደበ ናይ ስራሕ ምርግጋጽ ክምልስ ኣይከኣለን።`;
+  }
+
+  // Pattern: "{num} field officer(s) have been transferred to your supervision from {name}."
+  const transferredNotifMatch = trimmed.match(/^(\d+)\s+field officers?\s+have been transferred to your supervision from\s+(.+?)\.?$/i);
+  if (transferredNotifMatch) {
+    const num = transferredNotifMatch[1].trim();
+    const name = transferredNotifMatch[2].trim();
+    if (lang === 'am') return `${num} የመስክ መኮንን(ኖች) ከ${name} ወደ እርስዎ ተቆጣጣሪነት ተዛውረዋል።`;
+    if (lang === 'om') return `Oofisaroonni dirree ${num} to'annoo ${name} irraa gara to'annoo keessanitti jijjiiramaniiru.`;
+    if (lang === 'ti') return `${num} ናይ መሮር ሰራሕተኛ(ታት) ካብ ${name} ናብ ናትኩም ቁጽጽር ተሰጋጊሮም።`;
+  }
+
+  // Pattern: "Daily Report: {name}"
+  const dailyReportTitleMatch = trimmed.match(/^daily report:\s*(.+)$/i);
+  if (dailyReportTitleMatch) {
+    const name = dailyReportTitleMatch[1].trim();
+    if (lang === 'am') return `የዕለት ሪፖርት፡ ${name}`;
+    if (lang === 'om') return `Gabaasa Guyyaa: ${name}`;
+    if (lang === 'ti') return `ናይ መዓልቲ ጸብጻብ፡ ${name}`;
+  }
+
+  // Pattern: "{name} submitted daily work report for {date} ({citizens} citizens, {time})."
+  const dailyReportSubmittedMatch = trimmed.match(/^(.+?)\s+submitted daily work report for\s+(\d{4}-\d{2}-\d{2})\s*\((.+?)\)\.?$/i);
+  if (dailyReportSubmittedMatch) {
+    const name = dailyReportSubmittedMatch[1].trim();
+    const date = dailyReportSubmittedMatch[2].trim();
+    const details = dailyReportSubmittedMatch[3].trim();
+    const translatedDetails = details.replace(/(\d+)\s*citizens?/i, (_m, c) => {
+      return lang === 'am' ? `${c} ዜጎች` : lang === 'om' ? `lammiilee ${c}` : `${c} ዜጋታት`;
+    });
+    if (lang === 'am') return `${name} የ${date} የዕለት የስራ ሪፖርት አስገብቷል (${translatedDetails})።`;
+    if (lang === 'om') return `${name} gabaasa hojii guyyaa ${date}-f galcheera (${translatedDetails}).`;
+    if (lang === 'ti') return `${name} ናይ ${date} ናይ መዓልቲ ስራሕ ጸብጻብ ኣእትዩ (${translatedDetails})።`;
+  }
+
+  // Pattern: "FieldSync did not receive a response within {time} for {name}."
+  const noResponseMatch = trimmed.match(/^fieldsync did not receive a response within\s+(.+?)\s+for\s+(.+?)\.?$/i);
+  if (noResponseMatch) {
+    const duration = noResponseMatch[1].trim();
+    const name = noResponseMatch[2].trim();
+    const transDuration = duration.replace(/(\d+)\s*seconds?/i, (_m, s) => {
+      return lang === 'am' ? `${s} ሰከንዶች` : lang === 'om' ? `sekondii ${s}` : `${s} ካልኢታት`;
+    });
+    if (lang === 'am') return `FieldSync ለ${name} በ${transDuration} ውስጥ ምንም ምላሽ አላገኘም።`;
+    if (lang === 'om') return `FieldSync ${name}-f yeroo ${transDuration} keessatti deebii hin arganne.`;
+    if (lang === 'ti') return `FieldSync ን${name} ኣብ ውሽጢ ${transDuration} ምንም መልሲ ኣይረኸበን።`;
+  }
+
+  // --- Dynamic Audit Logs Patterns ---
+  // Pattern: "Reassigned workstation & supervisor for {name}..."
+  const auditReassignMatch = trimmed.match(/^reassigned workstation\s*\&\s*supervisor for\s+([^(\n\r]+)(.*)$/i);
+  if (auditReassignMatch) {
+    const name = auditReassignMatch[1].trim();
+    const suffix = auditReassignMatch[2] ? auditReassignMatch[2].trim() : '';
+    if (lang === 'am') return `ለ${name} የስራ ጣቢያ እና ተቆጣጣሪ ዳግም ተመድቧል${suffix ? ' ' + suffix : ''}`;
+    if (lang === 'om') return `Iddoon hojii fi to'ataan ${name}-f deebisamee ramadameera${suffix ? ' ' + suffix : ''}`;
+    if (lang === 'ti') return `ን${name} ናይ ስራሕ ጣብያን ተቖጻጻርን ዳግማይ ተመዲቡ${suffix ? ' ' + suffix : ''}`;
+  }
+
+  // Pattern: "Updated role to {role} and location for {name}"
+  const auditRoleLocMatch = trimmed.match(/^updated role to\s+(.+?)\s+and location for\s+(.+)$/i);
+  if (auditRoleLocMatch) {
+    const role = getSubRole(auditRoleLocMatch[1].trim());
+    const name = auditRoleLocMatch[2].trim();
+    if (lang === 'am') return `ለ${name} የስራ ድርሻ ወደ ${role} እና የስራ ቦታ ተሻሽሏል`;
+    if (lang === 'om') return `Gaheen hojii gara ${role}-tti fi iddoon hojii ${name}-f haaromfameera`;
+    if (lang === 'ti') return `ን${name} ናይ ስራሕ ተራ ናብ ${role} ከምኡ'ውን ቦታ ስራሕ ተመሓይሹ`;
+  }
+
+  // Pattern: "DEACTIVATE account for {name}" / "ACTIVATE account for {name}"
+  const auditActDeactMatch = trimmed.match(/^(deactivate|activate)\s+account for\s+(.+)$/i);
+  if (auditActDeactMatch) {
+    const isDeact = /deactivate/i.test(auditActDeactMatch[1]);
+    const name = auditActDeactMatch[2].trim();
+    if (lang === 'am') return isDeact ? `የ${name} መለያ አሰናክል` : `የ${name} መለያ አንቃ`;
+    if (lang === 'om') return isDeact ? `Herrega ${name} cufuu` : `Herrega ${name} bansi`;
+    if (lang === 'ti') return isDeact ? `ናይ ${name} ሕሳብ ምዕጻው` : `ናይ ${name} ሕሳብ ምንጣፍ`;
+  }
+
+  // Pattern: "Created new staff account for {name} ({role})" or "Created new staff account for {name}"
+  const auditCreatedStaffMatch = trimmed.match(/^created new staff account for\s+(.+?)(?:\s*\((.+?)\))?$/i);
+  if (auditCreatedStaffMatch) {
+    const name = auditCreatedStaffMatch[1].trim();
+    const roleRaw = auditCreatedStaffMatch[2];
+    const rolePart = roleRaw ? ` (${getSubRole(roleRaw.trim())})` : '';
+    if (lang === 'am') return `ለ${name}${rolePart} አዲስ የሰራተኛ መለያ ተፈጥሯል`;
+    if (lang === 'om') return `Herregni hojjetaa haaraa ${name}-f${rolePart} uumameera`;
+    if (lang === 'ti') return `ን${name}${rolePart} ሓድሽ ናይ ሰራሕተኛ ሕሳብ ተፈጢሩ`;
+  }
+
+  // Pattern: "Reset password for {name}" (simple)
+  const auditResetPassMatch = trimmed.match(/^reset password for\s+(.+)$/i);
+  if (auditResetPassMatch && !/new temporary password/i.test(trimmed)) {
+    const name = auditResetPassMatch[1].trim();
+    if (lang === 'am') return `ለ${name} የይለፍ ቃል ተቀይሯል`;
+    if (lang === 'om') return `Jechi icciitii ${name}-f jijjiirameera`;
+    if (lang === 'ti') return `ን${name} መሕለፊ ቃል ተቐይሩ`;
+  }
+
+  // Pattern: "Direct Line with {name}"
+  const directLineMatch = trimmed.match(/^direct line with\s+(.+)$/i);
+  if (directLineMatch) {
+    const name = directLineMatch[1].trim();
+    if (lang === 'am') return `ቀጥታ መስመር ከ ${name} ጋር`;
+    if (lang === 'om') return `Sarara Kallattii ${name} waliin`;
+    if (lang === 'ti') return `ቀጥታዊ መስመር ምስ ${name}`;
+  }
+
+  // Pattern: "{count} message(s) selected"
+  const msgSelectedMatch = trimmed.match(/^(\d+)\s+messages?\s+selected$/i);
+  if (msgSelectedMatch) {
+    const count = msgSelectedMatch[1];
+    if (lang === 'am') return `${count} መልእክቶች ተመርጠዋል`;
+    if (lang === 'om') return `ergaawwan ${count} filataman`;
+    if (lang === 'ti') return `${count} መልእኽታት ተመሪጾም`;
+  }
+
+  // Pattern: "{Region} Supervisor" (e.g. "Amhara Supervisor")
+  const regSupervisorMatch = trimmed.match(/^([a-zA-Z\s]+)\s+supervisor$/i);
+  if (regSupervisorMatch && !/regional/i.test(trimmed)) {
+    const reg = translateText(regSupervisorMatch[1].trim(), lang);
+    if (lang === 'am') return `የ${reg} ተቆጣጣሪ`;
+    if (lang === 'om') return `To'ataa ${reg}`;
+    if (lang === 'ti') return `ናይ ${reg} ተቖጻጻሪ`;
   }
 
   // Pattern: "All (2)", "Online (0)", "Active (2)", "Officers (4)" -> Term + (Count)

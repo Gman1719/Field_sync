@@ -19,6 +19,7 @@ import Button from '../ui/Button';
 import Badge from '../ui/Badge';
 
 import { generateCitizenId, formatDisplayUserId } from '../../utils/idGenerator';
+import { useUserLanguage } from '../../context/UserLanguageContext';
 
 // Helper to calculate age from Date of Birth
 const calculateAge = (dobString) => {
@@ -43,6 +44,7 @@ export interface CitizenRegistrationProps {
 }
 
 export default function CitizenRegistration({ user, addNotification, onRegistrationSuccess, setActiveTab }: CitizenRegistrationProps) {
+  const { userT } = useUserLanguage();
   // --- Form State ---
   const [firstName, setFirstName] = useState('');
   const [middleName, setMiddleName] = useState('');
@@ -68,6 +70,8 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
   const [woredas, setWoredas] = useState([]);
   const [kebeles, setKebeles] = useState([]);
   const [isLoadingLocations, setIsLoadingLocations] = useState(true);
+  const [zoneSupervisors, setZoneSupervisors] = useState<any[]>([]);
+  const [loadingZoneSupervisors, setLoadingZoneSupervisors] = useState(false);
 
   // --- Duplicate Detection State ---
   const [duplicateModalOpen, setDuplicateModalOpen] = useState(false);
@@ -211,6 +215,51 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
     loadKebeles();
   }, [woredaId, user]);
 
+  // 3b. Verify Active Supervisor in selected Zone
+  useEffect(() => {
+    let isMounted = true;
+    const checkZoneSupervisors = async () => {
+      if (!zoneId) {
+        setZoneSupervisors([]);
+        return;
+      }
+      setLoadingZoneSupervisors(true);
+      try {
+        if (navigator.onLine) {
+          const res = await fetch(`${API_BASE}/locations/zones/${zoneId}/supervisors`);
+          if (res.ok) {
+            const data = await res.json();
+            if (isMounted && data.success && Array.isArray(data.data)) {
+              setZoneSupervisors(data.data);
+              setLoadingZoneSupervisors(false);
+              return;
+            }
+          }
+        }
+      } catch (_e) {}
+
+      // Fallback: check offlineDb or db
+      try {
+        const localUsers = await offlineDb.users.toArray();
+        const sups = localUsers.filter(
+          (u: any) =>
+            (u.role === 'supervisor' || u.role === 'SUPERVISOR') &&
+            (u.status === 'active' || u.isActive !== false) &&
+            (u.zoneId === zoneId || u.zone?.id === zoneId)
+        );
+        if (isMounted) {
+          setZoneSupervisors(sups);
+        }
+      } catch (_e) {}
+      if (isMounted) setLoadingZoneSupervisors(false);
+    };
+
+    checkZoneSupervisors();
+    return () => {
+      isMounted = false;
+    };
+  }, [zoneId]);
+
   // 4. Form Reset
   const handleClear = () => {
     setFirstName('');
@@ -260,6 +309,14 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
 
     if (!regionId || !zoneId || !woredaId || !kebeleName.trim() || !village.trim()) {
       toast.error('All administrative address levels (Region, Zone, Woreda, Kebele, Village) are required');
+      return;
+    }
+
+    // Strict supervisory oversight validation at the Zone level
+    if (zoneId && !loadingZoneSupervisors && zoneSupervisors.length === 0) {
+      toast.error(
+        'Registration blocked: No active Supervisor is responsible for this Zone. Citizens cannot be registered in areas without an active Supervisor.'
+      );
       return;
     }
 
@@ -384,6 +441,15 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
             return;
           }
 
+          if (syncRes.status === 400) {
+            // Server validation failed (e.g. no active supervisor in zone)
+            const errData = await syncRes.json();
+            await offlineDb.citizens.delete(finalRecord.clientRecordId);
+            toast.error(errData.error || 'Registration blocked: Validation error from server');
+            setIsSubmitting(false);
+            return;
+          }
+
           if (syncRes.ok) {
             const syncData = await syncRes.json();
             if (syncData.success && syncData.data) {
@@ -451,10 +517,10 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
             </div>
             <div>
               <h2 className="text-xl sm:text-2xl font-black text-[#0F172A] dark:text-[#F8FAFC] tracking-tight">
-                Citizen Registration Console
+                {userT('Citizen Registration Console')}
               </h2>
               <p className="text-xs sm:text-sm text-slate-500 dark:text-[#94A3B8] mt-0.5">
-                Register citizens easily Register citizens easily
+                {userT('Register citizens easily')}
               </p>
             </div>
           </div>
@@ -465,7 +531,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
           {user?.name && (
             <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-[#E2E8F0] dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300">
               <User className="w-3.5 h-3.5 text-[#2563EB] dark:text-blue-400" />
-              <span>Officer: {user.name}</span>
+              <span>{userT('Officer:')} {user.name}</span>
               <span className="font-mono text-slate-400">({user.employeeId || formatDisplayUserId(user)})</span>
             </div>
           )}
@@ -473,7 +539,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
           {!isOnline && (
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 shadow-2xs">
               <WifiOff className="w-3.5 h-3.5 text-amber-500" />
-              Offline Mode • Stored Locally
+              {userT('Offline Mode • Stored Locally')}
             </span>
           )}
         </div>
@@ -489,7 +555,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
               </div>
               <div>
                 <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider block">
-                  Intake Enrolled Successfully
+                  {userT('Intake Enrolled Successfully')}
                 </span>
                 <h3 className="text-base sm:text-lg font-extrabold text-emerald-950 dark:text-emerald-100">
                   {registeredCitizen.firstName} {registeredCitizen.middleName} {registeredCitizen.lastName}
@@ -515,7 +581,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
                     </span>
                   )}
                   <span className="text-xs text-emerald-700 dark:text-emerald-400">
-                    • {registeredCitizen.syncStatus === 'SYNCED' ? 'Synced to Cloud' : 'Buffered locally in Dexie'}
+                    • {registeredCitizen.syncStatus === 'SYNCED' ? userT('Synced to Cloud') : userT('Buffered locally in Dexie')}
                   </span>
                 </div>
               </div>
@@ -529,7 +595,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
                   onClick={() => setActiveTab('citizens')}
                   className="text-xs font-bold px-4 rounded-xl shadow-xs"
                 >
-                  View in Registered Citizens
+                  {userT('View in Registered Citizens')}
                   <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
                 </Button>
               )}
@@ -539,7 +605,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
                 onClick={() => setRegisteredCitizen(null)}
                 className="text-xs font-semibold px-3.5 rounded-xl border-emerald-300 dark:border-emerald-700 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/40"
               >
-                Dismiss
+                {userT('Dismiss')}
               </Button>
             </div>
           </div>
@@ -557,10 +623,10 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
               </div>
               <div>
                 <CardTitle className="text-base font-bold text-slate-900 dark:text-[#F8FAFC]">
-                  1. Citizen Identity & Demographics
+                  {userT('1. Citizen Identity & Demographics')}
                 </CardTitle>
                 <CardDescription className="text-xs text-slate-500 dark:text-[#94A3B8]">
-                  Legal full name and date of birth required for biographic enrollment
+                  {userT('Legal full name and date of birth required for biographic enrollment')}
                 </CardDescription>
               </div>
             </div>
@@ -569,20 +635,20 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
             {/* Name Fields */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <Input
-                label="First Name"
+                label={userT('First Name')}
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
                 placeholder="e.g. Abebe"
                 required
               />
               <Input
-                label="Middle Name (Optional)"
+                label={userT('Middle Name (Optional)')}
                 value={middleName}
                 onChange={(e) => setMiddleName(e.target.value)}
                 placeholder="e.g. Kebede"
               />
               <Input
-                label="Last Name"
+                label={userT('Last Name')}
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
                 placeholder="e.g. Desta"
@@ -595,7 +661,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
               {/* Date of Birth */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                  Date of Birth <span className="text-rose-500">*</span>
+                  {userT('Date of Birth')} <span className="text-rose-500">*</span>
                 </label>
                 <div className="relative">
                   <input
@@ -612,13 +678,13 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
               {/* Age (Split into separate column) */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                  Age
+                  {userT('Age')}
                 </label>
                 <div className="h-11 px-3.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-900 text-slate-900 dark:text-[#F8FAFC] text-sm flex items-center font-bold">
                   {calculatedAge !== null ? (
                     <span className="inline-flex items-center gap-1.5 text-[#2563EB] dark:text-blue-400">
                       <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                      {calculatedAge} {calculatedAge === 1 ? 'year' : 'years'}
+                      {calculatedAge} {calculatedAge === 1 ? userT('year') : userT('years')}
                     </span>
                   ) : (
                     <span className="text-slate-400 font-normal">—</span>
@@ -629,7 +695,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
               {/* Gender */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                  Gender <span className="text-rose-500">*</span>
+                  {userT('Gender')} <span className="text-rose-500">*</span>
                 </label>
                 <select
                   value={gender}
@@ -637,27 +703,27 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
                   className="w-full h-11 px-3.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-[#F8FAFC] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-blue-500 transition-all cursor-pointer font-medium"
                   required
                 >
-                  <option value="MALE">Male</option>
-                  <option value="FEMALE">Female</option>
-                  <option value="OTHER">Other</option>
+                  <option value="MALE">{userT('Male')}</option>
+                  <option value="FEMALE">{userT('Female')}</option>
+                  <option value="OTHER">{userT('Other')}</option>
                 </select>
               </div>
 
               {/* Marital Status */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                  Marital Status (Optional)
+                  {userT('Marital Status (Optional)')}
                 </label>
                 <select
                   value={maritalStatus}
                   onChange={(e) => setMaritalStatus(e.target.value)}
                   className="w-full h-11 px-3.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-[#F8FAFC] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-blue-500 transition-all cursor-pointer font-medium"
                 >
-                  <option value="">Not Specified</option>
-                  <option value="Single">Single</option>
-                  <option value="Married">Married</option>
-                  <option value="Divorced">Divorced</option>
-                  <option value="Widowed">Widowed</option>
+                  <option value="">{userT('Not Specified')}</option>
+                  <option value="Single">{userT('Single')}</option>
+                  <option value="Married">{userT('Married')}</option>
+                  <option value="Divorced">{userT('Divorced')}</option>
+                  <option value="Widowed">{userT('Widowed')}</option>
                 </select>
               </div>
             </div>
@@ -673,7 +739,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
               </div>
               <div>
                 <CardTitle className="text-base font-bold text-slate-900 dark:text-[#F8FAFC]">
-                  2. Contact Channels
+                  {userT('2. Contact Channels')}
                 </CardTitle>
               </div>
             </div>
@@ -683,20 +749,20 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
               {/* Mandatory Phone Number */}
               <div>
                 <Input
-                  label="Phone Number"
+                  label={userT('Phone Number')}
                   type="tel"
                   required
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
                   placeholder="e.g. 0912345678 or +251912345678"
-                  helperText="Standard Ethiopian mobile format (+2519... or 09...)"
+                  helperText={userT('Standard Ethiopian mobile format (+2519... or 09...)')}
                 />
               </div>
 
               {/* Optional Email Address */}
               <div>
                 <Input
-                  label="Email Address (Optional)"
+                  label={userT('Email Address (Optional)')}
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -708,7 +774,6 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
         </Card>
 
         {/* Section 3: Address & Location (Cascading Ethiopian Hierarchy) */}
-        {/* Section 3: Address & Location (Cascading Ethiopian Hierarchy) */}
         <Card className="bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 rounded-2xl shadow-xs overflow-hidden">
           <CardHeader className="p-5 border-b border-[#E2E8F0] dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800">
             <div className="flex items-center gap-2.5">
@@ -717,7 +782,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
               </div>
               <div>
                 <CardTitle className="text-base font-bold text-slate-900 dark:text-[#F8FAFC]">
-                  3. Administrative Address & Location
+                  {userT('3. Administrative Address & Location')}
                 </CardTitle>
               </div>
             </div>
@@ -729,7 +794,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
               <div className="flex flex-col">
                 <div className="h-6 flex items-center justify-between mb-1.5">
                   <label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1">
-                    Region / City <span className="text-[#DC2626] dark:text-rose-400">*</span>
+                    {userT('Region / City')} <span className="text-[#DC2626] dark:text-rose-400">*</span>
                   </label>
                 </div>
                 <div className="relative">
@@ -740,7 +805,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
                     className="w-full h-11 pl-3.5 pr-10 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-[#F8FAFC] text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-blue-500 hover:border-slate-400 dark:hover:border-slate-600 transition-all disabled:bg-slate-100 dark:disabled:bg-[#1E293B]/50 disabled:text-slate-400 font-medium cursor-pointer shadow-xs"
                     required
                   >
-                    <option value="">Select Region</option>
+                    <option value="">{userT('Select Region')}</option>
                     {regions.map((r) => (
                       <option key={r.id} value={r.id}>
                         {r.name}
@@ -755,7 +820,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
               <div className="flex flex-col">
                 <div className="h-6 flex items-center justify-between mb-1.5">
                   <label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1">
-                    Zone / Sub-City <span className="text-[#DC2626] dark:text-rose-400">*</span>
+                    {userT('Zone / Sub-City')} <span className="text-[#DC2626] dark:text-rose-400">*</span>
                   </label>
                 </div>
                 <div className="relative">
@@ -766,7 +831,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
                     className="w-full h-11 pl-3.5 pr-10 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-[#F8FAFC] text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-blue-500 hover:border-slate-400 dark:hover:border-slate-600 transition-all disabled:bg-slate-100 dark:disabled:bg-[#1E293B]/50 disabled:text-slate-400 font-medium cursor-pointer shadow-xs"
                     required
                   >
-                    <option value="">{regionId ? 'Select Zone' : 'Choose Region First'}</option>
+                    <option value="">{regionId ? userT('Select Zone') : userT('Choose Region First')}</option>
                     {zones.map((z) => (
                       <option key={z.id} value={z.id}>
                         {z.name}
@@ -775,13 +840,27 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
                   </select>
                   <ChevronDown className="w-4 h-4 pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
                 </div>
+
+                {zoneId && !loadingZoneSupervisors && zoneSupervisors.length === 0 && (
+                  <div className="mt-2.5 p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-xl text-rose-700 dark:text-rose-300 text-xs flex items-start gap-2.5 shadow-xs">
+                    <AlertCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-semibold text-rose-800 dark:text-rose-200">
+                        {userT('No Active Supervisor in this Zone')}
+                      </p>
+                      <p className="mt-0.5 text-[11px] leading-relaxed text-rose-600 dark:text-rose-300">
+                        {userT('Citizens cannot be registered in this area because there is no active Supervisor responsible for this Zone. Please assign a Supervisor to this Zone before registering citizens.')}
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Woreda */}
               <div className="flex flex-col">
                 <div className="h-6 flex items-center justify-between mb-1.5">
                   <label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1">
-                    Woreda Station <span className="text-[#DC2626] dark:text-rose-400">*</span>
+                    {userT('Woreda Station')} <span className="text-[#DC2626] dark:text-rose-400">*</span>
                   </label>
                 </div>
                 <div className="relative">
@@ -792,7 +871,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
                     className="w-full h-11 pl-3.5 pr-10 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-[#F8FAFC] text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-blue-500 hover:border-slate-400 dark:hover:border-slate-600 transition-all disabled:bg-slate-100 dark:disabled:bg-[#1E293B]/50 disabled:text-slate-400 font-medium cursor-pointer shadow-xs"
                     required
                   >
-                    <option value="">{zoneId ? 'Select Woreda' : 'Choose Zone First'}</option>
+                    <option value="">{zoneId ? userT('Select Woreda') : userT('Choose Zone First')}</option>
                     {woredas.map((w) => (
                       <option key={w.id} value={w.id}>
                         {w.name}
@@ -806,7 +885,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
               {/* Kebele Unit (Input Field) */}
               <div className="flex flex-col justify-end">
                 <Input
-                  label="Kebele Unit"
+                  label={userT('Kebele Unit')}
                   required
                   value={kebeleName}
                   onChange={(e) => setKebeleName(e.target.value)}
@@ -826,7 +905,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
             {/* Village / Community (Required) */}
             <div className="pt-2">
               <Input
-                label="Village or Community Name"
+                label={userT('Village or Community Name')}
                 value={village}
                 onChange={(e) => setVillage(e.target.value)}
                 placeholder="e.g. Village 03 / Medhane Alem Community"
@@ -846,7 +925,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
             className="w-full sm:w-auto rounded-xl border-[#E2E8F0] dark:border-slate-700 text-slate-700 dark:text-[#F8FAFC] dark:hover:bg-[#0F172A]"
           >
             <RotateCcw className="w-4 h-4 mr-2" />
-            Clear Form
+            {userT('Clear Form')}
           </Button>
 
           <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -855,10 +934,11 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
               variant="primary"
               size="lg"
               loading={isSubmitting}
-              className="w-full sm:w-auto px-8 rounded-xl font-bold shadow-md shadow-blue-600/20"
+              disabled={isSubmitting || Boolean(zoneId && !loadingZoneSupervisors && zoneSupervisors.length === 0)}
+              className="w-full sm:w-auto px-8 rounded-xl font-bold shadow-md shadow-blue-600/20 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <ShieldCheck className="w-4 h-4 mr-2" />
-              Register Citizen
+              {userT('Register Citizen')}
             </Button>
           </div>
         </div>

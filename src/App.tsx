@@ -25,6 +25,34 @@ function AppContent() {
   const [authView, setAuthView] = React.useState('landing'); // 'landing' | 'login'
   const [selectedDemoRole, setSelectedDemoRole] = React.useState(null);
 
+  // Allow navigating to Home / Landing page even when authenticated via #home, #landing, or ?view=landing
+  const [viewLandingExplicit, setViewLandingExplicit] = React.useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      const h = window.location.hash.toLowerCase();
+      const s = window.location.search.toLowerCase();
+      return h === '#landing' || h === '#home' || s.includes('view=landing') || s.includes('view=home');
+    }
+    return false;
+  });
+
+  React.useEffect(() => {
+    const handleHash = () => {
+      const h = window.location.hash.toLowerCase();
+      const s = window.location.search.toLowerCase();
+      if (h === '#landing' || h === '#home' || s.includes('view=landing') || s.includes('view=home')) {
+        setViewLandingExplicit(true);
+      } else if (h === '#dashboard' || h === '#app' || h === '#') {
+        setViewLandingExplicit(false);
+      }
+    };
+    window.addEventListener('hashchange', handleHash);
+    window.addEventListener('popstate', handleHash);
+    return () => {
+      window.removeEventListener('hashchange', handleHash);
+      window.removeEventListener('popstate', handleHash);
+    };
+  }, []);
+
   const {
     user,
     isLoading,
@@ -105,6 +133,25 @@ function AppContent() {
     await logout();
   };
 
+  // Explicit Landing Page view (accessible even when authenticated via #home, #landing, or navigation)
+  if (viewLandingExplicit) {
+    return (
+      <LandingPage
+        onGoToLogin={(role) => {
+          if (user) {
+            setViewLandingExplicit(false);
+            window.location.hash = '';
+          } else {
+            setSelectedDemoRole(role || null);
+            setAuthView('login');
+            setViewLandingExplicit(false);
+          }
+        }}
+        isOnline={appData.isOnline}
+      />
+    );
+  }
+
   // Unauthenticated view
   if (!user) {
     if (isLoading) {
@@ -116,7 +163,10 @@ function AppContent() {
           onLogin={handleLogin}
           loginError={loginError}
           isOnline={appData.isOnline}
-          onBackToHome={() => setAuthView('landing')}
+          onBackToHome={() => {
+            setAuthView('landing');
+            setViewLandingExplicit(true);
+          }}
           initialRole={selectedDemoRole}
         />
       );

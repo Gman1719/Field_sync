@@ -3,12 +3,14 @@ import {
   Radio, ShieldCheck, Users, BarChart3, CheckCircle2,
   ArrowRight, MapPin, Building2,
   Lock, RefreshCw, Smartphone,
-  Globe, Sun, Moon, Menu, X,
-  Activity, Shield, Check, Database,
-  WifiOff, Layers, Sparkles, ArrowUp
+  Sun, Moon, Menu, X,
+  Activity, Shield, Database, Globe,
+  WifiOff, ArrowUp
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { useUserLanguage } from '../../context/UserLanguageContext';
+import { useAuth } from '../../context/AuthContext';
+import { LanguageSelector } from '../common/LanguageSelector';
 import { API_BASE } from '../../config/api';
 import heroImage from '../../assets/field-officer-hero.jpg';
 
@@ -17,9 +19,10 @@ interface LandingPageProps {
   isOnline?: boolean;
 }
 
-export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPageProps) {
+export default function LandingPage({ onGoToLogin }: LandingPageProps) {
   const { theme, toggleTheme } = useTheme();
   const { userT } = useUserLanguage();
+  const { user } = useAuth();
 
   // Dynamic telemetry with user fallback numbers
   const [telemetry, setTelemetry] = useState<{
@@ -72,6 +75,15 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
     fetchTelemetry();
   }, []);
 
+  const navLinks = [
+    { href: '#built-for-field', label: userT('Features') },
+    { href: '#how-it-works', label: userT('How It Works') },
+    { href: '#field-conditions', label: userT('Field Conditions') },
+    { href: '#roles', label: userT('User Portals') },
+    { href: '#operations', label: userT('Operations') },
+    { href: '#security', label: userT('Security') },
+  ];
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] dark:bg-slate-900 text-[#0F172A] dark:text-[#F8FAFC] font-sans antialiased selection:bg-[#2563EB] selection:text-white flex flex-col transition-colors duration-200">
       
@@ -95,14 +107,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
 
           {/* Center: Desktop Navigation Links */}
           <nav className="hidden lg:flex items-center gap-1 xl:gap-2">
-            {[
-              { href: '#built-for-field', label: 'Features' },
-              { href: '#how-it-works', label: 'How It Works' },
-              { href: '#field-conditions', label: 'Field Conditions' },
-              { href: '#roles', label: 'User Portals' },
-              { href: '#operations', label: 'Operations' },
-              { href: '#security', label: 'Security' },
-            ].map((link) => (
+            {navLinks.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
@@ -113,8 +118,14 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
             ))}
           </nav>
 
-          {/* Right: Actions (Theme Toggle, Divider & Login Button) */}
+          {/* Right: Actions (Language Selector, Theme Toggle, Divider & Login Button) */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Language Selector Dropdown */}
+            <LanguageSelector
+              dropdownAlign="right"
+              buttonClassName="p-2 sm:p-2.5 rounded-xl text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors cursor-pointer flex items-center gap-1.5 text-xs font-bold"
+            />
+
             {/* Theme Toggle Button */}
             <button
               type="button"
@@ -139,7 +150,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
               onClick={() => onGoToLogin()}
               className="px-5 sm:px-6 py-2.5 rounded-xl bg-[#2563EB] hover:bg-blue-700 active:bg-blue-800 text-white text-sm font-bold shadow-sm hover:shadow-md hover:shadow-blue-600/25 transition-all duration-150 cursor-pointer flex items-center gap-2"
             >
-              <span>{userT('Login')}</span>
+              <span>{user ? userT('Go to Dashboard') : userT('Login')}</span>
             </button>
 
             {/* Mobile Menu Button */}
@@ -157,14 +168,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
           <div className="lg:hidden border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl px-4 py-4 space-y-1.5 animate-in slide-in-from-top-2 duration-150">
-            {[
-              { href: '#built-for-field', label: 'Features' },
-              { href: '#how-it-works', label: 'How It Works' },
-              { href: '#field-conditions', label: 'Field Conditions' },
-              { href: '#roles', label: 'User Portals' },
-              { href: '#operations', label: 'Operations' },
-              { href: '#security', label: 'Security' },
-            ].map((link) => (
+            {navLinks.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
@@ -174,7 +178,18 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                 {link.label}
               </a>
             ))}
-            <div className="pt-2 border-t border-slate-100 dark:border-slate-800 mt-2">
+
+            <div className="pt-2 border-t border-slate-100 dark:border-slate-800 mt-2 flex items-center justify-between px-2">
+              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                {userT('Security')} / {userT('Operations')}
+              </span>
+              <LanguageSelector
+                dropdownAlign="left"
+                buttonClassName="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold flex items-center gap-1.5"
+              />
+            </div>
+
+            <div className="pt-2">
               <button
                 type="button"
                 onClick={() => {
@@ -183,7 +198,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                 }}
                 className="w-full py-2.5 px-4 rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white text-sm font-bold text-center shadow-xs"
               >
-                {userT('Login')}
+                {user ? userT('Go to Dashboard') : userT('Login')}
               </button>
             </div>
           </div>
@@ -205,7 +220,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
           
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-14 items-center">
             
-            {/* Left Column: Image utilizing left-side space with expanded width and height */}
+            {/* Left Column: Image utilizing left-side space */}
             <div className="lg:col-span-7 xl:col-span-7 relative group lg:-ml-2 xl:-ml-6">
               {/* Subtle ambient backlight glow behind the image */}
               <div className="absolute -inset-2 bg-gradient-to-r from-blue-600/20 via-indigo-600/20 to-teal-500/20 rounded-3xl blur-2xl opacity-60 dark:opacity-40 pointer-events-none" />
@@ -220,15 +235,15 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
               </div>
             </div>
 
-            {/* Right Column: Hero Headlines and Subtitle Text (comfortable line length preserved) */}
+            {/* Right Column: Hero Headlines and Subtitle Text */}
             <div className="lg:col-span-5 xl:col-span-5 text-left space-y-6 max-w-xl">
               
               {/* Main Headline */}
               <div className="space-y-2 animate-hero-headline">
                 <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-[3.5rem] font-black text-[#0F172A] dark:text-[#F8FAFC] tracking-tight leading-[1.08]">
-                  Connecting Field Teams <br className="hidden sm:inline" />
+                  {userT('Connecting Field Teams')} <br className="hidden sm:inline" />
                   <span className="bg-gradient-to-r from-[#2563EB] via-indigo-600 to-sky-500 dark:from-[#60A5FA] dark:via-indigo-300 dark:to-sky-300 bg-clip-text text-transparent">
-                    to the National Registry
+                    {userT('to the National Registry')}
                   </span>
                 </h1>
               </div>
@@ -236,17 +251,17 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
               {/* Subtitle */}
               <div className="animate-hero-subtitle">
                 <p className="text-xl sm:text-2xl lg:text-[1.65rem] font-bold text-[#0F172A] dark:text-white tracking-tight leading-snug">
-                  Register citizens securely from anywhere — even without internet.
+                  {userT('Register citizens securely from anywhere — even without internet.')}
                 </p>
               </div>
 
               {/* Explanatory Narrative */}
               <div className="space-y-4 text-lg sm:text-xl leading-relaxed">
                 <p className="animate-hero-desc1 font-medium text-[#1E293B] dark:text-[#E2E8F0]">
-                  <strong className="font-extrabold text-[#0F172A] dark:text-white">FieldSync</strong> is an offline-first citizen registration platform built for field teams working in remote and low-connectivity areas.
+                  {userT('FieldSync is an offline-first citizen registration platform built for field teams working in remote and low-connectivity areas.')}
                 </p>
                 <p className="animate-hero-desc2 text-[#334155] dark:text-slate-300">
-                  Field officers can register citizens, securely store records on their devices, and automatically synchronize data with the central system when connectivity is restored.
+                  {userT('Field officers can register citizens, securely store records on their devices, and automatically synchronize data with the central system when connectivity is restored.')}
                 </p>
               </div>
 
@@ -265,10 +280,10 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
           
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#0F172A] dark:text-[#F8FAFC]">
-              Built for the Field
+              {userT('Built for the Field')}
             </h2>
             <p className="mt-4 text-[#334155] dark:text-slate-300 text-lg sm:text-xl font-medium leading-relaxed">
-              Core system capabilities designed for frontline reliability in remote operations.
+              {userT('Core system capabilities designed for frontline reliability in remote operations.')}
             </p>
           </div>
 
@@ -281,10 +296,10 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                   <WifiOff className="w-6 h-6" />
                 </div>
                 <h3 className="text-xl sm:text-2xl font-bold text-[#0F172A] dark:text-[#F8FAFC] mb-2.5">
-                  Offline-First Mode
+                  {userT('Offline-First Mode')}
                 </h3>
                 <p className="text-base text-[#334155] dark:text-slate-300 leading-relaxed">
-                  Continue registering citizens even when there is no internet connection.
+                  {userT('Continue registering citizens even when there is no internet connection.')}
                 </p>
               </div>
             </div>
@@ -296,10 +311,10 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                   <Database className="w-6 h-6" />
                 </div>
                 <h3 className="text-xl sm:text-2xl font-bold text-[#0F172A] dark:text-[#F8FAFC] mb-2.5">
-                  Secure Local Storage
+                  {userT('Secure Local Storage')}
                 </h3>
                 <p className="text-base text-[#334155] dark:text-slate-300 leading-relaxed">
-                  Records are safely stored on the device until synchronization becomes available.
+                  {userT('Records are safely stored on the device until synchronization becomes available.')}
                 </p>
               </div>
             </div>
@@ -311,10 +326,10 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                   <ShieldCheck className="w-6 h-6" />
                 </div>
                 <h3 className="text-xl sm:text-2xl font-bold text-[#0F172A] dark:text-[#F8FAFC] mb-2.5">
-                  Duplicate Prevention
+                  {userT('Duplicate Prevention')}
                 </h3>
                 <p className="text-base text-[#334155] dark:text-slate-300 leading-relaxed">
-                  Built-in validation helps detect repeated or conflicting registrations before records are saved.
+                  {userT('Built-in validation helps detect repeated or conflicting registrations before records are saved.')}
                 </p>
               </div>
             </div>
@@ -326,10 +341,10 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                   <RefreshCw className="w-6 h-6" />
                 </div>
                 <h3 className="text-xl sm:text-2xl font-bold text-[#0F172A] dark:text-[#F8FAFC] mb-2.5">
-                  Automatic Synchronization
+                  {userT('Automatic Synchronization')}
                 </h3>
                 <p className="text-base text-[#334155] dark:text-slate-300 leading-relaxed">
-                  When connectivity returns, pending records are securely synchronized with the central system.
+                  {userT('When connectivity returns, pending records are securely synchronized with the central system.')}
                 </p>
               </div>
             </div>
@@ -337,6 +352,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
           </div>
         </div>
       </section>
+
       {/* ============================================================== */}
       {/* 4. HOW FIELDSYNC WORKS (Workflow Steps)                        */}
       {/* ============================================================== */}
@@ -345,10 +361,10 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
           
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#0F172A] dark:text-[#F8FAFC]">
-              How FieldSync Works
+              {userT('How FieldSync Works')}
             </h2>
             <p className="mt-4 text-[#334155] dark:text-slate-300 text-lg sm:text-xl font-medium leading-relaxed">
-              A dependable workflow designed for remote field environments.
+              {userT('A dependable workflow designed for remote field environments.')}
             </p>
           </div>
 
@@ -360,10 +376,10 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                 <WifiOff className="w-6 h-6" />
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-[#0F172A] dark:text-[#F8FAFC] mb-2.5 tracking-tight">
-                01 — Register Offline
+                {userT('01 — Register Offline')}
               </h3>
               <p className="text-base text-[#334155] dark:text-slate-300 leading-relaxed">
-                Field officers can register citizens from remote locations without requiring a continuous internet connection.
+                {userT('Field officers can register citizens from remote locations without requiring a continuous internet connection.')}
               </p>
             </div>
 
@@ -373,10 +389,10 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                 <Database className="w-6 h-6" />
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-[#0F172A] dark:text-[#F8FAFC] mb-2.5 tracking-tight">
-                02 — Store Securely
+                {userT('02 — Store Securely')}
               </h3>
               <p className="text-base text-[#334155] dark:text-slate-300 leading-relaxed">
-                Registration data is securely stored on the field device while the officer continues working offline.
+                {userT('Registration data is securely stored on the field device while the officer continues working offline.')}
               </p>
             </div>
 
@@ -386,10 +402,10 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                 <RefreshCw className="w-6 h-6" />
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-[#0F172A] dark:text-[#F8FAFC] mb-2.5 tracking-tight">
-                03 — Sync Automatically
+                {userT('03 — Sync Automatically')}
               </h3>
               <p className="text-base text-[#334155] dark:text-slate-300 leading-relaxed">
-                When an internet connection becomes available, pending records are automatically synchronized with the central system.
+                {userT('When an internet connection becomes available, pending records are automatically synchronized with the central system.')}
               </p>
             </div>
 
@@ -399,10 +415,10 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                 <Activity className="w-6 h-6" />
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-[#0F172A] dark:text-[#F8FAFC] mb-2.5 tracking-tight">
-                04 — Verify & Monitor
+                {userT('04 — Verify & Monitor')}
               </h3>
               <p className="text-base text-[#334155] dark:text-slate-300 leading-relaxed">
-                Supervisors and managers can review registrations, monitor field activity, and track synchronization status.
+                {userT('Supervisors and managers can review registrations, monitor field activity, and track synchronization status.')}
               </p>
             </div>
 
@@ -418,10 +434,10 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
           
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#0F172A] dark:text-[#F8FAFC]">
-              Built for Real Field Conditions
+              {userT('Built for Real Field Conditions')}
             </h2>
             <p className="mt-4 text-[#334155] dark:text-slate-300 text-lg sm:text-xl font-medium leading-relaxed">
-              Technology designed around the challenges of field work.
+              {userT('Technology designed around the challenges of field work.')}
             </p>
           </div>
 
@@ -434,10 +450,10 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
               </div>
               <div>
                 <h3 className="text-xl sm:text-2xl font-bold text-[#0F172A] dark:text-[#F8FAFC] mb-2">
-                  No Internet? Keep Working.
+                  {userT('No Internet? Keep Working.')}
                 </h3>
                 <p className="text-base text-[#334155] dark:text-slate-300 leading-relaxed">
-                  Field officers can continue registering citizens in remote areas with limited or no connectivity.
+                  {userT('Field officers can continue registering citizens in remote areas with limited or no connectivity.')}
                 </p>
               </div>
             </div>
@@ -449,10 +465,10 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
               </div>
               <div>
                 <h3 className="text-xl sm:text-2xl font-bold text-[#0F172A] dark:text-[#F8FAFC] mb-2">
-                  Prevent Duplicate Records
+                  {userT('Prevent Duplicate Records')}
                 </h3>
                 <p className="text-base text-[#334155] dark:text-slate-300 leading-relaxed">
-                  Validation and cross-checking help identify duplicate or conflicting citizen registrations.
+                  {userT('Validation and cross-checking help identify duplicate or conflicting citizen registrations.')}
                 </p>
               </div>
             </div>
@@ -464,10 +480,10 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
               </div>
               <div>
                 <h3 className="text-xl sm:text-2xl font-bold text-[#0F172A] dark:text-[#F8FAFC] mb-2">
-                  Never Lose Field Work
+                  {userT('Never Lose Field Work')}
                 </h3>
                 <p className="text-base text-[#334155] dark:text-slate-300 leading-relaxed">
-                  Offline records remain available on the device until they can be securely synchronized with the central system.
+                  {userT('Offline records remain available on the device until they can be securely synchronized with the central system.')}
                 </p>
               </div>
             </div>
@@ -479,10 +495,10 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
               </div>
               <div>
                 <h3 className="text-xl sm:text-2xl font-bold text-[#0F172A] dark:text-[#F8FAFC] mb-2">
-                  Know What Is Happening
+                  {userT('Know What Is Happening')}
                 </h3>
                 <p className="text-base text-[#334155] dark:text-slate-300 leading-relaxed">
-                  Supervisors and managers can monitor registration progress, field activity, and synchronization status.
+                  {userT('Supervisors and managers can monitor registration progress, field activity, and synchronization status.')}
                 </p>
               </div>
             </div>
@@ -499,10 +515,10 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
           
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#0F172A] dark:text-[#F8FAFC]">
-              One Platform. Three Roles.
+              {userT('One Platform. Three Roles.')}
             </h2>
             <p className="mt-4 text-[#334155] dark:text-slate-300 text-lg sm:text-xl font-medium leading-relaxed">
-              Dedicated tools for every level of field operations.
+              {userT('Dedicated tools for every level of field operations.')}
             </p>
           </div>
 
@@ -516,25 +532,25 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                 </div>
 
                 <h3 className="text-xl sm:text-2xl font-bold text-[#0F172A] dark:text-[#F8FAFC]">
-                  Field Officer
+                  {userT('Field Officer')}
                 </h3>
                 <p className="text-base text-[#334155] dark:text-slate-300 leading-relaxed mt-2 mb-5">
-                  Register citizens, capture required information, and continue working offline from the field.
+                  {userT('Register citizens, capture required information, and continue working offline from the field.')}
                 </p>
 
                 {/* Work list with right check icons */}
                 <ul className="space-y-3 text-sm sm:text-base font-semibold text-[#1E293B] dark:text-[#E2E8F0] pt-5 border-t border-slate-100 dark:border-slate-800">
                   <li className="flex items-center gap-3">
                     <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                    <span>Demographic & vital records intake</span>
+                    <span>{userT('Demographic & vital records intake')}</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                    <span>Offline local storage with automatic sync</span>
+                    <span>{userT('Offline local storage with automatic sync')}</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                    <span>Daily field attendance & activity logs</span>
+                    <span>{userT('Daily field attendance & activity logs')}</span>
                   </li>
                 </ul>
               </div>
@@ -544,7 +560,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                   onClick={() => onGoToLogin('FIELD_OFFICER')}
                   className="w-full py-3.5 px-5 rounded-xl bg-[#2563EB] hover:bg-blue-700 active:scale-[0.99] text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2.5 shadow-md shadow-blue-600/20 cursor-pointer"
                 >
-                  <span>Enter Field Officer Portal</span>
+                  <span>{userT('Enter Field Officer Portal')}</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -558,25 +574,25 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                 </div>
 
                 <h3 className="text-xl sm:text-2xl font-bold text-[#0F172A] dark:text-[#F8FAFC]">
-                  Zonal Supervisor
+                  {userT('Zonal Supervisor')}
                 </h3>
                 <p className="text-base text-[#334155] dark:text-slate-300 leading-relaxed mt-2 mb-5">
-                  Review registrations, monitor assigned field officers, verify records, and track activity across the zone.
+                  {userT('Review registrations, monitor assigned field officers, verify records, and track activity across the zone.')}
                 </p>
 
                 {/* Work list with right check icons */}
                 <ul className="space-y-3 text-sm sm:text-base font-semibold text-[#1E293B] dark:text-[#E2E8F0] pt-5 border-t border-slate-100 dark:border-slate-800">
                   <li className="flex items-center gap-3">
                     <CheckCircle2 className="w-5 h-5 text-indigo-600 dark:text-indigo-400 shrink-0" />
-                    <span>Registration queue review & validation</span>
+                    <span>{userT('Registration queue review & validation')}</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <CheckCircle2 className="w-5 h-5 text-indigo-600 dark:text-indigo-400 shrink-0" />
-                    <span>Duplicate detection & conflict resolution</span>
+                    <span>{userT('Duplicate detection & conflict resolution')}</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <CheckCircle2 className="w-5 h-5 text-indigo-600 dark:text-indigo-400 shrink-0" />
-                    <span>Field officer monitoring & assignments</span>
+                    <span>{userT('Field officer monitoring & assignments')}</span>
                   </li>
                 </ul>
               </div>
@@ -586,7 +602,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                   onClick={() => onGoToLogin('SUPERVISOR')}
                   className="w-full py-3.5 px-5 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2.5 shadow-md shadow-indigo-600/20 cursor-pointer"
                 >
-                  <span>Enter Supervisor Portal</span>
+                  <span>{userT('Enter Supervisor Portal')}</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -600,25 +616,25 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                 </div>
 
                 <h3 className="text-xl sm:text-2xl font-bold text-[#0F172A] dark:text-[#F8FAFC]">
-                  National Manager
+                  {userT('National Manager')}
                 </h3>
                 <p className="text-base text-[#334155] dark:text-slate-300 leading-relaxed mt-2 mb-5">
-                  Monitor national operations, compare regions and zones, and oversee registration activity across the system.
+                  {userT('Monitor national operations, compare regions and zones, and oversee registration activity across the system.')}
                 </p>
 
                 {/* Work list with right check icons */}
                 <ul className="space-y-3 text-sm sm:text-base font-semibold text-[#1E293B] dark:text-[#E2E8F0] pt-5 border-t border-slate-100 dark:border-slate-800">
                   <li className="flex items-center gap-3">
                     <CheckCircle2 className="w-5 h-5 text-[#0F766E] dark:text-[#2DD4BF] shrink-0" />
-                    <span>National registration dashboards & KPI tracking</span>
+                    <span>{userT('National registration dashboards & KPI tracking')}</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <CheckCircle2 className="w-5 h-5 text-[#0F766E] dark:text-[#2DD4BF] shrink-0" />
-                    <span>Regional & zonal comparative metrics</span>
+                    <span>{userT('Regional & zonal comparative metrics')}</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <CheckCircle2 className="w-5 h-5 text-[#0F766E] dark:text-[#2DD4BF] shrink-0" />
-                    <span>Staff provisioning & operational oversight</span>
+                    <span>{userT('Staff provisioning & operational oversight')}</span>
                   </li>
                 </ul>
               </div>
@@ -628,7 +644,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                   onClick={() => onGoToLogin('MANAGER')}
                   className="w-full py-3.5 px-5 rounded-xl bg-[#0F766E] hover:bg-teal-700 active:scale-[0.99] text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2.5 shadow-md shadow-teal-700/20 cursor-pointer"
                 >
-                  <span>Enter Manager Portal</span>
+                  <span>{userT('Enter Manager Portal')}</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -646,10 +662,10 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
           
           <div className="text-center max-w-3xl mx-auto mb-14">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#0F172A] dark:text-[#F8FAFC]">
-              Field Operations Across Ethiopia
+              {userT('Field Operations Across Ethiopia')}
             </h2>
             <p className="mt-4 text-[#334155] dark:text-slate-300 text-lg sm:text-xl font-medium leading-relaxed">
-              A connected view of national field registration activity.
+              {userT('A connected view of national field registration activity.')}
             </p>
           </div>
 
@@ -664,7 +680,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                 {telemetry.counts.regions || 14}
               </div>
               <p className="mt-2.5 text-sm sm:text-base font-extrabold uppercase tracking-wide text-[#1E293B] dark:text-slate-300">
-                Regions
+                {userT('Regions')}
               </p>
             </div>
 
@@ -677,7 +693,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                 {telemetry.counts.zones || 107}
               </div>
               <p className="mt-2.5 text-sm sm:text-base font-extrabold uppercase tracking-wide text-[#1E293B] dark:text-slate-300">
-                Zones
+                {userT('Zones')}
               </p>
             </div>
 
@@ -690,7 +706,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                 {telemetry.counts.woredas || 929}
               </div>
               <p className="mt-2.5 text-sm sm:text-base font-extrabold uppercase tracking-wide text-[#1E293B] dark:text-slate-300">
-                Districts
+                {userT('Districts')}
               </p>
             </div>
 
@@ -703,7 +719,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                 {telemetry.counts.citizens || 14}
               </div>
               <p className="mt-2.5 text-sm sm:text-base font-extrabold uppercase tracking-wide text-[#1E293B] dark:text-slate-300">
-                Registered Citizens
+                {userT('Registered Citizens')}
               </p>
             </div>
 
@@ -716,7 +732,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                 {telemetry.counts.users || 19}
               </div>
               <p className="mt-2.5 text-sm sm:text-base font-extrabold uppercase tracking-wide text-[#1E293B] dark:text-slate-300">
-                Field Staff
+                {userT('Field Staff')}
               </p>
             </div>
 
@@ -735,14 +751,14 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
             <div className="lg:col-span-7 space-y-6">
               <div>
                 <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#0F172A] dark:text-[#F8FAFC]">
-                  Security Built Into Every Registration
+                  {userT('Security Built Into Every Registration')}
                 </h2>
                 <p className="text-[#334155] dark:text-slate-300 text-lg sm:text-xl font-medium leading-relaxed mt-3">
-                  Protecting citizen information from the field device to the central system.
+                  {userT('Protecting citizen information from the field device to the central system.')}
                 </p>
               </div>
 
-              {/* Restyled 5 security cards in a responsive grid layout */}
+              {/* Responsive grid layout of security cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                 
                 {/* 1. Role-Based Access */}
@@ -752,10 +768,10 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                   </div>
                   <div>
                     <h4 className="text-lg font-bold text-[#0F172A] dark:text-[#F8FAFC]">
-                      Role-Based Access
+                      {userT('Role-Based Access')}
                     </h4>
                     <p className="text-sm sm:text-base text-[#334155] dark:text-slate-300 mt-1.5 leading-relaxed">
-                      Users only access the information and actions permitted by their assigned role.
+                      {userT('Users only access the information and actions permitted by their assigned role.')}
                     </p>
                   </div>
                 </div>
@@ -763,14 +779,14 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                 {/* 2. Secure Local Storage */}
                 <div className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200 flex items-start gap-4">
                   <div className="w-11 h-11 rounded-xl bg-teal-50 dark:bg-teal-950/80 text-[#0F766E] dark:text-[#2DD4BF] flex items-center justify-center shrink-0 shadow-xs">
-                    <Database className="w-5 h-5" />
+                    <Database className="w-6 h-6" />
                   </div>
                   <div>
                     <h4 className="text-lg font-bold text-[#0F172A] dark:text-[#F8FAFC]">
-                      Secure Local Storage
+                      {userT('Secure Local Storage')}
                     </h4>
                     <p className="text-sm sm:text-base text-[#334155] dark:text-slate-300 mt-1.5 leading-relaxed">
-                      Offline records are protected while stored on field devices.
+                      {userT('Offline records are protected while stored on field devices.')}
                     </p>
                   </div>
                 </div>
@@ -782,10 +798,10 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                   </div>
                   <div>
                     <h4 className="text-lg font-bold text-[#0F172A] dark:text-[#F8FAFC]">
-                      Activity History
+                      {userT('Activity History')}
                     </h4>
                     <p className="text-sm sm:text-base text-[#334155] dark:text-slate-300 mt-1.5 leading-relaxed">
-                      Registration and review activities are recorded to provide a clear operational history.
+                      {userT('Registration and review activities are recorded to provide a clear operational history.')}
                     </p>
                   </div>
                 </div>
@@ -797,10 +813,10 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                   </div>
                   <div>
                     <h4 className="text-lg font-bold text-[#0F172A] dark:text-[#F8FAFC]">
-                      Protected Synchronization
+                      {userT('Protected Synchronization')}
                     </h4>
                     <p className="text-sm sm:text-base text-[#334155] dark:text-slate-300 mt-1.5 leading-relaxed">
-                      Records are securely transferred and validated when synchronized with the central system.
+                      {userT('Records are securely transferred and validated when synchronized with the central system.')}
                     </p>
                   </div>
                 </div>
@@ -808,7 +824,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
               </div>
             </div>
 
-            {/* Right Column: Secure by Design Card (Continuous Protection Active removed) */}
+            {/* Right Column: Secure by Design Card */}
             <div className="lg:col-span-5 bg-white dark:bg-slate-800 rounded-2xl p-7 sm:p-9 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200 text-center space-y-6">
               <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl bg-blue-50 dark:bg-blue-950/80 text-[#2563EB] dark:text-blue-400 flex items-center justify-center mx-auto shadow-xs">
                 <Shield className="w-9 h-9 sm:w-10 sm:h-10" />
@@ -816,10 +832,10 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
 
               <div>
                 <h3 className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] dark:text-white">
-                  Secure by Design
+                  {userT('Secure by Design')}
                 </h3>
                 <p className="text-base sm:text-lg text-[#334155] dark:text-slate-300 mt-3 leading-relaxed">
-                  FieldSync is designed with privacy, controlled access, secure data handling, and operational accountability at every stage of the registration process.
+                  {userT('FieldSync is designed with privacy, controlled access, secure data handling, and operational accountability at every stage of the registration process.')}
                 </p>
               </div>
             </div>
@@ -835,11 +851,11 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black text-[#0F172A] dark:text-[#F8FAFC] tracking-tight leading-tight">
-            Ready to Connect Your Field Operations?
+            {userT('Ready to Connect Your Field Operations?')}
           </h2>
 
           <p className="mt-5 text-lg sm:text-xl text-[#334155] dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
-            Give your field teams the tools to register citizens securely — online or offline.
+            {userT('Give your field teams the tools to register citizens securely — online or offline.')}
           </p>
 
           <div className="mt-10 flex justify-center">
@@ -847,7 +863,7 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
               onClick={() => onGoToLogin()}
               className="group inline-flex items-center justify-center gap-3 px-8 sm:px-10 py-4 sm:py-4.5 rounded-xl bg-[#2563EB] hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-base sm:text-lg shadow-lg shadow-blue-600/25 hover:shadow-xl hover:shadow-blue-600/35 active:scale-[0.99] transition-all duration-200 cursor-pointer"
             >
-              <span>Enter FieldSync</span>
+              <span>{user ? userT('Go to Dashboard') : userT('Enter FieldSync')}</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
           </div>
@@ -872,37 +888,37 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
                 <span>FieldSync</span>
               </div>
               <p className="font-bold text-base text-[#0F172A] dark:text-slate-100">
-                Connecting Field Teams to the National Registry
+                {userT('Connecting Field Teams to the National Registry')}
               </p>
               <p className="text-sm text-[#475569] dark:text-[#94A3B8] leading-relaxed max-w-sm">
-                An offline-first platform designed for secure citizen registration, local data protection, and operational visibility across remote field environments.
+                {userT('An offline-first platform designed for secure citizen registration, local data protection, and operational visibility across remote field environments.')}
               </p>
             </div>
 
             {/* Column 1: Platform */}
             <div className="space-y-4">
               <h4 className="text-xs font-bold uppercase tracking-wider text-[#0F172A] dark:text-white">
-                Platform
+                {userT('Platform')}
               </h4>
               <ul className="space-y-3 text-sm font-medium">
                 <li>
                   <a href="#how-it-works" className="hover:text-[#2563EB] dark:hover:text-[#60A5FA] transition-colors">
-                    How It Works
+                    {userT('How It Works')}
                   </a>
                 </li>
                 <li>
                   <a href="#built-for-field" className="hover:text-[#2563EB] dark:hover:text-[#60A5FA] transition-colors">
-                    Key Features
+                    {userT('Key Features')}
                   </a>
                 </li>
                 <li>
                   <a href="#roles" className="hover:text-[#2563EB] dark:hover:text-[#60A5FA] transition-colors">
-                    User Roles
+                    {userT('User Roles')}
                   </a>
                 </li>
                 <li>
                   <a href="#operations" className="hover:text-[#2563EB] dark:hover:text-[#60A5FA] transition-colors">
-                    Field Operations
+                    {userT('Field Operations')}
                   </a>
                 </li>
               </ul>
@@ -911,51 +927,51 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
             {/* Column 2: Portals */}
             <div className="space-y-4">
               <h4 className="text-xs font-bold uppercase tracking-wider text-[#0F172A] dark:text-white">
-                Portals
+                {userT('Portals')}
               </h4>
               <ul className="space-y-3 text-sm font-medium">
                 <li>
                   <button onClick={() => onGoToLogin('FIELD_OFFICER')} className="hover:text-[#2563EB] dark:hover:text-[#60A5FA] transition-colors cursor-pointer text-left">
-                    Field Officer Portal
+                    {userT('Field Officer Portal')}
                   </button>
                 </li>
                 <li>
                   <button onClick={() => onGoToLogin('SUPERVISOR')} className="hover:text-[#2563EB] dark:hover:text-[#60A5FA] transition-colors cursor-pointer text-left">
-                    Zonal Supervisor Portal
+                    {userT('Zonal Supervisor Portal')}
                   </button>
                 </li>
                 <li>
                   <button onClick={() => onGoToLogin('MANAGER')} className="hover:text-[#2563EB] dark:hover:text-[#60A5FA] transition-colors cursor-pointer text-left">
-                    National Manager Portal
+                    {userT('National Manager Portal')}
                   </button>
                 </li>
               </ul>
             </div>
 
-            {/* Column 3: Security & Governance */}
+            {/* Column 3: Security & Data */}
             <div className="space-y-4">
               <h4 className="text-xs font-bold uppercase tracking-wider text-[#0F172A] dark:text-white">
-                Security & Data
+                {userT('Security & Data')}
               </h4>
               <ul className="space-y-3 text-sm font-medium">
                 <li>
                   <a href="#security" className="hover:text-[#2563EB] dark:hover:text-[#60A5FA] transition-colors">
-                    Role-Based Access
+                    {userT('Role-Based Access')}
                   </a>
                 </li>
                 <li>
                   <a href="#security" className="hover:text-[#2563EB] dark:hover:text-[#60A5FA] transition-colors">
-                    Secure Local Storage
+                    {userT('Secure Local Storage')}
                   </a>
                 </li>
                 <li>
                   <a href="#security" className="hover:text-[#2563EB] dark:hover:text-[#60A5FA] transition-colors">
-                    Activity History
+                    {userT('Activity History')}
                   </a>
                 </li>
                 <li>
                   <a href="#security" className="hover:text-[#2563EB] dark:hover:text-[#60A5FA] transition-colors">
-                    Protected Synchronization
+                    {userT('Protected Synchronization')}
                   </a>
                 </li>
               </ul>
@@ -965,12 +981,12 @@ export default function LandingPage({ onGoToLogin, isOnline = true }: LandingPag
 
           {/* Bottom Copyright & Back to Top */}
           <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs sm:text-sm text-[#64748B] dark:text-[#94A3B8]">
-            <p>© 2026 FieldSync. National Citizen Registration & Field Operations Platform.</p>
+            <p>{userT('© 2026 FieldSync. National Citizen Registration & Field Operations Platform.')}</p>
             <button
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-slate-200/60 dark:hover:bg-slate-800 font-semibold text-xs text-[#475569] dark:text-slate-300 hover:text-[#2563EB] dark:hover:text-[#60A5FA] transition-colors cursor-pointer"
             >
-              <span>Back to top</span>
+              <span>{userT('Back to top')}</span>
               <ArrowUp className="w-3.5 h-3.5" />
             </button>
           </div>

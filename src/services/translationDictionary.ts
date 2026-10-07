@@ -8,6 +8,7 @@ export interface DictionaryItem {
 }
 
 export const translationDictionary: Record<string, DictionaryItem> = {
+
   // Brand & General
   'FieldSync': { am: 'ፊልድሲንክ', om: 'FieldSync', ti: 'ፊልድሲንክ' },
   'Offline Report Management System': { am: 'ከመስመር ውጭ ሪፖርት አስተዳደር ስርዓት', om: 'Sisteemii Bulchiinsa Gabaasa Toora-Alaa', ti: 'ስርዓተ ኣዘላለም ሪፖርት ብዘይ መስመር' },
@@ -2616,6 +2617,1866 @@ export const translationDictionary: Record<string, DictionaryItem> = {
     am: "የእንቅስቃሴ የጊዜ ቅደም ተከተል",
     om: "Tartiiba Yeroo Sochii",
     ti: "ተኸታታሊ ናይ ንጥፈት መደብ"
+  },
+
+  // --- USER MANAGEMENT & WORKSTATION MODULE ---
+
+  // Ethiopian Regions
+
+  // Ethiopian Sub-Cities and Zones
+
+  // Ethiopian Woredas
+
+  // Modal Common & Forms
+  'User created successfully': {
+    am: 'ተጠቃሚ በተሳካ ሁኔታ ተፈጥሯል',
+    om: 'Fayyedamaan milkaa\'inaan uumameera',
+    ti: 'ተጠቃሚ ብዓወት ተፈጢሩ'
+  },
+  'User created locally (offline mode)': {
+    am: 'ተጠቃሚ በአካባቢው ተፈጥሯል (ከመስመር ውጭ ሁነታ)',
+    om: 'Fayyedamaan toora-ala uumameera',
+    ti: 'ተጠቃሚ ብዘይ መስመር ተፈጢሩ'
+  },
+  'Failed to create user': {
+    am: 'ተጠቃሚ መፍጠር አልተሳካም',
+    om: 'Fayyadamaa uumuun hin danda\'amne',
+    ti: 'ተጠቃሚ ምፍጣር ኣይተኻእለን'
+  },
+  'Email is required': {
+    am: 'ኢሜይል ያስፈልጋል',
+    om: 'Imeeliin ni barbaachisa',
+    ti: 'ኢመይል የድሊ'
+  },
+  'Invalid email format': {
+    am: 'ልክ ያልሆነ የኢሜይል ቅርጸት',
+    om: 'Bifni imeelii sirrii miti',
+    ti: 'ትኽክል ዘይኮነ ናይ ኢመይል ቕርጺ'
+  },
+  'Phone number is required': {
+    am: 'ስልክ ቁጥር ያስፈልጋል',
+    om: 'Lakkoofsi bilbilaa ni barbaachisa',
+    ti: 'ቁጽሪ ተሌፎን የድሊ'
+  },
+  'Zone is required for Supervisors': {
+    am: 'ለሱፐርቫይዘሮች ዞን ያስፈልጋል',
+    om: 'To\'attootaaf zooniin ni barbaachisa',
+    ti: 'ንተቖጻጸርቲ ዞባ የድሊ'
+  },
+  'Zone is required for Field Officers': {
+    am: 'ለመስክ ኦፊሰሮች ዞን ያስፈልጋል',
+    om: 'Hojjattoota dirreetiif zooniin ni barbaachisa',
+    ti: 'ንናይ ግዳም መኮንናት ዞባ የድሊ'
+  },
+  'Woreda is required for Field Officers': {
+    am: 'ለመስክ ኦፊሰሮች ወረዳ ያስፈልጋል',
+    om: 'Hojjattoota dirreetiif aanaan ni barbaachisa',
+    ti: 'ንናይ ግዳም መኮንናት ወረዳ የድሊ'
+  },
+  'Are you sure you want to': {
+    am: 'እርግጠኛ ነዎት',
+    om: 'Dhuguma barbaadduu',
+    ti: 'ርግጸኛ ዲኹም'
+  },
+  'activate': {
+    am: 'ማንቃት',
+    om: 'bannuu',
+    ti: 'ከተተግብሩ'
+  },
+  'deactivate': {
+    am: 'ማገድ',
+    om: 'cufuu',
+    ti: 'ክትዓጽዉ'
+  },
+  'account': {
+    am: 'መለያ',
+    om: 'herrega',
+    ti: 'ሕሳብ'
+  },
+  'account?': {
+    am: 'መለያ?',
+    om: 'herrega?',
+    ti: 'ሕሳብ?'
+  },
+  'User account activated successfully': {
+    am: 'የተጠቃሚ መለያ በተሳካ ሁኔታ ነቅቷል',
+    om: 'Herregni fayyadamaa milkaa\'inaan banameera',
+    ti: 'ናይ ተጠቃሚ ሕሳብ ብዓወት ተተግቢሩ'
+  },
+  'User account deactivated successfully': {
+    am: 'የተጠቃሚ መለያ በተሳካ ሁኔታ ታግዷል',
+    om: 'Herregni fayyadamaa milkaa\'inaan cufameera',
+    ti: 'ናይ ተጠቃሚ ሕሳብ ብዓወት ተዓጽዩ'
+  },
+  'Failed to update user status': {
+    am: 'የተጠቃሚ ሁኔታን ማዘመን አልተሳካም',
+    om: 'Haala fayyadamaa haaromsuun hin danda\'amne',
+    ti: 'ናይ ተጠቃሚ ኩነታት ምሕዳስ ኣይተኻእለን'
+  },
+  'Reset password for': {
+    am: 'የይለፍ ቃል ዳግም አስጀምር ለ',
+    om: 'Jecha darbii deebisi kan',
+    ti: 'መሕለፊ ቃል ብሓድሽ ጀምር ን'
+  },
+  'A new temporary password will be generated and required to change on next login.': {
+    am: 'አዲስ ጊዜያዊ የይለፍ ቃል የሚመነጭ ሲሆን በሚቀጥለው መግቢያ ላይ መቀየር ግዴታ ይሆናል።',
+    om: 'Jechi darbii yeroo haaraan ni uumama, seensa itti aanu irratti jijjiiruunis dirqama ta\'a.',
+    ti: 'ሓድሽ ግዝያዊ መሕለፊ ቃል ዝፍጠር ኮይኑ ኣብ ዝቕጽል ምእታው ምቕያር ግዴታ ይኸውን።'
+  },
+
+  // User Details Modal
+  'Personnel Record Details': {
+    am: 'የሠራተኛ መዝገብ ዝርዝር',
+    om: 'Bal\'ina Galmee Hojjetaa',
+    ti: 'ዝርዝር ናይ ሰራሕተኛ መዝገብ'
+  },
+  'Operational Workstation & Jurisdiction': {
+    am: 'የአሰራር ስራ ጣቢያ እና የስልጣን ክልል',
+    om: 'Bakka Hojii fi Daangaa Hojii',
+    ti: 'ናይ ስራሕ መደበርን ናይ ስልጣን ወሰንን'
+  },
+  'National Scope': {
+    am: 'ብሔራዊ ወሰን',
+    om: 'Bal\'ina Biyyooleessaa',
+    ti: 'ሃገራዊ ወሰን'
+  },
+  'Assigned Area': {
+    am: 'የተመደበ አካባቢ',
+    om: 'Bakka Ramadame',
+    ti: 'ዝተመደበ ከባቢ'
+  },
+  'National System Oversight': {
+    am: 'ብሔራዊ የስርዓት ቁጥጥር',
+    om: 'To\'annoo Sirna Biyyooleessaa',
+    ti: 'ሃገራዊ ናይ ስርዓት ቁጽጽር'
+  },
+  'Managers hold system-wide administrative oversight across all regions, zones, and woredas.': {
+    am: 'ስራ አስኪያጆች በሁሉም ክልሎች፣ ዞኖች እና ወረዳዎች ላይ ስርዓት አቀፍ የአስተዳደር ቁጥጥር አላቸው።',
+    om: 'Hoggantoonni naannolee, zoonota fi aanaalee hunda irratti to\'annoo bulchiinsaa sirna guutuu qabu.',
+    ti: 'ኣመሓደርቲ ኣብ ኩሎም ክልላት፣ ዞባታትን ወረዳታትን ስርዓት ምሉእ ናይ ምምሕዳር ቁጽጽር ኣለዎም።'
+  },
+
+  // Edit Modal
+  'Update official identification name records and direct contact information': {
+    am: 'ይፋዊ የመታወቂያ ስም መዝገቦችን እና የቀጥታ አድራሻ መረጃን ያዘምኑ',
+    om: 'Galmee maqaa waraqaa eenyummaa fi odeeffannoo qunnamtii kallattii haaromsi',
+    ti: 'ወግዓዊ ናይ መንነት ሽም መዛግብትን ናይ ቀጥታ ርክብ ሓበሬታን ኣሐድስ'
+  },
+  'Active Staff Record': {
+    am: 'ንቁ የሠራተኛ መዝገብ',
+    om: 'Galmee Hojjetaa Hojii Irra Jiru',
+    ti: 'ንቁሕ ናይ ሰራሕተኛ መዝገብ'
+  },
+  'Three-part Ethiopian convention': {
+    am: 'የሶስት ክፍል የኢትዮጵያ የስም ባህል',
+    om: 'Aadaa maqaa kutaalee sadii Itoophiyaa',
+    ti: 'ናይ ሰለስተ ክፍሊ ናይ ኢትዮጵያ ኣሰያይማ ልምዲ'
+  },
+  'First Name (Given)': {
+    am: 'የመጀመሪያ ስም (የራስ)',
+    om: 'Maqaa Duraa (Kan Ofii)',
+    ti: 'ቀዳማይ ሽም (ናይ ባዕሉ)'
+  },
+  'e.g. Aster': {
+    am: 'ለምሳሌ አስቴር',
+    om: 'Fkn. Asteer',
+    ti: 'ንኣብነት ኣስቴር'
+  },
+  'Father Name (Middle)': {
+    am: 'የአባት ስም',
+    om: 'Maqaa Abbaa',
+    ti: 'ሽም ኣቦ'
+  },
+  'e.g. Awoke': {
+    am: 'ለምሳሌ አወቀ',
+    om: 'Fkn. Awwaqaa',
+    ti: 'ንኣብነት ኣወቐ'
+  },
+  'Grandfather (Last)': {
+    am: 'የአያት ስም',
+    om: 'Maqaa Akaakayyuu',
+    ti: 'ሽም ኣቦሓጎ'
+  },
+  'e.g. Tesfu': {
+    am: 'ለምሳሌ ተስፉ',
+    om: 'Fkn. Tasfahuu',
+    ti: 'ንኣብነት ተስፉ'
+  },
+  'Official Display Sequence:': {
+    am: 'ይፋዊ የማሳያ ቅደም ተከተል:',
+    om: 'Tartiiba Mul\'ata Seeraa:',
+    ti: 'ወግዓዊ ናይ ምርኢት ተኸታታሊ:'
+  },
+  'Enter names above': {
+    am: 'ስሞችን ከላይ ያስገቡ',
+    om: 'Maqaawwan armaan olitti galchaa',
+    ti: 'ሽማት ኣብ ላዕሊ ኣእትዉ'
+  },
+  'Direct Phone Number': {
+    am: 'የቀጥታ ስልክ ቁጥር',
+    om: 'Lakkoofsa Bilbila Kallattii',
+    ti: 'ናይ ቀጥታ ቁጽሪ ተሌፎን'
+  },
+  '+2519XXXXXXXX or 09XXXXXXXX': {
+    am: '+2519XXXXXXXX ወይም 09XXXXXXXX',
+    om: '+2519XXXXXXXX ykn 09XXXXXXXX',
+    ti: '+2519XXXXXXXX ወይ 09XXXXXXXX'
+  },
+  'System Sign-in Email': {
+    am: 'የስርዓት መግቢያ ኢሜይል',
+    om: 'Imeelii Seensa Sirnaa',
+    ti: 'ናይ ስርዓት መእተዊ ኢመይል'
+  },
+  'Read-Only': {
+    am: 'ተነባቢ ብቻ',
+    om: 'Dubbisuuf Qofa',
+    ti: 'ንምንባብ ጥራይ'
+  },
+  'Associated authentication credential': {
+    am: 'የተገናኘ የማረጋገጫ ምስክር ወረቀት',
+    om: 'Ragaa mirkaneessaa walqabate',
+    ti: 'ዝተኣሳሰረ ናይ ምርግጋጽ መረዳእታ'
+  },
+
+  // Location Dropdown & Validation
+  'Select Assigned Supervisor *': {
+    am: 'የተመደበ ሱፐርቫይዘር ይምረጡ *',
+    om: 'To\'ataa Ramadame Filadhu *',
+    ti: 'ዝተመደበ ተቖጻጻሪ ምረጽ *'
+  },
+  'No Active Supervisor Responsible for this Zone': {
+    am: 'ለዚህ ዞን ኃላፊነት ያለው ንቁ ሱፐርቫይዘር የለም',
+    om: 'Zoonii kanaaf to\'ataan itti gaafatamummaa qabu hin jiru',
+    ti: 'ንዚ ዞባ ሓላፍነት ዘለዎ ንቁሕ ተቖጻጻሪ የለን'
+  },
+  'A Field Officer can only be registered, assigned, or transferred to a Woreda if that area has at least one active Supervisor responsible for that Zone. Please assign a Supervisor to this Zone first.': {
+    am: 'የመስክ ኦፊሰር ወደ ወረዳ ሊመዘገብ፣ ሊመደብ ወይም ሊዛወር የሚችለው ያ አካባቢ ለዚያ ዞን ኃላፊነት ያለው ቢያንስ አንድ ንቁ ሱፐርቫይዘር ሲኖረው ብቻ ነው። እባክዎ መጀመሪያ ለዚህ ዞን ሱፐርቫይዘር ይመድቡ።',
+    om: 'Hojjetaan dirree aanaatti galmaa\'uu, ramadamuu ykn darbuu kan danda\'u naannoon sun zoonii sanaaf yoo xiqqaate to\'ataa hojjatu tokko yoo qabaate qofaadha. Maaloo dursa zoonii kanaaf to\'ataa ramadaa.',
+    ti: 'ናይ ግዳም መኮንን ናብ ወረዳ ክምዝገብ፣ ክምደብ ወይ ክሰጋገር ዝኽእል እቲ ከባቢ ንዑኡ ዞባ ሓላፍነት ዘለዎ ብውሕዱ ሓደ ንቁሕ ተቖጻጻሪ እንተልይዎ ጥራይ እዩ። በጃኹም ቅድም ንዚ ዞባ ተቖጻጻሪ መድቡ።'
+  },
+  'A Field Officer can only be registered to a Woreda if that area has at least one active Supervisor responsible for that Zone.': {
+    am: 'የመስክ ኦፊሰር ወደ ወረዳ ሊመዘገብ የሚችለው ያ አካባቢ ለዚያ ዞን ኃላፊነት ያለው ቢያንስ አንድ ንቁ ሱፐርቫይዘር ሲኖረው ብቻ ነው።',
+    om: 'Hojjetaan dirree aanaatti galmaa\'uu kan danda\'u naannoon sun zoonii sanaaf to\'ataa hojjatu yoo qabaate qofaadha.',
+    ti: 'ናይ ግዳም መኮንን ናብ ወረዳ ክምዝገብ ዝኽእል እቲ ከባቢ ንዑኡ ዞባ ሓላፍነት ዘለዎ ንቁሕ ተቖጻጻሪ እንተልይዎ ጥራይ እዩ።'
+  },
+  'A Field Officer can only be transferred to a Woreda if that area has at least one active Supervisor responsible for that Zone.': {
+    am: 'የመስክ ኦፊሰር ወደ ወረዳ ሊዛወር የሚችለው ያ አካባቢ ለዚያ ዞን ኃላፊነት ያለው ቢያንስ አንድ ንቁ ሱፐርቫይዘር ሲኖረው ብቻ ነው።',
+    om: 'Hojjetaan dirree aanaatti darbuu kan danda\'u naannoon sun zoonii sanaaf to\'ataa hojjatu yoo qabaate qofaadha.',
+    ti: 'ናይ ግዳም መኮንን ናብ ወረዳ ክሰጋገር ዝኽእል እቲ ከባቢ ንዑኡ ዞባ ሓላፍነት ዘለዎ ንቁሕ ተቖጻጻሪ እንተልይዎ ጥራይ እዩ።'
+  },
+  'A Field Officer can only be assigned to a Woreda if that area has at least one active Supervisor responsible for that Zone.': {
+    am: 'የመስክ ኦፊሰር ወደ ወረዳ ሊመደብ የሚችለው ያ አካባቢ ለዚያ ዞን ኃላፊነት ያለው ቢያንስ አንድ ንቁ ሱፐርቫይዘር ሲኖረው ብቻ ነው።',
+    om: 'Hojjetaan dirree aanaatti ramadamuu kan danda\'u naannoon sun zoonii sanaaf to\'ataa hojjatu yoo qabaate qofaadha.',
+    ti: 'ናይ ግዳም መኮንን ናብ ወረዳ ክምደብ ዝኽእል እቲ ከባቢ ንዑኡ ዞባ ሓላፍነት ዘለዎ ንቁሕ ተቖጻጻሪ እንተልይዎ ጥራይ እዩ።'
+  },
+  'Zone requires at least one active Supervisor': {
+    am: 'ዞኑ ቢያንስ አንድ ንቁ ሱፐርቫይዘር ይፈልጋል',
+    om: 'Zooniin yoo xiqqaate to\'ataa hojjatu tokko barbaada',
+    ti: 'እቲ ዞባ ብውሕዱ ሓደ ንቁሕ ተቖጻጻሪ የድልዮ'
+  },
+  'Please complete all required fields.': {
+    am: 'እባክዎ ሁሉንም አስፈላጊ መስኮች ይሙሉ',
+    om: 'Maaloo dirree barbaachisaa hunda guutaa',
+    ti: 'በጃኹም ኩሎም ዘድልዩ መሳልዮታት ምልኡ'
+  },
+
+  // Reassignment Modal
+  'Reassign Ethiopian Workstation Location': {
+    am: 'የኢትዮጵያ የስራ ጣቢያ አካባቢን በድጋሚ መድብ',
+    om: 'Bakka Hojii Itoophiyaa Deebisii Ramadi',
+    ti: 'ናይ ኢትዮጵያ ናይ ስራሕ መደበር ዳግማይ መድብ'
+  },
+  'Current Workstation Assignment:': {
+    am: 'የአሁኑ የስራ ጣቢያ ምደባ:',
+    om: 'Ramaddii Bakka Hojii Ammaa:',
+    ti: 'ናይ ሕጂ ናይ ስራሕ መደበር ምደባ:'
+  },
+  'Checking assigned workforce hierarchy for this supervisor...': {
+    am: 'ለዚህ ሱፐርቫይዘር የተመደበውን የሰው ኃይል እርከን በማጣራት ላይ...',
+    om: 'Sadarkaa hojjattoota to\'ataa kanaaf ramadame qorachaa jira...',
+    ti: 'ንዚ ተቖጻጻሪ ዝተመደበ ናይ ሰራሕተኛ ተዋረድ ይጻረ ኣሎ...'
+  },
+  'Reassignment Required: Active Officers Under Control': {
+    am: 'ዳግም ምደባ ያስፈልጋል፡ በቁጥጥር ስር ያሉ ንቁ ኦፊሰሮች',
+    om: 'Ramaddii Haaraa Barbaachisa: Hojjattoota To\'annoo Jala Jiran',
+    ti: 'ዳግማይ ምደባ የድሊ: ኣብ ትሕቲ ቁጽጽር ዘለዉ ንቁሓት መኮንናት'
+  },
+  'Officers Supervised': {
+    am: 'የሚቆጣጠራቸው ኦፊሰሮች',
+    om: 'Hojjattoota To\'ataman',
+    ti: 'ዝቆጻጸሮም መኮንናት'
+  },
+  'This supervisor currently has active Field Officers under their control. A supervisor cannot change their operational location while having officers under their supervision. You must reassign these officers to replacement active supervisors first before changing location.': {
+    am: 'ይህ ሱፐርቫይዘር በአሁኑ ጊዜ በቁጥጥሩ ስር ያሉ ንቁ የመስክ ኦፊሰሮች አሉት። አንድ ሱፐርቫይዘር በቁጥጥሩ ስር ኦፊሰሮች እያሉ የስራ ቦታውን መቀየር አይችልም። ቦታ ከመቀየርዎ በፊት መጀመሪያ እነዚህን ኦፊሰሮች ለተተኪ ንቁ ሱፐርቫይዘሮች በድጋሚ መመደብ አለብዎት።',
+    om: 'To\'ataan kun yeroo ammaa hojjattoota dirree hojjatan to\'annoo isaa jala qaba. To\'ataan tokko hojjattoota utuu qabuu bakka hojii jijjiiruu hin danda\'u. Bakka jijjiiruu dura dursa hojjattoota kana to\'attoota bakka bu\'aniif ramaduu qabdu.',
+    ti: 'እዚ ተቖጻጻሪ ሕጂ ኣብ ትሕቲ ቁጽጽሩ ዘለዉ ንቁሓት ናይ ግዳም መኮንናት ኣለዉዎ። ሓደ ተቖጻጻሪ ኣብ ትሕቲኡ መኮንናት እናሃለዉ ናይ ስራሕ ቦታኡ ክቕይር ኣይኽእልን። ቦታ ቅድሚ ምቕያርኩም ቅድም ነዞም መኮንናት ንተተካእቲ ንቁሓት ተቖጻጸርቲ ዳግማይ ክትምድብዎም ኣለኩም።'
+  },
+  'Step 1: Reassign Officers To Active Supervisors': {
+    am: 'ደረጃ 1፡ ኦፊሰሮችን ለንቁ ሱፐርቫይዘሮች በድጋሚ መድብ',
+    om: 'Tarkaanfii 1: Hojjattoota To\'attoota Hojjataniif Ramadi',
+    ti: 'ደረጃ 1: ንመኮንናት ንንቁሓት ተቖጻጸርቲ ዳግማይ መድብ'
+  },
+  'Assigned': {
+    am: 'ተመድቧል',
+    om: 'Ramadameera',
+    ti: 'ተመዲቡ'
+  },
+  'Quick Action: Transfer All Officers To Same Supervisor': {
+    am: 'ፈጣን እርምጃ፡ ሁሉንም ኦፊሰሮች ወደ አንድ ሱፐርቫይዘር አስተላልፍ',
+    om: 'Tarkaanfii Ariifachiisaa: Hojjattoota Hunda To\'ataa Tokkotti Dabarsi',
+    ti: 'ቅልጡፍ ስጉምቲ: ንኹሎም መኮንናት ናብ ሓደ ተቖጻጻሪ ኣመሓላልፍ'
+  },
+  'Quick Action: Assign All Officers To Same Supervisor': {
+    am: 'ፈጣን እርምጃ፡ ሁሉንም ኦፊሰሮች ለአንድ ሱፐርቫይዘር መድብ',
+    om: 'Tarkaanfii Ariifachiisaa: Hojjattoota Hunda To\'ataa Tokkotti Ramadi',
+    ti: 'ቅልጡፍ ስጉምቲ: ንኹሎም መኮንናት ንሓደ ተቖጻጻሪ መድብ'
+  },
+  'Select Replacement Supervisor:': {
+    am: 'ተተኪ ሱፐርቫይዘር ይምረጡ:',
+    om: 'To\'ataa Bakka Bu\'u Filadhu:',
+    ti: 'ተተካኢ ተቖጻጻሪ ምረጽ:'
+  },
+  '(Bulk Fill)': {
+    am: '(በጅምላ ሙላ)',
+    om: '(Walitti Guuti)',
+    ti: '(ብሓባር ምላእ)'
+  },
+  '(Optional Bulk Fill)': {
+    am: '(አማራጭ የጅምላ ሙሌት)',
+    om: '(Filannoo Walitti Guutuu)',
+    ti: '(ኣማራጺ ብሓባር ምምላእ)'
+  },
+  '-- Select Supervisor to Apply to All --': {
+    am: '-- ለሁሉም የሚሆን ሱፐርቫይዘር ይምረጡ --',
+    om: '-- To\'ataa Hundaaf Ta\'u Filadhu --',
+    ti: '-- ንኹሎም ዝኸውን ተቖጻጻሪ ምረጽ --'
+  },
+  'Assign Officers to Different Supervisors:': {
+    am: 'ኦፊሰሮችን ለተለያዩ ሱፐርቫይዘሮች መድብ:',
+    om: 'Hojjattoota To\'attoota Adda Addaatti Ramadi:',
+    ti: 'ንመኮንናት ንዝተፈላለዩ ተቖጻጸርቲ መድብ:'
+  },
+  'Assigned Officer:': {
+    am: 'የተመደበ ኦፊሰር:',
+    om: 'Hojjetaa Ramadame:',
+    ti: 'ዝተመደበ መኮንን:'
+  },
+  'Each officer can be assigned to a different active supervisor': {
+    am: 'እያንዳንዱ ኦፊሰር ለተለያየ ንቁ ሱፐርቫይዘር ሊመደብ ይችላል',
+    om: 'Hojjetaan hundi to\'ataa adda addaatti ramadamuu danda\'a',
+    ti: 'ነፍሲ ወከፍ መኮንን ንዝተፈላለየ ንቁሕ ተቖጻጻሪ ክምደብ ይኽእል'
+  },
+  'Each officer can have a different supervisor': {
+    am: 'እያንዳንዱ ኦፊሰር የተለያየ ሱፐርቫይዘር ሊኖረው ይችላል',
+    om: 'Hojjetaan hundi to\'ataa adda addaa qabaachuu danda\'a',
+    ti: 'ነፍሲ ወከፍ መኮንን ዝተፈላለየ ተቖጻጻሪ ክህልዎ ይኽእል'
+  },
+  '-- Select Supervisor --': {
+    am: '-- ሱፐርቫይዘር ይምረጡ --',
+    om: '-- To\'ataa Filadhu --',
+    ti: '-- ተቖጻጻሪ ምረጽ --'
+  },
+  'No other active supervisors available in the system. Please promote another officer to supervisor first.': {
+    am: 'በስርዓቱ ውስጥ ሌላ ንቁ ሱፐርቫይዘር የለም። እባክዎ መጀመሪያ ሌላ ኦፊሰር ወደ ሱፐርቫይዘርነት ያሳድጉ።',
+    om: 'To\'ataan biraa sirna kana keessatti hin jiru. Maaloo dursa hojjetaa biraa gara to\'ataatti guddisaa.',
+    ti: 'ኣብዚ ስርዓት ካልእ ንቁሕ ተቖጻጻሪ የለን። በጃኹም ቅድም ንካልእ መኮንን ናብ ተቖጻጻርነት ኣዕብዩ።'
+  },
+  'Reassignment Distribution Preview:': {
+    am: 'የዳግም ምደባ ስርጭት ቅድመ-እይታ:',
+    om: 'Iskiriinii Raabsa Ramaddii Haaraa:',
+    ti: 'ናይ ዳግማይ ምደባ ቕድመ-ርእይቶ:'
+  },
+  'officer(s)': {
+    am: 'ኦፊሰር(ች)',
+    om: 'hojjetaa(oota)',
+    ti: 'መኮንን(ናት)'
+  },
+  'You can reassign officers immediately below, or automatically when applying location change:': {
+    am: 'ኦፊሰሮችን ከታች ወዲያውኑ ወይም የአካባቢ ለውጡን ሲተገብሩ በራስ-ሰር ማስተላለፍ ይችላሉ:',
+    om: 'Hojjattoota battalumatti armaan gaditti ykn yeroo bakka jijjiirtan ofumaan dabarsuu dandeessu:',
+    ti: 'ንመኮንናት ብቐጥታ ኣብ ታሕቲ ወይ ናይ ቦታ ለውጢ ክትገብሩ ከለኹም ብኣውቶማቲክ ከተመሓላልፉ ትኽእሉ:'
+  },
+  'officer(s) must be assigned first before changing location.': {
+    am: 'ቦታ ከመቀየርዎ በፊት ኦፊሰር(ች) መመደብ አለባቸው።',
+    om: 'bakka jijjiiruu dura hojjetaa(ootni) dursa ramadamuu qabu.',
+    ti: 'ቦታ ቕድሚ ምቕያርኩም መኮንን(ናት) ቅድም ክምደቡ ኣለዎም።'
+  },
+  'Reassign Officers Now': {
+    am: 'ኦፊሰሮችን አሁን በድጋሚ መድብ',
+    om: 'Hojjattoota Amma Deebisii Ramadi',
+    ti: 'ንመኮንናት ሕጂ ዳግማይ መድብ'
+  },
+  'No frontline field officers currently assigned to this supervisor. Location change is safe to proceed.': {
+    am: 'በአሁኑ ጊዜ ለዚህ ሱፐርቫይዘር የተመደበ የመስክ ኦፊሰር የለም። የአካባቢ ለውጥ መቀጠል ደህንነቱ የተጠበቀ ነው።',
+    om: 'Hojjetaan dirree to\'ataa kanaaf ramadame hin jiru. Bakka jijjiiruun nageenya qaba.',
+    ti: 'ንዚ ተቖጻጻሪ ሕጂ ዝተመደበ ናይ ግዳም መኮንን የለን። ናይ ቦታ ለውጢ ምቕጻል ውሑስ እዩ።'
+  },
+  'Step 2: Select New Ethiopian Workstation Location': {
+    am: 'ደረጃ 2፡ አዲሱን የኢትዮጵያ የስራ ጣቢያ ቦታ ይምረጡ',
+    om: 'Tarkaanfii 2: Bakka Hojii Itoophiyaa Haaraa Filadhu',
+    ti: 'ደረጃ 2: ሓድሽ ናይ ኢትዮጵያ ናይ ስራሕ መደበር ምረጽ'
+  },
+  'Reassign Officers First': {
+    am: 'መጀመሪያ ኦፊሰሮችን በድጋሚ መድብ',
+    om: 'Dursa Hojjattoota Deebisii Ramadi',
+    ti: 'ቅድም ንመኮንናት ዳግማይ መድብ'
+  },
+  'Apply Reassignment & Location Change': {
+    am: 'ዳግም ምደባ እና የአካባቢ ለውጥ ተግብር',
+    om: 'Ramaddii fi Jijjiirama Bakkaa Hojiirra Oolchi',
+    ti: 'ዳግማይ ምደባን ናይ ቦታ ለውጥን ኣተግብር'
+  },
+  'Apply Workstation Location Change': {
+    am: 'የስራ ጣቢያ አካባቢ ለውጥ ተግብር',
+    om: 'Jijjiirama Bakka Hojii Hojiirra Oolchi',
+    ti: 'ናይ ስራሕ መደበር ናይ ቦታ ለውጢ ኣተግብር'
+  },
+  'Validation Blocked: This supervisor has active field officers under their control. You must reassign all officers to replacement supervisors first before changing this supervisor\'s location.': {
+    am: 'ማረጋገጫው ተስተጓጉሏል፡ ይህ ሱፐርቫይዘር በቁጥጥሩ ስር ያሉ ንቁ የመስክ ኦፊሰሮች አሉት። የዚህን ሱፐርቫይዘር ቦታ ከመቀየርዎ በፊት መጀመሪያ ሁሉንም ኦፊሰሮች ለተተኪ ሱፐርቫይዘሮች በድጋሚ መመደብ አለብዎት።',
+    om: 'Mirkaneessi gufatee: To\'ataan kun hojjattoota dirree to\'annoo jala qaba. Bakka to\'ataa kanaa jijjiiruu dura dursa hojjattoota hunda to\'attoota bakka bu\'aniif ramaduu qabdu.',
+    ti: 'መረጋገጺ ተዓጊቱ: እዚ ተቖጻጻሪ ኣብ ትሕቲ ቁጽጽሩ ዘለዉ ንቁሓት ናይ ግዳም መኮንናት ኣለዉዎ። ናይዚ ተቖጻጻሪ ቦታ ቅድሚ ምቕያርኩም ቅድም ንኹሎም መኮንናት ንተተካእቲ ተቖጻጸርቲ ዳግማይ ክትምድብዎም ኣለኩም።'
+  },
+  'Workstation location reassigned successfully': {
+    am: 'የስራ ጣቢያ አካባቢ በተሳካ ሁኔታ በድጋሚ ተመድቧል',
+    om: 'Bakki hojii milkaa\'inaan deebisee ramadameera',
+    ti: 'ናይ ስራሕ መደበር ቦታ ብዓወት ዳግማይ ተመዲቡ'
+  },
+  'Failed to reassign workstation location': {
+    am: 'የስራ ጣቢያ አካባቢን በድጋሚ መመደብ አልተሳካም',
+    om: 'Bakka hojii deebisanii ramaduun hin danda\'amne',
+    ti: 'ናይ ስራሕ መደበር ቦታ ዳግማይ ምምዳብ ኣይተኻእለን'
+  },
+  'Please assign all officers to replacement supervisors first.': {
+    am: 'እባክዎ መጀመሪያ ሁሉንም ኦፊሰሮች ለተተኪ ሱፐርቫይዘሮች ይመድቡ።',
+    om: 'Maaloo dursa hojjattoota hunda to\'attoota bakka bu\'aniif ramadaa.',
+    ti: 'በጃኹም ቅድም ንኹሎም መኮንናት ንተተካእቲ ተቖጻጸርቲ መድቡ።'
+  },
+  'All field officers have been successfully transferred! You can now safely apply the supervisor\'s new workstation location.': {
+    am: 'ሁሉም የመስክ ኦፊሰሮች በተሳካ ሁኔታ ተላልፈዋል! አሁን የሱፐርቫይዘሩን አዲስ የስራ ጣቢያ ቦታ በአስተማማኝ ሁኔታ መተግበር ይችላሉ።',
+    om: 'Hojjattoonni dirree hundi milkaa\'inaan dabarfamaniiru! Amma bakka hojii haaraa to\'ataa sanaa hojiirra oolchuu dandeessu.',
+    ti: 'ኩሎም ናይ ግዳም መኮንናት ብዓወት ተመሓላሊፎም! ሕጂ ናይቲ ተቖጻጻሪ ሓድሽ ናይ ስራሕ መደበር ቦታ ብውሑስ መንገዲ ከተተግብሩ ትኽእሉ ኢኹም።'
+  },
+  'Successfully transferred': {
+    am: 'በተሳካ ሁኔታ ተላልፏል',
+    om: 'Milkaa\'inaan darbeera',
+    ti: 'ብዓወት ተመሓላሊፉ'
+  },
+  'field officers!': {
+    am: 'የመስክ ኦፊሰሮች!',
+    om: 'hojjattoota dirree!',
+    ti: 'ናይ ግዳም መኮንናት!'
+  },
+
+  // Role Change Modal
+  'Frontline ID registration and citizen data intake': {
+    am: 'የግንባር መታወቂያ ምዝገባ እና የዜጎች መረጃ አሰባሰብ',
+    om: 'Galmee eenyummaa fuulduraa fi sassaabbii ragaa lammiilee',
+    ti: 'ናይ ቅድመ ግንባር መነጸር ምዝገባን ናይ ዜጋታት መረዳእታ ምእካብን'
+  },
+  'Zonal operations oversight and field officer coordination': {
+    am: 'የዞን ስራዎች ቁጥጥር እና የመስክ ኦፊሰር ቅንጅት',
+    om: 'To\'annoo hojii zoonii fi qindoomina hojjettoota dirree',
+    ti: 'ናይ ዞባ ስርሒታት ቁጽጽርን ናይ ግዳም መኮንናት ምውህሃድን'
+  },
+  'National operations and cross-regional administration': {
+    am: 'ብሔራዊ ስራዎች እና ክልል አቀፍ አስተዳደር',
+    om: 'Hojiiwwan biyyooleessaa fi bulchiinsa naannolee',
+    ti: 'ሃገራዊ ስርሒታትን ዞባ-ሰገር ምምሕዳርን'
+  },
+  'Checking assigned workforce hierarchy...': {
+    am: 'የተመደበውን የሰው ኃይል እርከን በማጣራት ላይ...',
+    om: 'Sadarkaa hojjattoota ramadame qorachaa jira...',
+    ti: 'ዝተመደበ ናይ ሰራሕተኛ ተዋረድ ይጻረ ኣሎ...'
+  },
+  'Reassignment Required': {
+    am: 'ዳግም ምደባ ያስፈልጋል',
+    om: 'Ramaddii Haaraa Barbaachisa',
+    ti: 'ዳግማይ ምደባ የድሊ'
+  },
+  'This Supervisor currently supervises active Field Officers. Reassign these officers before changing the user\'s role.': {
+    am: 'ይህ ሱፐርቫይዘር በአሁኑ ጊዜ ንቁ የመስክ ኦፊሰሮችን ይቆጣጠራል። የተጠቃሚውን ሚና ከመቀየርዎ በፊት እነዚህን ኦፊሰሮች በድጋሚ ይመድቡ።',
+    om: 'To\'ataan kun yeroo ammaa hojjattoota dirree hojjatan to\'ata. Gahee fayyadamaa jijjiiruu dura hojjattoota kana deebisaa ramadaa.',
+    ti: 'እዚ ተቖጻጻሪ ሕጂ ንቁሓት ናይ ግዳም መኮንናት ይቆጻጸር ኣሎ። ናይቲ ተጠቃሚ ግደ ቕድሚ ምቕያርኩም ነዞም መኮንናት ዳግማይ መድቡ።'
+  },
+  'Before: Current Unit': {
+    am: 'በፊት፡ የአሁኑ ክፍል',
+    om: 'Dura: Kutaa Ammaa',
+    ti: 'ቕድሚ ሕጂ: ናይ ሕጂ ክፍል'
+  },
+  'Supervisor A': {
+    am: 'ሱፐርቫይዘር ሀ',
+    om: 'To\'ataa A',
+    ti: 'ተቖጻጻሪ ሀ'
+  },
+  'After: Replacement Supervisor(s)': {
+    am: 'በኋላ፡ ተተኪ ሱፐርቫይዘር(ዎች)',
+    om: 'Booda: To\'ataa(oota) Bakka Bu\'an',
+    ti: 'ድሕሪ ሕጂ: ተተካኢ ተቖጻጻሪ(ታት)'
+  },
+  'All officers will be transferred atomically upon clicking "Change Role" or immediately below:': {
+    am: 'ሁሉንም ኦፊሰሮች "ሚና ቀይር" ሲጫኑ ወይም ከታች ወዲያውኑ ይተላለፋሉ:',
+    om: 'Hojjattoonni hundi "Gahee Jijjiiri" cuqaasuun ykn battalumatti armaan gaditti darbu:',
+    ti: 'ኩሎም መኮንናት "ግደ ቀይር" ክትጠውቑ ከለኹም ወይ ብቐጥታ ኣብ ታሕቲ ይተሓላለፉ:'
+  },
+  'officer(s) must be assigned before role change can be applied.': {
+    am: 'የሚና ለውጡ ከመተግበሩ በፊት ኦፊሰር(ች) መመደብ አለባቸው።',
+    om: 'jijjiirama gahee hojiirra oolchuuf dursa hojjetaa(ootni) ramadamuu qabu.',
+    ti: 'ናይ ግደ ለውጢ ቅድሚ ምትግባሩ መኮንን(ናት) ክምደቡ ኣለዎም።'
+  },
+  'Transfer Officers Now': {
+    am: 'ኦፊሰሮችን አሁን አስተላልፍ',
+    om: 'Hojjattoota Amma Dabarsi',
+    ti: 'ንመኮንናት ሕጂ ኣመሓላልፍ'
+  },
+  '2. Station & Location Assignment': {
+    am: '2. የጣቢያ እና የአካባቢ ምደባ',
+    om: '2. Ramaddii Buufataa fi Bakkaa',
+    ti: '2. ምደባ ናይ መደበርን ቦታን'
+  },
+  'Select Station Location': {
+    am: 'የጣቢያ ቦታ ይምረጡ',
+    om: 'Bakka Buufataa Filadhu',
+    ti: 'ናይ መደበር ቦታ ምረጽ'
+  },
+  'Change Role & Location': {
+    am: 'ሚና እና አካባቢን ቀይር',
+    om: 'Gahee fi Bakka Jijjiiri',
+    ti: 'ግደን ቦታን ቀይር'
+  },
+  'Please select an operational role': {
+    am: 'እባክዎ የአሰራር ሚና ይምረጡ',
+    om: 'Maaloo gahee hojii filadhaa',
+    ti: 'በጃኹም ናይ ስራሕ ግደ ምረጹ'
+  },
+  'Woreda station is required for Field Officer': {
+    am: 'ለመስክ ኦፊሰር የወረዳ ጣቢያ ያስፈልጋል',
+    om: 'Hojjetaa dirreetiif buufanni aanaa ni barbaachisa',
+    ti: 'ንናይ ግዳም መኮንን ናይ ወረዳ መደበር የድሊ'
+  },
+  'Role changed to': {
+    am: 'ሚናው ወደዚህ ተቀይሯል፡',
+    om: 'Gaheen gara kanatti jijjiirameera:',
+    ti: 'ግደ ናብዚ ተቐይሩ:'
+  },
+  'officers reassigned to': {
+    am: 'ኦፊሰሮች ወደዚህ ተዛውረዋል፡',
+    om: 'hojjattoonni gara kanatti ramadamaniiru:',
+    ti: 'መኮንናት ናብዚ ተሰጋጊሮም:'
+  },
+  'All field officers have been successfully transferred! You can now complete the role change.': {
+    am: 'ሁሉም የመስክ ኦፊሰሮች በተሳካ ሁኔታ ተላልፈዋል! አሁን የሚና ለውጡን ማጠናቀቅ ይችላሉ።',
+    om: 'Hojjattoonni dirree hundi milkaa\'inaan dabarfamaniiru! Amma jijjiirama gahee xumuruu dandeessu.',
+    ti: 'ኩሎም ናይ ግዳም መኮንናት ብዓወት ተመሓላሊፎም! ሕጂ ናይ ግደ ለውጢ ክትዛዝሙ ትኽእሉ ኢኹም።'
+  },
+
+  // Dashboard & Visual Telemetry Translations
+  'Comparison of the number of citizens registered across different zones and supervisory areas': {
+    am: 'በተለያዩ ዞኖች እና የክትትል ቦታዎች የተመዘገቡ ዜጎች ቁጥር ንፅፅር',
+    om: "Waliin dorgommii lakkoofsa lammiilee zooniiwwanii fi bakkeewwan to'annoo adda addaa keessatti galmaa'anii",
+    ti: 'ምንጽጻር ቁጽሪ ኣብ ዝተፈላለዩ ዞባታትን ከባቢታት ተቖጻጻርነትን ዝተመዝገቡ ዜጋታት'
+  },
+  'Across operational zones': {
+    am: 'በስራ ማስኬጃ ዞኖች ውስጥ',
+    om: 'Zonoota hojii keessatti',
+    ti: 'ኣብ ናይ ስርሒት ዞባታት'
+  },
+  'All assigned territories': {
+    am: 'ሁሉም የተመደቡ ግዛቶች',
+    om: 'Naannoolee ramadaman hunda',
+    ti: 'ኩሎም ዝተመደቡ ግዝኣታት'
+  },
+  'Pace': {
+    am: 'ፍጥነት',
+    om: 'Saffisa',
+    ti: 'ቅልጣፈ'
+  },
+  '0% Pace': {
+    am: '0% ፍጥነት',
+    om: '0% Saffisa',
+    ti: '0% ቅልጣፈ'
+  },
+  'MALE': {
+    am: 'ወንድ',
+    om: 'Dhiira',
+    ti: 'ተባዕታይ'
+  },
+  'FEMALE': {
+    am: 'ሴት',
+    om: 'Dubartii',
+    ti: 'ኣንስተይቲ'
+  },
+  'OTHER': {
+    am: 'ሌላ',
+    om: 'Biroo',
+    ti: 'ካልእ'
+  },
+  'Active Regions': {
+    am: 'ንቁ ክልሎች',
+    om: "Naannolee Socho'oo",
+    ti: 'ንጡፋት ክልላት'
+  },
+  'Demographic & regional analytics': {
+    am: 'የስነ-ሕዝብ እና የክልል ትንታኔ',
+    om: 'Xiinxala uummataa fi naannoo',
+    ti: 'ትንተና ስነ-ህዝብን ዞባን'
+  },
+  'active staff accounts': {
+    am: 'ንቁ የሰራተኞች አካውንቶች',
+    om: "herreega hojjettoota socho'oo",
+    ti: 'ንጡፋት ናይ ሰራሕተኛታት ኣካውንታት'
+  },
+  'supervisors across all zones': {
+    am: 'በሁሉም ዞኖች ያሉ ተቆጣጣሪዎች',
+    om: "to'attoota zoonoota hunda keessatti",
+    ti: 'ኣብ ኩሎም ዞባታት ዘለዉ ተቖጻጻርቲ'
+  },
+  'total reports filed': {
+    am: 'ጠቅላላ የቀረቡ ሪፖርቶች',
+    om: 'waliigala gabaasawwan dhiyaatan',
+    ti: 'ጠቕላላ ዝቐረቡ ጸብጻባት'
+  },
+  'records synchronized': {
+    am: 'የተመሳሰሉ መዝገቦች',
+    om: "galmeewwan qindaa'an",
+    ti: 'ዝተመሳሰሉ መዛግብቲ'
+  },
+  'Citizen Registrations': {
+    am: 'የዜጎች ምዝገባዎች',
+    om: 'Galmee Lammiilee',
+    ti: 'ምዝገባታት ዜጋታት'
+  },
+  'North Wollo Zone': {
+    am: 'ሰሜን ወሎ ዞን',
+    om: 'Zoonii Wallo Kaabaa',
+    ti: 'ዞባ ሰሜን ወሎ'
+  },
+  'South Wollo Zone': {
+    am: 'ደቡብ ወሎ ዞን',
+    om: 'Zoonii Wallo Kibbaa',
+    ti: 'ዞባ ደቡብ ወሎ'
+  },
+  'Central Gondar Zone': {
+    am: 'ማዕከላዊ ጎንደር ዞን',
+    om: 'Zoonii Gondar Giddu-galeessaa',
+    ti: 'ዞባ ማእከላይ ጎንደር'
+  },
+  'Bahir Dar Special Administration': {
+    am: 'ባሕር ዳር ልዩ አስተዳደር',
+    om: 'Bulchiinsa Addaa Baahir Daar',
+    ti: 'ፍሉይ ምምሕዳር ባሕሪ ዳር'
+  },
+  'Addis Ketema Sub-City': {
+    am: 'አዲስ ከተማ ክፍለ ከተማ',
+    om: 'Kiflaa Magaalaa Addis Ketema',
+    ti: 'ክፍለ ከተማ ኣዲስ ከተማ'
+  },
+  'Korahe Zone': {
+    am: 'ቆራሄ ዞን',
+    om: 'Zoonii Qoraahee',
+    ti: 'ዞባ ቆራሀይ'
+  },
+  'Liben Zone': {
+    am: 'ሊበን ዞን',
+    om: 'Zoonii Liiban',
+    ti: 'ዞባ ሊበን'
+  },
+  'Nogob Zone': {
+    am: 'ኖጎብ ዞን',
+    om: 'Zoonii Nogob',
+    ti: 'ዞባ ኖጎብ'
+  },
+  'Itang Special Zone': {
+    am: 'ኢታንግ ልዩ ዞን',
+    om: 'Zoonii Addaa Itaang',
+    ti: 'ፍሉይ ዞባ ኢታንግ'
+  },
+  'Nuer Zone': {
+    am: 'ኑዌር ዞን',
+    om: 'Zoonii Nuweer',
+    ti: 'ዞባ ኑዌር'
+  },
+  'Harari Rural': {
+    am: 'ሐረሪ ገጠር',
+    om: 'Baadiyyaa Hararii',
+    ti: 'ገጠር ሓረሪ'
+  },
+  'Dire Dawa Rural': {
+    am: 'ድሬዳዋ ገጠር',
+    om: 'Baadiyyaa Dirree Dawaa',
+    ti: 'ገጠር ድሬዳዋ'
+  },
+  'Register a new citizen record, online or offline.': {
+    am: 'አዲስ የዜጋ መዝገብ በመስመር ላይ ወይም ከመስመር ውጭ ይመዝግቡ።',
+    om: 'Galmee lammii haaraa sarara irra ykn sararaan ala galmeessi.',
+    ti: 'ሓድሽ መዝገብ ዜጋ ብኦንላይን ወይ ብኦፍላይን መዝግብ።'
+  },
+  'View and manage your report for today.': {
+    am: 'የዛሬውን ሪፖርትዎን ይመልከቱ እና ያስተዳድሩ።',
+    om: "Gabaasa har'aa keessan ilaalaa fi bulchaa.",
+    ti: 'ናይ ሎሚ ጸብጻብኩም ርኣዩን ኣመሓድሩን።'
+  },
+  'My Registrations': {
+    am: 'የእኔ ምዝገባዎች',
+    om: 'Galmeewwan Koo',
+    ti: 'ናተይ ምዝገባታት'
+  },
+  'SUBMITTED': {
+    am: 'ቀርቧል',
+    om: 'Dhiyaateera',
+    ti: 'ቀሪቡ'
+  },
+  'PENDING': {
+    am: 'በመጠባበቅ ላይ',
+    om: 'Eeggamaa jira',
+    ti: 'ይጽበ ኣሎ'
+  },
+  'Daily work report submitted for today': {
+    am: 'የዛሬው ዕለታዊ የሥራ ሪፖርት ቀርቧል',
+    om: "Gabaasni hojii guyyaa har'aa dhiyaateera",
+    ti: 'ናይ ሎሚ መዓልታዊ ናይ ስራሕ ጸብጻብ ቀሪቡ'
+  },
+  'Pending submission at shift completion': {
+    am: 'የፈረቃ ማጠናቀቂያ ላይ ማስገባት ይጠበቃል',
+    om: 'Dhuma garuutti dhiyaachuun eegama',
+    ti: 'ኣብ ምዝዛም ፈረቓ ክቐርብ ይጽበ'
+  },
+  'Loading officer telemetry data...': {
+    am: 'የኦፊሰር ቴሌሜትሪ መረጃ በመጫን ላይ...',
+    om: "Oodeeffannoo teellemeetirii hojjetaa fe'aa jira...",
+    ti: 'ሓበሬታ ቴሌሜትሪ መኮንን ይጽዕን ኣሎ...'
+  },
+  'Reports Submitted': {
+    am: 'የቀረቡ ሪፖርቶች',
+    om: 'Gabaasawwan Dhiyaatan',
+    ti: 'ዝቐረቡ ጸብጻባት'
+  },
+  'Recent Daily Work Reports': {
+    am: 'የቅርብ ጊዜ ዕለታዊ የሥራ ሪፖርቶች',
+    om: 'Gabaasawwan Hojii Guyyaa Dhihoo',
+    ti: 'ናይ ቀረባ መዓልታዊ ናይ ስራሕ ጸብጻባት'
+  },
+  'No daily work reports submitted yet': {
+    am: 'እስካሁን የቀረበ ዕለታዊ የስራ ሪፖርት የለም',
+    om: 'Gabaasni hojii guyyaa ammatti hin dhiyaanne',
+    ti: 'ክሳብ ሕጂ ዝቐረበ መዓልታዊ ናይ ስራሕ ጸብጻብ የለን'
+  },
+  'Failed to load officer details.': {
+    am: 'የኦፊሰሩን ዝርዝር መረጃ መጫን አልተቻለም።',
+    om: "Bal'ina hojjetaa fe'uun hin danda'amne.",
+    ti: 'ዝርዝር ናይቲ መኮንን ምጽዓን ኣይተኻእለን።'
+  },
+  'No demographic data recorded': {
+    am: 'ምንም የስነ-ህዝብ መረጃ አልተመዘገበም',
+    om: 'Oodeeffannoon uummataa hin galmoofne',
+    ti: 'ዝኾነ ሓበሬታ ስነ-ህዝቢ ኣይተመዝገበን'
+  },
+  'No geographic distribution data available': {
+    am: 'ምንም የጂኦግራፊያዊ ስርጭት መረጃ የለም',
+    om: 'Oodeeffannoon raabsa ji\'oograafii hin jiru',
+    ti: 'ዝኾነ ሓበሬታ ጂኦግራፍያዊ ምክፍፋል የለን'
+  },
+  'No supervisor zonal registration data available': {
+    am: 'ምንም የሱፐርቫይዘር ዞን ምዝገባ መረጃ የለም',
+    om: 'Oodeeffannoon galmee zoonii to\'ataa hin jiru',
+    ti: 'ዝኾነ ናይ ተቖጻጻሪ ዞባ ምዝገባ ሓበሬታ የለን'
+  },
+  'No officer performance records available': {
+    am: 'ምንም የኦፊሰር አፈጻጸም መዝገብ የለም',
+    om: 'Galmeen raawwii hojjetaa hin jiru',
+    ti: 'ዝኾነ ናይ መኮንን ብቕዓት መዝገብ የለን'
+  },
+  'registered today': {
+    am: 'ዛሬ ተመዝግቧል',
+    om: "har'a galmaa'eera",
+    ti: 'ሎሚ ተመዝጊቡ'
+  },
+  'Total': {
+    am: 'ጠቅላላ',
+    om: 'Waliigala',
+    ti: 'ጠቕላላ'
+  },
+  // --- Notifications Categories & Titles ---
+  'Alerts': {
+    am: 'ማስጠንቀቂያዎች',
+    om: 'Akeekkachiisota',
+    ti: 'መጠንቀቕታታት'
+  },
+  'Sync': {
+    am: 'ማመሳሰል',
+    om: 'Walqabsiisa',
+    ti: 'ምስምሳል'
+  },
+  'Assignments': {
+    am: 'ምደባዎች',
+    om: 'Ramaddiiwwan',
+    ti: 'ምደባታት'
+  },
+  'System': {
+    am: 'ስርዓት',
+    om: 'Sirna',
+    ti: 'ስርዓት'
+  },
+  'Staff Member Reassigned': {
+    am: 'የሰራተኛ ምደባ ተቀይሯል',
+    om: 'Hojjetaan Deebisamee Ramadameera',
+    ti: 'ናይ ሰራሕተኛ ምደባ ተቐይሩ'
+  },
+  'User Role Changed': {
+    am: 'የተጠቃሚ የስራ ድርሻ ተቀይሯል',
+    om: 'Gaheen Fayyadamaa Jijjiirameera',
+    ti: 'ናይ ተጠቃሚ ተራ ተቐይሩ'
+  },
+  'User Account Deactivated': {
+    am: 'የተጠቃሚ መለያ ተሰናክሏል',
+    om: 'Herregni Fayyadamaa Cufameera',
+    ti: 'ናይ ተጠቃሚ ሕሳብ ተዓጽዩ'
+  },
+  'User Account Activated': {
+    am: 'የተጠቃሚ መለያ ነቅቷል',
+    om: 'Herregni Fayyadamaa Hojjetameera',
+    ti: 'ናይ ተጠቃሚ ሕሳብ ነቒሑ'
+  },
+  'New User Account Created': {
+    am: 'አዲስ የተጠቃሚ መለያ ተፈጥሯል',
+    om: 'Herregni Fayyadamaa Haaraan Uumameera',
+    ti: 'ሓድሽ ናይ ተጠቃሚ ሕሳብ ተፈጢሩ'
+  },
+  'Work Location / Supervisor Assignment Updated': {
+    am: 'የስራ ቦታ / የተቆጣጣሪ ምደባ ተሻሽሏል',
+    om: "Bakki Hojii / Ramaddiin To'ataa Haaromfameera",
+    ti: 'ቦታ ስራሕ / ምደባ ተቖጻጻሪ ተመሓይሹ'
+  },
+  'Your operational administrative location or supervisor assignment has been updated.': {
+    am: 'የእርስዎ የአስተዳደር የስራ ቦታ ወይም የተቆጣጣሪ ምደባ ተሻሽሏል።',
+    om: "Bakki hojii bulchiinsaa ykn ramaddiin to'ataa keessan haaromfameera.",
+    ti: 'ናይ ስራሕ ምምሕዳር ቦታኹም ወይ ምደባ ተቖጻጻሪ ተመሓይሹ።'
+  },
+  'Account Status Updated': {
+    am: 'የመለያ ሁኔታ ተሻሽሏል',
+    om: 'Haalli Herregaa Haaromfameera',
+    ti: 'ኩነታት ሕሳብ ተመሓይሹ'
+  },
+  'Field Officer Reassigned from Zone': {
+    am: 'የመስክ መኮንን ከዞኑ ተዛውሯል',
+    om: 'Hojjetaan Dirree Zoonicharraa Jijjiirameera',
+    ti: 'ናይ ግዳም መኮንን ካብቲ ዞባ ተዛዊሩ'
+  },
+  'Field Officer Reassigned to Zone': {
+    am: 'የመስክ መኮንን ወደ ዞኑ ተመድቧል',
+    om: 'Hojjetaan Dirree Zooniitti Ramadameera',
+    ti: 'ናይ ግዳም መኮንን ናብቲ ዞባ ተመዲቡ'
+  },
+  'Supervisor Alert': {
+    am: 'የተቆጣጣሪ ማስጠንቀቂያ',
+    om: "Akeekkachiisa To'ataa",
+    ti: 'መጠንቀቕታ ተቖጻጻሪ'
+  },
+
+  // --- Activity Logs Audit Feed & Table ---
+  'Central audit feed of all fieldwork submissions, work sessions, registrations, and staff operations': {
+    am: 'የሁሉም የመስክ ስራ ግቤቶች፣ የስራ ክፍለ-ጊዜዎች፣ ምዝገባዎች እና የሰራተኞች ክንውኖች ማዕከላዊ የኦዲት መዝገብ',
+    om: 'Gabaasa qorannoo wiirtuu dhiyeessii hojii dirree, turtii hojii, galmeewwan fi hojiiwwan hojjattootaa maraa',
+    ti: 'ማእከላይ ናይ ኦዲት መዝገብ ናይ ኩሎም ናይ ግዳም ስራሕ ምእታዋት፣ ናይ ስራሕ ክፍለ-ግዝያት፣ ምዝገባታትን ናይ ሰራሕተኛታት ምንቅስቓሳትን'
+  },
+  'USER / STAFF': {
+    am: 'ተጠቃሚ / ሰራተኛ',
+    om: 'Fayyadamaa / Hojjetaa',
+    ti: 'ተጠቃሚ / ሰራሕተኛ'
+  },
+  'User / Staff': {
+    am: 'ተጠቃሚ / ሰራተኛ',
+    om: 'Fayyadamaa / Hojjetaa',
+    ti: 'ተጠቃሚ / ሰራሕተኛ'
+  },
+  'System Manager': {
+    am: 'የስርዓት ስራ-አስኪያጅ',
+    om: 'Hogganaa Sirnaa',
+    ti: 'ኣካያዲ ስርዓት'
+  },
+  'Organization-wide': {
+    am: 'ድርጅት አቀፍ',
+    om: 'Dhaabbata Guutuu',
+    ti: 'ምሉእ ትካል'
+  },
+
+  // --- Analytics Dashboard ---
+  'National comparative registration analytics across demographics, jurisdictions, and field officers': {
+    am: 'በስነ-ህዝብ፣ በአስተዳደር ወሰን እና በመስክ መኮንኖች ዙሪያ ሀገር አቀፍ የንፅፅር ምዝገባ ትንታኔ',
+    om: 'Xiinxala galmee walbira qabuu biyyoolessaa uummata, daangaa bulchiinsaa fi hojjettoota dirree gidduutti',
+    ti: 'ሃገራዊ ናይ ንጽጽር ምዝገባ ትንታነ ብስነ-ህዝቢ፣ ምምሕዳራዊ ወሰናትን ናይ ግዳም መኮንናትን'
+  },
+  'days': {
+    am: 'ቀናት',
+    om: 'guyyoota',
+    ti: 'መዓልታት'
+  },
+  'Overview': {
+    am: 'አጠቃላይ እይታ',
+    om: 'Waliigala',
+    ti: 'ሓፈሻዊ ትርኢት'
+  },
+
+  // --- Chat Console Interface & Starters ---
+  'Search by name, region, ID...': {
+    am: 'በስም፣ በክልል፣ በመለያ ይፈልጉ...',
+    om: 'Maqaa, naannoo, eenyummaadhaan barbaadi...',
+    ti: 'ብስም፣ ብክልል፣ ብመለለዪ ድለ...'
+  },
+  'Direct Line with': {
+    am: 'ቀጥታ መስመር ከ',
+    om: 'Sarara Kallattii waliin',
+    ti: 'ቀጥታዊ መስመር ምስ'
+  },
+  'Start your operational conversation. Select an operational starter template below to send immediately, or compose a custom message.': {
+    am: 'የስራ ውይይትዎን ይጀምሩ። ወዲያውኑ ለመላክ ከታች ካሉት አብነቶች አንዱን ይምረጡ፣ ወይም የራስዎን መልእክት ይጻፉ።',
+    om: "Waliin haasaa hojii keessan jalqabaa. Battalatti erguuf unkaalee qophaa'an armaan gadii keessaa filadhaa, yookiin ergaa mataa keessanii barreessaa.",
+    ti: 'ናይ ስራሕ ዕላልኩም ጀምሩ። ብኡንብኡ ንምልኣኽ ካብዞም ኣብ ታሕቲ ዘለዉ ቅጥዕታት ሓደ ምረጹ፣ ወይ ናትኩም መልእኽቲ ጽሓፉ።'
+  },
+  'Suggested Operational Starters': {
+    am: 'የተጠቆሙ የስራ ማስጀመሪያዎች',
+    om: 'Yaada Jalqaba Hojii Dhiyaatan',
+    ti: 'ዝተሓበሩ ናይ ስራሕ መበገሲታት'
+  },
+  'All field registration kits deployed and operational.': {
+    am: 'ሁሉም የመስክ ምዝገባ ቁሳቁሶች ተሰማርተው ስራ ጀምረዋል።',
+    om: "Meeshaaleen galmee dirree hundi bobba'anii hojiirra jiru.",
+    ti: 'ኩሎም ናይ ግዳም ምዝገባ መሳርሒታት ተዋፊሮም ስራሕ ጀሚሮም ኣለዉ።'
+  },
+  'Urgent: road closure impediment reported at kebele field site.': {
+    am: 'አስቸኳይ፡ በቀበሌው የመስክ ጣቢያ የመንገድ መዘጋት ችግር ሪፖርት ተደርጓል።',
+    om: 'Ariifachiisaa: Bakka hojii dirree gandaatti cufamuun daandii gabaafameera.',
+    ti: 'ህጹጽ፡ ኣብ ናይ ቀበሌ ናይ ግዳም ቦታ ናይ መንገዲ ምዕጻው ጸገም ተገሊጹ።'
+  },
+  'Daily shift report and citizen intake totals submitted for review.': {
+    am: 'የዕለት የስራ ሪፖርት እና የተመዘገቡ ዜጎች ድምር ለግምገማ ቀርቧል።',
+    om: "Gabaasni jijjiirraa guyyaa fi lakkoofsi lammiilee galmaa'anii gamaggamaaf dhiyaateera.",
+    ti: 'መዓልታዊ ናይ ስራሕ ጸብጻብን ዝተመዝገቡ ዜጋታት ድምርን ንገምጋም ቀሪቡ።'
+  },
+  'Battery packs and mobile equipment running low; requesting backup.': {
+    am: 'የባትሪ ኃይል እና ተንቀሳቃሽ መሣሪያዎች እያለቁ ነው፤ ተጨማሪ ድጋፍ እጠይቃለሁ።',
+    om: 'Humanni baatrii fi meeshaaleen moobaayilaa dhumachaa jiru; deeggarsi barbaadama.',
+    ti: 'ናይ ባትሪ ሓይልን ተንቀሳቐስቲ መሳርሕታትን ይውድኡ ኣለዉ፤ ተወሳኺ ሓገዝ እሓትት።'
+  },
+  'Field verification completed with 100% telemetry fidelity.': {
+    am: 'የመስክ ማረጋገጫ በ 100% የቴሌሜትሪ ትክክለኛነት ተጠናቋል።',
+    om: 'Mirkaneessi dirree qulqullina teelemeetirii 100% tiin xumurameera.',
+    ti: 'ናይ ግዳም ምርግጋጽ ብ 100% ናይ ቴሌሜትሪ ትኽክለኛነት ተዛዚሙ።'
+  },
+  'Quota reached ahead of schedule; transitioning to secondary kebele.': {
+    am: 'የተያዘው ግብ ከዕቅድ ቀድሞ ተሳክቷል፤ ወደ ቀጣዩ ቀበሌ በመሸጋገር ላይ።',
+    om: "Qoodni karoorfametti dursamee ga'ameera; gara ganda itti aanuutti darbaa jira.",
+    ti: 'ዝተመደበ ግብ ካብ እዋኑ ቀዲሙ ተበጺሑ፤ ናብ ዝቕጽል ቀበሌ ይሰጋገር ኣሎ።'
+  },
+  'Write a message...': {
+    am: 'መልእክት ይጻፉ...',
+    om: 'Ergaa barreessi...',
+    ti: 'መልእኽቲ ጽሓፍ...'
+  },
+  'Find in this chat...': {
+    am: 'በዚህ ውይይት ውስጥ ይፈልጉ...',
+    om: 'Haasaa kana keessatti barbaadi...',
+    ti: 'ኣብዚ ዕላል ድለ...'
+  },
+  'Conversation Details': {
+    am: 'የውይይቱ ዝርዝር',
+    om: "Bal'ina Haasaa",
+    ti: 'ዝርዝር ዕላል'
+  },
+  'Shared Media': {
+    am: 'የተጋሩ ሚዲያዎች',
+    om: 'Miidiyaa Qoodame',
+    ti: 'ዝተማቐሉ ሚድያታት'
+  },
+  'No photos or videos shared yet.': {
+    am: 'እስካሁን ምንም ፎቶ ወይም ቪዲዮ አልተጋራም።',
+    om: 'Suuraan ykn viidiyoon amma dura hin qoodamne.',
+    ti: 'ክሳብ ሕጂ ዝተማቐለ ስእሊ ወይ ቪድዮ የለን።'
+  },
+  'Shared Documents': {
+    am: 'የተጋሩ ሰነዶች',
+    om: 'Sanadoota Qoodaman',
+    ti: 'ዝተማቐሉ ሰነዳት'
+  },
+  'No documents shared yet.': {
+    am: 'እስካሁን ምንም ሰነድ አልተጋራም።',
+    om: 'Sanadni amma dura hin qoodamne.',
+    ti: 'ክሳብ ሕጂ ዝተማቐለ ሰነድ የለን።'
+  },
+  'Shared Links': {
+    am: 'የተጋሩ ሊንኮች',
+    om: 'Geessituuwwan Qoodaman',
+    ti: 'ዝተማቐሉ ሊንክታት'
+  },
+  'No shared links in this conversation yet.': {
+    am: 'በዚህ ውይይት ውስጥ እስካሁን የተጋራ ሊንክ የለም።',
+    om: 'Haasaa kana keessatti geessituun qoodame hin jiru.',
+    ti: 'ኣብዚ ዕላል ክሳብ ሕጂ ዝተማቐለ ሊንክ የለን።'
+  },
+  'Alert Preferences': {
+    am: 'የማስጠንቀቂያ ምርጫዎች',
+    om: 'Filannoowwan Akeekkachiisaa',
+    ti: 'ምርጫታት መጠንቀቕታ'
+  },
+  'Mute Thread Alerts': {
+    am: 'የውይይቱን ድምፅ አጥፋ',
+    om: 'Akeekkachiisa Haasaa Cumi',
+    ti: 'ናይዚ ዕላል መጠንቀቕታ ኣጥፍእ'
+  },
+  'High Priority Sound': {
+    am: 'ከፍተኛ ቅድሚያ የሚሰጠው ድምፅ',
+    om: "Sagalee Dursa Ol'aanaa",
+    ti: 'ናይ ላዕለዋይ ቀዳምነት ድምጺ'
+  },
+  'Regional Field Supervisor': {
+    am: 'የክልል የመስክ ተቆጣጣሪ',
+    om: "To'ataa Dirree Naannoo",
+    ti: 'ክልላዊ ናይ ግዳም ተቖጻጻሪ'
+  },
+  'Executive Operations Manager': {
+    am: 'ከፍተኛ የስራ ማስኬጃ ስራ-አስኪያጅ',
+    om: 'Hogganaa Hojii Raawwachiisaa',
+    ti: 'ላዕለዋይ ኣካያዲ ስራሕ ፈጻሚ'
+  },
+  'Regional Supervisor': {
+    am: 'የክልል ተቆጣጣሪ',
+    om: "To'ataa Naannoo",
+    ti: 'ክልላዊ ተቖጻጻሪ'
+  },
+  'No supervisors found': {
+    am: 'ምንም ተቆጣጣሪዎች አልተገኙም',
+    om: "To'attoonni hin argamne",
+    ti: 'ምንም ተቖጻጻርቲ ኣይተረኽቡን'
+  },
+  'Try modifying your search criteria': {
+    am: 'የፍለጋ መስፈርትዎን ቀይረው ይሞክሩ',
+    om: 'Ulaagaa barbaacha keessanii jijjiiraa yaalaa',
+    ti: 'ናይ ምድላይ መለክዒኹም ቀይርኩም ፈትኑ'
+  },
+  'Select All': {
+    am: 'ሁሉንም ምረጥ',
+    om: 'Hunda Filadhu',
+    ti: 'ንኹሉ ምረጽ'
+  },
+  'Deselect All': {
+    am: 'ምርጫ ሰርዝ',
+    om: 'Filannoo Hasi',
+    ti: 'ምምራጽ ሰርዝ'
+  },
+  'messages selected': {
+    am: 'መልእክቶች ተመርጠዋል',
+    om: 'ergaawwan filataman',
+    ti: 'መልእኽታት ተመሪጾም'
+  },
+  'message selected': {
+    am: 'መልእክት ተመርጧል',
+    om: 'ergaan filatame',
+    ti: 'መልእኽቲ ተመሪጹ'
+  },
+  'Hide': {
+    am: 'ደብቅ',
+    om: 'Dhoksi',
+    ti: 'ሕባእ'
+  },
+  'year': {
+    am: 'ዓመት',
+    om: 'waggaa',
+    ti: 'ዓመት'
+  },
+  'years': {
+    am: 'ዓመት',
+    om: 'waggaa',
+    ti: 'ዓመት'
+  },
+  'Clear': {
+    am: 'አጽዳ',
+    om: 'Haqi',
+    ti: 'ኣጽሪ'
+  },
+  'Field Staff': {
+    am: 'የመስክ ሰራተኛ',
+    om: 'Hojjetaa Dirree',
+    ti: 'ሰራሕተኛ ግዳም'
+  },
+  'Buffered locally in Dexie': {
+    am: 'በስልኩ/መሳሪያው ተቀምጧል',
+    om: 'Bakka kanatti kuufameera',
+    ti: 'ኣብ መሳርሒ ተዓቂቡ ኣሎ'
+  },
+  'Filter by submission date': {
+    am: 'በገባበት ቀን አጣራ',
+    om: 'Guyyaa galmeetiin calali',
+    ti: 'ብዝኣተወሉ መዓልቲ ኣጽሪ'
+  },
+  'Chronological audit log of your citizen registrations, work sessions, and fieldwork reports': {
+    am: 'የዜጎች ምዝገባዎችዎ፣ የስራ ክፍለ-ጊዜዎችዎ እና የመስክ ሪፖርቶችዎ ቅደም ተከተላዊ የኦዲት መዝገብ',
+    om: 'Galmee odiitii qindaa\'aa galmee lammiilee, kutaa hojii fi gabaasaalee dirree keessanii',
+    ti: 'ናይ ዜጋታት ምዝገባኹም፣ ክፍለ-ግዜታት ስራሕኩምን ናይ ግዳም ጸብጻባትኩምን ቅደም-ተኸተላዊ ናይ ኦዲት መዝገብ'
+  },
+  "Today's Report": {
+    am: 'የዛሬ ሪፖርት',
+    om: 'Gabaasa Har\'aa',
+    ti: 'ናይ ሎሚ ጸብጻብ'
+  },
+  'Official daily operational summary, citizen totals, and screen-time telemetry submission': {
+    am: 'ይፋዊ የዕለት የስራ ክንውን ማጠቃለያ፣ የተመዘገቡ ዜጎች ድምር እና የስክሪን ጊዜ መረጃ ማስገቢያ',
+    om: 'Gabaasa hojii guyyaa idilee, waliigala lammiilee fi ragaa yeroo iskiriinii galchuu',
+    ti: 'ዕላማዊ ናይ መዓልቲ ስራሕ ጽማቝ፣ ድምር ዜጋታትን ናይ ስክሪን ግዜ መረዳእታ መእተዊ'
+  },
+  'View My Reports': {
+    am: 'የኔ ሪፖርቶች ተመልከት',
+    om: 'Gabaasawwan Koo Ilaali',
+    ti: 'ናተይ ጸብጻባት ርአ'
+  },
+  'Reporting Officer:': {
+    am: 'ሪፖርት አቅራቢ ኃላፊ:',
+    om: 'Oofisara Gabaasu:',
+    ti: 'ጸብጻብ ዘቕርብ ሓላፊ:'
+  },
+  'Report Date:': {
+    am: 'የሪፖርት ቀን:',
+    om: 'Guyyaa Gabaasaa:',
+    ti: 'ናይ ጸብጻብ መዓልቲ:'
+  },
+  "Submit Today's Report": {
+    am: 'የዛሬውን ሪፖርት አስገባ',
+    om: 'Gabaasa Har\'aa Galchi',
+    ti: 'ናይ ሎሚ ጸብጻብ ኣእቱ'
+  },
+  'Register citizens easily Register citizens easily': {
+    am: 'ዜጎችን በቀላሉ ይመዝግቡ',
+    om: 'Lammiilee salphaatti galmeessaa',
+    ti: 'ንዜጋታት ብቐሊሉ መዝግቡ'
+  },
+  'Officer:': {
+    am: 'መኮንን:',
+    om: 'Oofisara:',
+    ti: 'መኮንን:'
+  },
+  'Marital Status (Optional)': {
+    am: 'የጋብቻ ሁኔታ (አማራጭ)',
+    om: 'Haala Gaa\'elaa (Filannoo)',
+    ti: 'ኩነታት መርዓ (ኣማራጺ)'
+  },
+  'Not Specified': {
+    am: 'አልተገለጸም',
+    om: 'Hin ibsamne',
+    ti: 'ኣይተገልጸን'
+  },
+  'Standard Ethiopian mobile format (+2519... or 09...)': {
+    am: 'መደበኛ የኢትዮጵያ ስልክ ቁጥር (+2519... ወይም 09...)',
+    om: 'Foormaatii bilbila Itoophiyaa (+2519... ykn 09...)',
+    ti: 'ስሩዕ ናይ ኢትዮጵያ ተሌፎን ቅርጺ (+2519... ወይ 09...)'
+  },
+  'No Active Supervisor in this Zone': {
+    am: 'በዚህ ዞን ውስጥ ንቁ ተቆጣጣሪ የለም',
+    om: 'Godina kana keessatti to\'ataan socho\'aa hin jiru',
+    ti: 'ኣብዚ ዞባ ንጡፍ ተቖጻጻሪ የለን'
+  },
+  'Citizens cannot be registered in this area because there is no active Supervisor responsible for this Zone. Please assign a Supervisor to this Zone before registering citizens.': {
+    am: 'ለዚህ ዞን ኃላፊነት የተሰጠው ንቁ ተቆጣጣሪ ስለሌለ ዜጎችን በዚህ አካባቢ መመዝገብ አይቻልም። እባክዎ ዜጎችን ከመመዝገብዎ በፊት ለዚህ ዞን ተቆጣጣሪ ይመድቡ።',
+    om: 'Godina kanaaf to\'ataan socho\'aan itti gaafatama fudhate waan hin jirreef lammiilee bakka kanatti galmeessuun hin danda\'amu. Maaloo lammiilee galmeessuu dura godinichaaf to\'ataa ramadaa.',
+    ti: 'ንዚ ዞባ ሓላፍነት ዝወሰደ ንጡፍ ተቖጻጻሪ ስለዘየለ ኣብዚ ከባቢ ዜጋታት ምምዝጋብ ኣይከኣልን። በጃኹም ዜጋታት ቅድሚ ምምዝጋብኩም ንዚ ዞባ ተቖጻጻሪ መድቡ።'
+  },
+  'My Reports': {
+    am: 'የኔ ሪፖርቶች',
+    om: 'Gabaasawwan Koo',
+    ti: 'ናተይ ጸብጻባት'
+  },
+  'TOTAL REPORTS': {
+    am: 'አጠቃላይ ሪፖርቶች',
+    om: 'Waliigala Gabaasotaa',
+    ti: 'ጠቕላላ ጸብጻባት'
+  },
+  'CITIZENS INTAKE': {
+    am: 'የተመዘገቡ ዜጎች',
+    om: 'Lammiilee Galmaa\'an',
+    ti: 'ዝተመዝገቡ ዜጋታት'
+  },
+  'ACTIVE TIME': {
+    am: 'ንቁ የስራ ሰዓት',
+    om: 'Yeroo Hojii Socho\'aa',
+    ti: 'ንጡፍ ናይ ስራሕ ሰዓት'
+  },
+  'CLOUD SYNCED': {
+    am: 'ክላውድ ላይ የደረሰ',
+    om: 'Gara Duumessaatti Wal-qabate',
+    ti: 'ናብ ደመና ዝተሰጋገረ'
+  },
+  'report': {
+    am: 'ሪፖርት',
+    om: 'gabaasa',
+    ti: 'ጸብጻብ'
+  },
+  'reports': {
+    am: 'ሪፖርቶች',
+    om: 'gabaasota',
+    ti: 'ጸብጻባት'
+  },
+  'REPORT DATE': {
+    am: 'የሪፖርት ቀን',
+    om: 'Guyyaa Gabaasaa',
+    ti: 'ናይ ጸብጻብ መዓልቲ'
+  },
+  'SCREEN TIME': {
+    am: 'የስክሪን ጊዜ',
+    om: 'Yeroo Iskiriinii',
+    ti: 'ናይ ስክሪን ግዜ'
+  },
+  'SYNC STATUS': {
+    am: 'የማመሳሰል ሁኔታ',
+    om: 'Haala Wal-simsiisaa',
+    ti: 'ኩነታት ምስምማዕ'
+  },
+  'ACTION': {
+    am: 'ድርጊት',
+    om: 'Tarkaanfii',
+    ti: 'ተግባር'
+  },
+  'Action': {
+    am: 'ድርጊት',
+    om: 'Tarkaanfii',
+    ti: 'ተግባር'
+  },
+  'Daily Work Report Details': {
+    am: 'የዕለት ስራ ሪፖርት ዝርዝር',
+    om: 'Bal\'ina Gabaasa Hojii Guyyaa',
+    ti: 'ናይ መዓልቲ ስራሕ ጸብጻብ ዝርዝር'
+  },
+  'DAILY WORK SUMMARY & COMPLETED DELIVERABLES': {
+    am: 'የዕለት ስራ ማጠቃለያ እና የተጠናቀቁ ተግባራት',
+    om: 'Cuunfaa Hojii Guyyaa fi Hojiiwwan Xumuraman',
+    ti: 'ጽማቝ ናይ መዓልቲ ስራሕን ዝተዛዘሙ ዕማማትን'
+  },
+  'Daily Work Summary & Completed Deliverables': {
+    am: 'የዕለት ስራ ማጠቃለያ እና የተጠናቀቁ ተግባራት',
+    om: 'Cuunfaa Hojii Guyyaa fi Hojiiwwan Xumuraman',
+    ti: 'ጽማቝ ናይ መዓልቲ ስራሕን ዝተዛዘሙ ዕማማትን'
+  },
+  'ROADBLOCKS & OPERATIONAL CHALLENGES': {
+    am: 'እንቅፋቶች እና የአሰራር ተግዳሮቶች',
+    om: 'Gufuuwwan fi Qormaata Hojii',
+    ti: 'ዕንቅፋታትን ናይ ኣሰራርሓ ብድሆታትን'
+  },
+  'RESOURCES & LOGISTICS': {
+    am: 'ግብዓቶች እና ሎጂስቲክስ',
+    om: 'Qabeenya fi Lojistiksii',
+    ti: 'ጸጋታትን ሎጂስቲክስን'
+  },
+  'Resources & Logistics': {
+    am: 'ግብዓቶች እና ሎጂስቲክስ',
+    om: 'Qabeenya fi Lojistiksii',
+    ti: 'ጸጋታትን ሎጂስቲክስን'
+  },
+  'TOMORROW\'S PRIORITIES': {
+    am: 'የነገ ቅድሚያዎች',
+    om: 'Dursaalee Boruu',
+    ti: 'ናይ ጽባሕ ቀዳምነታት'
+  },
+  'Tomorrow\'s Priorities': {
+    am: 'የነገ ቅድሚያዎች',
+    om: 'Dursaalee Boruu',
+    ti: 'ናይ ጽባሕ ቀዳምነታት'
+  },
+  'Report ID:': {
+    am: 'የሪፖርት መታወቂያ:',
+    om: 'Eenyummeessaa Gabaasaa:',
+    ti: 'መለለዪ ጸብጻብ:'
+  },
+  'Submitted:': {
+    am: 'የገባበት ሰዓት:',
+    om: 'Kan Galchame:',
+    ti: 'ዝተኣተወሉ ግዜ:'
+  },
+  'No narrative provided': {
+    am: 'ምንም ማብራሪያ አልተሰጠም',
+    om: 'Ibsi hin kennamne',
+    ti: 'ዝተዋህበ መብርሂ የለን'
+  },
+  'Standard field kit': {
+    am: 'መደበኛ የመስክ ዕቃዎች',
+    om: 'Meeshaalee dirree idilee',
+    ti: 'ስሩዕ ናይ ግዳም መሳርሒ'
+  },
+  'Continue scheduled intake': {
+    am: 'የታቀደውን ምዝገባ መቀጠል',
+    om: 'Galmee karoorfame itti fufuu',
+    ti: 'ዝተመደበ ምዝገባ ምቕጻል'
+  },
+  'Loading your submitted reports...': {
+    am: 'የገቡት ሪፖርቶችዎ በመጫን ላይ ናቸው...',
+    om: 'Gabaasawwan galchitan fe\'amaa jiru...',
+    ti: 'ዝኣተዉ ጸብጻባትኩም ይጽዓኑ ኣለዉ...'
+  },
+  'No Reports Match Your Filter': {
+    am: 'ከማጣሪያው ጋር የሚስማማ ምንም ሪፖርት የለም',
+    om: 'Gabaasni calaltuu keessan wajjin wal-simu hin jiru',
+    ti: 'ምስቲ መጽረዪ ዝሰማማዕ ጸብጻብ የለን'
+  },
+  'No Daily Reports Submitted Yet': {
+    am: 'እስካሁን ምንም የዕለት ሪፖርት አልገባም',
+    om: 'Hamma ammaatti gabaasni guyyaa hin galfamne',
+    ti: 'ክሳዕ ሕጂ ዝኣተወ ናይ መዓልቲ ጸብጻብ የለን'
+  },
+  'Try resetting your date or sync status filter.': {
+    am: 'የቀን ወይም የማመሳሰል ሁኔታ ማጣሪያውን ዳግም አስጀምረው ይሞክሩ።',
+    om: 'Guyyaa ykn haala wal-simsiisaa calaltuu deebisaa yaalaa.',
+    ti: 'ናይ መዓልቲ ወይ ናይ ምስምማዕ ኩነታት መጽረዪ ዳግማይ ኣበጊስኩም ፈትኑ።'
+  },
+  'Submitted daily operational reports will appear here.': {
+    am: 'የገቡ የዕለት የስራ ሪፖርቶች እዚህ ይታያሉ።',
+    om: 'Gabaasawwan hojii guyyaa galfaman asitti mul\'atu.',
+    ti: 'ዝኣተዉ ናይ መዓልቲ ስራሕ ጸብጻባት ኣብዚ ኽረኣዩ እዮም።'
+  },
+  'Reset Filters': {
+    am: 'ማጣሪያዎችን ዳግም አስጀምር',
+    om: 'Calaltuuwwan Deebisi',
+    ti: 'መጽረይታት ዳግማይ ኣበግስ'
+  },
+  'Copy full Report ID': {
+    am: 'ሙሉ የሪፖርት መታወቂያ ቅዳ',
+    om: 'Eenyummeessaa Gabaasaa Guutuu Koppii Godhi',
+    ti: 'ምሉእ መለለዪ ጸብጻብ ቅዳሕ'
+  },
+  'Activity timeline of your supervisor actions and your assigned field officers’ fieldwork': {
+    am: 'የተቆጣጣሪ እርምጃዎችዎ እና የተመደቡልዎት የመስክ መኮንኖች የመስክ ስራ እንቅስቃሴ የጊዜ ሰሌዳ',
+    om: 'Sarara yeroo gochaalee to\'annoo keessanii fi hojii dirree oofisaroota dirree isiniif ramadamanii',
+    ti: 'ናይ ተቖጻጻሪ ስጉምትታትኩምን ናይ ዝተመደቡልኩም ናይ መሮር ሰራሕተኛታት ናይ ግዳም ስራሕ ንጥፈታት ናይ ግዜ ሰሌዳ'
+  },
+  "Activity timeline of your supervisor actions and your assigned field officers' fieldwork": {
+    am: 'የተቆጣጣሪ እርምጃዎችዎ እና የተመደቡልዎት የመስክ መኮንኖች የመስክ ስራ እንቅስቃሴ የጊዜ ሰሌዳ',
+    om: 'Sarara yeroo gochaalee to\'annoo keessanii fi hojii dirree oofisaroota dirree isiniif ramadamanii',
+    ti: 'ናይ ተቖጻጻሪ ስጉምትታትኩምን ናይ ዝተመደቡልኩም ናይ መሮር ሰራሕተኛታት ናይ ግዳም ስራሕ ንጥፈታት ናይ ግዜ ሰሌዳ'
+  },
+  'Citizen Name & Citizen ID': {
+    am: 'የዜጋ ስም እና የዜጋ መታወቂያ',
+    om: 'Maqaa Lammii fi Eenyummeessaa Lammii',
+    ti: 'ስም ዜጋን መለለዪ ዜጋን'
+  },
+  'Citizen Name': {
+    am: 'የዜጋ ስም',
+    om: 'Maqaa Lammii',
+    ti: 'ስም ዜጋ'
+  },
+  'Citizen ID': {
+    am: 'የዜጋ መታወቂያ',
+    om: 'Eenyummeessaa Lammii',
+    ti: 'መለለዪ ዜጋ'
+  },
+  'Citizen ID:': {
+    am: 'የዜጋ መታወቂያ:',
+    om: 'Eenyummeessaa Lammii:',
+    ti: 'መለለዪ ዜጋ:'
+  },
+  'Send direct operational alert messages to your assigned field officers': {
+    am: 'የቀጥታ የአሰራር ማስጠንቀቂያ መልእክቶችን ለተመደቡልዎት የመስክ መኮንኖች ይላኩ',
+    om: 'Ergaa akeekkachiisa hojii kallattii oofisaroota dirree isiniif ramadamaniif ergaa',
+    ti: 'ቀጥታዊ ናይ ኣሰራርሓ መጠንቀቕታ መልእኽትታት ንዝተመደቡልኩም ናይ መሮር ሰራሕተኛታት ስደዱ'
+  },
+  'Dispatch Alert Notification': {
+    am: 'የማስጠንቀቂያ ማሳወቂያ ላክ',
+    om: 'Beeksisa Akeekkachiisaa Ergi',
+    ti: 'ናይ መጠንቀቕታ ምልክታ ስደድ'
+  },
+  'Select an assigned field officer and compose an operational directive or reminder.': {
+    am: 'የተመደበ የመስክ መኮንን ይምረጡ እና የአሰራር መመሪያ ወይም ማስታወሻ ያዘጋጁ።',
+    om: 'Oofisara dirree ramadame filadhaatii qajeelfama hojii ykn yaadachiisa qopheessaa.',
+    ti: 'ዝተመደበ ናይ መሮር ሰራሕተኛ ምረጹ እሞ ናይ ኣሰራርሓ መምርሒ ወይ መዘኻኸሪ ኣዳልዉ።'
+  },
+  'Select Field Officer': {
+    am: 'የመስክ መኮንን ይምረጡ',
+    om: 'Oofisara Dirree Filadhu',
+    ti: 'ናይ መሮር ሰራሕተኛ ምረጽ'
+  },
+  'Select an assigned officer...': {
+    am: 'የተመደበ መኮንን ይምረጡ...',
+    om: 'Oofisara ramadame filadhu...',
+    ti: 'ዝተመደበ ሰራሕተኛ ምረጽ...'
+  },
+  'Officer territory': {
+    am: 'የመኮንኑ ክልል/ግዛት',
+    om: 'Daangaa Oofisaraa',
+    ti: 'ግዝኣት መኮንን'
+  },
+  'Officer territory:': {
+    am: 'የመኮንኑ ክልል/ግዛት:',
+    om: 'Daangaa Oofisaraa:',
+    ti: 'ግዝኣት መኮንን:'
+  },
+  'Alert Subject / Title': {
+    am: 'የማስጠንቀቂያ ርዕስ',
+    om: 'Mata-duree Akeekkachiisaa',
+    ti: 'ኣርእስቲ መጠንቀቕታ'
+  },
+  'Optional': {
+    am: 'አማራጭ',
+    om: 'Filannoo',
+    ti: 'ኣማራጺ'
+  },
+  '(Optional)': {
+    am: '(አማራጭ)',
+    om: '(Filannoo)',
+    ti: '(ኣማራጺ)'
+  },
+  'e.g., Immediate Check-In Required': {
+    am: 'ለምሳሌ፡ አፋጣኝ ምዝገባ/ሪፖርት ያስፈልጋል',
+    om: 'fk. Battalumatti Gabaasuun Barbaachisaadha',
+    ti: 'ንኣብነት፡ ህጹጽ ጸብጻብ የድሊ'
+  },
+  'Type your operational message or instructions for the officer here...': {
+    am: 'የአሰራር መልእክትዎን ወይም ለመኮንኑ የሚሰጡትን መመሪያዎች እዚህ ይጻፉ...',
+    om: 'Ergaa hojii ykn qajeelfama oofisaraaf qabdan asitti barreessaa...',
+    ti: 'ናይ ኣሰራርሓ መልእኽትኹም ወይ ንመኮንን ዝወሃብ መምርሒታት ኣብዚ ጽሓፉ...'
+  },
+  'Missed Verification: Officer Logged Out': {
+    am: 'ያመለጠ ማረጋገጫ፡ መኮንኑ ወጥቷል (Logged Out)',
+    om: 'Mirkaneessi Darbe: Oofisarri Baheera',
+    ti: 'ዝሓለፈ ምርግጋጽ፡ መኮንን ወጺኡ'
+  },
+  'Field Officers Assigned to You': {
+    am: 'የተመደቡልዎት የመስክ መኮንኖች',
+    om: 'Oofisaroota Dirree Isiniif Ramadaman',
+    ti: 'ንኣኻ ዝተመደቡ ናይ መሮር ሰራሕተኛታት'
+  },
+  'Work verification missed': {
+    am: 'የስራ ማረጋገጫ አምልጧል',
+    om: 'Mirkaneessi hojii darbeera',
+    ti: 'ናይ ስራሕ ምርግጋጽ ሓሊፉ'
+  },
+
+  "Back to top": {
+    am: "ወደ ላይ ተመለስ",
+    om: "Gara Oliitti Deebi'i",
+    ti: "ናብ ላዕሊ ተመለስ"
+  },
+  "Connecting Field Teams": {
+    am: "የመስክ ቡድኖችን በማገናኘት ላይ",
+    om: "Gareewwan Dirree Walqunnamsiisuu",
+    ti: "ናይ መሮር ጉጅለታት ምትእስሳር"
+  },
+  "to the National Registry": {
+    am: "ከብሔራዊ መዝገብ ቤት ጋር",
+    om: "gara Galmee Biyyooleessaatti",
+    ti: "ምስ ብሔራዊ መዝገብ"
+  },
+  "Register citizens securely from anywhere — even without internet.": {
+    am: "ዜጎችን ከየትኛውም ቦታ በደህንነት ይመዝግቡ — ያለ በይነመረብም እንኳ።",
+    om: "Lammiilee bakka kamiyyuu nageenyaan galmeessaa — intarneetii maleeyyuu.",
+    ti: "ዜጋታት ካብ ዝኾነ ቦታ ብውሑስ መንገዲ መዝግቡ — ዋላ ብዘይ ኢንተርኔት።"
+  },
+  "FieldSync is an offline-first citizen registration platform built for field teams working in remote and low-connectivity areas.": {
+    am: "FieldSync በሩቅ እና ዝቅተኛ የኔትወርክ ግንኙነት ባላቸው አካባቢዎች ለሚሰሩ የመስክ ቡድኖች የተዘጋጀ ከመስመር ውጭ ቅድሚያ የሚሰጥ የዜጎች ምዝገባ መድረክ ነው።",
+    om: "FieldSync waltajjii galmeessa lammilee toora interneetii malee hojjetuudha, kan qophaa'e gareewwan dirree naannoolee fagoo fi qunnamtii gadi aanaa qaban keessatti hojjetaniif.",
+    ti: "FieldSync ኣብ ርሑቕን ትሑት መርበብ ሓበሬታ ዘለዎምን ከባቢታት ንዝሰርሑ ናይ መሮር ጉጅለታት ዝተዳለወ ካብ መስመር ወጻኢ ቅድም ዝህብ መድረኽ ምዝገባ ዜጋታት እዩ።"
+  },
+  "Field officers can register citizens, securely store records on their devices, and automatically synchronize data with the central system when connectivity is restored.": {
+    am: "የመስክ መኮንኖች ዜጎችን መመዝገብ፣ መረጃዎችን በመሳሪያዎቻቸው ላይ በደህንነት ማከማቸት፣ እና የኔትወርክ ግንኙነት ሲመለስ መረጃዎችን ከማዕከላዊው ስርዓት ጋር በራስ-ሰር ማመሳሰል ይችላሉ።",
+    om: "Oofisaroonni dirree lammiilee galmeessuu, galmeewwan meeshaa isaanii irratti nageenyaan kuusuu, fi yeroo qunnamtiin deebi'u odeeffannoo sirna giddugaleessaa waliin ofumaan walsimsiisuu danda'u.",
+    ti: "ናይ መሮር መኮንናት ዜጋታት ክምዝግቡ፣ መዛግብቲ ኣብ መሳርሒታቶም ብውሑስ ክዕቅቡ፣ ከምኡ’ውን መርበብ ሓበሬታ ምስ ተመልሰ ሓበሬታ ምስ ማእከላይ ስርዓት ብኣውቶማቲክ ከሰማምዑ ይኽእሉ።"
+  },
+  "Built for the Field": {
+    am: "ለመስክ የተገነባ",
+    om: "Dirreef Kan Hojjetame",
+    ti: "ንመሮር ዝተሃነጸ"
+  },
+  "Core system capabilities designed for frontline reliability in remote operations.": {
+    am: "በሩቅ ስራዎች ውስጥ ለግንባር ቀደም አስተማማኝነት የተነደፉ ዋና የስርዓት አቅሞች።",
+    om: "Dandeettiiwwan sirnaa ijoo kanneen hojiiwwan fagootti amanamummaa sarara duraatiif qophaa'an.",
+    ti: "ኣብ ርሑቕ ስርሒታት ንቀዳማይ መስመር ተኣማንነት ዝተነድፉ ቀንዲ ዓቕምታት ስርዓት።"
+  },
+  "Offline-First Mode": {
+    am: "ከመስመር ውጭ ቀዳሚ ሁነታ",
+    om: "Haala Toora Malee Duraa",
+    ti: "ካብ መስመር ወጻኢ ቀዳማይ ኩነታት"
+  },
+  "Continue registering citizens even when there is no internet connection.": {
+    am: "የበይነመረብ ግንኙነት በሌለበት ጊዜም እንኳ ዜጎችን መመዝገብዎን ይቀጥሉ።",
+    om: "Yeroo qunnamtiin interneetii hin jirreettillee lammiilee galmeessuu itti fufaa.",
+    ti: "ናይ ኢንተርኔት ርክብ ኣብ ዘይብሉ እዋን እውን እንተኾነ ዜጋታት ምምዝጋብ ቀጽሉ።"
+  },
+  "Secure Local Storage": {
+    am: "ደህንነቱ የተጠበቀ የአካባቢ ማከማቻ",
+    om: "Kuusaa Bakkaa Nageenya Qabu",
+    ti: "ውሑስ ናይ ከባቢ መኽዘን"
+  },
+  "Records are safely stored on the device until synchronization becomes available.": {
+    am: "ማመሳሰል እስኪገኝ ድረስ መዝገቦች በመሳሪያው ላይ በደህንነት ይቀመጣሉ።",
+    om: "Hanga walsimsiifamni argamutti galmeewwan meeshicharratti nageenyaan ni taa'u.",
+    ti: "ምስምማዕ ክሳብ ዝርከብ መዛግብቲ ኣብቲ መሳርሒ ብውሑስ ይዕቀቡ።"
+  },
+  "Duplicate Prevention": {
+    am: "የተደጋገሙ ምዝገባዎችን መከላከል",
+    om: "Galmee Lammataa Ittisuu",
+    ti: "ተደጋጋሚ ምዝገባ ምክልኻል"
+  },
+  "Built-in validation helps detect repeated or conflicting registrations before records are saved.": {
+    am: "አብሮ የተሰራ ማረጋገጫ መዝገቦች ከመቀመጣቸው በፊት የተደጋገሙ ወይም የሚጋጩ ምዝገባዎችን ለመለየት ይረዳል።",
+    om: "Mirkaneessi keessaa galmeewwan osoo hin olkaa'amin dura galmeewwan irra deddeebi'aman ykn walfaallessan adda baasuuf gargaara.",
+    ti: "ውሽጣዊ መረጋገጺ መዛግብቲ ቅድሚ ምዕቃቦም ተደጋጋሚ ወይ ዝጋጮ ምዝገባታት ንምፍላይ ይሕግዝ።"
+  },
+  "Automatic Synchronization": {
+    am: "ራስ-ሰር ማመሳሰል",
+    om: "Ofumaan Walsimsiisuu",
+    ti: "ኣውቶማቲክ ምስምማዕ"
+  },
+  "When connectivity returns, pending records are securely synchronized with the central system.": {
+    am: "የኔትወርክ ግንኙነት ሲመለስ በመጠባበቅ ላይ ያሉ መዝገቦች ከማዕከላዊው ስርዓት ጋር በደህንነት ይመሳሰላሉ።",
+    om: "Yeroo qunnamtiin deebi'u galmeewwan eeggatan sirna giddugaleessaa waliin nageenyaan ni walsimsiifamu.",
+    ti: "መርበብ ሓበሬታ ምስ ተመልሰ ዝጽበዩ መዛግብቲ ምስ ማእከላይ ስርዓት ብውሑስ መንገዲ ይሰማምዑ።"
+  },
+  "How FieldSync Works": {
+    am: "FieldSync እንዴት እንደሚሰራ",
+    om: "FieldSync Akkamitti Hojjeta",
+    ti: "FieldSync ብኸመይ ይሰርሕ"
+  },
+  "A dependable workflow designed for remote field environments.": {
+    am: "ለሩቅ የመስክ አካባቢዎች የተነደፈ አስተማማኝ የስራ ፍሰት።",
+    om: "Adeemsa hojii amansiisaa kan naannoolee dirree fagoof qophaa'e.",
+    ti: "ንርሑቕ ናይ መሮር ከባቢታት ዝተነድፈ ዘተኣማምን ናይ ስራሕ ዋሕዚ።"
+  },
+  "01 — Register Offline": {
+    am: "01 — ከመስመር ውጭ ይመዝግቡ",
+    om: "01 — Toora Malee Galmeessi",
+    ti: "01 — ካብ መስመር ወጻኢ መዝግብ"
+  },
+  "Field officers can register citizens from remote locations without requiring a continuous internet connection.": {
+    am: "የመስክ መኮንኖች ቀጣይነት ያለው የበይነመረብ ግንኙነት ሳያስፈልጋቸው ከሩቅ አካባቢዎች ዜጎችን መመዝገብ ይችላሉ።",
+    om: "Oofisaroonni dirree qunnamtii interneetii walirraa hin cinne osoo hin barbaachisin bakkeewwan fagoo irraa lammiilee galmeessuu danda'u.",
+    ti: "ናይ መሮር መኮንናት ቀጻሊ ናይ ኢንተርኔት ርክብ ከየድለዮም ካብ ርሑቕ ቦታታት ዜጋታት ክምዝግቡ ይኽእሉ።"
+  },
+  "02 — Store Securely": {
+    am: "02 — በደህንነት ያከማቹ",
+    om: "02 — Nageenyaan Kuusi",
+    ti: "02 — ብውሑስ ዓቅብ"
+  },
+  "Registration data is securely stored on the field device while the officer continues working offline.": {
+    am: "መኮንኑ ከመስመር ውጭ መስራቱን በሚቀጥልበት ጊዜ የምዝገባ መረጃ በመስክ መሳሪያው ላይ በደህንነት ይከማቻል።",
+    om: "Oofisarri toora malee hojii isaa yeroo itti fufu ragaan galmee meeshaa dirree irratti nageenyaan kuufama.",
+    ti: "እቲ መኮንን ካብ መስመር ወጻኢ ስርሑ እናቀጸለ እንከሎ ናይ ምዝገባ ሓበሬታ ኣብ ናይ መሮር መሳርሒ ብውሑስ ይዕቀብ።"
+  },
+  "03 — Sync Automatically": {
+    am: "03 — በራስ-ሰር ያመሳስሉ",
+    om: "03 — Ofumaan Walsimsiisi",
+    ti: "03 — ብኣውቶማቲክ ኣሰማምዕ"
+  },
+  "When an internet connection becomes available, pending records are automatically synchronized with the central system.": {
+    am: "የበይነመረብ ግንኙነት ሲገኝ፣ በመጠባበቅ ላይ ያሉ መዝገቦች ከማዕከላዊው ስርዓት ጋር በራስ-ሰር ይመሳሰላሉ።",
+    om: "Yeroo qunnamtiin interneetii argamu, galmeewwan eegaa jiran ofumaan sirna giddugaleessaa waliin walsimsiifamu.",
+    ti: "ናይ ኢንተርኔት ርክብ ኣብ ዝርከበሉ እዋን፣ ዝጽበዩ ዘለዉ መዛግብቲ ምስ ማእከላይ ስርዓት ብኣውቶማቲክ ይሰማምዑ።"
+  },
+  "04 — Verify & Monitor": {
+    am: "04 — ያረጋግጡ እና ይከታተሉ",
+    om: "04 — Mirkaneessi & Hordofi",
+    ti: "04 — ኣረጋግጽን ተኸታተልን"
+  },
+  "Supervisors and managers can review registrations, monitor field activity, and track synchronization status.": {
+    am: "ተቆጣጣሪዎች እና ስራ አስኪያጆች ምዝገባዎችን መገምገም፣ የመስክ እንቅስቃሴዎችን መከታተል እና የማመሳሰል ሁኔታን መከታተል ይችላሉ።",
+    om: "To'attoonni fi manajeronni galmeewwan gamaaggamuu, sochii dirree to'achuu fi haala walsimsiisaa hordofuu danda'u.",
+    ti: "ተቖጻጸርትን መካየድትን ምዝገባታት ክግምግሙ፣ ናይ መሮር ምንቅስቓስ ክከታተሉን ኩነታት ምስምማዕ ክከታተሉን ይኽእሉ።"
+  },
+  "Built for Real Field Conditions": {
+    am: "ለእውነተኛ የመስክ ሁኔታዎች የተገነባ",
+    om: "Haala Qabatamaa Dirreef Kan Hojjetame",
+    ti: "ንሓቀኛ ኩነታት መሮር ዝተሃነጸ"
+  },
+  "Technology designed around the challenges of field work.": {
+    am: "በመስክ ስራ ፈተናዎች ዙሪያ የተቀየሰ ቴክኖሎጂ።",
+    om: "Teeknoolojii rakkoolee hojii dirree irratti hundaa'ee qophaa'e.",
+    ti: "ኣብ ብድሆታት ናይ መሮር ስራሕ ተመርኲሱ ዝተነድፈ ቴክኖሎጂ።"
+  },
+  "No Internet? Keep Working.": {
+    am: "ኢንተርኔት የለም? መስራትዎን ይቀጥሉ።",
+    om: "Interneetii Hin Qabduu? Hojii Itti Fufi.",
+    ti: "ኢንተርኔት የለን? ስራሕካ ቀጽል።"
+  },
+  "Field officers can continue registering citizens in remote areas with limited or no connectivity.": {
+    am: "የመስክ መኮንኖች ውስን ወይም ምንም ግንኙነት በሌላቸው ሩቅ አካባቢዎች ዜጎችን መመዝገብ መቀጠል ይችላሉ።",
+    om: "Oofisaroonni dirree naannoolee fagoo qunnamtii muraasa qaban ykn hin qabne keessatti lammiilee galmeessuu itti fufuu danda'u.",
+    ti: "ናይ መሮር መኮንናት ውሱን ወይ ርክብ ኣብ ዘይብሎም ርሑቓት ከባቢታት ዜጋታት ምምዝጋብ ክቕጽሉ ይኽእሉ።"
+  },
+  "Prevent Duplicate Records": {
+    am: "የተደጋገሙ መዝገቦችን መከላከል",
+    om: "Galmeewwan Lammataa Ittisi",
+    ti: "ተደጋጋሚ መዛግብቲ ምክልኻል"
+  },
+  "Validation and cross-checking help identify duplicate or conflicting citizen registrations.": {
+    am: "ማረጋገጫ እና አቋራጭ ምርመራ የተደጋገሙ ወይም የሚጋጩ የዜጎች ምዝገባዎችን ለመለየት ይረዳሉ።",
+    om: "Mirkaneessi fi qorannoon walxaxaa galmee lammiilee irra deddeebi'ame ykn walitti bu'u adda baasuuf gargaara.",
+    ti: "መረጋገጽን ምምርማርን ተደጋጋሚ ወይ ዝጋጮ ምዝገባታት ዜጋታት ንምፍላይ ይሕግዝ።"
+  },
+  "Never Lose Field Work": {
+    am: "የመስክ ስራን በጭራሽ አያጡ",
+    om: "Hojii Dirree Gonkumaa Hin Dhabinaa",
+    ti: "ናይ መሮር ስራሕ ፈጺምካ ኣይተጥፍእ"
+  },
+  "Offline records remain available on the device until they can be securely synchronized with the central system.": {
+    am: "ከመስመር ውጭ የሆኑ መዝገቦች ከማዕከላዊው ስርዓት ጋር በደህንነት እስኪመሳሰሉ ድረስ በመሳሪያው ላይ ተደራሽ ሆነው ይቆያሉ።",
+    om: "Galmeewwan toora malee jiran hanga sirna giddugaleessaa waliin nageenyaan walsimsiifamanitti meeshicharratti qophii ta'anii turu.",
+    ti: "ካብ መስመር ወጻኢ ዝኾኑ መዛግብቲ ምስ ማእከላይ ስርዓት ብውሑስ ክሳብ ዝሰማምዑ ኣብቲ መሳርሒ ድሉዋት ኮይኖም ይጸንሑ።"
+  },
+  "Know What Is Happening": {
+    am: "ምን እየተካሄደ እንዳለ ይወቁ",
+    om: "Wanta Ta'aa Jiru Beekaa",
+    ti: "እንታይ ይፍጸም ከምዘሎ ፍለጡ"
+  },
+  "Supervisors and managers can monitor registration progress, field activity, and synchronization status.": {
+    am: "ተቆጣጣሪዎች እና ስራ አስኪያጆች የምዝገባ ሂደትን፣ የመስክ እንቅስቃሴን እና የማመሳሰል ሁኔታን መከታተል ይችላሉ።",
+    om: "To'attoonni fi manajeronni adeemsa galmee, sochii dirree fi haala walsimsiisaa to'achuu danda'u.",
+    ti: "ተቖጻጸርትን መካየድትን መስርሕ ምዝገባ፣ ናይ መሮር ምንቅስቓስን ኩነታት ምስምማዕን ክከታተሉ ይኽእሉ።"
+  },
+  "One Platform. Three Roles.": {
+    am: "አንድ መድረክ። ሶስት ሚናዎች።",
+    om: "Waltajjii Tokko. Gahee Hojii Sadii.",
+    ti: "ሓደ መድረኽ። ሰለስተ ግደታት።"
+  },
+  "Dedicated tools for every level of field operations.": {
+    am: "ለእያንዳንዱ የመስክ ስራዎች ደረጃ የተዘጋጁ መሳሪያዎች።",
+    om: "Meeshaalee addaa sadarkaa hundaa hojii dirreetiif qophaa'an.",
+    ti: "ንነፍሲ ወከፍ ብርኪ ናይ መሮር ስርሒታት ዝተዳለዉ ፍሉያት መሳርሒታት።"
+  },
+  "Register citizens, capture required information, and continue working offline from the field.": {
+    am: "ዜጎችን ይመዝግቡ፣ አስፈላጊውን መረጃ ይያዙ፣ እና ከመስክ ከመስመር ውጭ መስራትዎን ይቀጥሉ።",
+    om: "Lammiilee galmeessaa, odeeffannoo barbaachisu qabaa, fi dirree irraa toora malee hojjechuu itti fufaa.",
+    ti: "ዜጋታት መዝግቡ፣ ኣድላዪ ሓበሬታ ሓዙ፣ ካብ መሮር ድማ ካብ መስመር ወጻኢ ስራሕኩም ቀጽሉ።"
+  },
+  "Demographic & vital records intake": {
+    am: "የስነ-ሕዝብ እና የህይወት ክስተቶች ምዝገባ መቀበያ",
+    om: "Galmee uummataa fi ragaalee murteessoo fudhachuu",
+    ti: "ናይ ስነ-ህዝብን ወሰንቲ ኩነታትን ምዝገባ ምቕባል"
+  },
+  "Offline local storage with automatic sync": {
+    am: "ከመስመር ውጭ የአካባቢ ማከማቻ ከራስ-ሰር ማመሳሰል ጋር",
+    om: "Kuusaa naannoo toora malee walsimsiisa ofumaa waliin",
+    ti: "ካብ መስመር ወጻኢ ናይ ከባቢ ምዕቃብ ምስ ኣውቶማቲክ ምስምማዕ"
+  },
+  "Daily field attendance & activity logs": {
+    am: "የዕለት የመስክ ክትትል እና የእንቅስቃሴ መዝገቦች",
+    om: "Hordoffii argama guyyaa fi galmee sochii dirree",
+    ti: "ናይ መዓልቲ ናይ መሮር ህላወን ናይ ምንቅስቓስ መዛግብትን"
+  },
+  "Enter Field Officer Portal": {
+    am: "ወደ መስክ መኮንን ፖርታል ይግቡ",
+    om: "Gara Poortaalii Oofisara Dirreetti Seeni",
+    ti: "ናብ ናይ መሮር መኮንን ፖርታል እቶ"
+  },
+  "Review registrations, monitor assigned field officers, verify records, and track activity across the zone.": {
+    am: "ምዝገባዎችን ይገምግሙ፣ የተመደቡ የመስክ መኮንኖችን ይቆጣጠሩ፣ መዝገቦችን ያረጋግጡ እና በመላው ዞኑ እንቅስቃሴዎችን ይከታተሉ።",
+    om: "Galmeewwan gamaaggamaa, oofisaroota dirree ramadaman to'adhaa, galmeewwan mirkaneessaa, fi sochii zoonii keessaa hordofaa.",
+    ti: "ምዝገባታት ግምግሙ፣ ዝተመደቡ ናይ መሮር መኮንናት ተቖጻጸሩ፣ መዛግብቲ ኣረጋግጹን ኣብ ብምሉእ ዞባ ዘሎ ምንቅስቓስ ተኸታተሉን።"
+  },
+  "Registration queue review & validation": {
+    am: "የምዝገባ ተራ ግምገማ እና ማረጋገጫ",
+    om: "Tarree galmee gamaaggamuu fi mirkaneessuu",
+    ti: "ተራ ምዝገባ ምግምጋምን ምርግጋጽን"
+  },
+  "Duplicate detection & conflict resolution": {
+    am: "የተደጋገሙ መረጃዎችን መለየት እና ግጭቶችን መፍታት",
+    om: "Galmee lammataa adda baasuu fi waldhabdee hiikuu",
+    ti: "ተደጋጋሚ ምፍላይን ግጭት ምፍታሕን"
+  },
+  "Field officer monitoring & assignments": {
+    am: "የመስክ መኮንኖች ክትትል እና ምደባ",
+    om: "Hordoffii fi ramaddii oofisaroota dirree",
+    ti: "ክትትልን ምደባን ናይ መሮር መኮንናት"
+  },
+  "Enter Supervisor Portal": {
+    am: "ወደ ተቆጣጣሪ ፖርታል ይግቡ",
+    om: "Gara Poortaalii To'ataatti Seeni",
+    ti: "ናብ ናይ ተቖጻጻሪ ፖርታል እቶ"
+  },
+  "National Manager": {
+    am: "ብሔራዊ ስራ አስኪያጅ",
+    om: "Manejara Biyyooleessaa",
+    ti: "ብሔራዊ መካየዲ"
+  },
+  "Monitor national operations, compare regions and zones, and oversee registration activity across the system.": {
+    am: "ብሔራዊ ስራዎችን ይቆጣጠሩ፣ ክልሎችን እና ዞኖችን ያወዳድሩ፣ እና በስርዓቱ ዙሪያ የምዝገባ እንቅስቃሴዎችን ይቆጣጠሩ።",
+    om: "Hojiiwwan biyyooleessaa to'adhaa, naannoolee fi zoonota walbira qabaa, fi sochii galmee sirnicha keessaa hordofaa.",
+    ti: "ብሔራዊ ስርሒታት ተቖጻጸሩ፣ ክልላትን ዞባታትን ኣወዳድሩ፣ ከምኡ’ውን ኣብ ብምሉእ ስርዓት ዘሎ ናይ ምዝገባ ምንቅስቓስ ተዓዘቡ።"
+  },
+  "National registration dashboards & KPI tracking": {
+    am: "ብሔራዊ የምዝገባ ዳሽቦርዶች እና የKPI ክትትል",
+    om: "Daashboordii galmee biyyooleessaa fi hordoffii KPI",
+    ti: "ናይ ብሔር ምዝገባ ዳሽቦርድታትን ክትትል KPIን"
+  },
+  "Regional & zonal comparative metrics": {
+    am: "የክልል እና የዞን ንጽጽር መለኪያዎች",
+    om: "Safartuuwwan walbira qabinsa naannoo fi zoonii",
+    ti: "ናይ ክልልን ዞባን ምንጽጻር መለክዒታት"
+  },
+  "Staff provisioning & operational oversight": {
+    am: "የሰራተኞች ዝግጅት እና የአሰራር ቁጥጥር",
+    om: "Dhiyeessii hojjettootaa fi to'annoo hojii",
+    ti: "ምድላው ሰራሕተኛታትን ምቁጽጻር ስርሒትን"
+  },
+  "Enter Manager Portal": {
+    am: "ወደ ስራ አስኪያጅ ፖርታል ይግቡ",
+    om: "Gara Poortaalii Manejaraatti Seeni",
+    ti: "ናብ ናይ መካየዲ ፖርታል እቶ"
+  },
+  "Field Operations Across Ethiopia": {
+    am: "የመስክ ስራዎች በመላው ኢትዮጵያ",
+    om: "Hojiiwwan Dirree Guutuu Itoophiyaatti",
+    ti: "ናይ መሮር ስርሒታት ኣብ መላእ ኢትዮጵያ"
+  },
+  "A connected view of national field registration activity.": {
+    am: "የተገናኘ የብሔራዊ የመስክ ምዝገባ እንቅስቃሴ እይታ።",
+    om: "Ilaalcha walqabataa sochii galmee dirree biyyooleessaa.",
+    ti: "እተተኣሳሰረ ትርኢት ናይ ብሔራዊ መሮር ምዝገባ ምንቅስቓስ።"
+  },
+  "Regions": {
+    am: "ክልሎች",
+    om: "Naannoolee",
+    ti: "ክልላት"
+  },
+  "Zones": {
+    am: "ዞኖች",
+    om: "Zoonota",
+    ti: "ዞባታት"
+  },
+  "Districts": {
+    am: "ወረዳዎች",
+    om: "Aanoolee",
+    ti: "ወረዳታት"
+  },
+  "Security Built Into Every Registration": {
+    am: "በእያንዳንዱ ምዝገባ ውስጥ የተገነባ ደህንነት",
+    om: "Nageenya Galmee Hunda Keessatti Ijaarame",
+    ti: "ኣብ ነፍሲ ወከፍ ምዝገባ ዝተሃነጸ ድሕንነት"
+  },
+  "Protecting citizen information from the field device to the central system.": {
+    am: "የዜጎችን መረጃ ከመስክ መሳሪያ እስከ ማዕከላዊው ስርዓት ድረስ መጠበቅ።",
+    om: "Odeeffannoo lammiilee meeshaa dirree irraa kaasee hanga sirna giddugaleessaatti eeguu.",
+    ti: "ሓበሬታ ዜጋታት ካብ ናይ መሮር መሳርሒ ክሳብ ማእከላይ ስርዓት ምሕላው።"
+  },
+  "Role-Based Access": {
+    am: "በሚና ላይ የተመሰረተ መዳረሻ",
+    om: "Gahiinsa Gahee Irratti Hundaa'e",
+    ti: "ኣብ ግደ ዝተመርኮሰ ምብጻሕ"
+  },
+  "Users only access the information and actions permitted by their assigned role.": {
+    am: "ተጠቃሚዎች በተመደበላቸው ሚና የተፈቀደላቸውን መረጃ እና እርምጃዎችን ብቻ ያገኛሉ።",
+    om: "Fayyadamtoonni odeeffannoo fi tarkaanfiiwwan gahee isaaniitiin heyyamame qofa argatu.",
+    ti: "ተጠቀምቲ ብዝተመደበሎም ግደ ዝተፈቐደሎም ሓበሬታን ስጉምትታትን ጥራይ ይረኽቡ።"
+  },
+  "Offline records are protected while stored on field devices.": {
+    am: "ከመስመር ውጭ የሆኑ መዝገቦች በመስክ መሳሪያዎች ላይ ተከማችተው ሳሉ ጥበቃ ይደረግላቸዋል።",
+    om: "Galmeewwan toora malee meeshaalee dirree irratti yeroo kuufaman eegumsa qabu.",
+    ti: "ካብ መስመር ወጻኢ ዝኾኑ መዛግብቲ ኣብ ናይ መሮር መሳርሒታት ኣብ ዝዕቀቡሉ እዋን ውሑሳት እዮም።"
+  },
+  "Activity History": {
+    am: "የእንቅስቃሴ ታሪክ",
+    om: "Seenaa Gochaa",
+    ti: "ናይ ምንቅስቓስ ታሪኽ"
+  },
+  "Registration and review activities are recorded to provide a clear operational history.": {
+    am: "ግልጽ የአሰራር ታሪክ ለማቅረብ የምዝገባ እና የግምገማ እንቅስቃሴዎች ይመዘገባሉ።",
+    om: "Seenaa hojii ifa ta'e kennuuf sochiileen galmee fi gamaaggamaa ni galmaa'u.",
+    ti: "ንጹር ናይ ስርሒት ታሪኽ ንምሃብ ናይ ምዝገባን ግምገማን ምንቅስቓሳት ይምዝገቡ።"
+  },
+  "Protected Synchronization": {
+    am: "ጥበቃ የተደረገለት ማመሳሰል",
+    om: "Walsimsiisa Eegumsa Qabu",
+    ti: "ዕቁብ ምስምማዕ"
+  },
+  "Records are securely transferred and validated when synchronized with the central system.": {
+    am: "መዝገቦች ከማዕከላዊው ስርዓት ጋር ሲመሳሰሉ በደህንነት ይተላለፋሉ እንዲሁም ይረጋገጣሉ።",
+    om: "Galmeewwan yeroo sirna giddugaleessaa waliin walsimsiifaman nageenyaan darbu fi ni mirkanaa'u.",
+    ti: "መዛግብቲ ምስ ማእከላይ ስርዓት ኣብ ዝሰማምዑሉ እዋን ብውሑስ መንገዲ ይተሓላለፉን ይረጋገጹን።"
+  },
+  "Secure by Design": {
+    am: "በንድፉ ደህንነቱ የተጠበቀ",
+    om: "Dizayiniin Nageenya Qabaachuuf Kan Qophaa'e",
+    ti: "ብዲዛይን ውሑስ ዝኾነ"
+  },
+  "FieldSync is designed with privacy, controlled access, secure data handling, and operational accountability at every stage of the registration process.": {
+    am: "FieldSync በምዝገባ ሂደቱ በሙሉ ደረጃዎች ከግላዊነት፣ ቁጥጥር ከተደረገበት መዳረሻ፣ ደህንነቱ ከተጠበቀ የመረጃ አያያዝ እና የአሰራር ተጠያቂነት ጋር የተነደፈ ነው።",
+    om: "FieldSync sadarkaa hundaa adeemsa galmee keessatti icciitii, gahiinsa to'atame, qabiinsa ragaa nageenya qabu, fi itti gaafatamummaa hojiitiin kan saxaxameedha.",
+    ti: "FieldSync ኣብ ነፍሲ ወከፍ ብርኪ መስርሕ ምዝገባ ምስ ምስጢራውነት፣ ቁጽጽር ዘለዎ ምብጻሕ፣ ውሑስ ኣተሓሕዛ ሓበሬታን ናይ ስርሒት ተሓታትነትን ተነዲፉ እዩ።"
+  },
+  "Ready to Connect Your Field Operations?": {
+    am: "የመስክ ስራዎችዎን ለማገናኘት ዝግጁ ነዎት?",
+    om: "Hojiiwwan Dirree Keessan Walqunnamsiisuuf Qophiidhaa?",
+    ti: "ናይ መሮር ስርሒታትኩም ንምትእስሳር ድሉዋት ዲኹም?"
+  },
+  "Give your field teams the tools to register citizens securely — online or offline.": {
+    am: "ለመስክ ቡድኖችዎ ዜጎችን በደህንነት የሚመዘግቡባቸውን መሳሪያዎች ይስጡ — በመስመር ላይም ሆነ ከመስመር ውጭ።",
+    om: "Gareewwan dirree keessaniif meeshaalee lammiilee nageenyaan galmeessan kennaaf — toora irratti ykn toora malee.",
+    ti: "ንናይ መሮር ጉጅለታትኩም ዜጋታት ብውሑስ ዝምዝገቡሎም መሳርሒታት ሃቡ — ኣብ መስመር ይኹን ካብ መስመር ወጻኢ።"
+  },
+  "Enter FieldSync": {
+    am: "ወደ FieldSync ይግቡ",
+    om: "Gara FieldSync Seeni",
+    ti: "ናብ FieldSync እቶ"
+  },
+  "An offline-first platform designed for secure citizen registration, local data protection, and operational visibility across remote field environments.": {
+    am: "ለደህንነቱ የተጠበቀ የዜጎች ምዝገባ፣ ለአካባቢ መረጃ ጥበቃ እና በሩቅ የመስክ አካባቢዎች ለአሰራር ግልጽነት የተነደፈ ከመስመር ውጭ ቀዳሚ መድረክ።",
+    om: "Waltajjii toora malee duraa kan qophaa'e galmee lammiilee nageenya qabuuf, eegumsa ragaa bakkaatiif, fi mul'ata hojii naannoolee dirree fagoo keessatti.",
+    ti: "ንውሑስ ምዝገባ ዜጋታት፣ ንናይ ከባቢ ሓበሬታ ዕቝባን ኣብ ርሑቕ ናይ መሮር ከባቢታት ንናይ ስርሒት ርኡይነትን ዝተነድፈ ካብ መስመር ወጻኢ ቀዳማይ መድረኽ።"
+  },
+  "Platform": {
+    am: "መድረክ",
+    om: "Waltajjii",
+    ti: "መድረኽ"
+  },
+  "Key Features": {
+    am: "ቁልፍ ባህሪያት",
+    om: "Amaloota Ijoo",
+    ti: "ቀንዲ ባህርያት"
+  },
+  "User Roles": {
+    am: "የተጠቃሚ ሚናዎች",
+    om: "Gahee Fayyadamtootaa",
+    ti: "ናይ ተጠቀምቲ ግደታት"
+  },
+  "Field Operations": {
+    am: "የመስክ ስራዎች",
+    om: "Hojiiwwan Dirree",
+    ti: "ናይ መሮር ስርሒታት"
+  },
+  "Portals": {
+    am: "ፖርታሎች",
+    om: "Poortaalota",
+    ti: "ፖርታላት"
+  },
+  "Field Officer Portal": {
+    am: "የመስክ መኮንን ፖርታል",
+    om: "Poortaalii Oofisara Dirree",
+    ti: "ናይ መሮር መኮንን ፖርታል"
+  },
+  "Zonal Supervisor Portal": {
+    am: "የዞን ተቆጣጣሪ ፖርታል",
+    om: "Poortaalii To'ataa Zoonii",
+    ti: "ናይ ዞባ ተቆጻጻሪ ፖርታል"
+  },
+  "National Manager Portal": {
+    am: "የብሔራዊ ስራ አስኪያጅ ፖርታል",
+    om: "Poortaalii Manejara Biyyooleessaa",
+    ti: "ናይ ብሔራዊ መካየዲ ፖርታል"
+  },
+  "Security & Data": {
+    am: "ደህንነት እና መረጃ",
+    om: "Nageenya & Ragaa",
+    ti: "ድሕንነትን ሓበሬታን"
+  },
+  "Go to Dashboard": {
+    am: "ወደ ዳሽቦርድ ይሂዱ",
+    om: "Gara Daashboordiitti Deemi",
+    ti: "ናብ ዳሽቦርድ ኪድ"
+  },
+  "Home Page": {
+    am: "መነሻ ገጽ",
+    om: "Fuula Jalqabaa",
+    ti: "መበገሲ ገጽ"
+  },
+  "View Home Page": {
+    am: "መነሻ ገጽን ይመልከቱ",
+    om: "Fuula Jalqabaa Ilaali",
+    ti: "መበገሲ ገጽ ርአ"
+  },
+  "© 2026 FieldSync. National Citizen Registration & Field Operations Platform.": {
+    am: "© 2026 FieldSync. ብሔራዊ የዜጎች ምዝገባ እና የመስክ ስራዎች መድረክ።",
+    om: "© 2026 FieldSync. Waltajjii Galmee Lammiilee Biyyooleessaa & Hojiiwwan Dirree.",
+    ti: "© 2026 FieldSync. ብሔራዊ ምዝገባ ዜጋታትን መድረኽ ናይ መሮር ስርሒታትን።"
   }
 };
 

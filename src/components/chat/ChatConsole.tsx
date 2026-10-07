@@ -33,6 +33,8 @@ import {
   verifyChatOnline,
   deliverPendingChatMessages
 } from '../../services/chatService';
+import { useUserLanguage } from '../../context/UserLanguageContext';
+import { translateText } from '../../services/translationEngine';
 
 interface ChatConsoleProps {
   user: any;
@@ -110,23 +112,18 @@ function getContactPhoto(c: any): string | null {
   if (c.photoUrl) return c.photoUrl;
 
   // Default professional avatars for executive demo roles
-  if (normId === 'm1' || c.role === 'manager' || (c.email || '').toLowerCase() === 'abebe@fieldsync.com') {
+  if (normId === 'u_mgr' || c.role === 'manager' || (c.email || '').toLowerCase() === 'manager@fieldsync.com') {
     return 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80';
   }
-  if (normId === 's1' || (c.email || '').toLowerCase() === 'birhan@fieldsync.com') {
+  if (normId === 'u_sup' || c.role === 'supervisor' || (c.email || '').toLowerCase() === 'supervisor@fieldsync.com') {
     return 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80';
-  }
-  if (normId === 's2' || (c.email || '').toLowerCase() === 'sahle@fieldsync.com') {
-    return 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80';
-  }
-  if (normId === 's3' || (c.email || '').toLowerCase() === 'kidan@fieldsync.com') {
-    return 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80';
   }
 
   return null;
 }
 
 export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
+  const { userT, language } = useUserLanguage();
   const isManager = user?.role === 'manager';
   const isSupervisor = user?.role === 'supervisor';
 
@@ -155,7 +152,18 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
   // Deduplicated list of supervisors for Manager view
   const supervisorsList = useMemo(() => {
     const list = users && users.length > 0 ? users : SAMPLE_USERS;
-    const sups = list.filter((u) => u.role === 'supervisor');
+    const sups = list.filter((u) => {
+      const role = (u.role || '').toLowerCase();
+      if (role !== 'supervisor') return false;
+      const reg = (u.region || '').trim().toLowerCase();
+      const zone = (u.zone || '').trim().toLowerCase();
+      const name = (u.name || u.fullName || '').trim().toLowerCase();
+      const isDirectionalReg = ['north', 'south', 'east', 'west', 'all'].includes(reg);
+      const isZonalDummy = zone.includes('zonal jurisdiction') || reg.includes('organization-wide');
+      const isLegacyMockId = /^([so]\d+|m1)$/i.test(u.id) || /^FO00[1-9]/i.test(u.employeeId || '') || /^SUP00[1-9]/i.test(u.employeeId || '');
+      const isMockName = ['ብርሃን ገብረእግዚአብሔር', 'ሣህለ ሙሉጌታ', 'ኪዳን ጥላሁን', 'dawit haile mariam'].includes(name);
+      return !isDirectionalReg && !isZonalDummy && !isLegacyMockId && !isMockName;
+    });
 
     const seen = new Set<string>();
     const deduplicated: any[] = [];
@@ -170,13 +178,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
       }
     }
 
-    return deduplicated.sort((a, b) => {
-      const aId = normalizeUserId(a.id);
-      const bId = normalizeUserId(b.id);
-      if (aId === 's1') return -1;
-      if (bId === 's1') return 1;
-      return 0;
-    });
+    return deduplicated;
   }, [users]);
 
   // Active contact selection
@@ -894,12 +896,12 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                   <Users className="w-4 h-4" />
                 </div>
                 <h3 className="text-sm font-bold text-[#0F172A] dark:text-white tracking-tight">
-                  Supervisors
+                  {userT('Supervisors')}
                 </h3>
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-[#64748B] dark:text-slate-400 border border-transparent dark:border-slate-700">
-                  {supervisorsList.length} Total
+                  {supervisorsList.length} {userT('Total')}
                 </span>
                 {showMobileSidebar && (
                   <button
@@ -920,7 +922,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by name, region, ID..."
+                placeholder={userT('Search by name, region, ID...')}
                 className="w-full h-9 pl-9 pr-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-[#F8FAFC] dark:bg-[#1F1511] text-xs text-[#0F172A] dark:text-white placeholder-[#64748B] dark:placeholder-[#8C7A70] focus:outline-none focus:ring-2 focus:ring-blue-500/15 focus:border-[#2563EB] dark:focus:border-[#D4A373] transition-all"
               />
             </div>
@@ -936,7 +938,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                     : 'bg-[#F8FAFC] dark:bg-[#1F1511] text-[#64748B] dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-[#2A1D17]'
                 }`}
               >
-                All
+                {userT('All')}
               </button>
               <button
                 type="button"
@@ -947,7 +949,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                     : 'bg-[#F8FAFC] dark:bg-[#1F1511] text-[#64748B] dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-[#2A1D17]'
                 }`}
               >
-                <span>Unread</span>
+                <span>{userT('Unread')}</span>
                 {Object.values(unreadMap).reduce((a, b) => a + b, 0) > 0 && (
                   <span className="w-2 h-2 rounded-full bg-rose-500" />
                 )}
@@ -959,8 +961,8 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
           <div className="flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-[#241712]">
             {filteredSupervisors.length === 0 ? (
               <div className="p-8 text-center space-y-2">
-                <p className="text-xs font-medium text-[#64748B] dark:text-slate-400">No supervisors found</p>
-                <p className="text-[11px] text-slate-400 dark:text-[#8C7A70]">Try modifying your search criteria</p>
+                <p className="text-xs font-medium text-[#64748B] dark:text-slate-400">{userT('No supervisors found')}</p>
+                <p className="text-[11px] text-slate-400 dark:text-[#8C7A70]">{userT('Try modifying your search criteria')}</p>
               </div>
             ) : (
               filteredSupervisors.map((sup) => {
@@ -1024,7 +1026,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                       </div>
 
                       <div className="flex items-center gap-1.5 text-[11px] text-[#64748B] dark:text-slate-400">
-                        <span className="truncate">{sup.region || 'Regional Supervisor'}</span>
+                        <span className="truncate">{translateText(sup.region, language) || sup.region || userT('Regional Supervisor')}</span>
                         <span>•</span>
                         <span className="text-[10px] text-slate-400 dark:text-[#8C7A70] font-mono">{sup.employeeId || 'SUP'}</span>
                       </div>
@@ -1048,14 +1050,14 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
           <div className="sticky top-0 z-30 h-16 px-5 border-b border-blue-200 dark:border-slate-700 bg-blue-50/95 dark:bg-[#1A120E]/95 backdrop-blur-sm shadow-sm flex items-center justify-between shrink-0 animate-in fade-in duration-150">
             <div className="flex items-center gap-3">
               <span className="text-sm font-bold text-[#2563EB] dark:text-blue-400">
-                {selectedMessageIds.size} message{selectedMessageIds.size !== 1 ? 's' : ''} selected
+                {selectedMessageIds.size} {selectedMessageIds.size === 1 ? userT('message selected') : userT('messages selected')}
               </span>
               <button
                 type="button"
                 onClick={handleToggleSelectAll}
                 className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-white dark:bg-slate-800 border border-blue-200 dark:border-slate-700 text-[#0F172A] dark:text-white hover:bg-blue-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
               >
-                {selectedMessageIds.size === visibleMessages.length ? 'Deselect All' : 'Select All'}
+                {selectedMessageIds.size === visibleMessages.length ? userT('Deselect All') : userT('Select All')}
               </button>
             </div>
 
@@ -1067,14 +1069,14 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                 className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white flex items-center gap-1.5 shadow-2xs transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
               >
                 <Trash2 className="w-3.5 h-3.5" />
-                <span>Delete ({selectedMessageIds.size})</span>
+                <span>{userT('Delete')} ({selectedMessageIds.size})</span>
               </button>
               <button
                 type="button"
                 onClick={handleCancelSelection}
                 className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[#64748B] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 dark:hover:text-white transition-colors cursor-pointer"
               >
-                Cancel
+                {userT('Cancel')}
               </button>
             </div>
           </div>
@@ -1115,12 +1117,12 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
               {/* Name & Role */}
               <div className="min-w-0">
                 <h4 className="text-sm sm:text-base font-bold text-[#0F172A] dark:text-white tracking-tight truncate">
-                  {selectedContact?.fullName || selectedContact?.name || (isSupervisor ? 'አበበ በቀለ' : 'Supervisor')}
+                  {selectedContact?.fullName || selectedContact?.name || (isSupervisor ? 'አበበ በቀለ' : userT('Supervisor'))}
                 </h4>
                 <p className="text-xs text-[#64748B] dark:text-slate-400 font-medium truncate">
                   {isSupervisor
-                    ? 'Executive Operations Manager'
-                    : `${selectedContact?.region || 'Regional'} Supervisor`}
+                    ? userT('Executive Operations Manager')
+                    : translateText(`${selectedContact?.region || 'Regional'} Supervisor`, language)}
                 </p>
               </div>
             </div>
@@ -1135,7 +1137,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                     type="text"
                     value={inMessageSearch}
                     onChange={(e) => setInMessageSearch(e.target.value)}
-                    placeholder="Find in this chat..."
+                    placeholder={userT('Find in this chat...')}
                     className="w-32 sm:w-48 bg-transparent text-xs text-[#0F172A] dark:text-white placeholder-[#64748B] dark:placeholder-[#8C7A70] focus:outline-none"
                     autoFocus
                   />
@@ -1203,10 +1205,10 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
               </div>
               <div className="space-y-1 max-w-md">
                 <h4 className="text-base font-bold text-[#0F172A] dark:text-[#F3EAE4]">
-                  Direct Line with {selectedContact?.fullName || selectedContact?.name}
+                  {translateText(`Direct Line with ${selectedContact?.fullName || selectedContact?.name}`, language)}
                 </h4>
                 <p className="text-xs text-[#64748B] dark:text-slate-400 leading-relaxed">
-                  Start your operational conversation. Select an operational starter template below to send immediately, or compose a custom message.
+                  {userT('Start your operational conversation. Select an operational starter template below to send immediately, or compose a custom message.')}
                 </p>
               </div>
 
@@ -1214,18 +1216,18 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
               <div className="w-full max-w-xl text-left pt-2">
                 <div className="flex items-center gap-1.5 mb-2.5 text-xs font-bold text-[#64748B] dark:text-slate-400">
                   <Zap className="w-3.5 h-3.5 text-amber-500" />
-                  <span>Suggested Operational Starters</span>
+                  <span>{userT('Suggested Operational Starters')}</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {QUICK_TEMPLATES.map((tpl, i) => (
                     <button
                       key={i}
                       type="button"
-                      onClick={() => handleSendStarterTemplate(tpl)}
+                      onClick={() => handleSendStarterTemplate(translateText(tpl, language))}
                       className="p-3 text-left text-xs bg-white dark:bg-[#1A120E] rounded-xl border border-[#E2E8F0] dark:border-slate-700/60 text-[#0F172A] dark:text-[#F3EAE4] hover:border-[#2563EB] dark:hover:border-blue-400 hover:bg-blue-50/40 dark:hover:bg-[#261C16] shadow-2xs hover:shadow-xs transition-all cursor-pointer flex items-start gap-2"
                     >
                       <Sparkles className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400 mt-0.5 shrink-0" />
-                      <span className="leading-snug">{tpl}</span>
+                      <span className="leading-snug">{translateText(tpl, language)}</span>
                     </button>
                   ))}
                 </div>
@@ -1910,7 +1912,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   onKeyDown={handleInputKeyDown}
-                  placeholder="Write a message..."
+                  placeholder={userT('Write a message...')}
                   className="w-full bg-transparent text-sm leading-5 text-[#0F172A] dark:text-slate-100 placeholder-[#64748B] dark:placeholder-slate-400 focus:outline-none resize-none overflow-y-hidden py-1 max-h-[76px] transition-all block"
                   style={{ minHeight: '24px' }}
                 />
@@ -1999,7 +2001,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
           {/* Header */}
           <div className="h-16 px-5 border-b border-[#E2E8F0] dark:border-slate-800 flex items-center justify-between shrink-0">
             <h4 className="text-sm font-bold text-[#0F172A] dark:text-slate-100">
-              Conversation Details
+              {userT('Conversation Details')}
             </h4>
             <button
               type="button"
@@ -2037,7 +2039,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                   {selectedContact?.fullName || selectedContact?.name}
                 </h5>
                 <span className="inline-block mt-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-950/60 text-[#2563EB] dark:text-blue-400 border border-blue-100 dark:border-blue-900">
-                  {selectedContact?.role === 'manager' ? 'Executive Operations Manager' : 'Regional Field Supervisor'}
+                  {selectedContact?.role === 'manager' ? userT('Executive Operations Manager') : userT('Regional Field Supervisor')}
                 </span>
               </div>
             </div>
@@ -2045,7 +2047,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
             {/* Contact Details (Cleaned: removed 'All' and 'Day Operations Shift') */}
             <div className="space-y-3 pb-5 border-b border-[#E2E8F0] dark:border-slate-800">
               <h6 className="text-xs font-bold uppercase tracking-wider text-[#64748B] dark:text-slate-400">
-                Contact Details
+                {userT('Contact Details')}
               </h6>
 
               <div className="space-y-2.5 text-xs text-[#0F172A] dark:text-slate-200">
@@ -2060,7 +2062,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                 {selectedContact?.region && selectedContact.region !== 'All' && selectedContact.region !== 'All Zones' && (
                   <div className="flex items-center gap-2.5">
                     <MapPin className="w-4 h-4 text-[#64748B] dark:text-slate-400 shrink-0" />
-                    <span>{selectedContact.region}</span>
+                    <span>{translateText(selectedContact.region, language)}</span>
                   </div>
                 )}
               </div>
@@ -2070,7 +2072,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
             <div className="space-y-3 pb-5 border-b border-[#E2E8F0] dark:border-slate-800">
               <div className="flex items-center justify-between">
                 <h6 className="text-xs font-bold uppercase tracking-wider text-[#64748B] dark:text-slate-400">
-                  Shared Media
+                  {userT('Shared Media')}
                 </h6>
                 <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-[#64748B] dark:text-slate-400">
                   {sharedMedia.length}
@@ -2078,7 +2080,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
               </div>
 
               {sharedMedia.length === 0 ? (
-                <p className="text-xs text-[#64748B] dark:text-slate-400 py-1">No photos or videos shared yet.</p>
+                <p className="text-xs text-[#64748B] dark:text-slate-400 py-1">{userT('No photos or videos shared yet.')}</p>
               ) : (
                 <div className="grid grid-cols-3 gap-2 max-h-48 overflow-y-auto pr-1">
                   {sharedMedia.map((media, idx) => (
@@ -2122,7 +2124,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
             <div className="space-y-3 pb-5 border-b border-[#E2E8F0] dark:border-slate-800">
               <div className="flex items-center justify-between">
                 <h6 className="text-xs font-bold uppercase tracking-wider text-[#64748B] dark:text-slate-400">
-                  Shared Documents
+                  {userT('Shared Documents')}
                 </h6>
                 <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-[#64748B] dark:text-slate-400">
                   {sharedDocs.length}
@@ -2130,7 +2132,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
               </div>
 
               {sharedDocs.length === 0 ? (
-                <p className="text-xs text-[#64748B] dark:text-slate-400 py-1">No documents shared yet.</p>
+                <p className="text-xs text-[#64748B] dark:text-slate-400 py-1">{userT('No documents shared yet.')}</p>
               ) : (
                 <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
                   {sharedDocs.map((file, idx) => (
@@ -2165,7 +2167,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
             <div className="space-y-3 pb-5 border-b border-[#E2E8F0] dark:border-slate-800">
               <div className="flex items-center justify-between">
                 <h6 className="text-xs font-bold uppercase tracking-wider text-[#64748B] dark:text-slate-400">
-                  Shared Links
+                  {userT('Shared Links')}
                 </h6>
                 <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-[#64748B] dark:text-slate-400">
                   {sharedLinks.length}
@@ -2173,7 +2175,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
               </div>
 
               {sharedLinks.length === 0 ? (
-                <p className="text-xs text-[#64748B] dark:text-slate-400 py-1">No shared links in this conversation yet.</p>
+                <p className="text-xs text-[#64748B] dark:text-slate-400 py-1">{userT('No shared links in this conversation yet.')}</p>
               ) : (
                 <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
                   {sharedLinks.map((item, idx) => (
@@ -2205,14 +2207,14 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
             {/* 4. NOTIFICATION & ALERT SETTINGS */}
             <div className="space-y-3">
               <h6 className="text-xs font-bold uppercase tracking-wider text-[#64748B] dark:text-slate-400">
-                Alert Preferences
+                {userT('Alert Preferences')}
               </h6>
 
               <div className="space-y-2.5 text-xs text-[#0F172A] dark:text-slate-200">
                 <label className="flex items-center justify-between cursor-pointer">
                   <div className="flex items-center gap-2">
                     {isMuted ? <BellOff className="w-4 h-4 text-[#64748B] dark:text-slate-400" /> : <Bell className="w-4 h-4 text-[#2563EB] dark:text-blue-400" />}
-                    <span>Mute Thread Alerts</span>
+                    <span>{userT('Mute Thread Alerts')}</span>
                   </div>
                   <input
                     type="checkbox"
@@ -2225,7 +2227,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                 <label className="flex items-center justify-between cursor-pointer">
                   <div className="flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-amber-500" />
-                    <span>High Priority Sound</span>
+                    <span>{userT('High Priority Sound')}</span>
                   </div>
                   <input
                     type="checkbox"

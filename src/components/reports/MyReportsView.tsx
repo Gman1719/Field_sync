@@ -15,8 +15,10 @@ import { API_BASE } from '../../config/api';
 import { Card } from '../ui/Card';
 import Button from '../ui/Button';
 import Modal from '../ui/Modal';
+import { useUserLanguage } from '../../context/UserLanguageContext';
 
 export default function MyReportsView({ user, setActiveTab }: { user?: any; setActiveTab?: (tab: string) => void }) {
+  const { userT } = useUserLanguage();
   const [reports, setReports] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -173,10 +175,10 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
           </div>
           <div>
             <h2 className="text-lg sm:text-xl font-black text-[#0F172A] dark:text-[#F8FAFC] tracking-tight">
-              My Reports
+              {userT('My Reports')}
             </h2>
             <p className="text-xs text-slate-500 dark:text-[#94A3B8]">
-              Historical daily work submissions, citizen intake, and device screen-time telemetry
+              {userT('Historical daily work submissions, citizen intake, and device screen-time telemetry')}
             </p>
           </div>
         </div>
@@ -191,7 +193,7 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
               className="text-xs h-9 px-3.5 rounded-xl shadow-xs"
             >
               <FilePlus2 className="w-4 h-4 mr-1.5" />
-              Daily Work Report
+              {userT('Daily Work Report')}
             </Button>
           )}
         </div>
@@ -206,7 +208,7 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
           </div>
           <div className="min-w-0">
             <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
-              Total Reports
+              {userT('Total Reports')}
             </span>
             <span className="text-lg font-black text-slate-900 dark:text-[#F8FAFC] font-mono leading-none">
               {stats.totalReports}
@@ -221,7 +223,7 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
           </div>
           <div className="min-w-0">
             <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
-              Citizens Intake
+              {userT('Citizens Intake')}
             </span>
             <span className="text-lg font-black text-emerald-600 dark:text-emerald-400 font-mono leading-none">
               {stats.totalCitizens}
@@ -236,7 +238,7 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
           </div>
           <div className="min-w-0">
             <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
-              Active Time
+              {userT('Active Time')}
             </span>
             <span className="text-base font-black text-indigo-600 dark:text-indigo-400 font-mono leading-none">
               {stats.totalScreenTime}
@@ -251,7 +253,7 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
           </div>
           <div className="min-w-0">
             <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
-              Cloud Synced
+              {userT('Cloud Synced')}
             </span>
             <span className="text-lg font-black text-slate-900 dark:text-[#F8FAFC] font-mono leading-none">
               {stats.syncedCount} <span className="text-xs text-slate-400 font-normal">/ {stats.totalReports}</span>
@@ -270,7 +272,7 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
               type="date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              title="Filter by submission date"
+              title={userT('Filter by submission date')}
               className="h-8 pl-8 pr-2.5 rounded-lg border border-[#E2E8F0] dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-[#F8FAFC] text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer font-medium"
             />
           </div>
@@ -284,7 +286,7 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
                 : 'bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-[#E2E8F0] dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800'
             }`}
           >
-            Today
+            {userT('Today')}
           </button>
 
           {/* Sync Status Filter */}
@@ -293,9 +295,9 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
             onChange={(e) => setFilterSyncStatus(e.target.value)}
             className="h-8 px-2.5 rounded-lg border border-[#E2E8F0] dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-[#F8FAFC] text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer min-w-[120px]"
           >
-            <option value="ALL">All Sync States</option>
-            <option value="SYNCED">Synced to Cloud</option>
-            <option value="PENDING">Pending Sync</option>
+            <option value="ALL">{userT('All Sync States')}</option>
+            <option value="SYNCED">{userT('Synced to Cloud')}</option>
+            <option value="PENDING">{userT('Pending Sync')}</option>
           </select>
 
           {/* Clear Filters Button */}
@@ -305,13 +307,13 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
               onClick={clearAllFilters}
               className="h-8 px-2.5 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 transition-all whitespace-nowrap cursor-pointer"
             >
-              Clear
+              {userT('Clear')}
             </button>
           )}
         </div>
 
         <div className="text-xs font-bold text-slate-500 dark:text-[#94A3B8]">
-          {filteredReports.length} {filteredReports.length === 1 ? 'report' : 'reports'}
+          {filteredReports.length} {filteredReports.length === 1 ? userT('report') : userT('reports')}
         </div>
       </div>
 
@@ -320,7 +322,7 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
         {isLoading ? (
           <div className="p-12 text-center">
             <RefreshCw className="w-6 h-6 text-[#2563EB] dark:text-blue-400 animate-spin mx-auto mb-2" />
-            <p className="text-xs text-slate-500 dark:text-slate-400">Loading your submitted reports...</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">{userT('Loading your submitted reports...')}</p>
           </div>
         ) : filteredReports.length === 0 ? (
           <div className="p-12 text-center">
@@ -328,16 +330,16 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
               <FileText className="w-6 h-6" />
             </div>
             <h3 className="font-bold text-slate-800 dark:text-[#F8FAFC] text-sm mb-1">
-              {hasActiveFilters ? 'No Reports Match Your Filter' : 'No Daily Reports Submitted Yet'}
+              {hasActiveFilters ? userT('No Reports Match Your Filter') : userT('No Daily Reports Submitted Yet')}
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto mb-3">
               {hasActiveFilters
-                ? 'Try resetting your date or sync status filter.'
-                : 'Submitted daily operational reports will appear here.'}
+                ? userT('Try resetting your date or sync status filter.')
+                : userT('Submitted daily operational reports will appear here.')}
             </p>
             {hasActiveFilters ? (
               <Button variant="outline" size="sm" onClick={clearAllFilters} className="text-xs">
-                Reset Filters
+                {userT('Reset Filters')}
               </Button>
             ) : (
               setActiveTab && (
@@ -348,7 +350,7 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
                   className="text-xs px-4 rounded-xl"
                 >
                   <FilePlus2 className="w-4 h-4 mr-1.5" />
-                  Submit Today's Report
+                  {userT("Submit Today's Report")}
                 </Button>
               )
             )}
@@ -358,11 +360,11 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-[#E2E8F0] dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                  <th className="py-3.5 px-5">Report Date</th>
-                  <th className="py-3.5 px-5 text-center">Citizens</th>
-                  <th className="py-3.5 px-5 text-center">Screen Time</th>
-                  <th className="py-3.5 px-5 text-center">Sync Status</th>
-                  <th className="py-3.5 px-5 text-right">Action</th>
+                  <th className="py-3.5 px-5">{userT('Report Date')}</th>
+                  <th className="py-3.5 px-5 text-center">{userT('Citizens')}</th>
+                  <th className="py-3.5 px-5 text-center">{userT('Screen Time')}</th>
+                  <th className="py-3.5 px-5 text-center">{userT('Sync Status')}</th>
+                  <th className="py-3.5 px-5 text-right">{userT('Action')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E2E8F0] dark:divide-[#334155] text-xs">
@@ -387,7 +389,7 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
                           </span>
                           {isToday && (
                             <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-100 dark:bg-blue-900/60 text-[#2563EB] dark:text-blue-300">
-                              Today
+                              {userT('Today')}
                             </span>
                           )}
                         </div>
@@ -418,12 +420,12 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
                         {isSynced ? (
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                            Synced
+                            {userT('Synced')}
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
-                            <Clock className="w-3 h-3 text-amber-500" />
-                            Pending
+                            <Clock className="w-3.5 h-3.5 text-amber-500" />
+                            {userT('Pending')}
                           </span>
                         )}
                       </td>
@@ -438,7 +440,7 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
                           className="h-8 px-3 text-xs rounded-lg border-[#E2E8F0] dark:border-slate-700 text-[#2563EB] dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 cursor-pointer font-bold"
                         >
                           <Eye className="w-3.5 h-3.5 mr-1" />
-                          View Details
+                          {userT('View Details')}
                         </Button>
                       </td>
                     </tr>
@@ -455,7 +457,7 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
         <Modal
           isOpen={!!inspectReport}
           onClose={() => setInspectReport(null)}
-          title="Daily Work Report Details"
+          title={userT('Daily Work Report Details')}
           size="lg"
         >
           {(() => {
@@ -468,17 +470,17 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
                 <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-[#E2E8F0] dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
                     <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-[#F8FAFC]">
-                      Report Date: {inspectReport.reportDate}
+                      {userT('Report Date:')} {inspectReport.reportDate}
                     </h3>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                      Reporting Officer: <strong className="text-slate-800 dark:text-slate-200">{user?.fullName || user?.name || user?.email || 'Field Staff'}</strong>
+                      {userT('Reporting Officer:')} <strong className="text-slate-800 dark:text-slate-200">{user?.fullName || user?.name || user?.email || userT('Field Staff')}</strong>
                       {user?.employeeId && <span className="font-mono text-slate-400"> ({user.employeeId})</span>}
                     </p>
                   </div>
 
                   <div className="shrink-0">
                     <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                      {isSynced ? 'Synced to Cloud' : 'Pending Sync'}
+                      {isSynced ? userT('Synced to Cloud') : userT('Pending Sync')}
                     </span>
                   </div>
                 </div>
@@ -487,7 +489,7 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
                 <div className="grid grid-cols-2 gap-3">
                   <div className="p-4 bg-white dark:bg-slate-800 rounded-xl border border-[#E2E8F0] dark:border-slate-700 shadow-xs">
                     <span className="text-[11px] text-slate-400 dark:text-slate-500 uppercase font-bold block mb-1">
-                      Citizens Registered
+                      {userT('Citizens Registered')}
                     </span>
                     <span className="text-2xl font-black text-slate-900 dark:text-white font-mono block">
                       {inspectReport.citizenCountLocal || 0}
@@ -496,7 +498,7 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
 
                   <div className="p-4 bg-white dark:bg-slate-800 rounded-xl border border-[#E2E8F0] dark:border-slate-700 shadow-xs">
                     <span className="text-[11px] text-slate-400 dark:text-slate-500 uppercase font-bold block mb-1">
-                      Screen Time
+                      {userT('Screen Time')}
                     </span>
                     <span className="text-2xl font-black text-slate-900 dark:text-white font-mono block">
                       {inspectReport.screenTimeFormatted || formatTime(inspectReport.screenTimeSeconds)}
@@ -507,10 +509,10 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
                 {/* Section 1: Work Summary & Narrative */}
                 <div className="p-3.5 bg-white dark:bg-slate-800 rounded-xl border border-[#E2E8F0] dark:border-slate-700 shadow-2xs space-y-1.5">
                   <h4 className="font-extrabold text-slate-900 dark:text-[#F8FAFC] text-xs uppercase tracking-wider">
-                    Daily Work Summary & Completed Deliverables
+                    {userT('Daily Work Summary & Completed Deliverables')}
                   </h4>
                   <div className="p-2.5 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-100 dark:border-slate-800 text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap font-medium">
-                    {details.summary || 'No narrative provided'}
+                    {details.summary || userT('No narrative provided')}
                   </div>
                 </div>
 
@@ -518,7 +520,7 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
                 {details.challenges && (
                   <div className="p-3.5 bg-white dark:bg-slate-800 rounded-xl border border-[#E2E8F0] dark:border-slate-700 shadow-2xs space-y-1.5">
                     <h4 className="font-extrabold text-slate-900 dark:text-[#F8FAFC] text-xs uppercase tracking-wider">
-                      Roadblocks & Operational Challenges
+                      {userT('Roadblocks & Operational Challenges')}
                     </h4>
                     <div className="p-2.5 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-100 dark:border-slate-800 text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap font-medium">
                       {details.challenges}
@@ -530,19 +532,19 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   <div className="p-3 bg-white dark:bg-slate-800 rounded-xl border border-[#E2E8F0] dark:border-slate-700 shadow-2xs space-y-1">
                     <h4 className="font-extrabold text-slate-900 dark:text-[#F8FAFC] text-[11px] uppercase tracking-wider">
-                      Resources & Logistics
+                      {userT('Resources & Logistics')}
                     </h4>
                     <div className="p-2 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-100 dark:border-slate-800 text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
-                      {details.resources || 'Standard field kit'}
+                      {details.resources || userT('Standard field kit')}
                     </div>
                   </div>
 
                   <div className="p-3 bg-white dark:bg-slate-800 rounded-xl border border-[#E2E8F0] dark:border-slate-700 shadow-2xs space-y-1">
                     <h4 className="font-extrabold text-slate-900 dark:text-[#F8FAFC] text-[11px] uppercase tracking-wider">
-                      Tomorrow's Priorities
+                      {userT("Tomorrow's Priorities")}
                     </h4>
                     <div className="p-2 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-100 dark:border-slate-800 text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
-                      {details.nextDayPlan || 'Continue scheduled intake'}
+                      {details.nextDayPlan || userT('Continue scheduled intake')}
                     </div>
                   </div>
                 </div>
@@ -550,7 +552,7 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
                 {/* Audit & Device Provenance Footer Strip */}
                 <div className="p-2.5 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    <span>Report ID:</span>
+                    <span>{userT('Report ID:')}</span>
                     <code className="font-mono font-bold text-slate-700 dark:text-slate-300">
                       {(inspectReport.id || 'local_report').slice(0, 18)}...
                     </code>
@@ -558,13 +560,13 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
                       type="button"
                       onClick={() => copyReportId(inspectReport.id)}
                       className="p-1 rounded text-slate-400 hover:text-[#2563EB] transition-colors cursor-pointer"
-                      title="Copy full Report ID"
+                      title={userT('Copy full Report ID')}
                     >
                       {copiedId ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
                     </button>
                   </div>
                   <div>
-                    Submitted: <strong className="text-slate-700 dark:text-slate-300">{inspectReport.submittedAt ? new Date(inspectReport.submittedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Today'}</strong>
+                    {userT('Submitted:')} <strong className="text-slate-700 dark:text-slate-300">{inspectReport.submittedAt ? new Date(inspectReport.submittedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : userT('Today')}</strong>
                   </div>
                 </div>
 
@@ -575,7 +577,7 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
                     onClick={() => setInspectReport(null)}
                     className="text-xs font-bold px-5 rounded-xl dark:bg-slate-800 dark:border-slate-700 dark:text-[#F8FAFC]"
                   >
-                    Close
+                    {userT('Close')}
                   </Button>
                 </div>
               </div>

@@ -25,8 +25,8 @@ export default function Login({
   const { theme, toggleTheme } = useTheme();
   const { userT } = useUserLanguage();
 
-  const [email, setEmail] = useState('meseret@fieldsync.com');
-  const [password, setPassword] = useState('officer123');
+  const [email, setEmail] = useState('officer@fieldsync.com');
+  const [password, setPassword] = useState('Password123!');
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -35,14 +35,14 @@ export default function Login({
   // Initialize credentials if directed from Landing Page role portal
   useEffect(() => {
     if (initialRole === 'MANAGER') {
-      setEmail('abebe@fieldsync.com');
-      setPassword('manager123');
+      setEmail('manager@fieldsync.com');
+      setPassword('Password123!');
     } else if (initialRole === 'SUPERVISOR') {
-      setEmail('birhan@fieldsync.com');
-      setPassword('super123');
+      setEmail('supervisor@fieldsync.com');
+      setPassword('Password123!');
     } else if (initialRole === 'FIELD_OFFICER') {
-      setEmail('meseret@fieldsync.com');
-      setPassword('officer123');
+      setEmail('officer@fieldsync.com');
+      setPassword('Password123!');
     }
   }, [initialRole]);
 

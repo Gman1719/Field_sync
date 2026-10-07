@@ -57,9 +57,34 @@ export const UserLanguageProvider: React.FC<{ children: ReactNode }> = ({ childr
 
   const userT = (keyOrText: string, params: Record<string, string | number> = {}): string => {
     if (!keyOrText) return '';
-    // Query i18next engine with default fallback
-    const res = i18n.t(keyOrText, { defaultValue: keyOrText, ...params });
-    return res || keyOrText;
+    const trimmed = typeof keyOrText === 'string' ? keyOrText.trim() : String(keyOrText);
+    if (!trimmed) return '';
+
+    // 1. Direct query with trimmed key
+    let res = i18n.t(trimmed, { defaultValue: '', ...params });
+    if (res && res !== trimmed) return res;
+
+    // 2. Query with exact keyOrText
+    if (keyOrText !== trimmed) {
+      res = i18n.t(keyOrText, { defaultValue: '', ...params });
+      if (res && res !== keyOrText) return res;
+    }
+
+    // 3. Robust case-insensitive fallback lookup for current language bundle
+    const currentLng = currentUserLanguage || 'en';
+    if (currentLng !== 'en') {
+      const bundle = (i18n.options.resources as any)?.[currentLng]?.translation;
+      if (bundle) {
+        const lower = trimmed.toLowerCase();
+        for (const [k, v] of Object.entries(bundle)) {
+          if (typeof k === 'string' && k.toLowerCase() === lower && typeof v === 'string') {
+            return v;
+          }
+        }
+      }
+    }
+
+    return keyOrText;
   };
 
   return (

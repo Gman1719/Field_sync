@@ -153,35 +153,93 @@ export default function TeamManagement({
   const teams = useMemo(() => {
     if (isSupervisor) return [];
 
-    const supervisors = users.filter((u: any) => u.role === 'supervisor');
-    const officers = users.filter((u: any) => u.role === 'field_officer');
+    const isInvalidUser = (u: any) => {
+      const reg = (u.region || u.regionName || '').trim().toLowerCase();
+      const zone = (u.zone || u.zoneName || '').trim().toLowerCase();
+      const name = (u.name || u.fullName || '').trim().toLowerCase();
+      const isDirectionalReg = ['north', 'south', 'east', 'west', 'all'].includes(reg);
+      const isZonalDummy = zone.includes('zonal jurisdiction') || reg.includes('organization-wide');
+      const isLegacyMockId = /^([so]\d+|m1)$/i.test(u.id) || /^FO00[1-9]/i.test(u.employeeId || '') || /^SUP00[1-9]/i.test(u.employeeId || '');
+      const isMockName = ['ብርሃን ገብረእግዚአብሔር', 'ሣህለ ሙሉጌታ', 'ኪዳን ጥላሁን', 'dawit haile mariam'].includes(name);
+      return isDirectionalReg || isZonalDummy || isLegacyMockId || isMockName;
+    };
+
+    const ZONE_REGION_MAP: Record<string, { zone: string; region: string }> = {
+      'zone-am-north-shewa': { zone: 'North Shewa Zone', region: 'Amhara' },
+      'zone-am-north-wollo': { zone: 'North Wollo Zone', region: 'Amhara' },
+      'zone-am-south-wollo': { zone: 'South Wollo Zone', region: 'Amhara' },
+      'zone-am-central-gondar': { zone: 'Central Gondar Zone', region: 'Amhara' },
+      'zone-am-bahir-dar': { zone: 'Bahir Dar Special Administration', region: 'Amhara' },
+      'zone-aa-bole': { zone: 'Bole Sub-City', region: 'Addis Ababa' },
+      'zone-aa-addis-ketema': { zone: 'Addis Ketema Sub-City', region: 'Addis Ababa' },
+      'zone-or-finfinne': { zone: 'Finfinne Special Zone', region: 'Oromia' },
+    };
+
+    const getCleanZoneAndRegion = (u: any) => {
+      if (u.zoneId && ZONE_REGION_MAP[u.zoneId]) {
+        return ZONE_REGION_MAP[u.zoneId];
+      }
+      if (u.id === 'u_sup' || u.id === 'u_demo_sup') {
+        return { zone: 'Bole Sub-City', region: 'Addis Ababa' };
+      }
+      const zone = (u.zone || u.zoneName || '').trim();
+      const region = (u.region || u.regionName || '').trim();
+      if (!zone || zone.toLowerCase() === 'zonal jurisdiction' || zone.toLowerCase() === 'general field') {
+        return null;
+      }
+      if (!region || ['organization-wide', 'regional scope', 'all'].includes(region.toLowerCase())) {
+        return null;
+      }
+      return { zone, region };
+    };
+
+    const validSupervisors = users
+      .filter((u: any) => {
+        const role = (u.role || '').toLowerCase();
+        return role === 'supervisor' && !isInvalidUser(u);
+      })
+      .filter((sup: any) => {
+        const zr = getCleanZoneAndRegion(sup);
+        return zr !== null;
+      });
+
+    const seenSupIds = new Set<string>();
+    const uniqueSupervisors = validSupervisors.filter((sup: any) => {
+      const key = String(sup.id || sup.employeeId);
+      if (seenSupIds.has(key)) return false;
+      seenSupIds.add(key);
+      return true;
+    });
+
+    const validOfficers = users.filter((u: any) => {
+      const role = (u.role || '').toLowerCase();
+      return role === 'field_officer' && !isInvalidUser(u);
+    });
 
     const teamList: any[] = [];
-    const assignedOfficerIds = new Set<string>();
     const supervisorOfficersMap = new Map<string, any[]>();
-
-    supervisors.forEach((sup: any) => {
+    uniqueSupervisors.forEach((sup: any) => {
       const supKey = String(sup.id || sup.employeeId);
       supervisorOfficersMap.set(supKey, []);
     });
 
-    // Pass 1: Direct matches (by ID, employeeId, name, or assignedSupervisorId)
-    officers.forEach((o: any) => {
-      const directSup = supervisors.find((sup: any) => {
+    const assignedOfficerIds = new Set<string>();
+
+    // Pass 1: Direct matches (by ID, employeeId, name)
+    validOfficers.forEach((o: any) => {
+      const directSup = uniqueSupervisors.find((sup: any) => {
         const supId = sup.id != null ? String(sup.id) : null;
         const supEmpId = sup.employeeId != null ? String(sup.employeeId) : null;
         const oSupId = o.supervisorId != null ? String(o.supervisorId) : null;
-        const oSupIdAlt = o.supervisor_id != null ? String(o.supervisor_id) : null;
         const oSupEmpId = o.supervisorEmployeeId != null ? String(o.supervisorEmployeeId) : null;
-        const oAssignedSupId = o.assignedSupervisorId != null ? String(o.assignedSupervisorId) : null;
 
         const idMatch =
-          Boolean(supId && (oSupId === supId || oSupIdAlt === supId || oAssignedSupId === supId)) ||
-          Boolean(supEmpId && (oSupId === supEmpId || oSupIdAlt === supEmpId || oSupEmpId === supEmpId || oAssignedSupId === supEmpId));
+          Boolean(supId && oSupId === supId) ||
+          Boolean(supEmpId && (oSupId === supEmpId || oSupEmpId === supEmpId));
 
         const supName = (sup.name || sup.fullName || '').trim().toLowerCase();
-        const oSupName = (o.supervisorName || o.supervisor_name || (o.supervisor && (o.supervisor.name || o.supervisor.fullName)) || '').trim().toLowerCase();
-        const nameMatch = Boolean(supName && oSupName && (supName === oSupName || supName.includes(oSupName) || oSupName.includes(supName)));
+        const oSupName = (o.supervisorName || (o.supervisor && (o.supervisor.name || o.supervisor.fullName)) || '').trim().toLowerCase();
+        const nameMatch = Boolean(supName && oSupName && supName === oSupName);
 
         return idMatch || nameMatch;
       });
@@ -193,21 +251,16 @@ export default function TeamManagement({
       }
     });
 
-    // Pass 2: Geographic matching for any officer without a direct supervisor match
-    officers.forEach((o: any) => {
+    // Pass 2: Geographic matching by zoneId / zone
+    validOfficers.forEach((o: any) => {
       const oKey = String(o.id || o.employeeId);
       if (assignedOfficerIds.has(oKey)) return;
 
-      const areaSup = supervisors.find((sup: any) => {
-        const oZone = (o.zone || '').trim().toLowerCase();
-        const supZone = (sup.zone || '').trim().toLowerCase();
-        const oRegion = (o.region || '').trim().toLowerCase();
-        const supRegion = (sup.region || '').trim().toLowerCase();
-
-        const zoneMatch = Boolean(oZone && supZone && oZone === supZone);
-        const regionMatch = Boolean(oRegion && supRegion && oRegion === supRegion);
-
-        return zoneMatch || (regionMatch && (!oZone || !supZone));
+      const areaSup = uniqueSupervisors.find((sup: any) => {
+        if (o.zoneId && sup.zoneId && o.zoneId === sup.zoneId) return true;
+        const oZR = getCleanZoneAndRegion(o);
+        const supZR = getCleanZoneAndRegion(sup);
+        return oZR && supZR && oZR.zone.toLowerCase() === supZR.zone.toLowerCase();
       });
 
       if (areaSup) {
@@ -217,9 +270,10 @@ export default function TeamManagement({
       }
     });
 
-    supervisors.forEach((sup: any) => {
+    uniqueSupervisors.forEach((sup: any) => {
       const supKey = String(sup.id || sup.employeeId);
       const teamOfficers = supervisorOfficersMap.get(supKey) || [];
+      const zr = getCleanZoneAndRegion(sup)!;
 
       const totalRegs = citizens.filter((c: any) =>
         teamOfficers.some((o: any) => o.employeeId === c.registeredBy || o.id === c.registeredById || o.id === c.registeredBy) ||
@@ -231,22 +285,22 @@ export default function TeamManagement({
         sup.employeeId === r.employeeId
       ).length;
 
-      const activeOfficers = teamOfficers.filter((o: any) => o.status === 'active').length;
+      const activeOfficers = teamOfficers.filter((o: any) => o.status === 'active' || o.isActive).length;
       const onlineOfficers = (liveStatus || []).filter((l: any) =>
         teamOfficers.some((o: any) => o.employeeId === l.employeeId || o.id === l.userId) && l.status === 'online'
       ).length;
 
       teamList.push({
         id: `team-${sup.id || sup.employeeId}`,
-        name: `${sup.zone || sup.region || 'Zonal'} Operations Team`,
-        region: sup.region || 'Organization-wide',
-        zone: sup.zone || 'Zonal Jurisdiction',
+        name: `${zr.zone} Operations Team`,
+        region: zr.region,
+        zone: zr.zone,
         woreda: sup.woreda || '',
         supervisor: sup,
         officers: teamOfficers,
         stats: {
           officersCount: teamOfficers.length,
-          activeOfficers,
+          activeOfficers: activeOfficers || teamOfficers.length,
           onlineOfficers,
           totalRegistrations: totalRegs,
           totalReports: totalReps,
@@ -256,30 +310,6 @@ export default function TeamManagement({
         }
       });
     });
-
-    // Frontline officers pool
-    const unassignedOfficers = officers.filter((o: any) => !assignedOfficerIds.has(String(o.id || o.employeeId)));
-    if (unassignedOfficers.length > 0) {
-      teamList.push({
-        id: 'unassigned-team',
-        name: 'Frontline Officers Pool',
-        region: 'Regional Scope',
-        zone: 'General Field',
-        woreda: 'Multiple',
-        supervisor: null,
-        officers: unassignedOfficers,
-        stats: {
-          officersCount: unassignedOfficers.length,
-          activeOfficers: unassignedOfficers.filter((o: any) => o.status === 'active').length,
-          onlineOfficers: (liveStatus || []).filter((l: any) =>
-            unassignedOfficers.some((o: any) => o.employeeId === l.employeeId || o.id === l.userId) && l.status === 'online'
-          ).length,
-          totalRegistrations: 0,
-          totalReports: 0,
-          isSupervisorOnline: false,
-        }
-      });
-    }
 
     return teamList;
   }, [isSupervisor, users, citizens, reports, liveStatus]);
@@ -871,17 +901,24 @@ export default function TeamManagement({
   return (
     <div className="space-y-6 animate-in fade-in duration-150">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-slate-950/30">
-        <div>
-          <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-700">
-            {userT('Workforce Hierarchy')}
-          </span>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white mt-2">
-            {userT('Team')}
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-300 mt-0.5">
-            {userT('Zonal supervisor structures and assigned field officer units')}
-          </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl border bg-white dark:bg-slate-800 border-slate-200/90 dark:border-slate-700 shadow-xs">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200/80 dark:border-blue-900/60 text-blue-600 dark:text-blue-400">
+            <Users className="w-5 h-5" />
+          </div>
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+              {userT('Team')}
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+              {userT('Zonal supervisor structures and assigned field officer units')}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700/80 text-xs font-semibold text-slate-600 dark:text-slate-300">
+            <span>{filteredTeams.length} {filteredTeams.length === 1 ? 'Operational Unit' : 'Operational Units'}</span>
+          </div>
         </div>
       </div>
 

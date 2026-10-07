@@ -15,6 +15,7 @@ import {
 } from '../services/database';
 import { getToday, uid } from '../utils/helpers';
 import { API_BASE } from '../config/api';
+import { offlineDb } from '../db/offlineDb';
 
 export function useAppData(user: any) {
   const [reports, setReports] = useState<any[]>([]);
@@ -191,21 +192,40 @@ export function useAppData(user: any) {
           db.permissions.toArray(),
         ]);
 
-        let finalUsers = usersData;
+        const isLegacyDirectional = (u: any) => {
+          const reg = (u.region || u.regionName || '').trim().toLowerCase();
+          const zone = (u.zone || u.zoneName || '').trim().toLowerCase();
+          const name = (u.name || u.fullName || '').trim().toLowerCase();
+          const isDirectionalReg = ['north', 'south', 'east', 'west'].includes(reg);
+          const isZonalDummy = zone.includes('zonal jurisdiction') || reg.includes('organization-wide');
+          const isLegacyMockId = /^([so]\d+|m1)$/i.test(u.id) || /^FO00[1-9]/i.test(u.employeeId || '') || /^SUP00[1-9]/i.test(u.employeeId || '');
+          const isMockName = ['ብርሃን ገብረእግዚአብሔር', 'ሣህለ ሙሉጌታ', 'ኪዳን ጥላሁን', 'dawit haile mariam'].includes(name);
+          return isDirectionalReg || isZonalDummy || isLegacyMockId || isMockName;
+        };
+
+        const cleanInitialUsers = usersData.filter(u => !isLegacyDirectional(u));
+        const invalidIds = usersData.filter(isLegacyDirectional).map(u => u.id);
+        if (invalidIds.length > 0) {
+          db.users.bulkDelete(invalidIds).catch(() => {});
+          offlineDb.users.bulkDelete(invalidIds).catch(() => {});
+        }
+
+        let finalUsers = cleanInitialUsers;
         try {
           const response = await fetch(`${API_BASE}/users`);
           if (response.ok) {
             const serverUsers = await response.json();
             if (serverUsers && serverUsers.length > 0) {
-              const mergedUsers = [...usersData];
+              const mergedUsers = [...cleanInitialUsers];
               for (const serverUser of serverUsers) {
+                if (isLegacyDirectional(serverUser)) continue;
                 const existingIndex = mergedUsers.findIndex(
                   (u) => u.id === serverUser.id || u.employeeId === serverUser.employee_id
                 );
                 if (existingIndex >= 0) {
                   mergedUsers[existingIndex] = {
                     ...mergedUsers[existingIndex],
-                    name: serverUser.name,
+                    name: serverUser.name || serverUser.fullName,
                     firstName: serverUser.firstName || serverUser.first_name,
                     middleName: serverUser.middleName || serverUser.middle_name,
                     lastName: serverUser.lastName || serverUser.last_name,
@@ -243,7 +263,7 @@ export function useAppData(user: any) {
                   mergedUsers.push({
                     id: serverUser.id,
                     employeeId: serverUser.employeeId || serverUser.employee_id,
-                    name: serverUser.name,
+                    name: serverUser.name || serverUser.fullName,
                     firstName: serverUser.firstName || serverUser.first_name,
                     middleName: serverUser.middleName || serverUser.middle_name,
                     lastName: serverUser.lastName || serverUser.last_name,
@@ -273,13 +293,13 @@ export function useAppData(user: any) {
                     shift: serverUser.shift || 'Day',
                     department: serverUser.department || '',
                     assignedSites: [],
-                    managerId: 'm1',
+                    managerId: 'u_mgr',
                     gpsEnabled: true,
                     pin: serverUser.role === 'field_officer' ? '1234' : undefined,
                   });
                 }
               }
-              finalUsers = mergedUsers;
+              finalUsers = mergedUsers.filter(u => !isLegacyDirectional(u));
               await db.users.clear();
               await db.users.bulkAdd(finalUsers as any);
             }
@@ -319,10 +339,36 @@ export function useAppData(user: any) {
           }
         } catch (_) {}
 
+        let finalCitizens = citizensData;
+        try {
+          const offlineCitizens = await offlineDb.citizens.toArray();
+          if (offlineCitizens && offlineCitizens.length > 0) {
+            finalCitizens = offlineCitizens;
+          }
+          const authToken = localStorage.getItem('fieldsync_token');
+          if (navigator.onLine && authToken) {
+            const citRes = await fetch(`${API_BASE}/citizens?limit=1000`, {
+              headers: { Authorization: `Bearer ${authToken}` },
+            }).catch(() => null);
+            if (citRes && citRes.ok) {
+              const citData = await citRes.json();
+              if (citData.success && Array.isArray(citData.data) && citData.data.length > 0) {
+                for (const sc of citData.data) {
+                  await offlineDb.citizens.put({
+                    ...sc,
+                    syncStatus: 'SYNCED',
+                  });
+                }
+                finalCitizens = await offlineDb.citizens.toArray();
+              }
+            }
+          }
+        } catch (_) {}
+
         setUsers(finalUsers);
         setReports(reportsData);
         setAttendance(attendanceData);
-        setCitizens(citizensData);
+        setCitizens(finalCitizens);
         setAuditLog(auditData);
         setSupervisorReports(supervisorReportsData);
         setScreenTime(screenTimeData);

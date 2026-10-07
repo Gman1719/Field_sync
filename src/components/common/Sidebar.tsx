@@ -154,7 +154,6 @@ export default function Sidebar({
         items: [
           { id: 'activity_logs', label: 'Activity Logs', icon: Activity },
           { id: 'analytics', label: 'Analysis and Detail', icon: BarChart3 },
-          { id: 'audit', label: 'System Audit Trail', icon: History },
         ],
       });
     }
@@ -190,12 +189,19 @@ export default function Sidebar({
         }`}
       >
         <div className="h-16 px-5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#2563EB] flex items-center justify-center text-white shadow-xs">
+          <div
+            onClick={() => {
+              window.location.hash = '#home';
+              window.dispatchEvent(new HashChangeEvent('hashchange'));
+            }}
+            className="flex items-center gap-3 cursor-pointer group"
+            title={userT('View Home Page')}
+          >
+            <div className="w-9 h-9 rounded-xl bg-[#2563EB] flex items-center justify-center text-white shadow-xs group-hover:scale-105 transition-transform">
               <Radio className="w-5 h-5" />
             </div>
             <div>
-              <span className="font-bold text-slate-900 dark:text-white text-base tracking-tight block leading-tight">
+              <span className="font-bold text-slate-900 dark:text-white text-base tracking-tight block leading-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                 FieldSync
               </span>
               <span className="text-xs text-slate-400 dark:text-slate-500 font-medium block">

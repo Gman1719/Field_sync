@@ -1,7 +1,7 @@
 // Cascading Ethiopian Administrative Location Dropdowns (Region -> Zone -> Woreda -> Supervisor)
 
 import React, { useState, useEffect } from 'react';
-import { MapPin, Building, Home, UserCheck, Loader2 } from 'lucide-react';
+import { MapPin, Building, Home, UserCheck, Loader2, AlertCircle } from 'lucide-react';
 import Select from '../ui/Select';
 import { API_BASE } from '../../config/api';
 import { offlineDb } from '../../db/offlineDb';
@@ -283,7 +283,9 @@ export default function LocationDropdown({
         try {
           const allLocalUsers = await db.users.toArray();
           const localSups = allLocalUsers.filter(
-            u => (u.role === 'supervisor' || u.role === 'SUPERVISOR') && (u.status === 'active' || u.isActive !== false)
+            u => (u.role === 'supervisor' || u.role === 'SUPERVISOR') &&
+                 (u.status === 'active' || u.isActive !== false) &&
+                 (u.zoneId === zoneId || u.zone?.id === zoneId)
           );
           if (isMounted) {
             setSupervisors(localSups);
@@ -296,6 +298,27 @@ export default function LocationDropdown({
     fetchWoredasAndSupervisors();
     return () => { isMounted = false; };
   }, [zoneId, role]);
+
+  // Auto-assign single supervisor if only 1 active supervisor in zone
+  useEffect(() => {
+    if (role === 'field_officer' && zoneId && supervisors.length === 1 && !supervisorId) {
+      const regObj = regions.find(r => r.id === regionId);
+      const zoneObj = zones.find(z => z.id === zoneId);
+      const worObj = woredas.find(w => w.id === woredaId);
+      onChange?.({
+        regionId,
+        region: regObj?.name || '',
+        regionName: regObj?.name || '',
+        zoneId,
+        zone: zoneObj?.name || '',
+        zoneName: zoneObj?.name || '',
+        woredaId,
+        woreda: worObj?.name || '',
+        woredaName: worObj?.name || '',
+        supervisorId: supervisors[0].id
+      });
+    }
+  }, [supervisors, role, zoneId, supervisorId, regionId, woredaId, regions, zones, woredas]);
 
   const handleRegionChange = (e: any) => {
     const newRegId = e.target.value;
@@ -468,28 +491,45 @@ export default function LocationDropdown({
           <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center justify-between">
             <span className="flex items-center gap-1.5">
               <UserCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-              {userT('Assigned Supervisor')}
+              {userT('Assigned Supervisor')} <span className="text-rose-500">*</span>
             </span>
             {loadingSupervisors && <Loader2 className="w-3 h-3 text-blue-600 dark:text-blue-400 animate-spin" />}
           </label>
           <Select
             value={supervisorId}
             onChange={handleSupervisorChange}
-            disabled={disabled || !zoneId || loadingSupervisors}
+            disabled={disabled || !zoneId || loadingSupervisors || supervisors.length === 0}
+            error={errors.supervisorId || (zoneId && !loadingSupervisors && supervisors.length === 0 ? userT('Zone requires at least one active Supervisor') : undefined)}
           >
             <option value="">
               {zoneId
                 ? supervisors.length > 0
-                  ? userT('Select Supervisor (or leave unassigned)')
+                  ? userT('Select Assigned Supervisor *')
                   : userT('No active supervisors in this zone')
                 : userT('Select Zone First')}
             </option>
             {supervisors.map((s) => (
               <option key={s.id} value={s.id}>
-                {s.name} ({s.email})
+                {s.name || s.fullName} ({s.email})
               </option>
             ))}
           </Select>
+
+          {/* Validation Alert: A Field Officer can only be registered/assigned/transferred if zone has at least one active supervisor */}
+          {zoneId && !loadingSupervisors && supervisors.length === 0 && (
+            <div className="mt-2.5 p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-xl text-rose-700 dark:text-rose-300 text-xs flex items-start gap-2.5 shadow-xs">
+              <AlertCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold text-rose-800 dark:text-rose-200">
+                  {userT('No Active Supervisor Responsible for this Zone')}
+                </p>
+                <p className="mt-0.5 text-[11px] leading-relaxed text-rose-600 dark:text-rose-300">
+                  {userT('A Field Officer can only be registered, assigned, or transferred to a Woreda if that area has at least one active Supervisor responsible for that Zone. Please assign a Supervisor to this Zone first.')}
+                </p>
+              </div>
+            </div>
+          )}
+
           {supervisors.length > 1 && (
             <p className="mt-1 text-[11px] text-amber-600 dark:text-amber-400">
               {userT('Multiple supervisors detected for this zone. Please select the primary supervisor.')}

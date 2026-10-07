@@ -16,9 +16,10 @@ import { offlineDb } from '../../db/offlineDb';
 import { db } from '../../services/database';
 import { API_BASE } from '../../config/api';
 import { useUserLanguage } from '../../context/UserLanguageContext';
+import { translateText } from '../../services/translationEngine';
 
 export default function ActivityTimeline({ user }) {
-  const { userT } = useUserLanguage();
+  const { userT, language } = useUserLanguage();
   const [logs, setLogs] = useState([]);
   const [expandedRowIds, setExpandedRowIds] = useState(new Set());
   const [isLoading, setIsLoading] = useState(true);
@@ -422,7 +423,7 @@ export default function ActivityTimeline({ user }) {
               <thead>
                 <tr className="border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/40 text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
                   <th className="py-3 px-4">{userT('Date & Time')}</th>
-                  <th className="py-3 px-4">{userT('User / Staff')}</th>
+                  <th className="py-3 px-4">{userT('USER / STAFF')}</th>
                   <th className="py-3 px-4">{userT('Description')}</th>
                   <th className="py-3 px-4">{userT('Status')}</th>
                   <th className="py-3 px-4 text-right">{userT('Details')}</th>
@@ -474,18 +475,18 @@ export default function ActivityTimeline({ user }) {
                         <td className="py-3.5 px-4 whitespace-nowrap">
                           <div className="font-semibold text-slate-900 dark:text-white flex items-center gap-1.5">
                             <User className="w-3 h-3 text-slate-400 shrink-0" />
-                            <span>{displayedUserName}</span>
+                            <span>{translateText(displayedUserName, language)}</span>
                           </div>
                           {log.woredaName && (
                             <div className="text-[10px] text-slate-400 pl-4.5">
-                              {log.woredaName}
+                              {translateText(log.woredaName, language)}
                             </div>
                           )}
                         </td>
 
                         {/* Description */}
                         <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300 max-w-md">
-                          <p className="font-medium text-xs leading-relaxed">{log.description}</p>
+                          <p className="font-medium text-xs leading-relaxed">{translateText(log.description, language)}</p>
                         </td>
 
                         {/* Sync Status */}

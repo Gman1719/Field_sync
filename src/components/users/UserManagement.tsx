@@ -26,6 +26,7 @@ import UserDetailsModal from './UserDetailsModal';
 import UserEditModal from './UserEditModal';
 import UserReassignModal from './UserReassignModal';
 import UserRoleModal from './UserRoleModal';
+import LanguageSelector from '../common/LanguageSelector';
 import { useUserLanguage } from '../../context/UserLanguageContext';
 
 export default function UserManagement({
@@ -121,10 +122,23 @@ export default function UserManagement({
     };
   }, [users, serverStats]);
 
+  // Helper to exclude legacy directional mock users
+  const isInvalidDirectional = (u: any) => {
+    const reg = (u.region || '').trim().toLowerCase();
+    const zone = (u.zone || '').trim().toLowerCase();
+    const name = (u.name || u.fullName || '').trim().toLowerCase();
+    const isDirectionalReg = ['north', 'south', 'east', 'west', 'all'].includes(reg);
+    const isZonalDummy = zone.includes('zonal jurisdiction') || reg.includes('organization-wide');
+    const isLegacyMockId = /^([so]\d+|m1)$/i.test(u.id) || /^FO00[1-9]/i.test(u.employeeId || '') || /^SUP00[1-9]/i.test(u.employeeId || '');
+    const isMockName = ['ብርሃን ገብረእግዚአብሔር', 'ሣህለ ሙሉጌታ', 'ኪዳን ጥላሁን', 'dawit haile mariam'].includes(name);
+    return isDirectionalReg || isZonalDummy || isLegacyMockId || isMockName;
+  };
+
   // 3. Extract unique regions for filter dropdown
   const availableRegions = useMemo(() => {
     const set = new Set<string>();
     users.forEach(u => {
+      if (isInvalidDirectional(u)) return;
       if (u.region && u.region !== 'Organization-wide') {
         set.add(u.region);
       }
@@ -135,6 +149,7 @@ export default function UserManagement({
   // 4. Filtered User List
   const filteredUsers = useMemo(() => {
     return users.filter(u => {
+      if (isInvalidDirectional(u)) return false;
       if (specialFilter === 'unassigned') {
         if (u.role !== 'field_officer' || (u.supervisorId && u.woredaId)) return false;
       }
@@ -163,40 +178,60 @@ export default function UserManagement({
   const validateNewUser = () => {
     const errs: Record<string, string> = {};
 
-    if (!newUser.firstName.trim()) errs.firstName = 'First name is required';
-    else if (/[0-9]/.test(newUser.firstName)) errs.firstName = 'First name cannot contain numbers';
+    if (!newUser.firstName.trim()) errs.firstName = userT('First name is required');
+    else if (/[0-9]/.test(newUser.firstName)) errs.firstName = userT('First name cannot contain numbers');
 
     if (newUser.middleName && /[0-9]/.test(newUser.middleName)) {
-      errs.middleName = 'Middle name cannot contain numbers';
+      errs.middleName = userT('Middle name cannot contain numbers');
     }
 
     if (newUser.lastName && /[0-9]/.test(newUser.lastName)) {
-      errs.lastName = 'Last name cannot contain numbers';
+      errs.lastName = userT('Last name cannot contain numbers');
     }
 
     // Require at least one secondary name (Father or Grandfather)
     if (!newUser.middleName?.trim() && !newUser.lastName?.trim()) {
-      errs.middleName = 'Father name or last name is required';
+      errs.middleName = userT('Father name or last name is required');
     }
 
     if (!newUser.email.trim()) {
-      errs.email = 'Email address is required';
+      errs.email = userT('Email address is required');
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newUser.email)) {
-      errs.email = 'Invalid email address format';
+      errs.email = userT('Invalid email address format');
     }
 
     if (newUser.phone && newUser.phone.trim()) {
       const phoneRes = validateEthiopianPhone(newUser.phone.trim(), false);
       if (phoneRes && !phoneRes.isValid) {
-        errs.phone = phoneRes.message || 'Invalid Ethiopian phone format';
+        errs.phone = userT('Invalid Ethiopian phone format');
       }
     }
 
     // Role-specific location rules
     if (newUser.role === 'supervisor') {
-      if (!newUser.regionId) errs.regionId = 'Region is required for Supervisors';
+      if (!newUser.regionId) errs.regionId = userT('Region is required for Supervisors');
+      if (!newUser.zoneId) errs.zoneId = userT('Zone is required for Supervisors');
     } else if (newUser.role === 'field_officer') {
-      if (!newUser.regionId) errs.regionId = 'Region is required for Field Officers';
+      if (!newUser.regionId) errs.regionId = userT('Region is required for Field Officers');
+      if (!newUser.zoneId) errs.zoneId = userT('Zone is required for Field Officers');
+      if (!newUser.woredaId) errs.woredaId = userT('Woreda is required for Field Officers');
+
+      // Strict validation: A Field Officer can only be registered, assigned, or transferred to a Woreda
+      // if that area has at least one active Supervisor responsible for that Zone.
+      if (newUser.zoneId) {
+        const zoneSupervisors = users.filter(
+          (u) =>
+            u &&
+            (u.role === 'supervisor' || u.role === 'SUPERVISOR') &&
+            (u.status === 'active' || u.isActive !== false) &&
+            (u.zoneId === newUser.zoneId || u.zone?.id === newUser.zoneId)
+        );
+        if (zoneSupervisors.length === 0) {
+          errs.zoneId = userT(
+            'A Field Officer can only be registered to a Woreda if that area has at least one active Supervisor responsible for that Zone.'
+          );
+        }
+      }
     }
 
     setFormErrors(errs);
@@ -354,7 +389,23 @@ export default function UserManagement({
     const actionName = newStatus === 'active' ? 'activate' : 'deactivate';
     const displayName = user.fullName || user.name || 'User';
 
-    if (!window.confirm(userT(`Are you sure you want to ${actionName} ${displayName}'s account?`))) {
+    // Validation: prevent deactivating a supervisor with assigned field officers
+    if (user.role === 'supervisor' && newStatus === 'inactive') {
+      const superviseesCount = (users || []).filter(
+        (u) => u.supervisorId === user.id && (u.role?.toLowerCase() === 'field_officer' || u.role === 'FIELD_OFFICER')
+      ).length;
+      if (superviseesCount > 0) {
+        toast.error(
+          userT('Reassignment Required: This Supervisor currently oversees active Field Officers. Please reassign all Field Officers to other active Supervisors before deactivating this account.'),
+          { duration: 6000 }
+        );
+        setSelectedUserRole(user);
+        return;
+      }
+    }
+
+    const actionLabel = actionName === 'activate' ? userT('Activate Account') : userT('Deactivate Account');
+    if (!window.confirm(`${userT('Are you sure you want to')} ${actionLabel} (${displayName})?`)) {
       return;
     }
 
@@ -416,17 +467,23 @@ export default function UserManagement({
         });
       } catch (_e) {}
 
-      toast.success(userT(`User ${actionName}d successfully`));
+      toast.success(
+        actionName === 'activate'
+          ? userT('User account activated successfully')
+          : userT('User account deactivated successfully')
+      );
       fetchStats();
     } catch (err: any) {
       console.error('Status toggle error:', err);
-      toast.error(userT('Failed to change status:') + ' ' + (err.message ? userT(err.message) : userT('Unknown error')));
+      toast.error(`${userT('Failed to change status:')} ${err.message ? userT(err.message) : userT('Unknown error')}`);
     }
   };
 
   // 8. Handle Password Reset
   const handleResetPassword = async (user) => {
-    if (!window.confirm(userT(`Reset password for ${user.name}? A new temporary password will be generated and required to change on next login.`))) {
+    const displayName = user.fullName || user.name || 'User';
+    const confirmResetPrompt = `${userT('Reset Password')} - ${displayName}?\n${userT('A new temporary password will be generated and required to change on next login.')}`;
+    if (!window.confirm(confirmResetPrompt)) {
       return;
     }
 
@@ -463,7 +520,7 @@ export default function UserManagement({
       try {
         await ActivityLogger.log(
           'USER_PASSWORD_RESET',
-          `Generated temporary password for ${user.name || user.fullName} (${user.email})`,
+          `Generated temporary password for ${displayName} (${user.email})`,
           {
             relatedRecordId: user.id,
             metadata: { targetUserId: user.id, email: user.email },
@@ -472,20 +529,36 @@ export default function UserManagement({
       } catch (_e) {}
 
       setTempPasswordModalData({
-        userName: user.name || user.fullName,
+        userName: displayName,
         userEmail: user.email,
         tempPassword: tempPassword,
       });
-    } catch (err) {
+    } catch (err: any) {
       console.error('Reset error:', err);
-      toast.error(userT('Failed to reset password:') + ' ' + (err.message ? userT(err.message) : userT('Unknown error')));
+      toast.error(`${userT('Failed to reset password:')} ${err.message ? userT(err.message) : userT('Unknown error')}`);
     }
   };
 
-  // 9. Callback when user is updated in Edit or Reassign modals
-  const handleUserUpdated = (updatedUser) => {
+  // 9. Callback when user is updated in Edit, Reassign, or Role modals
+  const handleUserUpdated = (
+    updatedUser: any,
+    transferredOfficerIds: string[] = [],
+    newSupervisorId: string | null = null,
+    officerTransferMap: Record<string, string> = {}
+  ) => {
     if (setUsers) {
-      setUsers(prev => prev.map(u => u.id === updatedUser.id ? updatedUser : u));
+      setUsers((prev: any[]) =>
+        prev.map((u) => {
+          if (u.id === updatedUser.id) return updatedUser;
+          if (officerTransferMap && officerTransferMap[u.id]) {
+            return { ...u, supervisorId: officerTransferMap[u.id] };
+          }
+          if (transferredOfficerIds && transferredOfficerIds.includes(u.id) && newSupervisorId) {
+            return { ...u, supervisorId: newSupervisorId };
+          }
+          return u;
+        })
+      );
     }
     if (selectedUserDetails && selectedUserDetails.id === updatedUser.id) {
       setSelectedUserDetails(updatedUser);
@@ -508,6 +581,7 @@ export default function UserManagement({
         </div>
 
         <div className="flex items-center gap-2">
+          <LanguageSelector />
           <Button
             variant="primary"
             onClick={() => {
@@ -814,15 +888,17 @@ export default function UserManagement({
                           </span>
                         </td>
 
-                        {/* 8. Actions (Detail only) */}
+                        {/* 8. Actions */}
                         <td className="py-3 pr-4 sm:pr-6 pl-3 text-right whitespace-nowrap">
-                          <button
-                            type="button"
-                            onClick={() => setSelectedUserDetails(u)}
-                            className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white transition-all cursor-pointer shadow-xs active:scale-95"
-                          >
-                            {userT('Detail')}
-                          </button>
+                          <div className="inline-flex items-center gap-1.5 justify-end">
+                            <button
+                              type="button"
+                              onClick={() => setSelectedUserDetails(u)}
+                              className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white transition-all cursor-pointer shadow-xs active:scale-95"
+                            >
+                              {userT('Detail')}
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );
@@ -989,17 +1065,27 @@ export default function UserManagement({
         user={selectedUserDetails}
         isOpen={Boolean(selectedUserDetails)}
         onClose={() => setSelectedUserDetails(null)}
+        allUsers={users}
         onEdit={(u) => {
+          const target = u || selectedUserDetails;
           setSelectedUserDetails(null);
-          setSelectedUserEdit(u);
-        }}
-        onReassign={(u) => {
-          setSelectedUserDetails(null);
-          setSelectedUserReassign(u);
+          setTimeout(() => {
+            setSelectedUserEdit(target);
+          }, 50);
         }}
         onChangeRole={(u) => {
+          const target = u || selectedUserDetails;
           setSelectedUserDetails(null);
-          setSelectedUserRole(u);
+          setTimeout(() => {
+            setSelectedUserRole(target);
+          }, 50);
+        }}
+        onReassign={(u) => {
+          const target = u || selectedUserDetails;
+          setSelectedUserDetails(null);
+          setTimeout(() => {
+            setSelectedUserReassign(target);
+          }, 50);
         }}
         onToggleStatus={(u) => {
           handleToggleStatus(u);
@@ -1024,6 +1110,7 @@ export default function UserManagement({
         isOpen={Boolean(selectedUserReassign)}
         onClose={() => setSelectedUserReassign(null)}
         onUserUpdated={handleUserUpdated}
+        allUsers={users}
       />
 
       {/* 9. User Role Modal */}
@@ -1032,6 +1119,7 @@ export default function UserManagement({
         isOpen={Boolean(selectedUserRole)}
         onClose={() => setSelectedUserRole(null)}
         onUserUpdated={handleUserUpdated}
+        allUsers={users}
       />
 
       {/* 10. Temporary Password Modal */}

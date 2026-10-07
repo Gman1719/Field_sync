@@ -47,17 +47,13 @@ export function normalizeUserId(id?: string | null): string {
     lower === 'abebe@fieldsync.com' ||
     lower === 'manager@fieldsync.com'
   ) {
-    return 'm1';
+    return 'u_mgr';
   }
   if (
     s === 'u_sup' ||
-    s === 'u_demo_sup' ||
-    s === 'SUP000' ||
-    s === 'SUP001' ||
-    lower === 'birhan@fieldsync.com' ||
     lower === 'supervisor@fieldsync.com'
   ) {
-    return 's1';
+    return 'u_sup';
   }
   return s;
 }
@@ -428,42 +424,34 @@ export async function seedInitialChatIfEmpty(): Promise<void> {
       }
     }
 
-    const m1s1Count = await offlineDb.chatMessages.where('conversationId').equals('m1__s1').count();
-    if (m1s1Count > 0) return;
+    const mgrSupCount = await offlineDb.chatMessages.where('conversationId').equals('u_mgr__u_sup').count();
+    if (mgrSupCount > 0) return;
   }
 
-  const manager = SAMPLE_USERS.find((u) => u.id === 'm1' || u.email === 'abebe@fieldsync.com') || {
-    id: 'm1',
-    name: 'አበበ በቀለ',
+  const manager = SAMPLE_USERS.find((u) => u.id === 'u_mgr' || u.role === 'manager') || {
+    id: 'u_mgr',
+    name: 'System Manager',
     role: 'manager' as const,
   };
 
-  const supervisorNorth = SAMPLE_USERS.find((u) => u.id === 's1' || u.email === 'birhan@fieldsync.com') || {
-    id: 's1',
-    name: 'ብርሃን ገብረእግዚአብሔር',
-    role: 'supervisor' as const,
-  };
-
-  const supervisorSouth = SAMPLE_USERS.find((u) => u.id === 's2') || {
-    id: 's2',
-    name: 'ሣህለ ሙሉጌታ',
+  const supervisor = SAMPLE_USERS.find((u) => u.id === 'u_sup' || u.role === 'supervisor') || {
+    id: 'u_sup',
+    name: 'alemu kebede ayele',
     role: 'supervisor' as const,
   };
 
   const now = Date.now();
-  const convIdNorth = getConversationId(manager.id, supervisorNorth.id);
-  const convIdSouth = getConversationId(manager.id, supervisorSouth.id);
+  const convId = getConversationId(manager.id, supervisor.id);
 
   const seedMessages: ChatMessage[] = [
-    // Thread with Supervisor North (s1)
     {
       id: 'seed_msg_1',
-      senderId: supervisorNorth.id,
-      senderName: supervisorNorth.name,
+      senderId: supervisor.id,
+      senderName: supervisor.name,
       senderRole: 'supervisor',
       receiverId: manager.id,
-      conversationId: convIdNorth,
-      text: 'Good morning Manager Abebe. We have deployed all 4 biometric intake kits to Bole Woreda 01. Citizen turnout is very strong today.',
+      conversationId: convId,
+      text: 'Good morning Manager. We have deployed biometric intake kits to Bole Woreda 01. Citizen turnout is strong today.',
       timestamp: new Date(now - 1000 * 60 * 120).toISOString(),
       isRead: false,
       status: 'delivered',
@@ -473,52 +461,25 @@ export async function seedInitialChatIfEmpty(): Promise<void> {
       senderId: manager.id,
       senderName: manager.name,
       senderRole: 'manager',
-      receiverId: supervisorNorth.id,
-      conversationId: convIdNorth,
-      text: 'Well done Birhan. Please ensure all field officers monitor tablet battery levels and submit their daily work reports before 6:00 PM.',
+      receiverId: supervisor.id,
+      conversationId: convId,
+      text: 'Well done Alemu. Please ensure all field officers monitor tablet battery levels and submit their daily work reports before 6:00 PM.',
       timestamp: new Date(now - 1000 * 60 * 90).toISOString(),
       isRead: false,
       status: 'delivered',
-      reactions: { '👍': [supervisorNorth.id] },
+      reactions: { '👍': [supervisor.id] },
     },
     {
       id: 'seed_msg_3',
-      senderId: supervisorNorth.id,
-      senderName: supervisorNorth.name,
+      senderId: supervisor.id,
+      senderName: supervisor.name,
       senderRole: 'supervisor',
       receiverId: manager.id,
-      conversationId: convIdNorth,
-      text: 'Understood. Road access to Kebele 04 field site is clear now after the morning rain. All officers are synchronized.',
+      conversationId: convId,
+      text: 'Understood. Road access to Bole Woreda 01 registration center is clear. All officers are synchronized.',
       timestamp: new Date(now - 1000 * 60 * 25).toISOString(),
       isRead: false,
       status: 'delivered',
-    },
-
-    // Thread with Supervisor South (s2)
-    {
-      id: 'seed_msg_4',
-      senderId: supervisorSouth.id,
-      senderName: supervisorSouth.name,
-      senderRole: 'supervisor',
-      receiverId: manager.id,
-      conversationId: convIdSouth,
-      text: 'Manager Abebe, Sidama Zone registration team has completed morning quota early. Requesting backup battery packs for afternoon intake.',
-      timestamp: new Date(now - 1000 * 60 * 180).toISOString(),
-      isRead: false,
-      status: 'delivered',
-    },
-    {
-      id: 'seed_msg_5',
-      senderId: manager.id,
-      senderName: manager.name,
-      senderRole: 'manager',
-      receiverId: supervisorSouth.id,
-      conversationId: convIdSouth,
-      text: 'Logistics dispatched 2 additional battery packs via regional dispatch courier. ETA 30 minutes.',
-      timestamp: new Date(now - 1000 * 60 * 140).toISOString(),
-      isRead: false,
-      status: 'delivered',
-      reactions: { '🎯': [supervisorSouth.id] },
     },
   ];
 
