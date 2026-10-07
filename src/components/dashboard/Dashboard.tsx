@@ -573,17 +573,63 @@ export default function Dashboard({
     ].filter(d => d.value > 0);
   }, [targetCitizens]);
 
-  // Team Leaderboard
+  // Team Leaderboard (Scoped to only officers supervised by this supervisor)
   const teamLeaderboard = useMemo(() => {
     const map: Record<string, { id: string; name: string; region: string; registrations: number; reports: number }> = {};
-    (effectiveUsers || []).filter(u => u.role === 'field_officer' || u.role === 'FIELD_OFFICER').forEach(u => {
-      map[u.id] = {
+
+    const supervisorId = user?.id || user?.employeeId;
+    const supervisorName = user?.fullName || user?.name || '';
+
+    const teamMemberIds = new Set(
+      (teamMembers || []).map((m: any) => m.id || m.employeeId).filter(Boolean)
+    );
+
+    // Pool all officers from effectiveUsers and teamMembers
+    const allOfficerCandidates: any[] = [];
+    const seenCandidateIds = new Set<string>();
+
+    (effectiveUsers || []).forEach((u: any) => {
+      const roleStr = (u.role || '').toUpperCase();
+      if ((roleStr === 'FIELD_OFFICER' || roleStr === 'OFFICER') && !seenCandidateIds.has(u.id)) {
+        seenCandidateIds.add(u.id);
+        allOfficerCandidates.push(u);
+      }
+    });
+
+    (teamMembers || []).forEach((tm: any) => {
+      if (tm.id && !seenCandidateIds.has(tm.id)) {
+        seenCandidateIds.add(tm.id);
+        allOfficerCandidates.push(tm);
+      }
+    });
+
+    // If supervisor, ONLY display officers supervised by this supervisor
+    const officers = allOfficerCandidates.filter((u: any) => {
+      if (!isSupervisor) return true;
+      const matchesSupervisorId =
+        u.supervisorId && (u.supervisorId === supervisorId || u.supervisorId === user?.id || u.supervisorId === user?.employeeId);
+      const matchesInTeamMembers =
+        teamMemberIds.has(u.id) || (u.employeeId && teamMemberIds.has(u.employeeId));
+      const matchesSupervisorName =
+        supervisorName && (u.supervisorName === supervisorName || u.supervisor === supervisorName);
+      const matchesSupervisorProp =
+        supervisorId && (u.supervisor === supervisorId);
+
+      return Boolean(matchesSupervisorId || matchesInTeamMembers || matchesSupervisorName || matchesSupervisorProp);
+    });
+
+    officers.forEach(u => {
+      const entry = {
         id: u.id,
         name: u.fullName || u.name || 'Field Officer',
-        region: u.woreda || u.region || 'Territory',
+        region: u.woreda || u.kebele || u.region || 'Territory',
         registrations: 0,
         reports: 0
       };
+      map[u.id] = entry;
+      if (u.employeeId && u.employeeId !== u.id) {
+        map[u.employeeId] = entry;
+      }
     });
 
     (effectiveCitizens || []).forEach(c => {
@@ -600,9 +646,9 @@ export default function Dashboard({
       }
     });
 
-    return Object.values(map)
-      .sort((a, b) => b.registrations - a.registrations);
-  }, [effectiveUsers, effectiveCitizens, effectiveReports]);
+    const uniqueEntries = Array.from(new Set(Object.values(map)));
+    return uniqueEntries.sort((a, b) => b.registrations - a.registrations);
+  }, [effectiveUsers, effectiveCitizens, effectiveReports, isSupervisor, user, teamMembers]);
 
   // Chart: Supervisor Zonal Registration Performance
   const supervisorZonePerformanceData = useMemo(() => {
@@ -887,71 +933,90 @@ export default function Dashboard({
          ============================================================ */}
       {isSupervisor && (
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-3.5">
-          <StatCard
-            title={userT('Registered Citizens')}
-            value={totalCitizens}
-            subtitle={
-              language === 'am'
-                ? `ዛሬ ${todayCitizens} ተመዝግቧል`
-                : language === 'om'
-                ? `Har'a ${todayCitizens} galmaa'eera`
-                : language === 'ti'
-                ? `ሎሚ ${todayCitizens} ተመዝጊቡ`
-                : `${todayCitizens} registered today`
-            }
-            icon={Users}
-            iconColor="text-blue-700"
-            iconBg="bg-blue-50"
-            badge={
-              language === 'am'
-                ? `${syncedCitizens} ተመሳስሏል`
-                : language === 'om'
-                ? `${syncedCitizens} Qindaa'eera`
-                : language === 'ti'
-                ? `${syncedCitizens} ተመሳሲሉ`
-                : `${syncedCitizens} Synced`
-            }
-            badgeColor="bg-emerald-50 text-emerald-700 border-emerald-200"
-          />
-
-          <StatCard
-            title={userT('Daily Report Compliance')}
-            value={`${complianceRate}%`}
-            subtitle={
-              language === 'am'
-                ? `ዛሬ ከ ${totalStaff} ውስጥ ${reportsToday} ቀርቧል`
-                : language === 'om'
-                ? `Har'a ${totalStaff} keessaa ${reportsToday} dhiyaateera`
-                : language === 'ti'
-                ? `ሎሚ ካብ ${totalStaff} ውሽጢ ${reportsToday} ቀሪቡ`
-                : `${reportsToday} of ${totalStaff} submitted today`
-            }
-            icon={FileText}
-            iconColor="text-indigo-700"
-            iconBg="bg-indigo-50"
-            badge={complianceRate === 100 ? userT('100% Complete') : userT('In Progress')}
-            badgeColor={complianceRate === 100 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'}
-          />
-
           <div
-            onClick={() => setActiveTab && setActiveTab('sync_center')}
-            className="cursor-pointer"
+            onClick={() => setActiveTab && setActiveTab('citizens')}
+            className="cursor-pointer transition-transform active:scale-[0.99] hover:opacity-95"
+            title={userT('View Registered Citizens')}
           >
             <StatCard
-              title={userT('Sync Status')}
-              value={`${pendingCitizens === 0 ? '100%' : Math.round((syncedCitizens / (totalCitizens || 1)) * 100) + '%'}`}
+              title={userT('Registered Citizens')}
+              value={totalCitizens}
               subtitle={
                 language === 'am'
-                  ? `${pendingCitizens} ማመሳሰል በመጠባበቅ ላይ`
+                  ? `ዛሬ ${todayCitizens} ተመዝግቧል`
                   : language === 'om'
-                  ? `${pendingCitizens} walqabsiisa eegaa jira`
+                  ? `Har'a ${todayCitizens} galmaa'eera`
                   : language === 'ti'
-                  ? `${pendingCitizens} ምምስሳል ይጽበ ኣሎ`
-                  : `${pendingCitizens} pending sync`
+                  ? `ሎሚ ${todayCitizens} ተመዝጊቡ`
+                  : `${todayCitizens} registered today`
+              }
+              icon={Users}
+              iconColor="text-blue-700"
+              iconBg="bg-blue-50"
+              badge={
+                language === 'am'
+                  ? `${syncedCitizens} ተመሳስሏል`
+                  : language === 'om'
+                  ? `${syncedCitizens} Qindaa'eera`
+                  : language === 'ti'
+                  ? `${syncedCitizens} ተመሳሲሉ`
+                  : `${syncedCitizens} Synced`
+              }
+              badgeColor="bg-emerald-50 text-emerald-700 border-emerald-200"
+            />
+          </div>
+
+          <div
+            onClick={() => setActiveTab && setActiveTab('reports')}
+            className="cursor-pointer transition-transform active:scale-[0.99] hover:opacity-95"
+            title={userT('View Officer Daily Reports')}
+          >
+            <StatCard
+              title={userT('Daily Work Report')}
+              value={`${complianceRate}%`}
+              subtitle={
+                language === 'am'
+                  ? `ዛሬ ከ ${totalStaff} ውስጥ ${reportsToday} ቀርቧል`
+                  : language === 'om'
+                  ? `Har'a ${totalStaff} keessaa ${reportsToday} dhiyaateera`
+                  : language === 'ti'
+                  ? `ሎሚ ካብ ${totalStaff} ውሽጢ ${reportsToday} ቀሪቡ`
+                  : `${reportsToday} of ${totalStaff} submitted today`
+              }
+              icon={FileText}
+              iconColor="text-indigo-700"
+              iconBg="bg-indigo-50"
+              badge={complianceRate === 100 ? userT('100% Complete') : userT('In Progress')}
+              badgeColor={complianceRate === 100 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'}
+            />
+          </div>
+
+          <div className="select-none">
+            <StatCard
+              title={userT('Sync Status')}
+              value={`${totalCitizens > 0 ? Math.round((syncedCitizens / totalCitizens) * 100) : 100}%`}
+              subtitle={
+                pendingCitizens > 0
+                  ? (language === 'am'
+                      ? `${pendingCitizens} ማመሳሰል በመጠባበቅ ላይ`
+                      : language === 'om'
+                      ? `${pendingCitizens} walqabsiisa eegaa jira`
+                      : language === 'ti'
+                      ? `${pendingCitizens} ምምስሳል ይጽበ ኣሎ`
+                      : `${pendingCitizens} pending sync`)
+                  : (language === 'am'
+                      ? `ሁሉም መዝገቦች ተመሳስለዋል`
+                      : language === 'om'
+                      ? `Galmeewwan hundi qindaa'aniiru`
+                      : language === 'ti'
+                      ? `ኩሎም መዛግብቲ ተመሳሲሎም`
+                      : userT('All records synced'))
               }
               icon={RefreshCw}
               iconColor="text-blue-700"
               iconBg="bg-blue-50"
+              badge={pendingCitizens === 0 ? userT('Synced') : userT('Pending')}
+              badgeColor={pendingCitizens === 0 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'}
             />
           </div>
         </div>

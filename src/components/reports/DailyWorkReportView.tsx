@@ -73,7 +73,7 @@ export default function DailyWorkReportView({
   const [teamReports, setTeamReports] = useState([]);
   const [selectedOfficerId, setSelectedOfficerId] = useState('');
   const [officersList, setOfficersList] = useState<{ id: string; name: string }[]>([]);
-  const [selectedDate, setSelectedDate] = useState(todayStr);
+  const [selectedDate, setSelectedDate] = useState('');
   const [inspectModalReport, setInspectModalReport] = useState(null);
 
   // Format seconds helper
@@ -608,28 +608,6 @@ export default function DailyWorkReportView({
 
         </div>
 
-        {/* Aggregate KPI Stat Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <StatCard
-            title={userT('Reports Filed')}
-            value={supervisorStats.totalReports}
-            icon={FileText}
-            color="blue"
-          />
-          <StatCard
-            title={userT('Citizens Registered')}
-            value={supervisorStats.totalCitizens}
-            icon={Users}
-            color="emerald"
-          />
-          <StatCard
-            title={userT('Total Field Screen Time')}
-            value={supervisorStats.totalScreenTimeFormatted}
-            icon={Smartphone}
-            color="indigo"
-          />
-        </div>
-
         {/* Filter Controls */}
         <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 text-xs">
           <div className="flex flex-wrap items-center gap-3">
@@ -653,6 +631,18 @@ export default function DailyWorkReportView({
               }`}
             >
               {userT('All Dates')}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSelectedDate(todayStr)}
+              className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition-all cursor-pointer ${
+                selectedDate === todayStr
+                  ? 'bg-[#2563EB] text-white border-[#2563EB] shadow-xs'
+                  : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-100 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 dark:hover:border-blue-400 dark:hover:text-white'
+              }`}
+            >
+              {userT('Today')}
             </button>
           </div>
 
@@ -701,14 +691,20 @@ export default function DailyWorkReportView({
                       <th className="py-3.5 px-4">{userT('Location')}</th>
                       <th className="py-3.5 px-4">{userT('Citizens')}</th>
                       <th className="py-3.5 px-4">{userT('Screen Time')}</th>
-                      <th className="py-3.5 px-4">{userT('Summary')}</th>
-                      <th className="py-3.5 px-4">{userT('Status')}</th>
-                      <th className="py-3.5 px-4 text-right">{userT('Action')}</th>
+                      <th className="py-3.5 px-4 text-center">
+                        <span className="block leading-tight text-slate-500 dark:text-slate-400 font-bold tracking-wider text-[10px] uppercase">
+                          {userT('Sync')}<br />{userT('Status')}
+                        </span>
+                      </th>
+                      <th className="py-3.5 px-4 text-center">
+                        <span className="block leading-tight text-slate-500 dark:text-slate-400 font-bold tracking-wider text-[10px] uppercase">
+                          {userT('Action')}
+                        </span>
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                     {filteredTeamReports.map((report) => {
-                      const details = getStructuredDetails(report);
                       return (
                         <tr
                           key={report.id}
@@ -758,43 +754,28 @@ export default function DailyWorkReportView({
                             {report.screenTimeFormatted || formatTime(report.screenTimeSeconds)}
                           </td>
 
-                          {/* Summary Preview */}
-                          <td className="py-3.5 px-4 max-w-xs">
-                            <p className="text-xs text-slate-600 dark:text-slate-400 truncate" title={details.summary}>
-                              {details.summary}
-                            </p>
-                          </td>
-
                           {/* Sync Status */}
-                          <td className="py-3.5 px-4 whitespace-nowrap">
-                            <span
-                              className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${
-                                report.syncStatus === 'SYNCED'
-                                  ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/40'
-                                  : 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-900/40'
-                              }`}
-                            >
-                              <span
-                                className={`w-1.5 h-1.5 rounded-full ${
-                                  report.syncStatus === 'SYNCED' ? 'bg-emerald-500' : 'bg-amber-500'
-                                }`}
-                              />
-                              {report.syncStatus === 'SYNCED' ? userT('Synced') : userT('Pending Sync')}
-                            </span>
+                          <td className="py-3.5 px-4 text-center whitespace-nowrap">
+                            {report.syncStatus === 'SYNCED' ? (
+                              <span className="inline-flex items-center justify-center px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#ecfdf5] dark:bg-emerald-950/60 text-[#065f46] dark:text-emerald-300 border border-[#a7f3d0] dark:border-emerald-700 shadow-2xs">
+                                {userT('Synced')}
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center justify-center px-3.5 py-1.5 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700 shadow-2xs">
+                                {userT('Pending')}
+                              </span>
+                            )}
                           </td>
 
                           {/* Action */}
-                          <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                            <Button
+                          <td className="py-3.5 px-4 text-center whitespace-nowrap">
+                            <button
                               type="button"
-                              variant="outline"
-                              size="sm"
                               onClick={() => setInspectModalReport(report)}
-                              className="text-xs font-semibold inline-flex items-center gap-1.5 hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                              className="inline-flex items-center justify-center px-4 py-2 rounded-xl text-xs font-bold bg-[#2563EB] hover:bg-[#1d4ed8] text-white shadow-xs transition-colors cursor-pointer"
                             >
-                              <Eye className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                              <span>{userT('Detail Report')}</span>
-                            </Button>
+                              {userT('Details')}
+                            </button>
                           </td>
                         </tr>
                       );

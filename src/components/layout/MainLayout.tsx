@@ -30,7 +30,7 @@ import DuplicateReviewConsole from '../duplicates/DuplicateReviewConsole';
 import AuditLog from '../audit/AuditLog';
 import AllReports from '../reports/AllReports';
 import AlertManagement from '../alerts/AlertManagement';
-import VerificationPage from '../verification/VerificationPage';
+import OfficerVerificationHistory from '../verification/OfficerVerificationHistory';
 import SupervisorVerifications from '../verification/SupervisorVerifications';
 import MyProfile from '../profile/MyProfile';
 import NotificationCenter from '../notifications/NotificationCenter';
@@ -222,6 +222,17 @@ export default function MainLayout({
     window.addEventListener('storage', handleStorage);
     return () => window.removeEventListener('storage', handleStorage);
   }, [user?.id, checkIncomingAlerts]);
+
+  // Handle global tab navigation events (e.g. from buttons or alerts)
+  useEffect(() => {
+    const handleTabChange = (e: any) => {
+      if (e.detail?.tab) {
+        setActiveTab(e.detail.tab);
+      }
+    };
+    window.addEventListener('fieldsync-tab-change', handleTabChange);
+    return () => window.removeEventListener('fieldsync-tab-change', handleTabChange);
+  }, []);
 
   const handleAcknowledgeAlert = async (alertId: string) => {
     try {
@@ -459,8 +470,8 @@ export default function MainLayout({
             <ActivityTimeline user={user} />
           )}
 
-          {/* Sync Center - Supervisors, Managers, and Admins only */}
-          {activeTab === 'sync_center' && !isOfficer && (
+          {/* Sync Center - Manager only */}
+          {activeTab === 'sync_center' && isManager && (
             <SyncCenterView user={user} />
           )}
 
@@ -590,18 +601,12 @@ export default function MainLayout({
             />
           )}
 
-          {/* Verification - Supervisor Monitor or Officer Trust Score (Removed from Manager) */}
+          {/* Verification - Supervisor Monitor or Officer Verification History */}
           {activeTab === 'verification' && !isManager && (
             isSupervisor ? (
               <SupervisorVerifications user={user} users={users} />
             ) : (
-              <VerificationPage
-                users={users}
-                liveStatus={liveStatus}
-                reports={reports}
-                citizens={citizens}
-                attendance={attendance}
-              />
+              <OfficerVerificationHistory user={user} />
             )
           )}
 

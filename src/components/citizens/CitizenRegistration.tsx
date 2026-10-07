@@ -288,8 +288,8 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
     e.preventDefault();
 
     // Basic required field validations
-    if (!firstName.trim() || !lastName.trim()) {
-      toast.error('First name and last name are required');
+    if (!firstName.trim() || !middleName.trim() || !lastName.trim()) {
+      toast.error('First name, middle name, and last name are required');
       return;
     }
     if (!dateOfBirth) {
@@ -642,10 +642,11 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
                 required
               />
               <Input
-                label={userT('Middle Name (Optional)')}
+                label={userT('Middle Name')}
                 value={middleName}
                 onChange={(e) => setMiddleName(e.target.value)}
                 placeholder="e.g. Kebede"
+                required
               />
               <Input
                 label={userT('Last Name')}
@@ -656,13 +657,21 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
               />
             </div>
 
-            {/* Date of Birth, Age, Gender, Marital Status */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-start">
+            {/* Date of Birth, Gender, Marital Status */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start">
               {/* Date of Birth */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                  {userT('Date of Birth')} <span className="text-rose-500">*</span>
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                    {userT('Date of Birth')} <span className="text-rose-500">*</span>
+                  </label>
+                  {calculatedAge !== null && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-bold bg-blue-50 dark:bg-blue-950/70 text-[#2563EB] dark:text-blue-400 border border-blue-200 dark:border-blue-800 animate-in fade-in duration-150">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                      {calculatedAge} {calculatedAge === 1 ? userT('year') : userT('years')}
+                    </span>
+                  )}
+                </div>
                 <div className="relative">
                   <input
                     type="date"
@@ -672,23 +681,6 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
                     required
                     className="w-full h-11 px-3.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-[#F8FAFC] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-blue-500 transition-all cursor-pointer font-medium"
                   />
-                </div>
-              </div>
-
-              {/* Age (Split into separate column) */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                  {userT('Age')}
-                </label>
-                <div className="h-11 px-3.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-900 text-slate-900 dark:text-[#F8FAFC] text-sm flex items-center font-bold">
-                  {calculatedAge !== null ? (
-                    <span className="inline-flex items-center gap-1.5 text-[#2563EB] dark:text-blue-400">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                      {calculatedAge} {calculatedAge === 1 ? userT('year') : userT('years')}
-                    </span>
-                  ) : (
-                    <span className="text-slate-400 font-normal">—</span>
-                  )}
                 </div>
               </div>
 

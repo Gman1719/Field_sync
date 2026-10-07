@@ -363,8 +363,16 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
                   <th className="py-3.5 px-5">{userT('Report Date')}</th>
                   <th className="py-3.5 px-5 text-center">{userT('Citizens')}</th>
                   <th className="py-3.5 px-5 text-center">{userT('Screen Time')}</th>
-                  <th className="py-3.5 px-5 text-center">{userT('Sync Status')}</th>
-                  <th className="py-3.5 px-5 text-right">{userT('Action')}</th>
+                  <th className="py-3.5 px-5 text-center">
+                    <span className="block leading-tight text-slate-500 dark:text-slate-400 font-bold tracking-wider text-[10px] uppercase">
+                      {userT('Sync')}<br />{userT('Status')}
+                    </span>
+                  </th>
+                  <th className="py-3.5 px-5 text-center">
+                    <span className="block leading-tight text-slate-500 dark:text-slate-400 font-bold tracking-wider text-[10px] uppercase">
+                      {userT('Action')}
+                    </span>
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E2E8F0] dark:divide-[#334155] text-xs">
@@ -418,30 +426,25 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
                       {/* Sync Status */}
                       <td className="py-3.5 px-5 text-center whitespace-nowrap">
                         {isSynced ? (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                          <span className="inline-flex items-center justify-center px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#ecfdf5] dark:bg-emerald-950/60 text-[#065f46] dark:text-emerald-300 border border-[#a7f3d0] dark:border-emerald-700 shadow-2xs">
                             {userT('Synced')}
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
-                            <Clock className="w-3.5 h-3.5 text-amber-500" />
+                          <span className="inline-flex items-center justify-center px-3.5 py-1.5 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700 shadow-2xs">
                             {userT('Pending')}
                           </span>
                         )}
                       </td>
 
                       {/* Action */}
-                      <td className="py-3.5 px-5 text-right whitespace-nowrap">
-                        <Button
+                      <td className="py-3.5 px-5 text-center whitespace-nowrap">
+                        <button
                           type="button"
-                          variant="outline"
-                          size="sm"
                           onClick={() => setInspectReport(report)}
-                          className="h-8 px-3 text-xs rounded-lg border-[#E2E8F0] dark:border-slate-700 text-[#2563EB] dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 cursor-pointer font-bold"
+                          className="inline-flex items-center justify-center px-4 py-2 rounded-xl text-xs font-bold bg-[#2563EB] hover:bg-[#1d4ed8] text-white shadow-xs transition-colors cursor-pointer"
                         >
-                          <Eye className="w-3.5 h-3.5 mr-1" />
-                          {userT('View Details')}
-                        </Button>
+                          {userT('Details')}
+                        </button>
                       </td>
                     </tr>
                   );

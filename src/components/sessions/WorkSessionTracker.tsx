@@ -50,9 +50,7 @@ export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }:
   } = screenTime;
 
   const [isStarting, setIsStarting] = useState(false);
-  const [historyTab, setHistoryTab] = useState<'screentime' | 'verifications'>('screentime');
   const [pastScreenTimes, setPastScreenTimes] = useState<DailyScreenTime[]>([]);
-  const [pastVerifications, setPastVerifications] = useState<WorkVerification[]>([]);
   const [lastVerification, setLastVerification] = useState<WorkVerification | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -88,11 +86,12 @@ export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }:
         const vList = await offlineDb.workVerifications
           .where('officerId')
           .equals(officerId)
-          .reverse()
           .toArray();
-        setPastVerifications(vList);
         if (vList.length > 0) {
+          vList.sort((a, b) => new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime());
           setLastVerification(vList[0]);
+        } else {
+          setLastVerification(null);
         }
       }
     } catch (e) {
@@ -103,6 +102,18 @@ export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }:
   useEffect(() => {
     loadHistory();
   }, [loadHistory, trackingStatus]);
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      loadHistory();
+    };
+    window.addEventListener('verification-update', handleUpdate);
+    window.addEventListener('verification-missed', handleUpdate);
+    return () => {
+      window.removeEventListener('verification-update', handleUpdate);
+      window.removeEventListener('verification-missed', handleUpdate);
+    };
+  }, [loadHistory]);
 
   const handleStartSession = async () => {
     setIsStarting(true);
@@ -351,14 +362,26 @@ export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }:
               )}
             </div>
 
-            <div className="text-[11px] text-slate-400 dark:text-slate-500 border-t border-slate-100 dark:border-[#202431] pt-3">
-              {userT('Official random checks occur during work hours')}
+            <div className="text-[11px] text-slate-400 dark:text-slate-500 border-t border-slate-100 dark:border-[#202431] pt-3 flex items-center justify-between">
+              <span>{userT('Official random checks occur during work hours')}</span>
+              <button
+                type="button"
+                onClick={() => {
+                  try {
+                    localStorage.setItem('fieldsync_active_tab', 'verification');
+                    window.dispatchEvent(new CustomEvent('fieldsync-tab-change', { detail: { tab: 'verification' } }));
+                  } catch (_) {}
+                }}
+                className="text-blue-600 dark:text-[#3B82F6] hover:underline font-semibold cursor-pointer shrink-0 ml-2"
+              >
+                {userT('View Full History')} &rarr;
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Historical Telemetry Drawer */}
+      {/* Historical Screen Time Drawer */}
       <div className="rounded-2xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-xs overflow-hidden">
         <div
           className="p-5 flex items-center justify-between cursor-pointer select-none border-b border-slate-100 dark:border-slate-700"
@@ -367,7 +390,7 @@ export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }:
           <div className="flex items-center gap-2">
             <History className="w-5 h-5 text-slate-400" />
             <h3 className="font-semibold text-sm sm:text-base text-slate-900 dark:text-white">
-              {userT('My Screen Time & Verification History')}
+              {userT('My Screen Time History')} ({pastScreenTimes.length})
             </h3>
           </div>
           <button className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
@@ -377,172 +400,73 @@ export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }:
 
         {showHistory && (
           <div className="p-5 space-y-4">
-            {/* Tabs */}
-            <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-700 pb-3">
-              <button
-                type="button"
-                onClick={() => setHistoryTab('screentime')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${
-                  historyTab === 'screentime'
-                    ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-[#3B82F6]'
-                    : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
-                }`}
-              >
-                {userT('Screen Time Records')} ({pastScreenTimes.length})
-              </button>
-              <button
-                type="button"
-                onClick={() => setHistoryTab('verifications')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${
-                  historyTab === 'verifications'
-                    ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-[#3B82F6]'
-                    : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
-                }`}
-              >
-                {userT('Verification Events')} ({pastVerifications.length})
-              </button>
-            </div>
+            <div className="overflow-x-auto">
+              {pastScreenTimes.length === 0 ? (
+                <div className="py-8 text-center text-xs text-slate-400 dark:text-slate-500">
+                  {userT('No historical screen-time records recorded yet.')}
+                </div>
+              ) : (
+                <table className="w-full text-xs text-left">
+                  <thead>
+                    <tr className="border-b border-slate-100 dark:border-slate-700 text-slate-400 dark:text-slate-500">
+                      <th className="py-2 px-3 font-semibold">{userT('Date')}</th>
+                      <th className="py-2 px-3 font-semibold">{userT('Active Screen Time')}</th>
+                      <th className="py-2 px-3 font-semibold">{userT('Status')}</th>
+                      <th className="py-2 px-3 font-semibold">{userT('Finalized')}</th>
+                      <th className="py-2 px-3 font-semibold">{userT('Sync')}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                    {pastScreenTimes.map((st) => {
+                      const h = Math.floor(st.totalEligibleSeconds / 3600);
+                      const m = Math.floor((st.totalEligibleSeconds % 3600) / 60);
+                      const formatted = h > 0 ? `${h}h ${m}m` : `${m}m`;
 
-            {/* Tab 1: Screen Time Records */}
-            {historyTab === 'screentime' && (
-              <div className="overflow-x-auto">
-                {pastScreenTimes.length === 0 ? (
-                  <div className="py-8 text-center text-xs text-slate-400 dark:text-slate-500">
-                    {userT('No historical screen-time records recorded yet.')}
-                  </div>
-                ) : (
-                  <table className="w-full text-xs text-left">
-                    <thead>
-                      <tr className="border-b border-slate-100 dark:border-slate-700 text-slate-400 dark:text-slate-500">
-                        <th className="py-2 px-3 font-semibold">{userT('Date')}</th>
-                        <th className="py-2 px-3 font-semibold">{userT('Active Screen Time')}</th>
-                        <th className="py-2 px-3 font-semibold">{userT('Status')}</th>
-                        <th className="py-2 px-3 font-semibold">{userT('Finalized')}</th>
-                        <th className="py-2 px-3 font-semibold">{userT('Sync')}</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                      {pastScreenTimes.map((st) => {
-                        const h = Math.floor(st.totalEligibleSeconds / 3600);
-                        const m = Math.floor((st.totalEligibleSeconds % 3600) / 60);
-                        const formatted = h > 0 ? `${h}h ${m}m` : `${m}m`;
-
-                        return (
-                          <tr key={st.id} className="hover:bg-slate-50 dark:hover:bg-slate-800">
-                            <td className="py-2.5 px-3 font-medium text-slate-900 dark:text-white">
-                              {st.date}
-                            </td>
-                            <td className="py-2.5 px-3 font-mono font-semibold text-blue-600 dark:text-blue-400">
-                              {formatted}
-                            </td>
-                            <td className="py-2.5 px-3">
-                              <span
-                                className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-                                  st.status === 'FINALIZED'
-                                    ? 'bg-purple-50 text-purple-600 dark:bg-purple-950/60 dark:text-purple-400'
-                                    : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400'
-                                }`}
-                              >
-                                {userT(st.status)}
-                              </span>
-                            </td>
-                            <td className="py-2.5 px-3 text-slate-500 dark:text-slate-400">
-                              {st.finalizedAt
-                                ? new Date(st.finalizedAt).toLocaleTimeString([], {
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                  })
-                                : '--'}
-                            </td>
-                            <td className="py-2.5 px-3">
-                              <span
-                                className={`text-[10px] font-medium ${
-                                  st.syncStatus === 'SYNCED'
-                                    ? 'text-emerald-600 dark:text-emerald-400'
-                                    : 'text-amber-600 dark:text-amber-400'
-                                }`}
-                              >
-                                {st.syncStatus || 'SYNCED'}
-                              </span>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                )}
-              </div>
-            )}
-
-            {/* Tab 2: Verifications History */}
-            {historyTab === 'verifications' && (
-              <div className="overflow-x-auto">
-                {pastVerifications.length === 0 ? (
-                  <div className="py-8 text-center text-xs text-slate-400 dark:text-slate-500">
-                    {userT('No verification records available.')}
-                  </div>
-                ) : (
-                  <table className="w-full text-xs text-left">
-                    <thead>
-                      <tr className="border-b border-slate-100 dark:border-slate-700 text-slate-400 dark:text-slate-500">
-                        <th className="py-2 px-3 font-semibold">{userT('Scheduled Time')}</th>
-                        <th className="py-2 px-3 font-semibold">{userT('Status')}</th>
-                        <th className="py-2 px-3 font-semibold">{userT('Response Window')}</th>
-                        <th className="py-2 px-3 font-semibold">{userT('Connection')}</th>
-                        <th className="py-2 px-3 font-semibold">{userT('Sync')}</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                      {pastVerifications.map((v) => (
-                        <tr key={v.id} className="hover:bg-slate-50 dark:hover:bg-slate-800">
+                      return (
+                        <tr key={st.id} className="hover:bg-slate-50 dark:hover:bg-slate-800">
                           <td className="py-2.5 px-3 font-medium text-slate-900 dark:text-white">
-                            {new Date(v.scheduledAt).toLocaleString([], {
-                              month: 'short',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                              second: '2-digit',
-                            })}
+                            {st.date}
+                          </td>
+                          <td className="py-2.5 px-3 font-mono font-semibold text-blue-600 dark:text-blue-400">
+                            {formatted}
                           </td>
                           <td className="py-2.5 px-3">
                             <span
                               className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-                                v.status.includes('CONFIRMED')
-                                  ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400'
-                                  : 'bg-amber-50 text-amber-600 dark:bg-amber-950/60 dark:text-amber-400'
+                                st.status === 'FINALIZED'
+                                  ? 'bg-purple-50 text-purple-600 dark:bg-purple-950/60 dark:text-purple-400'
+                                  : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400'
                               }`}
                             >
-                              {userT(v.status)}
+                              {userT(st.status)}
                             </span>
                           </td>
-                          <td className="py-2.5 px-3 text-slate-600 dark:text-slate-300 font-mono">
-                            {v.responseTimeSeconds !== null && v.responseTimeSeconds !== undefined
-                              ? `${v.responseTimeSeconds}s`
-                              : v.failureReason === 'NO_RESPONSE'
-                              ? 'Expired (15s)'
-                              : '--'}
-                          </td>
                           <td className="py-2.5 px-3 text-slate-500 dark:text-slate-400">
-                            {v.connectionState}
+                            {st.finalizedAt
+                              ? new Date(st.finalizedAt).toLocaleTimeString([], {
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                })
+                              : '--'}
                           </td>
                           <td className="py-2.5 px-3">
                             <span
                               className={`text-[10px] font-medium ${
-                                v.syncStatus === 'SYNCED'
+                                st.syncStatus === 'SYNCED'
                                   ? 'text-emerald-600 dark:text-emerald-400'
                                   : 'text-amber-600 dark:text-amber-400'
                               }`}
                             >
-                              {v.syncStatus}
+                              {st.syncStatus || 'SYNCED'}
                             </span>
                           </td>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
-              </div>
-            )}
+                      );
+                    })}
+                  </tbody>
+                </table>
+              )}
+            </div>
           </div>
         )}
       </div>

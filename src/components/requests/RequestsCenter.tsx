@@ -25,6 +25,7 @@ import {
   Sparkles,
   Info,
   Eye,
+  Ban,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { db } from '../../services/database';
@@ -190,12 +191,14 @@ export default function RequestsCenter({
       combined = combined.filter(
         (r) => (r.employeeId || r.employee_id) === officerId || (r.officerId || r.officer_id) === officerId
       );
-    } else if (isSupervisor) {
+    } else {
       const teamIds = teamMembers.map((m) => m.employeeId || m.id);
       combined = combined.filter((r) => {
         const empId = r.employeeId || r.employee_id;
         return teamIds.includes(empId) || empId === officerId;
       });
+      // Canceled requests should not be displayed in supervisor/manager page
+      combined = combined.filter((r) => (r.status || '').toLowerCase() !== 'cancelled');
     }
 
     // Filter by specific officer if supervisor/manager
@@ -231,6 +234,13 @@ export default function RequestsCenter({
     selectedStatusTab,
   ]);
 
+  // Prevent supervisors from staying on 'cancelled' status filter
+  React.useEffect(() => {
+    if (!isOfficer && selectedStatusTab === 'cancelled') {
+      setSelectedStatusTab('all');
+    }
+  }, [isOfficer, selectedStatusTab]);
+
   // Status counts for tabs
   const stats = useMemo(() => {
     let baseLeaves = leaves;
@@ -239,10 +249,22 @@ export default function RequestsCenter({
     if (isOfficer) {
       baseLeaves = leaves.filter((l) => (l.employeeId || l.employee_id) === officerId);
       basePerms = permissions.filter((p) => (p.employeeId || p.employee_id) === officerId);
-    } else if (isSupervisor) {
+    } else {
       const teamIds = teamMembers.map((m) => m.employeeId || m.id);
-      baseLeaves = leaves.filter((l) => teamIds.includes(l.employeeId || l.employee_id));
-      basePerms = permissions.filter((p) => teamIds.includes(p.employeeId || p.employee_id));
+      // Exclude cancelled requests for supervisor / manager view
+      baseLeaves = leaves.filter((l) => teamIds.includes(l.employeeId || l.employee_id) && (l.status || '').toLowerCase() !== 'cancelled');
+      basePerms = permissions.filter((p) => teamIds.includes(p.employeeId || p.employee_id) && (p.status || '').toLowerCase() !== 'cancelled');
+    }
+
+    if (!isOfficer && selectedOfficerFilter !== 'all') {
+      baseLeaves = baseLeaves.filter((l) => (l.employeeId || l.employee_id) === selectedOfficerFilter);
+      basePerms = basePerms.filter((p) => (p.employeeId || p.employee_id) === selectedOfficerFilter);
+    }
+
+    if (selectedTypeFilter === 'leave') {
+      basePerms = [];
+    } else if (selectedTypeFilter === 'permission') {
+      baseLeaves = [];
     }
 
     const all = [...baseLeaves, ...basePerms];
@@ -251,9 +273,9 @@ export default function RequestsCenter({
       pending: all.filter((r) => (r.status || 'pending').toLowerCase() === 'pending').length,
       approved: all.filter((r) => (r.status || '').toLowerCase() === 'approved').length,
       rejected: all.filter((r) => (r.status || '').toLowerCase() === 'rejected').length,
-      cancelled: all.filter((r) => (r.status || '').toLowerCase() === 'cancelled').length,
+      cancelled: isOfficer ? all.filter((r) => (r.status || '').toLowerCase() === 'cancelled').length : 0,
     };
-  }, [leaves, permissions, isOfficer, isSupervisor, officerId, teamMembers]);
+  }, [leaves, permissions, isOfficer, isSupervisor, officerId, teamMembers, selectedOfficerFilter, selectedTypeFilter]);
 
   // 1. Submit Leave Request
   const handleSubmitLeave = async (e: React.FormEvent) => {
@@ -801,18 +823,6 @@ export default function RequestsCenter({
         actionUrl: '/requests',
       }).catch(() => {});
 
-      const supId = item.supervisorId || user?.supervisorId;
-      if (supId) {
-        createLocalNotification({
-          recipientId: supId,
-          title: userT('Request Cancelled by Officer'),
-          message: userT(`${officerDisplayName} cancelled their pending ${reqLabel} request.`),
-          type: 'REQUEST_CANCELLED',
-          priority: 'NORMAL',
-          actionUrl: '/requests',
-        }).catch(() => {});
-      }
-
       setDetailModal((prev) => prev.isOpen && prev.item?.id === item.id ? { ...prev, item: { ...prev.item, ...cancelPayload } } : prev);
       window.dispatchEvent(new CustomEvent('fieldsync-request-updated'));
       setCancelModal({ isOpen: false, item: null, requestCategory: 'leave' });
@@ -866,82 +876,173 @@ export default function RequestsCenter({
         )}
       </div>
 
-      {/* KPI Stats Cards - Unified Neutral Corporate Design */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-        <div className="p-4 sm:p-5 rounded-2xl border bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800 shadow-xs transition-all">
-          <div className="flex items-center justify-between text-slate-400 dark:text-slate-500">
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+      {/* Interactive KPI Status Cards */}
+      <div className={`grid ${isOfficer ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5' : 'grid-cols-2 sm:grid-cols-4'} gap-3 sm:gap-4`}>
+        {/* Card 1: Total Requests */}
+        <button
+          type="button"
+          onClick={() => setSelectedStatusTab('all')}
+          className={`p-4 sm:p-5 rounded-2xl border text-left transition-all cursor-pointer shadow-xs select-none hover:shadow-md hover:scale-[1.01] active:scale-[0.99] flex flex-col justify-between ${
+            selectedStatusTab === 'all'
+              ? 'bg-blue-50/40 dark:bg-blue-950/25 border-blue-500 ring-2 ring-blue-500/20'
+              : 'bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-700'
+          }`}
+        >
+          <div className="flex items-center justify-between w-full">
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               {userT('Total Requests')}
-            </p>
-            <FileText className="w-4 h-4 text-slate-400" />
+            </span>
+            <FileText className="w-4 h-4 text-blue-500" />
           </div>
-          <p className="text-2xl font-bold text-slate-900 dark:text-white mt-2">{stats.total}</p>
-        </div>
+          <div className="my-2">
+            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-slate-900 dark:text-white">
+              {stats.total}
+            </div>
+          </div>
+          <div className="text-[11px] font-medium text-slate-400 dark:text-slate-500 pt-1">
+            {selectedStatusTab === 'all' ? (
+              <span className="text-blue-600 dark:text-blue-400 font-semibold">● {userT('Showing All')}</span>
+            ) : (
+              <span>{userT('Click to show all')}</span>
+            )}
+          </div>
+        </button>
 
-        <div className="p-4 sm:p-5 rounded-2xl border bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800 shadow-xs transition-all">
-          <div className="flex items-center justify-between text-slate-400 dark:text-slate-500">
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+        {/* Card 2: Pending */}
+        <button
+          type="button"
+          onClick={() => setSelectedStatusTab(selectedStatusTab === 'pending' ? 'all' : 'pending')}
+          className={`p-4 sm:p-5 rounded-2xl border text-left transition-all cursor-pointer shadow-xs select-none hover:shadow-md hover:scale-[1.01] active:scale-[0.99] flex flex-col justify-between ${
+            selectedStatusTab === 'pending'
+              ? 'bg-amber-50/40 dark:bg-amber-950/25 border-amber-500 ring-2 ring-amber-500/20'
+              : 'bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800 hover:border-amber-300 dark:hover:border-amber-700'
+          }`}
+        >
+          <div className="flex items-center justify-between w-full">
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               {userT('Pending')}
-            </p>
-            <Clock className="w-4 h-4 text-slate-400" />
+            </span>
+            <Clock className="w-4 h-4 text-amber-500" />
           </div>
-          <p className="text-2xl font-bold text-slate-900 dark:text-white mt-2">{stats.pending}</p>
-        </div>
+          <div className="my-2">
+            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-amber-600 dark:text-amber-400">
+              {stats.pending}
+            </div>
+          </div>
+          <div className="text-[11px] font-medium text-slate-400 dark:text-slate-500 pt-1">
+            {selectedStatusTab === 'pending' ? (
+              <span className="text-amber-600 dark:text-amber-400 font-semibold">● {userT('Filtered')}</span>
+            ) : (
+              <span>{userT('Click to filter')}</span>
+            )}
+          </div>
+        </button>
 
-        <div className="p-4 sm:p-5 rounded-2xl border bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800 shadow-xs transition-all">
-          <div className="flex items-center justify-between text-slate-400 dark:text-slate-500">
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+        {/* Card 3: Approved */}
+        <button
+          type="button"
+          onClick={() => setSelectedStatusTab(selectedStatusTab === 'approved' ? 'all' : 'approved')}
+          className={`p-4 sm:p-5 rounded-2xl border text-left transition-all cursor-pointer shadow-xs select-none hover:shadow-md hover:scale-[1.01] active:scale-[0.99] flex flex-col justify-between ${
+            selectedStatusTab === 'approved'
+              ? 'bg-emerald-50/40 dark:bg-emerald-950/25 border-emerald-500 ring-2 ring-emerald-500/20'
+              : 'bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800 hover:border-emerald-300 dark:hover:border-emerald-700'
+          }`}
+        >
+          <div className="flex items-center justify-between w-full">
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               {userT('Approved')}
-            </p>
-            <CheckCircle2 className="w-4 h-4 text-slate-400" />
+            </span>
+            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
           </div>
-          <p className="text-2xl font-bold text-slate-900 dark:text-white mt-2">{stats.approved}</p>
-        </div>
+          <div className="my-2">
+            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-emerald-600 dark:text-emerald-400">
+              {stats.approved}
+            </div>
+          </div>
+          <div className="text-[11px] font-medium text-slate-400 dark:text-slate-500 pt-1">
+            {selectedStatusTab === 'approved' ? (
+              <span className="text-emerald-600 dark:text-emerald-400 font-semibold">● {userT('Filtered')}</span>
+            ) : (
+              <span>{userT('Click to filter')}</span>
+            )}
+          </div>
+        </button>
 
-        <div className="p-4 sm:p-5 rounded-2xl border bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800 shadow-xs transition-all">
-          <div className="flex items-center justify-between text-slate-400 dark:text-slate-500">
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+        {/* Card 4: Rejected */}
+        <button
+          type="button"
+          onClick={() => setSelectedStatusTab(selectedStatusTab === 'rejected' ? 'all' : 'rejected')}
+          className={`p-4 sm:p-5 rounded-2xl border text-left transition-all cursor-pointer shadow-xs select-none hover:shadow-md hover:scale-[1.01] active:scale-[0.99] flex flex-col justify-between ${
+            selectedStatusTab === 'rejected'
+              ? 'bg-rose-50/40 dark:bg-rose-950/25 border-rose-500 ring-2 ring-rose-500/20'
+              : 'bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800 hover:border-rose-300 dark:hover:border-rose-700'
+          }`}
+        >
+          <div className="flex items-center justify-between w-full">
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               {userT('Rejected')}
-            </p>
-            <XCircle className="w-4 h-4 text-slate-400" />
+            </span>
+            <XCircle className="w-4 h-4 text-rose-500" />
           </div>
-          <p className="text-2xl font-bold text-slate-900 dark:text-white mt-2">{stats.rejected}</p>
-        </div>
+          <div className="my-2">
+            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-rose-600 dark:text-rose-400">
+              {stats.rejected}
+            </div>
+          </div>
+          <div className="text-[11px] font-medium text-slate-400 dark:text-slate-500 pt-1">
+            {selectedStatusTab === 'rejected' ? (
+              <span className="text-rose-600 dark:text-rose-400 font-semibold">● {userT('Filtered')}</span>
+            ) : (
+              <span>{userT('Click to filter')}</span>
+            )}
+          </div>
+        </button>
+
+        {/* Card 5: Cancelled (Officers only) */}
+        {isOfficer && (
+          <button
+            type="button"
+            onClick={() => setSelectedStatusTab(selectedStatusTab === 'cancelled' ? 'all' : 'cancelled')}
+            className={`p-4 sm:p-5 rounded-2xl border text-left transition-all cursor-pointer shadow-xs select-none hover:shadow-md hover:scale-[1.01] active:scale-[0.99] flex flex-col justify-between ${
+              selectedStatusTab === 'cancelled'
+                ? 'bg-slate-100 dark:bg-slate-800/60 border-slate-500 ring-2 ring-slate-500/20'
+                : 'bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-600'
+            }`}
+          >
+            <div className="flex items-center justify-between w-full">
+              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                {userT('Cancelled')}
+              </span>
+              <Ban className="w-4 h-4 text-slate-500" />
+            </div>
+            <div className="my-2">
+              <div className="text-2xl sm:text-3xl font-extrabold font-mono text-slate-700 dark:text-slate-300">
+                {stats.cancelled}
+              </div>
+            </div>
+            <div className="text-[11px] font-medium text-slate-400 dark:text-slate-500 pt-1">
+              {selectedStatusTab === 'cancelled' ? (
+                <span className="text-slate-700 dark:text-slate-300 font-semibold">● {userT('Filtered')}</span>
+              ) : (
+                <span>{userT('Click to filter')}</span>
+              )}
+            </div>
+          </button>
+        )}
       </div>
 
-      {/* Filter and Navigation Toolbar */}
-      <div className="p-3.5 sm:p-4 rounded-2xl border bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
-        {/* Status Tabs */}
-        <div className="flex flex-wrap items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-xl">
-          {(['all', 'pending', 'approved', 'rejected', 'cancelled'] as const).map((tab) => (
-            <button
-              key={tab}
-              type="button"
-              onClick={() => setSelectedStatusTab(tab)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all cursor-pointer ${
-                selectedStatusTab === tab
-                  ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-semibold shadow-2xs'
-                  : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
-              }`}
-            >
-              {userT(tab)}
-              {tab === 'pending' && stats.pending > 0 && (
-                <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-[10px] bg-slate-200 dark:bg-slate-600 text-slate-800 dark:text-slate-200 font-semibold">
-                  {stats.pending}
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
-
-        {/* Search & Category Filter */}
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Category Pill Toggle */}
+      {/* Category & Officer Filter Toolbar */}
+      <div className="p-3.5 sm:p-4 rounded-2xl border bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        {/* Category Pill Toggle */}
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold text-slate-400 dark:text-slate-500">
+            {userT('Category')}:
+          </span>
           <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-xl text-xs">
             <button
               type="button"
               onClick={() => setSelectedTypeFilter('all')}
-              className={`px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
+              className={`px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
                 selectedTypeFilter === 'all'
                   ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-semibold shadow-2xs'
                   : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
@@ -952,7 +1053,7 @@ export default function RequestsCenter({
             <button
               type="button"
               onClick={() => setSelectedTypeFilter('leave')}
-              className={`px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
+              className={`px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
                 selectedTypeFilter === 'leave'
                   ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-semibold shadow-2xs'
                   : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
@@ -963,7 +1064,7 @@ export default function RequestsCenter({
             <button
               type="button"
               onClick={() => setSelectedTypeFilter('permission')}
-              className={`px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
+              className={`px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
                 selectedTypeFilter === 'permission'
                   ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-semibold shadow-2xs'
                   : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
@@ -972,13 +1073,18 @@ export default function RequestsCenter({
               {userT('Permissions')}
             </button>
           </div>
+        </div>
 
-          {/* Supervisor Officer Filter */}
-          {!isOfficer && (
+        {/* Supervisor Officer Filter */}
+        {!isOfficer && (
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-slate-400 dark:text-slate-500">
+              {userT('Officer')}:
+            </span>
             <select
               value={selectedOfficerFilter}
               onChange={(e) => setSelectedOfficerFilter(e.target.value)}
-              className="text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 text-slate-700 dark:text-slate-200 font-medium focus:outline-hidden focus:ring-1 focus:ring-slate-400"
+              className="text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 text-slate-700 dark:text-slate-200 font-medium focus:outline-hidden focus:ring-1 focus:ring-slate-400 cursor-pointer"
             >
               <option value="all">{userT('All Officers')}</option>
               {teamMembers.map((m) => {
@@ -993,8 +1099,8 @@ export default function RequestsCenter({
                 );
               })}
             </select>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Requests Table Container */}
@@ -1155,72 +1261,17 @@ export default function RequestsCenter({
 
                       {/* Action */}
                       <td className="py-3.5 pr-4 sm:pr-6 pl-3 align-middle text-right whitespace-nowrap">
-                        <div className="flex items-center justify-end gap-1.5">
+                        <div className="flex items-center justify-end">
                           {/* Detail Modal Trigger */}
                           <button
                             type="button"
                             onClick={() => setDetailModal({ isOpen: true, item: req })}
-                            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-xs font-medium cursor-pointer transition-colors shadow-2xs"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-xs font-medium cursor-pointer transition-colors shadow-2xs"
                             title={userT('View Details')}
                           >
                             <Eye className="w-3.5 h-3.5 text-slate-400" />
                             <span>{userT('Details')}</span>
                           </button>
-
-                          {/* Quick Officer Actions */}
-                          {isOfficer && status === 'pending' && (
-                            <button
-                              type="button"
-                              onClick={() => setCancelModal({ isOpen: true, item: req, requestCategory: req.requestCategory })}
-                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-medium transition-colors cursor-pointer shadow-2xs"
-                              title={userT('Cancel Request')}
-                            >
-                              <RotateCcw className="w-3.5 h-3.5 text-slate-400" />
-                              <span>{userT('Cancel')}</span>
-                            </button>
-                          )}
-
-                          {/* Quick Supervisor Actions: Refined Outline Buttons with subtle hover */}
-                          {!isOfficer && status === 'pending' && (
-                            <div className="flex items-center gap-1.5">
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setDecisionNote('');
-                                  setDecisionError('');
-                                  setDecisionModal({
-                                    isOpen: true,
-                                    type: 'approve',
-                                    item: req,
-                                    requestCategory: req.requestCategory,
-                                  });
-                                }}
-                                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-800 hover:bg-emerald-50/70 dark:hover:bg-emerald-950/30 hover:border-emerald-300 dark:hover:border-emerald-800 hover:text-emerald-700 dark:hover:text-emerald-300 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-xs font-medium transition-all cursor-pointer shadow-2xs"
-                                title={userT('Approve')}
-                              >
-                                <CheckCircle2 className="w-3.5 h-3.5 text-slate-400" />
-                                <span>{userT('Approve')}</span>
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setDecisionNote('');
-                                  setDecisionError('');
-                                  setDecisionModal({
-                                    isOpen: true,
-                                    type: 'reject',
-                                    item: req,
-                                    requestCategory: req.requestCategory,
-                                  });
-                                }}
-                                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-800 hover:bg-rose-50/70 dark:hover:bg-rose-950/30 hover:border-rose-300 dark:hover:border-rose-800 hover:text-rose-700 dark:hover:text-rose-300 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-xs font-medium transition-all cursor-pointer shadow-2xs"
-                                title={userT('Reject')}
-                              >
-                                <XCircle className="w-3.5 h-3.5 text-slate-400" />
-                                <span>{userT('Reject')}</span>
-                              </button>
-                            </div>
-                          )}
                         </div>
                       </td>
                     </tr>
@@ -1426,17 +1477,6 @@ export default function RequestsCenter({
             </div>
 
             <form onSubmit={handleSubmitPermission} className="p-6 space-y-4">
-              {/* Working Hours Guidance Banner */}
-              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-300 space-y-1">
-                <p className="font-bold flex items-center gap-1.5 text-slate-800 dark:text-white">
-                  <Info className="w-3.5 h-3.5 text-slate-400" />
-                  {userT('Official Work Hours Rules:')}
-                </p>
-                <p className="text-[11px] leading-relaxed text-slate-500 dark:text-slate-400">
-                  {userT('Permission must fall between 08:30 and 17:30. Requests cannot be placed entirely within the official lunch break (12:30 – 13:30).')}
-                </p>
-              </div>
-
               {/* Permission Date */}
               <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-200">
@@ -2034,9 +2074,10 @@ export default function RequestsCenter({
                         setDetailModal({ isOpen: false, item: null });
                         setCancelModal({ isOpen: true, item, requestCategory: item.requestCategory });
                       }}
-                      className="px-4 py-2 rounded-xl border border-rose-200 dark:border-rose-900/60 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-bold transition-colors cursor-pointer"
+                      className="px-4 py-2 rounded-xl border border-rose-200 dark:border-rose-900/60 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5"
                     >
-                      {userT('Cancel Request')}
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      <span>{userT('Cancel Request')}</span>
                     </button>
                   )}
 

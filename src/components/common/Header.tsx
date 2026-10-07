@@ -7,10 +7,8 @@ import {
   User,
   LogOut,
   Check,
-  KeyRound,
   Sun,
   Moon,
-  Home,
 } from 'lucide-react';
 import SyncBadge from '../ui/SyncBadge';
 import LanguageSelector from './LanguageSelector';
@@ -375,30 +373,7 @@ export default function Header({
                   className="w-full px-3 py-2 text-left text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg flex items-center gap-2.5 transition-colors cursor-pointer"
                 >
                   <User className="w-4 h-4 text-[#2563EB] dark:text-blue-400" />
-                  My Profile
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (setActiveTab) setActiveTab('profile_security');
-                    setShowUserMenu(false);
-                  }}
-                  className="w-full px-3 py-2 text-left text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg flex items-center gap-2.5 transition-colors cursor-pointer"
-                >
-                  <KeyRound className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                  Change Password
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    window.location.hash = '#home';
-                    window.dispatchEvent(new HashChangeEvent('hashchange'));
-                    setShowUserMenu(false);
-                  }}
-                  className="w-full px-3 py-2 text-left text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg flex items-center gap-2.5 transition-colors cursor-pointer"
-                >
-                  <Home className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                  {userT('Home Page')}
+                  {userT('My Profile')}
                 </button>
                 <div className="h-px bg-slate-100 dark:bg-[#334155] my-1" />
                 <button
@@ -407,7 +382,7 @@ export default function Header({
                   className="w-full px-3 py-2 text-left text-sm font-medium text-red-600 dark:text-rose-400 hover:bg-red-50 dark:hover:bg-rose-950/40 rounded-lg flex items-center gap-2.5 transition-colors cursor-pointer"
                 >
                   <LogOut className="w-4 h-4" />
-                  Sign Out
+                  {userT('Sign Out')}
                 </button>
               </div>
             </div>

@@ -4477,6 +4477,181 @@ export const translationDictionary: Record<string, DictionaryItem> = {
     am: "© 2026 FieldSync. ብሔራዊ የዜጎች ምዝገባ እና የመስክ ስራዎች መድረክ።",
     om: "© 2026 FieldSync. Waltajjii Galmee Lammiilee Biyyooleessaa & Hojiiwwan Dirree.",
     ti: "© 2026 FieldSync. ብሔራዊ ምዝገባ ዜጋታትን መድረኽ ናይ መሮር ስርሒታትን።"
+  },
+  "Keep me signed in": {
+    am: "እንደገባሁ ልቆይ",
+    om: "Akkan seenee jirutti na tursiisi",
+    ti: "ከም ዝኣተኹ ጽንሓለይ"
+  },
+  "Middle Name": {
+    am: "የአባት ስም",
+    om: "Maqaa Abbaa",
+    ti: "ስም ኣቦ"
+  },
+  "Official random presence check-ins during working hours (08:30 – 17:30)": {
+    am: "በስራ ሰዓት (08:30 – 17:30) ውስጥ የሚደረጉ ይፋዊ ድንገተኛ የቦታው ላይ ማረጋገጫዎች",
+    om: "Sa'aatii hojii keessatti (08:30 – 17:30) mirkaneessaa tasaa bakka hojii",
+    ti: "ኣብ ናይ ስራሕ ሰዓታት (08:30 – 17:30) ዝግበሩ ናይ ቦታ ምርግጋጻት"
+  },
+  "conducted today": {
+    am: "ዛሬ የተካሄዱ",
+    om: "har'a kan gaggeeffame",
+    ti: "ሎሚ ዝተኻየዱ"
+  },
+  "Mandatory 15s presence alerts": {
+    am: "የግዴታ 15 ሰከንድ የማረጋገጫ ማንቂያዎች",
+    om: "Akeekkachiisa dirqamaa sekondii 15",
+    ti: "ናይ ግዴታ 15 ካልኢት ናይ ምርግጋጽ ምልክታታት"
+  },
+  "compliance rate": {
+    am: "የተገዢነት መጠን",
+    om: "sadarkaa kabajuu",
+    ti: "መጠን ምኽባር"
+  },
+  "confirmed today": {
+    am: "ዛሬ የተረጋገጡ",
+    om: "har'a kan mirkanaa'an",
+    ti: "ሎሚ ዝተረጋገጹ"
+  },
+  "Zero missed checks": {
+    am: "ያመለጡ ፍተሻዎች የሉም",
+    om: "Qorannoon darbe hin jiru",
+    ti: "ዝተሓለፈ ፍተሻ የለን"
+  },
+  "Requires supervisor review": {
+    am: "የተቆጣጣሪ ግምገማ ያስፈልገዋል",
+    om: "Gamaaggama to'ataa barbaada",
+    ti: "ናይ ተቖጻጻሪ ገምጋም የድልዮ"
+  },
+  "15-second window expired": {
+    am: "የ15 ሰከንድ ጊዜ አልቋል",
+    om: "Yeroon sekondii 15 dhumateera",
+    ti: "ናይ 15 ካልኢት ግዜ ተወዲኡ"
+  },
+  "Avg Response Speed": {
+    am: "አማካኝ የምላሽ ፍጥነት",
+    om: "Saffisa Deebii Giddu-galeessaa",
+    ti: "ማእከላይ ናይ ምላሽ ፍጥነት"
+  },
+  "Target: Under 10 seconds": {
+    am: "ዒላማ፡ ከ10 ሰከንድ በታች",
+    om: "Kaayyoo: Sekondii 10 gadi",
+    ti: "ዕላማ፡ ትሕቲ 10 ካልኢት"
+  },
+  "Measured from alert trigger": {
+    am: "ማንቂያው ከተሰጠበት ጊዜ ጀምሮ የሚሰላ",
+    om: "Akeekkachiisni ergamee irraa kan shallagame",
+    ti: "ካብ መተሓሳሰቢ ዝተወሃበሉ ግዜ ዝቑጸር"
+  },
+  "Search by date, status, notes...": {
+    am: "በቀን፣ ሁኔታ፣ ማስታወሻዎች ፈልግ...",
+    om: "Guyyaa, haala, yaadaan barbaadi...",
+    ti: "ብመዓልቲ፣ ኩነታት፣ መተሓሳሰቢታት ድለ..."
+  },
+  "All Time": {
+    am: "ሁልጊዜ",
+    om: "Yeroo Hunda",
+    ti: "ኩሉ ግዜ"
+  },
+  "Past 7 Days": {
+    am: "ያለፉት 7 ቀናት",
+    om: "Guyyoota 7n Darban",
+    ti: "ዝሓለፉ 7 መዓልታት"
+  },
+  "Filter Status:": {
+    am: "ሁኔታን አጣራ:",
+    om: "Haala Calali:",
+    ti: "ኩነታት ኣጽሪ:"
+  },
+  "Loading verification records...": {
+    am: "የማረጋገጫ መዝገቦች በመጫን ላይ...",
+    om: "Galmeen mirkaneessaa fe'amaa jira...",
+    ti: "ናይ ምርግጋጽ መዝገባት ይጽዓኑ ኣለዉ..."
+  },
+  "No verification records found": {
+    am: "ምንም የማረጋገጫ መዝገቦች አልተገኙም",
+    om: "Galmeen mirkaneessaa hin argamne",
+    ti: "ናይ ምርግጋጽ መዝገባት ኣይተረኽቡን"
+  },
+  "No checks match your current filter parameters. Try clearing your filters.": {
+    am: "ካጣሩት መመዘኛ ጋር የሚዛመዱ ፍተሻዎች የሉም። ማጣሪያዎችን ያጽዱ።",
+    om: "Qorannoon ulaagaalee keessan wajjin walsimatu hin jiru. Calaltuu qulqulleessaa.",
+    ti: "ምስ ዝመረጽኩምዎ ዝሰማማዕ ፍተሻ የለን። መጽረዪታት ኣጽርዩ።"
+  },
+  "Random check-ins occur automatically during your active daily work sessions between 08:30 and 17:30.": {
+    am: "በስራ ሰዓት (08:30 – 17:30) ንቁ የስራ ክፍለ ጊዜ ውስጥ ድንገተኛ ፍተሻዎች በራስ-ሰር ይከሰታሉ።",
+    om: "Yeroo hojii (08:30 – 17:30) kutaa hojii socho'aa keessatti mirkaneessaan tasaa ofumaan dhufa.",
+    ti: "ኣብ ናይ ስራሕ ሰዓታት (08:30 – 17:30) ኣብ ንጡፍ ናይ ስራሕ እዋን ድንገታዊ ፍተሻታት ባዕሎም ይፍጸሙ።"
+  },
+  "Details & Reason": {
+    am: "ዝርዝር እና ምክንያት",
+    om: "Bal'ina & Sababa",
+    ti: "ዝርዝርን ምኽንያትን"
+  },
+  "Verified presence confirmed": {
+    am: "የቦታው ላይ መገኘት ተረጋግጧል",
+    om: "Argamuun dirree mirkanaa'eera",
+    ti: "ኣብ ቦታ ምህላው ተረጋጊጹ"
+  },
+  "Missed presence check": {
+    am: "ያመለጠ የመገኘት ፍተሻ",
+    om: "Qorannoo argamaa kan darbe",
+    ti: "ዝተሓለፈ ናይ ምርግጋጽ ፍተሻ"
+  },
+  "View Full History": {
+    am: "ሙሉ ታሪክ ይመልከቱ",
+    om: "Seenaa Guutuu Ilaali",
+    ti: "ምሉእ ታሪኽ ርአ"
+  },
+  "My Screen Time History": {
+    am: "የእኔ የስክሪን ሰዓት ታሪክ",
+    om: "Seenaa Yeroo Iskiiriinii Kiyyaa",
+    ti: "ናይ ስክሪን ግዜይ ታሪኽ"
+  },
+  "CONFIRMED_OFFLINE": {
+    am: "ከመስመር ውጭ ተረጋግጧል",
+    om: "Toora Ala Mirkanaa'e",
+    ti: "ካብ መስመር ወጻኢ ተረጋጊጹ"
+  },
+  "MISSED_OFFLINE": {
+    am: "ከመስመር ውጭ አምልጧል",
+    om: "Toora Ala Darbe",
+    ti: "ካብ መስመር ወጻኢ ሓሊፉ"
+  },
+  "NO_ACTIVE_CONNECTION": {
+    am: "ንቁ ግንኙነት የለም",
+    om: "Walqunnamtii Socho'aa Hin Jiru",
+    ti: "ንጡፍ ርክብ የለን"
+  },
+  "NO_ACTIVE_SESSION": {
+    am: "ንቁ የስራ ክፍለ ጊዜ የለም",
+    om: "Kutaa Hojii Socho'aa Hin Jiru",
+    ti: "ንጡፍ ናይ ስራሕ እዋን የለን"
+  },
+  "Showing All": {
+    am: "ሁሉንም በማሳየት ላይ",
+    om: "Hunda Agarsiisaa",
+    ti: "ኩሉ የርእይ ኣሎ"
+  },
+  "Filtered": {
+    am: "የተጣራ",
+    om: "Kan Calalame",
+    ti: "ዝተጸረየ"
+  },
+  "Click to show all": {
+    am: "ሁሉንም ለማየት ይጫኑ",
+    om: "Hunda arguuf cuqqaasaa",
+    ti: "ኩሉ ንምርኣይ ጠውቑ"
+  },
+  "Click to filter": {
+    am: "ለማጣራት ይጫኑ",
+    om: "Calaluuf cuqqaasaa",
+    ti: "ንምጽራይ ጠውቑ"
+  },
+  "Presence compliance": {
+    am: "የመገኘት ተገዢነት",
+    om: "Kabaja argamaa",
+    ti: "ተገዛእነት ህልውና"
   }
 };
 

@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { useUserLanguage } from '../../context/UserLanguageContext';
+import { LanguageSelector } from '../common/LanguageSelector';
 import heroImage from '../../assets/field-officer-hero.jpg';
 
 interface LoginProps {
@@ -84,7 +85,7 @@ export default function Login({
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[560px] h-[560px] bg-blue-500/5 dark:bg-blue-600/10 rounded-full blur-3xl pointer-events-none -z-0" />
 
         {/* Top Header: "Back to Home", Language Selector & Theme Toggle */}
-        <div className="relative z-10 flex items-center justify-between w-full max-w-2xl mx-auto pt-2">
+        <div className="relative z-50 flex items-center justify-between w-full max-w-2xl mx-auto pt-2">
           {onBackToHome ? (
             <button
               type="button"
@@ -98,6 +99,13 @@ export default function Login({
           )}
 
           <div className="flex items-center gap-2">
+            {/* Language Selector Dropdown */}
+            <LanguageSelector
+              dropdownAlign="right"
+              className="relative z-50"
+              buttonClassName="p-2.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xs hover:bg-slate-50 dark:hover:bg-slate-700 transition-all cursor-pointer flex items-center gap-1.5 text-xs font-bold"
+            />
+
             {/* Theme Toggle Button */}
             <button
               type="button"
@@ -194,7 +202,7 @@ export default function Login({
                     onChange={(e) => setRememberMe(e.target.checked)}
                     className="rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-[#2563EB] focus:ring-blue-500 dark:focus:ring-blue-400 w-5 h-5 cursor-pointer"
                   />
-                  <span>{userT('Remember this device')}</span>
+                  <span>{userT('Keep me signed in')}</span>
                 </label>
               </div>
 

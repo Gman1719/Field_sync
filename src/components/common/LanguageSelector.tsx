@@ -13,7 +13,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   buttonClassName = '',
   dropdownAlign = 'right',
 }) => {
-  const { currentUserLanguage, changeUserLanguage, userLanguages } = useUserLanguage();
+  const { currentUserLanguage, changeUserLanguage, userLanguages, userT } = useUserLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -45,10 +45,10 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
 
       {isOpen && (
         <div
-          className={`absolute ${dropdownAlign === 'right' ? 'right-0' : 'left-0'} mt-2 w-48 bg-white dark:bg-[#1E2530] rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150`}
+          className={`absolute ${dropdownAlign === 'right' ? 'right-0' : 'left-0'} mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 py-1.5 z-[100] animate-in fade-in zoom-in-95 duration-150 ring-1 ring-black/5 dark:ring-white/10`}
         >
           <div className="px-3 py-1.5 text-[11px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider border-b border-slate-100 dark:border-slate-700/80">
-            SELECT LANGUAGE
+            {userT ? userT('Select Language') : 'SELECT LANGUAGE'}
           </div>
           {Object.entries((userLanguages as Record<string, any>) || {}).map(([code, lang]: [string, any]) => {
             const isSelected = currentUserLanguage === code;

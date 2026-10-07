@@ -82,80 +82,54 @@ export default function Sidebar({
     });
 
     if (isOfficer) {
-      sections.push({
-        title: 'Citizen Registration',
-        items: [
-          { id: 'register', label: 'Register Citizen', icon: UserPlus },
-          { id: 'citizens', label: 'Registered Citizens', icon: Database },
-        ],
-      });
-
-      sections.push({
-        title: 'Reporting & Logs',
-        items: [
-          { id: 'daily_report', label: 'Daily Work Report', icon: FilePlus2 },
-          {
-            id: 'my_reports',
-            label: 'My Report',
-            icon: FileText,
-            badge: pendingSync > 0 ? pendingSync : null,
-            badgeColor: 'bg-amber-500',
-          },
-          { id: 'requests', label: 'My Requests', icon: CalendarClock },
-          { id: 'activity_logs', label: 'Activity Logs', icon: Activity },
-          { id: 'screentime', label: 'Work Sessions & Time', icon: Smartphone },
-        ],
-      });
+      sections[0].items.push(
+        { id: 'register', label: 'Register Citizen', icon: UserPlus },
+        { id: 'citizens', label: 'Registered Citizens', icon: Database },
+        { id: 'daily_report', label: 'Daily Work Report', icon: FilePlus2 },
+        {
+          id: 'my_reports',
+          label: 'My Report',
+          icon: FileText,
+          badge: pendingSync > 0 ? pendingSync : null,
+          badgeColor: 'bg-amber-500',
+        },
+        { id: 'requests', label: 'My Requests', icon: CalendarClock },
+        { id: 'activity_logs', label: 'Activity Logs', icon: Activity },
+        { id: 'screentime', label: 'Work Sessions & Time', icon: Smartphone },
+        { id: 'verification', label: 'Verification History', icon: ShieldCheck }
+      );
     }
 
     if (isSupervisor) {
-      sections.push({
-        title: '',
-        items: [
-          { id: 'chat', label: 'Manager Chat', icon: MessageSquare },
-          { id: 'citizens', label: 'Registered Citizens', icon: Database },
-          { id: 'team', label: 'Officers', icon: Users },
-          { id: 'requests', label: 'Leave & Permissions', icon: CalendarClock },
-          {
-            id: 'reports',
-            label: 'Officer Daily Reports',
-            icon: FileText,
-            badge: pendingSync > 0 ? pendingSync : null,
-            badgeColor: 'bg-amber-500',
-          },
-        ],
-      });
-
-      sections.push({
-        title: '',
-        items: [
-          { id: 'verification', label: 'Officer Verifications', icon: ShieldCheck },
-          { id: 'activity_logs', label: 'Activity Logs', icon: Activity },
-          { id: 'screentime', label: 'Officers Screen Time', icon: Smartphone },
-          { id: 'send_alert', label: 'Send Alert', icon: AlertTriangle },
-          { id: 'analytics', label: 'Analysis and Detail', icon: BarChart3 },
-        ],
-      });
+      sections[0].items.push(
+        { id: 'chat', label: 'Manager Chat', icon: MessageSquare },
+        { id: 'citizens', label: 'Registered Citizens', icon: Database },
+        { id: 'team', label: 'Officers', icon: Users },
+        { id: 'requests', label: 'Leave & Permissions', icon: CalendarClock },
+        {
+          id: 'reports',
+          label: 'Officer Daily Reports',
+          icon: FileText,
+          badge: pendingSync > 0 ? pendingSync : null,
+          badgeColor: 'bg-amber-500',
+        },
+        { id: 'verification', label: 'Officer Verifications', icon: ShieldCheck },
+        { id: 'activity_logs', label: 'Activity Logs', icon: Activity },
+        { id: 'screentime', label: 'Officers Screen Time', icon: Smartphone },
+        { id: 'send_alert', label: 'Send Alert', icon: AlertTriangle },
+        { id: 'analytics', label: 'Analysis and Detail', icon: BarChart3 }
+      );
     }
 
     if (isManager) {
-      sections.push({
-        title: '',
-        items: [
-          { id: 'users', label: 'User Management', icon: UserCog },
-          { id: 'chat', label: 'Supervisor Chat', icon: MessageSquare },
-          { id: 'citizens', label: 'Registered Citizens', icon: Database },
-          { id: 'team', label: 'Team', icon: Users },
-        ],
-      });
-
-      sections.push({
-        title: '',
-        items: [
-          { id: 'activity_logs', label: 'Activity Logs', icon: Activity },
-          { id: 'analytics', label: 'Analysis and Detail', icon: BarChart3 },
-        ],
-      });
+      sections[0].items.push(
+        { id: 'users', label: 'User Management', icon: UserCog },
+        { id: 'chat', label: 'Supervisor Chat', icon: MessageSquare },
+        { id: 'citizens', label: 'Registered Citizens', icon: Database },
+        { id: 'team', label: 'Team', icon: Users },
+        { id: 'activity_logs', label: 'Activity Logs', icon: Activity },
+        { id: 'analytics', label: 'Analysis and Detail', icon: BarChart3 }
+      );
     }
 
     return sections;
