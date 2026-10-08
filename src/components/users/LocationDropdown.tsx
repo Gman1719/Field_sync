@@ -285,7 +285,7 @@ export default function LocationDropdown({
           const localSups = allLocalUsers.filter(
             u => (u.role === 'supervisor' || u.role === 'SUPERVISOR') &&
                  (u.status === 'active' || u.isActive !== false) &&
-                 (u.zoneId === zoneId || u.zone?.id === zoneId)
+                 (u.zoneId === zoneId || u.zone === zoneId)
           );
           if (isMounted) {
             setSupervisors(localSups);

@@ -789,8 +789,10 @@ export const purgeLegacyDirectionalUsers = async () => {
 
     allOfflineUsers.forEach(u => {
       if (isTargetUser(u)) {
-        if (u.id) targetDbUserIds.add(u.id);
-        if (u.employeeId) targetEmpIds.add(u.employeeId);
+        if (u.id) {
+          targetDbUserIds.add(u.id);
+          targetEmpIds.add(u.id);
+        }
         if (u.fullName) targetNames.add(u.fullName.toLowerCase());
       }
     });
@@ -927,31 +929,31 @@ export const purgeLegacyDirectionalUsers = async () => {
 
     try {
       const offReports = await offlineDb.dailyWorkReports.toArray();
-      const delOffRep = offReports.filter(r => idList.includes(r.userId)).map(r => r.id);
+      const delOffRep = offReports.filter(r => idList.includes(r.officerId)).map(r => r.id);
       if (delOffRep.length) await offlineDb.dailyWorkReports.bulkDelete(delOffRep);
     } catch (_e) {}
 
     try {
       const offSessions = await offlineDb.workSessions.toArray();
-      const delOffSess = offSessions.filter(s => idList.includes(s.userId)).map(s => s.id);
+      const delOffSess = offSessions.filter(s => idList.includes(s.officerId)).map(s => s.id);
       if (delOffSess.length) await offlineDb.workSessions.bulkDelete(delOffSess);
     } catch (_e) {}
 
     try {
       const offLogs = await offlineDb.activityLogs.toArray();
-      const delOffLogs = offLogs.filter(l => idList.includes(l.userId)).map(l => l.id);
+      const delOffLogs = offLogs.filter(l => idList.includes(l.officerId)).map(l => l.id);
       if (delOffLogs.length) await offlineDb.activityLogs.bulkDelete(delOffLogs);
     } catch (_e) {}
 
     try {
       const offVerif = await offlineDb.workVerifications.toArray();
-      const delOffVer = offVerif.filter(v => idList.includes(v.userId)).map(v => v.id);
+      const delOffVer = offVerif.filter(v => idList.includes(v.officerId)).map(v => v.id);
       if (delOffVer.length) await offlineDb.workVerifications.bulkDelete(delOffVer);
     } catch (_e) {}
 
     try {
       const offScTime = await offlineDb.dailyScreenTimes.toArray();
-      const delOffScTime = offScTime.filter(st => idList.includes(st.userId)).map(st => st.id);
+      const delOffScTime = offScTime.filter(st => idList.includes(st.officerId)).map(st => st.id);
       if (delOffScTime.length) await offlineDb.dailyScreenTimes.bulkDelete(delOffScTime);
     } catch (_e) {}
 
