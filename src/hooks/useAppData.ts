@@ -162,6 +162,27 @@ export function useAppData(user: any) {
         await initializeAllData();
         (window as any).db = db;
 
+        // Pre-load and cache Ethiopian Location Hierarchy from backend if needed
+        try {
+          const regionCount = await offlineDb.regions.count();
+          if (regionCount === 0 && navigator.onLine) {
+            const bundleRes = await fetch(`${API_BASE}/locations/bundle`);
+            if (bundleRes.ok) {
+              const bundleData = await bundleRes.json();
+              if (bundleData.success && bundleData.data) {
+                await Promise.all([
+                  offlineDb.regions.bulkPut(bundleData.data.regions),
+                  offlineDb.zones.bulkPut(bundleData.data.zones),
+                  offlineDb.woredas.bulkPut(bundleData.data.woredas),
+                  offlineDb.kebeles.bulkPut(bundleData.data.kebeles),
+                ]);
+              }
+            }
+          }
+        } catch (_locErr) {
+          console.warn('Could not preload location hierarchy:', _locErr);
+        }
+
         const [
           usersData,
           reportsData,

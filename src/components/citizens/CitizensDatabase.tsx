@@ -40,7 +40,19 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
   useEffect(() => {
     const fetchRegions = async () => {
       try {
-        const regs = await offlineDb.regions.orderBy('name').toArray();
+        let regs = await offlineDb.regions.orderBy('name').toArray();
+        if (regs.length === 0 && navigator.onLine) {
+          try {
+            const res = await fetch(`${API_BASE}/locations/regions`);
+            if (res.ok) {
+              const resData = await res.json();
+              if (resData.success && Array.isArray(resData.data) && resData.data.length > 0) {
+                regs = resData.data;
+                offlineDb.regions.bulkPut(resData.data).catch(() => {});
+              }
+            }
+          } catch (_e) {}
+        }
         setRegions(regs);
       } catch (e) {
         console.error('Error fetching filter regions:', e);

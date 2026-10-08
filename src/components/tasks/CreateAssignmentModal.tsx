@@ -43,7 +43,19 @@ export default function CreateAssignmentModal({
     const loadData = async () => {
       try {
         // Load regions
-        const regs = await offlineDb.regions.orderBy('name').toArray();
+        let regs = await offlineDb.regions.orderBy('name').toArray();
+        if (regs.length === 0 && navigator.onLine) {
+          try {
+            const rRes = await fetch(`${API_BASE}/locations/regions`);
+            if (rRes.ok) {
+              const rData = await rRes.json();
+              if (rData.success && Array.isArray(rData.data) && rData.data.length > 0) {
+                regs = rData.data;
+                offlineDb.regions.bulkPut(rData.data).catch(() => {});
+              }
+            }
+          } catch (_rErr) {}
+        }
         setRegions(regs);
 
         // Load officers from server or Dexie
@@ -94,7 +106,19 @@ export default function CreateAssignmentModal({
         setZoneId('');
         return;
       }
-      const loaded = await offlineDb.zones.where('regionId').equals(regionId).sortBy('name');
+      let loaded = await offlineDb.zones.where('regionId').equals(regionId).sortBy('name');
+      if (loaded.length === 0 && navigator.onLine) {
+        try {
+          const zRes = await fetch(`${API_BASE}/locations/regions/${regionId}/zones`);
+          if (zRes.ok) {
+            const zData = await zRes.json();
+            if (zData.success && Array.isArray(zData.data)) {
+              loaded = zData.data;
+              offlineDb.zones.bulkPut(zData.data).catch(() => {});
+            }
+          }
+        } catch (_zErr) {}
+      }
       setZones(loaded);
       setZoneId('');
     };
@@ -108,7 +132,19 @@ export default function CreateAssignmentModal({
         setWoredaId('');
         return;
       }
-      const loaded = await offlineDb.woredas.where('zoneId').equals(zoneId).sortBy('name');
+      let loaded = await offlineDb.woredas.where('zoneId').equals(zoneId).sortBy('name');
+      if (loaded.length === 0 && navigator.onLine) {
+        try {
+          const wRes = await fetch(`${API_BASE}/locations/zones/${zoneId}/woredas`);
+          if (wRes.ok) {
+            const wData = await wRes.json();
+            if (wData.success && Array.isArray(wData.data)) {
+              loaded = wData.data;
+              offlineDb.woredas.bulkPut(wData.data).catch(() => {});
+            }
+          }
+        } catch (_wErr) {}
+      }
       setWoredas(loaded);
       setWoredaId('');
     };
@@ -122,7 +158,19 @@ export default function CreateAssignmentModal({
         setKebeleId('');
         return;
       }
-      const loaded = await offlineDb.kebeles.where('woredaId').equals(woredaId).sortBy('name');
+      let loaded = await offlineDb.kebeles.where('woredaId').equals(woredaId).sortBy('name');
+      if (loaded.length === 0 && navigator.onLine) {
+        try {
+          const kRes = await fetch(`${API_BASE}/locations/woredas/${woredaId}/kebeles`);
+          if (kRes.ok) {
+            const kData = await kRes.json();
+            if (kData.success && Array.isArray(kData.data)) {
+              loaded = kData.data;
+              offlineDb.kebeles.bulkPut(kData.data).catch(() => {});
+            }
+          }
+        } catch (_kErr) {}
+      }
       setKebeles(loaded);
       setKebeleId('');
     };

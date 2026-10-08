@@ -139,6 +139,8 @@ export default function LocationDropdown({
             const data = await res.json();
             if (isMounted && data.success && Array.isArray(data.data) && data.data.length > 0) {
               setRegions(data.data);
+              setLoadingRegions(false);
+              offlineDb.regions.bulkPut(data.data).catch(() => {});
               return;
             }
           }
@@ -151,6 +153,7 @@ export default function LocationDropdown({
         const offRegs = await offlineDb.regions.orderBy('name').toArray();
         if (isMounted && offRegs.length > 0) {
           setRegions(offRegs);
+          setLoadingRegions(false);
           return;
         }
       } catch (_e) {}
@@ -185,6 +188,7 @@ export default function LocationDropdown({
             if (isMounted && data.success && Array.isArray(data.data) && data.data.length > 0) {
               setZones(data.data);
               setLoadingZones(false);
+              offlineDb.zones.bulkPut(data.data).catch(() => {});
               return;
             }
           }
@@ -239,6 +243,7 @@ export default function LocationDropdown({
               if (isMounted && wData.success && Array.isArray(wData.data) && wData.data.length > 0) {
                 setWoredas(wData.data);
                 loadedWoredas = true;
+                offlineDb.woredas.bulkPut(wData.data).catch(() => {});
               }
             }
           }

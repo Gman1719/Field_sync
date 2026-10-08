@@ -17,7 +17,9 @@ async function main() {
   console.log('🌱 Starting FieldSync Database Seed via Prisma...');
 
   // 1. Load Ethiopian Hierarchy
-  const dataPath = path.resolve(__dirname, '../../api/data/ethiopia-locations.json');
+  const archivePath = path.resolve(__dirname, '../../_archive/api/data/ethiopia-locations.json');
+  const legacyPath = path.resolve(__dirname, '../../api/data/ethiopia-locations.json');
+  const dataPath = fs.existsSync(archivePath) ? archivePath : legacyPath;
   if (!fs.existsSync(dataPath)) {
     throw new Error(`Location dataset not found at ${dataPath}`);
   }
