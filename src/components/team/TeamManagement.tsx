@@ -19,6 +19,7 @@ import Button from '../ui/Button';
 import Badge from '../ui/Badge';
 import Modal from '../ui/Modal';
 import { useUserLanguage } from '../../context/UserLanguageContext';
+import { API_BASE } from '../../config/api';
 
 const REAL_ETHIOPIAN_REGIONS = [
   'Addis Ababa',
@@ -73,7 +74,7 @@ export default function TeamManagement({
     const fetchLiveOfficers = async () => {
       try {
         const token = localStorage.getItem('token') || localStorage.getItem('fieldsync_token') || sessionStorage.getItem('token');
-        const res = await fetch('/api/work-monitoring/officers', {
+        const res = await fetch(`${API_BASE}/work-monitoring/officers`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
         if (res.ok) {
