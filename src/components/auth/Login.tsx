@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Mail, Lock, Eye, EyeOff,
-  ArrowRight, Sun, Moon, Radio, ShieldCheck
+  ArrowRight, Sun, Moon, Radio
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { useUserLanguage } from '../../context/UserLanguageContext';
@@ -66,47 +66,14 @@ export default function Login({
       {/* ============================================================== */}
       {/* DESKTOP HERO PANEL: Full-height Hero Image (Hidden on Mobile/Tablet) */}
       {/* ============================================================== */}
-      <div className="hidden lg:flex lg:w-1/2 p-6 xl:p-8 flex-col justify-between relative">
-        <div className="relative w-full h-full min-h-[calc(100vh-3rem)] rounded-3xl overflow-hidden border border-slate-200/90 dark:border-slate-800 shadow-2xl bg-slate-950 flex flex-col justify-between p-8 xl:p-10 group">
-          {/* Background Image */}
+      <div className="hidden lg:flex lg:w-1/2 p-6 xl:p-8 flex-col justify-center relative">
+        <div className="relative w-full h-full min-h-[calc(100vh-3rem)] rounded-3xl overflow-hidden border border-slate-200/90 dark:border-slate-800 shadow-2xl bg-slate-950 group">
+          {/* Background Image - Only the clean image without text overlays */}
           <img
             src={heroImage}
             alt="FieldSync Officer performing offline citizen registration"
-            className="absolute inset-0 w-full h-full object-cover object-center transform group-hover:scale-[1.02] transition-transform duration-700"
+            className="w-full h-full object-cover object-center transform group-hover:scale-[1.01] transition-transform duration-700 block"
           />
-
-          {/* Vignette Overlay Gradients */}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-slate-950/20 pointer-events-none" />
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/50 to-transparent pointer-events-none" />
-
-          {/* Desktop Top Brand Badge */}
-          <div className="relative z-10 flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#2563EB] to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/30 ring-2 ring-white/20">
-              <Radio className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="text-xl font-black tracking-tight text-white block">
-                FieldSync
-              </span>
-              <span className="text-xs font-semibold text-blue-200/90 tracking-wide uppercase">
-                {userT('National Citizen Registry')}
-              </span>
-            </div>
-          </div>
-
-          {/* Desktop Bottom Caption Card */}
-          <div className="relative z-10 bg-slate-900/80 backdrop-blur-md rounded-2xl border border-white/10 p-5 xl:p-6 shadow-xl max-w-lg">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-bold mb-3">
-              <ShieldCheck className="w-3.5 h-3.5 text-blue-400" />
-              <span>{userT('Offline-First Architecture')}</span>
-            </div>
-            <h3 className="text-lg xl:text-xl font-bold text-white leading-snug">
-              {userT('Register citizens securely from anywhere — even without internet.')}
-            </h3>
-            <p className="mt-2 text-xs xl:text-sm text-slate-300 leading-relaxed">
-              {userT('Frontline data intake with instant local storage and cryptographic synchronization across Ethiopia.')}
-            </p>
-          </div>
         </div>
       </div>
 
