@@ -1,0 +1,608 @@
+// Prisma schema for FieldSync
+// PostgreSQL Relational Database Schema with Region -> Zone -> Woreda -> Kebele Ethiopian Geographic Hierarchy
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// -------------------------------------------------------------
+// ENUMS
+// -------------------------------------------------------------
+
+enum Role {
+  FIELD_OFFICER
+  SUPERVISOR
+  MANAGER
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum SyncStatus {
+  PENDING
+  SYNCING
+  SYNCED
+  FAILED
+  NEEDS_REVIEW
+}
+
+enum DuplicateReviewStatus {
+  NO_DUPLICATE_DETECTED
+  POSSIBLE_DUPLICATE
+  NEEDS_REVIEW
+  CONFIRMED_DUPLICATE
+  APPROVED_AS_DIFFERENT
+}
+
+enum AssignmentStatus {
+  ASSIGNED
+  IN_PROGRESS
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+enum NotificationPriority {
+  NORMAL
+  IMPORTANT
+  URGENT
+}
+
+enum ScreenTimeStatus {
+  NOT_STARTED
+  TRACKING
+  NOT_TRACKING
+  VERIFICATION_PENDING
+  FINALIZED
+}
+
+enum VerificationStatus {
+  SCHEDULED
+  PENDING
+  CONFIRMED
+  MISSED
+  CONFIRMED_OFFLINE
+  MISSED_OFFLINE
+  NO_ACTIVE_SESSION
+  NO_ACTIVE_CONNECTION
+  SYNC_PENDING
+  SYNC_FAILED
+  SYNCED
+}
+
+enum VerificationFailureReason {
+  NO_RESPONSE
+  NO_ACTIVE_SESSION
+  NO_ACTIVE_CONNECTION
+  CLIENT_NOT_AVAILABLE
+  TAB_HIDDEN
+  NETWORK_UNAVAILABLE
+  SESSION_NOT_ACTIVE
+}
+
+enum ConnectionState {
+  ONLINE
+  OFFLINE
+  UNKNOWN
+}
+
+enum LoginState {
+  LOGGED_IN
+  LOGGED_OUT
+  SESSION_EXPIRED
+  UNKNOWN
+}
+
+enum WorkSessionState {
+  NOT_STARTED
+  ACTIVE
+  FINALIZED
+}
+
+// -------------------------------------------------------------
+// GEOGRAPHIC HIERARCHY MODELS (REGION -> ZONE -> WOREDA -> KEBELE)
+// -------------------------------------------------------------
+
+model Region {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  code        String    @unique
+  description String?
+  zones       Zone[]
+  users       User[]
+  citizens    Citizen[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("regions")
+}
+
+model Zone {
+  id          String    @id @default(uuid())
+  name        String
+  code        String
+  description String?
+  regionId    String
+  region      Region    @relation(fields: [regionId], references: [id], onDelete: Cascade)
+  woredas     Woreda[]
+  users       User[]
+  citizens    Citizen[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([regionId])
+  @@map("zones")
+}
+
+model Woreda {
+  id          String       @id @default(uuid())
+  name        String
+  code        String
+  description String?
+  zoneId      String
+  zone        Zone         @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  kebeles     Kebele[]
+  users       User[]
+  citizens    Citizen[]
+  assignments Assignment[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([zoneId])
+  @@map("woredas")
+}
+
+model Kebele {
+  id          String       @id @default(uuid())
+  name        String
+  code        String
+  description String?
+  woredaId    String
+  woreda      Woreda       @relation(fields: [woredaId], references: [id], onDelete: Cascade)
+  users       User[]
+  citizens    Citizen[]
+  assignments Assignment[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([woredaId])
+  @@map("kebeles")
+}
+
+// -------------------------------------------------------------
+// USER & RBAC MODEL
+// -------------------------------------------------------------
+
+model User {
+  id                 String    @id @default(uuid())
+  fullName           String
+  email              String    @unique
+  passwordHash       String
+  role               Role      @default(FIELD_OFFICER)
+  phoneNumber        String?
+  firstName          String?
+  middleName         String?
+  lastName           String?
+  profilePhotoUrl    String?
+  isActive           Boolean   @default(true)
+  mustChangePassword Boolean   @default(false)
+  lastLogin          DateTime?
+
+  // Geographic Placement
+  regionId           String?
+  zoneId             String?
+  woredaId           String?
+  kebeleId           String?
+
+  region             Region?   @relation(fields: [regionId], references: [id], onDelete: SetNull)
+  zone               Zone?     @relation(fields: [zoneId], references: [id], onDelete: SetNull)
+  woreda             Woreda?   @relation(fields: [woredaId], references: [id], onDelete: SetNull)
+  kebele             Kebele?   @relation(fields: [kebeleId], references: [id], onDelete: SetNull)
+
+  // Supervisory Hierarchy (Field Officer -> Supervisor)
+  supervisorId       String?
+  supervisor         User?     @relation("SupervisorOfficers", fields: [supervisorId], references: [id], onDelete: SetNull)
+  officers           User[]    @relation("SupervisorOfficers")
+
+  // Operational Links
+  registeredCitizens Citizen[]         @relation("OfficerCitizens")
+  reviewedDuplicates DuplicateReview[] @relation("ReviewerDuplicates")
+  notifications      Notification[]
+  auditLogs          AuditLog[]
+
+  // Fieldwork Assignments
+  assignedTasks      Assignment[]      @relation("OfficerAssignments")
+  supervisedTasks    Assignment[]      @relation("SupervisorAssignments")
+
+  // Activity & Reports
+  activityLogs       ActivityLog[]     @relation("OfficerActivityLogs")
+  workSessions       WorkSession[]     @relation("OfficerWorkSessions")
+  dailyReports       DailyWorkReport[] @relation("OfficerDailyReports")
+  supervisedReports  DailyWorkReport[] @relation("SupervisorDailyReports")
+  syncErrors         SyncError[]       @relation("OfficerSyncErrors")
+  dailyScreenTimes   DailyScreenTime[] @relation("OfficerDailyScreenTimes")
+  workVerifications  WorkVerification[] @relation("OfficerVerifications")
+
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  @@index([role])
+  @@index([regionId])
+  @@index([zoneId])
+  @@index([woredaId])
+  @@index([kebeleId])
+  @@index([supervisorId])
+  @@map("users")
+}
+
+// -------------------------------------------------------------
+// CITIZEN MODEL (WITH REGION -> ZONE -> WOREDA -> KEBELE ADDRESS)
+// -------------------------------------------------------------
+
+model Citizen {
+  id                    String                @id @default(uuid())
+  firstName             String
+  middleName            String?
+  lastName              String
+  dateOfBirth           DateTime?
+  age                   Int?
+  gender                Gender
+  maritalStatus         String?
+  phoneNumber           String?               // Optional, not globally unique
+  alternativePhone      String?               // Optional
+
+  // Full Citizen Address Hierarchy
+  regionId              String
+  zoneId                String
+  woredaId              String
+  kebeleId              String
+  village               String                // Village or Community (Required)
+
+  registeredById        String
+  assignmentId          String?
+  clientRecordId        String                @unique // Stable UUID for idempotent sync
+  syncStatus            SyncStatus            @default(SYNCED)
+  duplicateReviewStatus DuplicateReviewStatus @default(NO_DUPLICATE_DETECTED)
+  registrationTimestamp DateTime              @default(now())
+
+  region                Region                @relation(fields: [regionId], references: [id], onDelete: Restrict)
+  zone                  Zone                  @relation(fields: [zoneId], references: [id], onDelete: Restrict)
+  woreda                Woreda                @relation(fields: [woredaId], references: [id], onDelete: Restrict)
+  kebele                Kebele                @relation(fields: [kebeleId], references: [id], onDelete: Restrict)
+  registeredBy          User                  @relation("OfficerCitizens", fields: [registeredById], references: [id], onDelete: Restrict)
+  assignment            Assignment?           @relation(fields: [assignmentId], references: [id], onDelete: SetNull)
+
+  duplicateReviews      DuplicateReview[]     @relation("CitizenDuplicateReview")
+  suspectedDuplicates   DuplicateReview[]     @relation("SuspectedDuplicateCitizen")
+
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+
+  @@index([regionId])
+  @@index([zoneId])
+  @@index([woredaId])
+  @@index([kebeleId])
+  @@index([registeredById])
+  @@index([firstName, lastName])
+  @@index([clientRecordId])
+  @@index([syncStatus])
+  @@map("citizens")
+}
+
+// -------------------------------------------------------------
+// FIELDWORK ASSIGNMENT MODEL
+// -------------------------------------------------------------
+
+model Assignment {
+  id                   String           @id @default(uuid())
+  title                String
+  description          String?
+  targetCount          Int              @default(0)
+  status               AssignmentStatus @default(ASSIGNED)
+  assignedOfficerId    String
+  assignedSupervisorId String?
+  woredaId             String?
+  kebeleId             String?
+  startDate            DateTime         @default(now())
+  endDate              DateTime?
+
+  assignedOfficer      User             @relation("OfficerAssignments", fields: [assignedOfficerId], references: [id], onDelete: Cascade)
+  assignedSupervisor   User?            @relation("SupervisorAssignments", fields: [assignedSupervisorId], references: [id], onDelete: SetNull)
+  woreda               Woreda?          @relation(fields: [woredaId], references: [id], onDelete: SetNull)
+  kebele               Kebele?          @relation(fields: [kebeleId], references: [id], onDelete: SetNull)
+
+  citizens             Citizen[]
+  activityLogs         ActivityLog[]
+  workSessions         WorkSession[]
+  dailyReports         DailyWorkReport[]
+
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+
+  @@index([assignedOfficerId])
+  @@index([assignedSupervisorId])
+  @@index([status])
+  @@index([woredaId])
+  @@index([kebeleId])
+  @@map("assignments")
+}
+
+// -------------------------------------------------------------
+// OFFLINE ACTIVITY LOG MODEL
+// -------------------------------------------------------------
+
+model ActivityLog {
+  id               String      @id // Device-generated stable UUID
+  officerId        String
+  assignmentId     String?
+  eventType        String
+  description      String
+  deviceTimestamp  DateTime
+  serverReceivedAt DateTime    @default(now())
+  relatedRecordId  String?
+  metadata         Json?
+  syncStatus       SyncStatus  @default(SYNCED)
+
+  officer          User        @relation("OfficerActivityLogs", fields: [officerId], references: [id], onDelete: Cascade)
+  assignment       Assignment? @relation(fields: [assignmentId], references: [id], onDelete: SetNull)
+
+  createdAt        DateTime    @default(now())
+
+  @@index([officerId])
+  @@index([assignmentId])
+  @@index([eventType])
+  @@index([deviceTimestamp])
+  @@index([syncStatus])
+  @@map("activity_logs")
+}
+
+// -------------------------------------------------------------
+// WORK SESSIONS & SCREEN TIME MODEL
+// -------------------------------------------------------------
+
+model WorkSession {
+  id               String      @id // Device-generated stable UUID
+  officerId        String
+  assignmentId     String?
+  reportDate       String      // Formatted YYYY-MM-DD
+  startedAt        DateTime
+  endedAt          DateTime?
+  durationSeconds  Int         @default(0)
+  deviceReported   Boolean     @default(true)
+  serverReceivedAt DateTime    @default(now())
+  syncStatus       SyncStatus  @default(SYNCED)
+
+  officer          User        @relation("OfficerWorkSessions", fields: [officerId], references: [id], onDelete: Cascade)
+  assignment       Assignment? @relation(fields: [assignmentId], references: [id], onDelete: SetNull)
+
+  createdAt        DateTime    @default(now())
+
+  @@index([officerId])
+  @@index([reportDate])
+  @@index([assignmentId])
+  @@index([startedAt])
+  @@map("work_sessions")
+}
+
+// -------------------------------------------------------------
+// DAILY SCREEN TIME TELEMETRY MODEL
+// -------------------------------------------------------------
+
+model DailyScreenTime {
+  id                   String           @id @default(uuid())
+  officerId            String
+  workSessionId        String?
+  date                 String           // Formatted YYYY-MM-DD
+  startedAt            DateTime?
+  finalizedAt          DateTime?
+  totalEligibleSeconds Int              @default(0)
+  status               ScreenTimeStatus @default(NOT_STARTED)
+  lastActivityAt       DateTime?
+  lastSyncedAt         DateTime?
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+
+  officer              User             @relation("OfficerDailyScreenTimes", fields: [officerId], references: [id], onDelete: Cascade)
+
+  @@unique([officerId, date])
+  @@index([officerId])
+  @@index([date])
+  @@index([status])
+  @@map("daily_screen_times")
+}
+
+// -------------------------------------------------------------
+// RANDOM WORK VERIFICATION MODEL
+// -------------------------------------------------------------
+
+model WorkVerification {
+  id                  String                     @id @default(uuid())
+  officerId           String
+  workSessionId       String?
+  scheduledAt         DateTime
+  triggeredAt         DateTime?
+  respondedAt         DateTime?
+  deadlineAt          DateTime
+  status              VerificationStatus         @default(SCHEDULED)
+  responseTimeSeconds Float?
+  failureReason       VerificationFailureReason?
+
+  connectionState     ConnectionState            @default(UNKNOWN)
+  loginState          LoginState                 @default(UNKNOWN)
+
+  trackingStateBefore ScreenTimeStatus?
+  trackingStateAfter  ScreenTimeStatus?
+
+  offlineCreated      Boolean                    @default(false)
+  syncStatus          SyncStatus                 @default(SYNCED)
+  syncedAt            DateTime?
+
+  date                String                     // Formatted YYYY-MM-DD
+  notes               String?
+
+  createdAt           DateTime                   @default(now())
+  updatedAt           DateTime                   @updatedAt
+
+  officer             User                       @relation("OfficerVerifications", fields: [officerId], references: [id], onDelete: Cascade)
+
+  @@index([officerId])
+  @@index([date])
+  @@index([scheduledAt])
+  @@index([status])
+  @@index([syncStatus])
+  @@map("work_verifications")
+}
+
+// -------------------------------------------------------------
+// DAILY WORK REPORT MODEL
+// -------------------------------------------------------------
+
+model DailyWorkReport {
+  id                          String      @id // Device-generated stable UUID
+  officerId                   String
+  supervisorId                String?
+  reportDate                  String      // Formatted YYYY-MM-DD
+  assignmentId                String?
+  citizenCountLocal           Int         @default(0)
+  citizenCountServerConfirmed Int         @default(0)
+  activityCount               Int         @default(0)
+  sessionCount                Int         @default(0)
+  screenTimeSeconds           Int         @default(0)
+  comments                    String?
+  submittedAt                 DateTime
+  serverReceivedAt            DateTime    @default(now())
+  syncStatus                  SyncStatus  @default(SYNCED)
+
+  officer                     User        @relation("OfficerDailyReports", fields: [officerId], references: [id], onDelete: Cascade)
+  supervisor                  User?       @relation("SupervisorDailyReports", fields: [supervisorId], references: [id], onDelete: SetNull)
+  assignment                  Assignment? @relation(fields: [assignmentId], references: [id], onDelete: SetNull)
+
+  createdAt                   DateTime    @default(now())
+  updatedAt                   DateTime    @updatedAt
+
+  @@unique([officerId, reportDate, assignmentId])
+  @@index([officerId])
+  @@index([supervisorId])
+  @@index([reportDate])
+  @@index([syncStatus])
+  @@map("daily_work_reports")
+}
+
+// -------------------------------------------------------------
+// DUPLICATE REVIEW MODEL
+// -------------------------------------------------------------
+
+model DuplicateReview {
+  id                   String                @id @default(uuid())
+  citizenId            String
+  suspectedDuplicateId String?
+  reviewerId           String?
+  status               DuplicateReviewStatus @default(NEEDS_REVIEW)
+  matchReason          String
+  notes                String?
+  reviewedAt           DateTime?
+
+  citizen              Citizen               @relation("CitizenDuplicateReview", fields: [citizenId], references: [id], onDelete: Cascade)
+  suspectedDuplicate   Citizen?              @relation("SuspectedDuplicateCitizen", fields: [suspectedDuplicateId], references: [id], onDelete: SetNull)
+  reviewer             User?                 @relation("ReviewerDuplicates", fields: [reviewerId], references: [id], onDelete: SetNull)
+
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+
+  @@index([status])
+  @@index([citizenId])
+  @@index([reviewerId])
+  @@map("duplicate_reviews")
+}
+
+// -------------------------------------------------------------
+// NOTIFICATION MODEL
+// -------------------------------------------------------------
+
+model Notification {
+  id              String               @id @default(uuid())
+  recipientId     String
+  title           String
+  message         String
+  type            String
+  priority        NotificationPriority @default(NORMAL)
+  isRead          Boolean              @default(false)
+  readAt          DateTime?
+  relatedRecordId String?
+  actionUrl       String?
+  metadata        Json?
+
+  recipient       User                 @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @default(now()) @updatedAt
+
+  @@index([recipientId])
+  @@index([isRead])
+  @@index([type])
+  @@index([priority])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+// -------------------------------------------------------------
+// AUDIT LOG MODEL
+// -------------------------------------------------------------
+
+model AuditLog {
+  id             String   @id @default(uuid())
+  actorId        String?
+  actorName      String?
+  actorRole      String?
+  action         String
+  entityType     String
+  entityId       String
+  zoneId         String?
+  summary        String?
+  previousValues Json?
+  newValues      Json?
+  metadata       Json?
+  ipAddress      String?
+
+  actor          User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  createdAt      DateTime @default(now())
+
+  @@index([actorId])
+  @@index([entityType])
+  @@index([zoneId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// -------------------------------------------------------------
+// SYNC ERROR MODEL
+// -------------------------------------------------------------
+
+model SyncError {
+  id           String   @id @default(uuid())
+  officerId    String
+  entityType   String
+  recordId     String
+  errorMessage String
+  errorDetails Json?
+  resolved     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  officer      User     @relation("OfficerSyncErrors", fields: [officerId], references: [id], onDelete: Cascade)
+
+  @@index([officerId])
+  @@index([entityType])
+  @@index([resolved])
+  @@map("sync_errors")
+}

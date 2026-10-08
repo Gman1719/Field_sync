@@ -14,6 +14,8 @@ build/
 .env.development.local
 .env.test.local
 .env.production.local
+server/.env
+server/.env.*
 
 # Logs
 npm-debug.log*
@@ -36,7 +38,7 @@ lerna-debug.log*
 Thumbs.db
 
 # FieldSync specific
+_archive/
 _archive_legacy/
 backend/
-server/
 *.log
