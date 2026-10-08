@@ -148,32 +148,34 @@ export default function Header({
   };
 
   return (
-    <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-30 px-4 sm:px-6 flex items-center justify-between shadow-xs transition-colors duration-200">
-      <div className="flex items-center gap-3 min-w-0">
+    <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-30 px-3 sm:px-6 flex items-center justify-between gap-2 shadow-xs transition-colors duration-200">
+      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+        {/* Prominent, Accessible Mobile Hamburger Menu Button */}
         <button
           type="button"
           onClick={() => setIsMobileOpen && setIsMobileOpen(true)}
-          className="lg:hidden p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-          title="Open Menu"
+          className="lg:hidden w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 border border-slate-200/80 dark:border-slate-700 flex items-center justify-center shrink-0 cursor-pointer shadow-2xs transition-all active:scale-95"
+          title={userT('Open Menu')}
+          aria-label={userT('Open Navigation Menu')}
         >
-          <Menu className="w-5 h-5" />
+          <Menu className="w-5 h-5 text-slate-700 dark:text-slate-200" />
         </button>
 
         <div className="min-w-0">
-          <div className="flex items-center gap-1.5 text-xs sm:text-sm text-slate-400 dark:text-slate-500">
+          <div className="hidden sm:flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500">
             <span className="hover:text-slate-600 dark:hover:text-slate-300 transition-colors">FieldSync</span>
             <ChevronRight className="w-3.5 h-3.5 text-slate-300 dark:text-slate-600" />
             <span className="text-slate-600 dark:text-slate-400 font-medium capitalize truncate">
               {userT(user?.role?.replace('_', ' ') || 'Staff')}
             </span>
           </div>
-          <h1 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white truncate tracking-tight">
+          <h1 className="text-sm sm:text-base lg:text-lg font-bold text-slate-900 dark:text-white truncate tracking-tight">
             {userT(tabTitles[activeTab] || 'Overview')}
           </h1>
         </div>
       </div>
 
-      <div className="flex items-center gap-2 sm:gap-3">
+      <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
         <SyncBadge
           isOnline={isOnline}
           syncing={syncing}

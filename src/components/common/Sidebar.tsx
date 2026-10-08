@@ -152,13 +152,13 @@ export default function Sidebar({
     <>
       {isMobileOpen && (
         <div
-          className="fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-xs lg:hidden"
+          className="fixed inset-0 z-40 bg-slate-950/60 backdrop-blur-sm lg:hidden animate-in fade-in duration-200"
           onClick={() => setIsMobileOpen && setIsMobileOpen(false)}
         />
       )}
 
       <aside
-        className={`fixed top-0 left-0 z-40 h-full w-64 bg-white dark:bg-slate-900 border-r border-slate-200/90 dark:border-slate-700 flex flex-col transition-transform duration-200 ease-in-out lg:translate-x-0 ${
+        className={`fixed top-0 left-0 z-50 h-full w-72 max-w-[85vw] bg-white dark:bg-slate-900 border-r border-slate-200/90 dark:border-slate-700 flex flex-col transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-none lg:w-64 lg:translate-x-0 ${
           isMobileOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -167,11 +167,12 @@ export default function Sidebar({
             onClick={() => {
               window.location.hash = '#home';
               window.dispatchEvent(new HashChangeEvent('hashchange'));
+              if (setIsMobileOpen) setIsMobileOpen(false);
             }}
             className="flex items-center gap-3 cursor-pointer group"
             title={userT('View Home Page')}
           >
-            <div className="w-9 h-9 rounded-xl bg-[#2563EB] flex items-center justify-center text-white shadow-xs group-hover:scale-105 transition-transform">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#2563EB] to-indigo-600 flex items-center justify-center text-white shadow-xs group-hover:scale-105 transition-transform">
               <Radio className="w-5 h-5" />
             </div>
             <div>
@@ -187,7 +188,8 @@ export default function Sidebar({
           <button
             type="button"
             onClick={() => setIsMobileOpen && setIsMobileOpen(false)}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 lg:hidden"
+            className="w-9 h-9 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-700 dark:text-slate-300 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors lg:hidden cursor-pointer"
+            aria-label="Close menu"
           >
             <X className="w-5 h-5" />
           </button>

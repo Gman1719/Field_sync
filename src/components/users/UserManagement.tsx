@@ -26,7 +26,6 @@ import UserDetailsModal from './UserDetailsModal';
 import UserEditModal from './UserEditModal';
 import UserReassignModal from './UserReassignModal';
 import UserRoleModal from './UserRoleModal';
-import LanguageSelector from '../common/LanguageSelector';
 import { useUserLanguage } from '../../context/UserLanguageContext';
 
 export default function UserManagement({
@@ -569,41 +568,159 @@ export default function UserManagement({
   return (
     <div className="space-y-6">
       {/* 1. Header & Add Action */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-row items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight flex items-center gap-2.5">
-            <ShieldCheck className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-            {userT('User & Workstation Management')}
+          <h2 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight flex items-center gap-2">
+            <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400 shrink-0" />
+            <span>{userT('Staff & Roles')}</span>
+            <span className="text-xs px-2 py-0.5 rounded-full font-bold bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300">
+              {filteredUsers.length}
+            </span>
           </h2>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+          <p className="hidden sm:block text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
             {userT('Administer system accounts, assign Ethiopian administrative hierarchies, and oversee role permissions')}
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <LanguageSelector />
-          <Button
-            variant="primary"
-            onClick={() => {
-              setNewUser(initialFormState);
-              setFormErrors({});
-              setShowAddModal(true);
-            }}
-            className="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-semibold h-10 px-4 rounded-xl shadow-sm shadow-blue-600/20 text-xs sm:text-sm"
-          >
-            <UserPlus className="w-4 h-4 mr-2" />
-            {userT('Create User')}
-          </Button>
-        </div>
+        <Button
+          variant="primary"
+          onClick={() => {
+            setNewUser(initialFormState);
+            setFormErrors({});
+            setShowAddModal(true);
+          }}
+          className="bg-blue-600 hover:bg-blue-500 text-white font-semibold h-9 sm:h-10 px-3 sm:px-4 rounded-xl shadow-sm shadow-blue-600/20 text-xs sm:text-sm shrink-0 flex items-center gap-1.5"
+        >
+          <UserPlus className="w-4 h-4" />
+          <span className="hidden xs:inline sm:inline">{userT('Create User')}</span>
+          <span className="xs:hidden sm:hidden">{userT('Add')}</span>
+        </Button>
       </div>
 
-      {/* 2. Summary KPI Metrics (6 Evenly Spaced Cards - Responsive on click, No Icons) */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-3.5">
+      {/* Mobile-Friendly Horizontal Filter Pills (Visible ONLY on mobile < sm) */}
+      <div className="sm:hidden -mx-4 px-4 overflow-x-auto no-scrollbar flex items-center gap-2 py-1">
+        <button
+          type="button"
+          onClick={() => {
+            setRoleFilter('all');
+            setStatusFilter('all');
+            setRegionFilter('all');
+            setSpecialFilter('all');
+            setSearchTerm('');
+          }}
+          className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
+            roleFilter === 'all' && statusFilter === 'all' && regionFilter === 'all' && specialFilter === 'all' && !searchTerm
+              ? 'bg-blue-600 text-white shadow-sm shadow-blue-600/30'
+              : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
+          }`}
+        >
+          <span>{userT('All')}</span>
+          <span className="opacity-80 text-[11px]">({stats.totalUsers})</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setStatusFilter(prev => prev === 'active' && roleFilter === 'all' ? 'all' : 'active');
+            setRoleFilter('all');
+            setSpecialFilter('all');
+          }}
+          className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
+            statusFilter === 'active' && roleFilter === 'all' && specialFilter === 'all'
+              ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-600/30'
+              : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
+          }`}
+        >
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
+          <span>{userT('Active')}</span>
+          <span className="opacity-80 text-[11px]">({stats.activeUsers})</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setRoleFilter(prev => prev === 'field_officer' && specialFilter === 'all' ? 'all' : 'field_officer');
+            setStatusFilter('all');
+            setSpecialFilter('all');
+          }}
+          className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
+            roleFilter === 'field_officer' && specialFilter === 'all'
+              ? 'bg-blue-600 text-white shadow-sm shadow-blue-600/30'
+              : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
+          }`}
+        >
+          <span>{userT('Officers')}</span>
+          <span className="opacity-80 text-[11px]">({stats.fieldOfficers})</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setRoleFilter(prev => prev === 'supervisor' ? 'all' : 'supervisor');
+            setStatusFilter('all');
+            setSpecialFilter('all');
+          }}
+          className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
+            roleFilter === 'supervisor' && specialFilter === 'all'
+              ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-600/30'
+              : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
+          }`}
+        >
+          <span>{userT('Supervisors')}</span>
+          <span className="opacity-80 text-[11px]">({stats.supervisors})</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setRoleFilter(prev => prev === 'manager' ? 'all' : 'manager');
+            setStatusFilter('all');
+            setSpecialFilter('all');
+          }}
+          className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
+            roleFilter === 'manager' && specialFilter === 'all'
+              ? 'bg-purple-600 text-white shadow-sm shadow-purple-600/30'
+              : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
+          }`}
+        >
+          <span>{userT('Managers')}</span>
+          <span className="opacity-80 text-[11px]">({stats.managers})</span>
+        </button>
+
+        {(stats.unassignedFieldOfficers > 0 || stats.inactiveUsers > 0) && (
+          <button
+            type="button"
+            onClick={() => {
+              if (stats.unassignedFieldOfficers > 0) {
+                setSpecialFilter(prev => prev === 'unassigned' ? 'all' : 'unassigned');
+                setRoleFilter('field_officer');
+                setStatusFilter('all');
+              } else {
+                setStatusFilter(prev => prev === 'inactive' ? 'all' : 'inactive');
+                setRoleFilter('all');
+                setSpecialFilter('all');
+              }
+            }}
+            className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
+              specialFilter === 'unassigned' || statusFilter === 'inactive'
+                ? 'bg-amber-600 text-white shadow-sm shadow-amber-600/30'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
+            }`}
+          >
+            <span>{stats.unassignedFieldOfficers > 0 ? userT('Unassigned') : userT('Inactive')}</span>
+            <span className="opacity-80 text-[11px]">({stats.unassignedFieldOfficers > 0 ? stats.unassignedFieldOfficers : stats.inactiveUsers})</span>
+          </button>
+        )}
+      </div>
+
+      {/* 2. Summary KPI Metrics (Hidden on mobile < sm, visible on tablet & desktop sm:) */}
+      <div className="hidden sm:grid sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3.5">
         <StatCard
           label={userT('Total Personnel')}
           value={stats.totalUsers}
           variant="primary"
           subtitle={userT('All staff records')}
+          className="p-3 sm:p-4 lg:p-5"
           active={roleFilter === 'all' && statusFilter === 'all' && regionFilter === 'all' && specialFilter === 'all' && !searchTerm}
           onClick={() => {
             setRoleFilter('all');
@@ -618,6 +735,7 @@ export default function UserManagement({
           value={stats.activeUsers}
           variant="success"
           subtitle={userT('Operational')}
+          className="p-3 sm:p-4 lg:p-5"
           active={statusFilter === 'active' && roleFilter === 'all' && specialFilter === 'all'}
           onClick={() => {
             setStatusFilter(prev => prev === 'active' && roleFilter === 'all' ? 'all' : 'active');
@@ -630,6 +748,7 @@ export default function UserManagement({
           value={stats.fieldOfficers}
           variant="neutral"
           subtitle={userT('Frontline agents')}
+          className="p-3 sm:p-4 lg:p-5"
           active={roleFilter === 'field_officer' && specialFilter === 'all'}
           onClick={() => {
             setRoleFilter(prev => prev === 'field_officer' && specialFilter === 'all' ? 'all' : 'field_officer');
@@ -642,6 +761,7 @@ export default function UserManagement({
           value={stats.supervisors}
           variant="info"
           subtitle={userT('Zonal oversight')}
+          className="p-3 sm:p-4 lg:p-5"
           active={roleFilter === 'supervisor' && specialFilter === 'all'}
           onClick={() => {
             setRoleFilter(prev => prev === 'supervisor' ? 'all' : 'supervisor');
@@ -654,6 +774,7 @@ export default function UserManagement({
           value={stats.managers}
           variant="primary"
           subtitle={userT('Command tier')}
+          className="p-3 sm:p-4 lg:p-5"
           active={roleFilter === 'manager' && specialFilter === 'all'}
           onClick={() => {
             setRoleFilter(prev => prev === 'manager' ? 'all' : 'manager');
@@ -666,6 +787,7 @@ export default function UserManagement({
           value={stats.unassignedFieldOfficers > 0 ? stats.unassignedFieldOfficers : stats.inactiveUsers}
           variant={stats.unassignedFieldOfficers > 0 ? "warning" : "error"}
           subtitle={stats.unassignedFieldOfficers > 0 ? userT('Needs assignment') : userT('Disabled accounts')}
+          className="p-3 sm:p-4 lg:p-5"
           active={specialFilter === 'unassigned' || (stats.unassignedFieldOfficers === 0 && statusFilter === 'inactive' && roleFilter === 'all')}
           onClick={() => {
             if (stats.unassignedFieldOfficers > 0) {
@@ -692,7 +814,7 @@ export default function UserManagement({
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder={userT('Search by staff name, email, employee ID, or location...')}
-              className="w-full h-9 pl-9 pr-8 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-900/80 text-slate-900 dark:text-slate-100 text-xs sm:text-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+              className="w-full h-10 sm:h-9 pl-9 pr-8 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-900/80 text-slate-900 dark:text-slate-100 text-xs sm:text-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
             />
             {searchTerm && (
               <button
@@ -707,14 +829,14 @@ export default function UserManagement({
           </div>
 
           {/* Filter Dropdowns */}
-          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-3 lg:flex items-center gap-2">
             <select
               value={roleFilter}
               onChange={(e) => {
                 setRoleFilter(e.target.value);
                 setSpecialFilter('all');
               }}
-              className="h-9 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/80 text-slate-800 dark:text-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer min-w-[130px]"
+              className="h-10 sm:h-9 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/80 text-slate-800 dark:text-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer w-full lg:w-auto lg:min-w-[130px]"
             >
               <option value="all">{userT('All Roles')}</option>
               <option value="field_officer">{userT('Field Officers')}</option>
@@ -728,7 +850,7 @@ export default function UserManagement({
                 setStatusFilter(e.target.value);
                 setSpecialFilter('all');
               }}
-              className="h-9 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/80 text-slate-800 dark:text-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer min-w-[130px]"
+              className="h-10 sm:h-9 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/80 text-slate-800 dark:text-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer w-full lg:w-auto lg:min-w-[130px]"
             >
               <option value="all">{userT('All Statuses')}</option>
               <option value="active">{userT('Active Accounts')}</option>
@@ -738,7 +860,7 @@ export default function UserManagement({
             <select
               value={regionFilter}
               onChange={(e) => setRegionFilter(e.target.value)}
-              className="h-9 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/80 text-slate-800 dark:text-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer min-w-[140px]"
+              className="h-10 sm:h-9 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/80 text-slate-800 dark:text-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer w-full lg:w-auto lg:min-w-[140px]"
             >
               <option value="all">{userT('All Regions')}</option>
               {availableRegions.map((reg) => (
@@ -756,7 +878,7 @@ export default function UserManagement({
                   setRegionFilter('all');
                   setSpecialFilter('all');
                 }}
-                className="h-9 px-3.5 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800/90 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer shadow-2xs"
+                className="h-10 sm:h-9 px-3.5 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800/90 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 transition-all flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer shadow-2xs col-span-1 sm:col-span-3 lg:col-span-1"
                 title={userT('Reset all filters')}
               >
                 <RefreshCw className="w-3.5 h-3.5" />
@@ -767,7 +889,7 @@ export default function UserManagement({
         </div>
       </div>
 
-      {/* 4. Staff Directory Table (Contained Layout, Separate Location Columns) */}
+      {/* 4. Staff Directory Table & Responsive Mobile/Tablet Cards */}
       <Card className="bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/70 rounded-xl shadow-xs overflow-hidden">
         <CardHeader className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-700/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
@@ -779,7 +901,7 @@ export default function UserManagement({
             </CardDescription>
           </div>
           {(searchTerm || roleFilter !== 'all' || statusFilter !== 'all' || regionFilter !== 'all' || specialFilter !== 'all') && (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-300 border border-blue-200 dark:border-blue-900">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-300 border border-blue-200 dark:border-blue-900 self-start sm:self-auto">
               {userT('Filtered Records')}
             </span>
           )}
@@ -795,117 +917,226 @@ export default function UserManagement({
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs sm:text-sm">
-                <thead>
-                  <tr className="bg-slate-50/90 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-700/80 text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
-                    <th className="py-3 pl-4 sm:pl-6 pr-3">{userT('Staff Member')}</th>
-                    <th className="py-3 px-3">{userT('Role')}</th>
-                    <th className="py-3 px-3">{userT('Contact')}</th>
-                    <th className="py-3 px-3">{userT('Region')}</th>
-                    <th className="py-3 px-3">{userT('Zone')}</th>
-                    <th className="py-3 px-3">{userT('Woreda')}</th>
-                    <th className="py-3 px-3 text-center">{userT('Status')}</th>
-                    <th className="py-3 pr-4 sm:pr-6 pl-3 text-right">{userT('Actions')}</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60">
-                  {filteredUsers.map((u, idx) => {
-                    const isActive = u.status === 'active';
+            <>
+              {/* ============================================================== */}
+              {/* MOBILE & TABLET CARD VIEW (Visible on < lg screens)           */}
+              {/* ============================================================== */}
+              <div className="block lg:hidden divide-y divide-slate-100 dark:divide-slate-700/60 p-3 sm:p-4 space-y-3">
+                {filteredUsers.map((u) => {
+                  const isActive = u.status === 'active';
+                  const initials = (u.name || u.fullName || 'FS')
+                    .split(' ')
+                    .filter(Boolean)
+                    .slice(0, 2)
+                    .map((n: string) => n[0].toUpperCase())
+                    .join('');
 
-                    return (
-                      <tr
-                        key={u.id}
-                        className={`transition-colors ${
-                          idx % 2 === 1
-                            ? 'bg-slate-50/40 dark:bg-slate-800/30 hover:bg-slate-100/60 dark:hover:bg-slate-700/40'
-                            : 'bg-white dark:bg-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-700/40'
-                        }`}
-                      >
-                        {/* 1. Name & ID */}
-                        <td className="py-3 pl-4 sm:pl-6 pr-3 whitespace-nowrap">
-                          <p className="font-bold text-slate-900 dark:text-slate-100 text-sm">
-                            {u.name}
-                          </p>
-                          <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
-                            {u.employeeId}
-                          </p>
-                        </td>
-
-                        {/* 2. Role */}
-                        <td className="py-3 px-3 whitespace-nowrap">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${
+                  return (
+                    <div
+                      key={u.id}
+                      className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200/80 dark:border-slate-700/70 shadow-2xs space-y-3 hover:border-blue-300 dark:hover:border-slate-600 transition-all"
+                    >
+                      {/* Top: Avatar, Name, Employee ID & Status Badge */}
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 ${
                             u.role === 'manager'
-                              ? 'bg-blue-50 text-blue-700 border border-blue-200/80 dark:bg-blue-500/10 dark:text-blue-300 dark:border-blue-500/30'
+                              ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/60 dark:text-blue-300'
                               : u.role === 'supervisor'
-                              ? 'bg-indigo-50 text-indigo-700 border border-indigo-200/80 dark:bg-indigo-500/10 dark:text-indigo-300 dark:border-indigo-500/30'
-                              : 'bg-slate-100 text-slate-700 border border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700'
+                              ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/60 dark:text-indigo-300'
+                              : 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-200'
                           }`}>
-                            {userT(u.role?.replace('_', ' '))}
-                          </span>
-                        </td>
-
-                        {/* 3. Contact */}
-                        <td className="py-3 px-3">
-                          <p className="text-xs font-medium text-slate-800 dark:text-slate-200 truncate max-w-[150px]" title={u.email}>
-                            {u.email}
-                          </p>
-                          <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">
-                            {u.phone || '—'}
-                          </p>
-                        </td>
-
-                        {/* 4. Region */}
-                        <td className="py-3 px-3 whitespace-nowrap">
-                          <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
-                            {u.role === 'manager' ? userT('National') : (u.region ? userT(u.region) : '—')}
-                          </span>
-                        </td>
-
-                        {/* 5. Zone */}
-                        <td className="py-3 px-3 whitespace-nowrap">
-                          <span className="text-xs text-slate-600 dark:text-slate-400">
-                            {u.role === 'manager' ? userT('All Zones') : (u.zone ? userT(u.zone) : '—')}
-                          </span>
-                        </td>
-
-                        {/* 6. Woreda */}
-                        <td className="py-3 px-3 whitespace-nowrap">
-                          <span className="text-xs text-slate-600 dark:text-slate-400">
-                            {u.role === 'manager' || u.role === 'supervisor' ? userT('All Woredas') : (u.woreda ? userT(u.woreda) : '—')}
-                          </span>
-                        </td>
-
-                        {/* 7. Status */}
-                        <td className="py-3 px-3 text-center whitespace-nowrap">
-                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                            isActive
-                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/30'
-                              : 'bg-slate-100 text-slate-600 border border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'
-                          }`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-emerald-500' : 'bg-slate-400'}`} />
-                            {isActive ? userT('Active') : userT('Inactive')}
-                          </span>
-                        </td>
-
-                        {/* 8. Actions */}
-                        <td className="py-3 pr-4 sm:pr-6 pl-3 text-right whitespace-nowrap">
-                          <div className="inline-flex items-center gap-1.5 justify-end">
-                            <button
-                              type="button"
-                              onClick={() => setSelectedUserDetails(u)}
-                              className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white transition-all cursor-pointer shadow-xs active:scale-95"
-                            >
-                              {userT('Detail')}
-                            </button>
+                            {initials}
                           </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                          <div className="min-w-0">
+                            <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100 truncate">
+                              {u.name}
+                            </h4>
+                            <span className="font-mono text-[11px] text-slate-500 dark:text-slate-400">
+                              {u.employeeId}
+                            </span>
+                          </div>
+                        </div>
+
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold shrink-0 ${
+                          isActive
+                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/30'
+                            : 'bg-slate-100 text-slate-600 border border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'
+                        }`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
+                          {isActive ? userT('Active') : userT('Inactive')}
+                        </span>
+                      </div>
+
+                      {/* Role and Location Badge */}
+                      <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-slate-100 dark:border-slate-700/50">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize ${
+                          u.role === 'manager'
+                            ? 'bg-blue-50 text-blue-700 border border-blue-200/80 dark:bg-blue-500/10 dark:text-blue-300 dark:border-blue-500/30'
+                            : u.role === 'supervisor'
+                            ? 'bg-indigo-50 text-indigo-700 border border-indigo-200/80 dark:bg-indigo-500/10 dark:text-indigo-300 dark:border-indigo-500/30'
+                            : 'bg-slate-100 text-slate-700 border border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700'
+                        }`}>
+                          {userT(u.role?.replace('_', ' '))}
+                        </span>
+
+                        <div className="inline-flex items-center gap-1 text-xs text-slate-600 dark:text-slate-300 font-medium">
+                          <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                          <span className="truncate">
+                            {u.role === 'manager'
+                              ? userT('National Overview (All Regions)')
+                              : [u.region ? userT(u.region) : null, u.zone ? userT(u.zone) : null, u.woreda ? userT(u.woreda) : null]
+                                  .filter(Boolean)
+                                  .join(' • ') || '—'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Contact Info */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-500 dark:text-slate-400 bg-slate-50/70 dark:bg-slate-900/50 rounded-lg p-2.5 border border-slate-100 dark:border-slate-700/40">
+                        <div className="flex items-center gap-2 truncate">
+                          <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                          <span className="truncate font-medium text-slate-700 dark:text-slate-300">{u.email}</span>
+                        </div>
+                        {u.phone && (
+                          <div className="flex items-center gap-2 font-mono">
+                            <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                            <span>{u.phone}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Action Button */}
+                      <div className="pt-1">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedUserDetails(u)}
+                          className="w-full py-2.5 px-3 rounded-lg text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer active:scale-98"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>{userT('View Details & Manage')}</span>
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* ============================================================== */}
+              {/* DESKTOP TABLE VIEW (Visible on >= lg screens)                 */}
+              {/* ============================================================== */}
+              <div className="hidden lg:block overflow-x-auto">
+                <table className="w-full text-left text-xs sm:text-sm">
+                  <thead>
+                    <tr className="bg-slate-50/90 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-700/80 text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                      <th className="py-3 pl-4 sm:pl-6 pr-3">{userT('Staff Member')}</th>
+                      <th className="py-3 px-3">{userT('Role')}</th>
+                      <th className="py-3 px-3">{userT('Contact')}</th>
+                      <th className="py-3 px-3">{userT('Region')}</th>
+                      <th className="py-3 px-3">{userT('Zone')}</th>
+                      <th className="py-3 px-3">{userT('Woreda')}</th>
+                      <th className="py-3 px-3 text-center">{userT('Status')}</th>
+                      <th className="py-3 pr-4 sm:pr-6 pl-3 text-right">{userT('Actions')}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60">
+                    {filteredUsers.map((u, idx) => {
+                      const isActive = u.status === 'active';
+
+                      return (
+                        <tr
+                          key={u.id}
+                          className={`transition-colors ${
+                            idx % 2 === 1
+                              ? 'bg-slate-50/40 dark:bg-slate-800/30 hover:bg-slate-100/60 dark:hover:bg-slate-700/40'
+                              : 'bg-white dark:bg-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-700/40'
+                          }`}
+                        >
+                          {/* 1. Name & ID */}
+                          <td className="py-3 pl-4 sm:pl-6 pr-3 whitespace-nowrap">
+                            <p className="font-bold text-slate-900 dark:text-slate-100 text-sm">
+                              {u.name}
+                            </p>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+                              {u.employeeId}
+                            </p>
+                          </td>
+
+                          {/* 2. Role */}
+                          <td className="py-3 px-3 whitespace-nowrap">
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${
+                              u.role === 'manager'
+                                ? 'bg-blue-50 text-blue-700 border border-blue-200/80 dark:bg-blue-500/10 dark:text-blue-300 dark:border-blue-500/30'
+                                : u.role === 'supervisor'
+                                ? 'bg-indigo-50 text-indigo-700 border border-indigo-200/80 dark:bg-indigo-500/10 dark:text-indigo-300 dark:border-indigo-500/30'
+                                : 'bg-slate-100 text-slate-700 border border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700'
+                            }`}>
+                              {userT(u.role?.replace('_', ' '))}
+                            </span>
+                          </td>
+
+                          {/* 3. Contact */}
+                          <td className="py-3 px-3">
+                            <p className="text-xs font-medium text-slate-800 dark:text-slate-200 truncate max-w-[150px]" title={u.email}>
+                              {u.email}
+                            </p>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">
+                              {u.phone || '—'}
+                            </p>
+                          </td>
+
+                          {/* 4. Region */}
+                          <td className="py-3 px-3 whitespace-nowrap">
+                            <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                              {u.role === 'manager' ? userT('National') : (u.region ? userT(u.region) : '—')}
+                            </span>
+                          </td>
+
+                          {/* 5. Zone */}
+                          <td className="py-3 px-3 whitespace-nowrap">
+                            <span className="text-xs text-slate-600 dark:text-slate-400">
+                              {u.role === 'manager' ? userT('All Zones') : (u.zone ? userT(u.zone) : '—')}
+                            </span>
+                          </td>
+
+                          {/* 6. Woreda */}
+                          <td className="py-3 px-3 whitespace-nowrap">
+                            <span className="text-xs text-slate-600 dark:text-slate-400">
+                              {u.role === 'manager' || u.role === 'supervisor' ? userT('All Woredas') : (u.woreda ? userT(u.woreda) : '—')}
+                            </span>
+                          </td>
+
+                          {/* 7. Status */}
+                          <td className="py-3 px-3 text-center whitespace-nowrap">
+                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                              isActive
+                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/30'
+                                : 'bg-slate-100 text-slate-600 border border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'
+                            }`}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-emerald-500' : 'bg-slate-400'}`} />
+                              {isActive ? userT('Active') : userT('Inactive')}
+                            </span>
+                          </td>
+
+                          {/* 8. Actions */}
+                          <td className="py-3 pr-4 sm:pr-6 pl-3 text-right whitespace-nowrap">
+                            <div className="inline-flex items-center gap-1.5 justify-end">
+                              <button
+                                type="button"
+                                onClick={() => setSelectedUserDetails(u)}
+                                className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white transition-all cursor-pointer shadow-xs active:scale-95"
+                              >
+                                {userT('Detail')}
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
@@ -1131,6 +1362,20 @@ export default function UserManagement({
           onClose={() => setTempPasswordModalData(null)}
         />
       )}
+
+      {/* 11. Mobile Floating Action Button (FAB) for quick add */}
+      <button
+        type="button"
+        onClick={() => {
+          setNewUser(initialFormState);
+          setFormErrors({});
+          setShowAddModal(true);
+        }}
+        aria-label={userT('Create User')}
+        className="sm:hidden fixed bottom-20 right-4 z-20 w-12 h-12 rounded-full bg-blue-600 hover:bg-blue-500 active:scale-95 text-white shadow-lg shadow-blue-600/40 flex items-center justify-center transition-all focus:outline-none"
+      >
+        <UserPlus className="w-5 h-5" />
+      </button>
     </div>
   );
 }

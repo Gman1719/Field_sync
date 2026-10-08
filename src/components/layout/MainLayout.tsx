@@ -2,7 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
-import { X, RefreshCw } from 'lucide-react';
+import {
+  X, RefreshCw, Menu, LayoutDashboard,
+  UserCog, CalendarClock, UserPlus,
+  FileText, FilePlus2, MessageSquare, Database
+} from 'lucide-react';
+import { useUserLanguage } from '../../context/UserLanguageContext';
 
 // Common Components
 import Sidebar from '../common/Sidebar';
@@ -55,6 +60,7 @@ export default function MainLayout({
   appData,
   screenTimeInfo
 }) {
+  const { userT } = useUserLanguage();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showSyncLog, setShowSyncLog] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -381,7 +387,7 @@ export default function MainLayout({
           onLogout={onLogout}
         />
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+        <main className="flex-1 p-3 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto pb-24 lg:pb-8">
           {/* Dashboard - All Roles */}
           {activeTab === 'dashboard' && (
             <Dashboard
@@ -668,6 +674,160 @@ export default function MainLayout({
             </div>
           )}
         </main>
+
+        {/* ============================================================== */}
+        {/* MOBILE BOTTOM NAVIGATION BAR (Visible on < lg screens)        */}
+        {/* ============================================================== */}
+        <nav
+          aria-label="Mobile Navigation"
+          className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 shadow-lg px-2 py-1.5 flex items-center justify-around"
+        >
+          {/* Tab 1: Dashboard / Home (All roles) */}
+          <button
+            type="button"
+            onClick={() => setActiveTab('dashboard')}
+            className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-[10px] font-bold transition-all cursor-pointer ${
+              activeTab === 'dashboard'
+                ? 'text-[#2563EB] dark:text-blue-400 font-extrabold'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            <LayoutDashboard className="w-5 h-5 mb-0.5" />
+            <span>{userT('Home')}</span>
+          </button>
+
+          {/* Tab 2: Role-Specific Primary Tab */}
+          {isManager && (
+            <button
+              type="button"
+              onClick={() => setActiveTab('users')}
+              className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-[10px] font-bold transition-all cursor-pointer ${
+                activeTab === 'users'
+                  ? 'text-[#2563EB] dark:text-blue-400 font-extrabold'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <UserCog className="w-5 h-5 mb-0.5" />
+              <span>{userT('Users')}</span>
+            </button>
+          )}
+
+          {isSupervisor && (
+            <button
+              type="button"
+              onClick={() => setActiveTab('attendance')}
+              className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-[10px] font-bold transition-all cursor-pointer ${
+                activeTab === 'attendance'
+                  ? 'text-[#2563EB] dark:text-blue-400 font-extrabold'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <CalendarClock className="w-5 h-5 mb-0.5" />
+              <span>{userT('Attendance')}</span>
+            </button>
+          )}
+
+          {isOfficer && (
+            <button
+              type="button"
+              onClick={() => setActiveTab('register')}
+              className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-[10px] font-bold transition-all cursor-pointer ${
+                activeTab === 'register'
+                  ? 'text-[#2563EB] dark:text-blue-400 font-extrabold'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <UserPlus className="w-5 h-5 mb-0.5" />
+              <span>{userT('Register')}</span>
+            </button>
+          )}
+
+          {/* Tab 3: Secondary Role-Specific Tab */}
+          {isManager && (
+            <button
+              type="button"
+              onClick={() => setActiveTab('citizens')}
+              className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-[10px] font-bold transition-all cursor-pointer ${
+                activeTab === 'citizens'
+                  ? 'text-[#2563EB] dark:text-blue-400 font-extrabold'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <Database className="w-5 h-5 mb-0.5" />
+              <span>{userT('Citizens')}</span>
+            </button>
+          )}
+
+          {isSupervisor && (
+            <button
+              type="button"
+              onClick={() => setActiveTab('reports')}
+              className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-[10px] font-bold transition-all cursor-pointer ${
+                activeTab === 'reports' || activeTab === 'all_reports'
+                  ? 'text-[#2563EB] dark:text-blue-400 font-extrabold'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <FileText className="w-5 h-5 mb-0.5" />
+              <span>{userT('Reports')}</span>
+            </button>
+          )}
+
+          {isOfficer && (
+            <button
+              type="button"
+              onClick={() => setActiveTab('daily_report')}
+              className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-[10px] font-bold transition-all cursor-pointer ${
+                activeTab === 'daily_report' || activeTab === 'report_new'
+                  ? 'text-[#2563EB] dark:text-blue-400 font-extrabold'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <FilePlus2 className="w-5 h-5 mb-0.5" />
+              <span>{userT('Report')}</span>
+            </button>
+          )}
+
+          {/* Tab 4: Chat (Manager & Supervisor) or My Work (Officer) */}
+          {(isManager || isSupervisor) ? (
+            <button
+              type="button"
+              onClick={() => setActiveTab('chat')}
+              className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-[10px] font-bold transition-all cursor-pointer ${
+                activeTab === 'chat'
+                  ? 'text-[#2563EB] dark:text-blue-400 font-extrabold'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <MessageSquare className="w-5 h-5 mb-0.5" />
+              <span>{userT('Chat')}</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setActiveTab('my_reports')}
+              className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-[10px] font-bold transition-all cursor-pointer ${
+                activeTab === 'my_reports'
+                  ? 'text-[#2563EB] dark:text-blue-400 font-extrabold'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <FileText className="w-5 h-5 mb-0.5" />
+              <span>{userT('My Work')}</span>
+            </button>
+          )}
+
+          {/* Tab 5: Mobile Drawer Hamburger Trigger */}
+          <button
+            type="button"
+            onClick={() => setIsMobileOpen(true)}
+            className="flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-[10px] font-bold text-slate-600 dark:text-slate-300 hover:text-[#2563EB] dark:hover:text-blue-400 cursor-pointer transition-all active:scale-95"
+            aria-label="Open Full Navigation Menu"
+          >
+            <Menu className="w-5 h-5 mb-0.5 text-slate-700 dark:text-slate-200" />
+            <span>{userT('Menu')}</span>
+          </button>
+        </nav>
       </div>
 
       <OfflineIndicator />

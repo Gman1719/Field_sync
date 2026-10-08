@@ -167,21 +167,23 @@ export default function LandingPage({ onGoToLogin }: LandingPageProps) {
 
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
-          <div className="lg:hidden border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl px-4 py-4 space-y-1.5 animate-in slide-in-from-top-2 duration-150">
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-[#2563EB] dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors"
-              >
-                {link.label}
-              </a>
-            ))}
+          <div className="lg:hidden border-t border-slate-200 dark:border-slate-800 bg-white/98 dark:bg-slate-900/98 backdrop-blur-xl px-4 py-5 space-y-3 animate-in slide-in-from-top-2 duration-150 shadow-xl">
+            <div className="grid grid-cols-2 gap-1.5 pb-2 border-b border-slate-100 dark:border-slate-800">
+              {navLinks.map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-[#2563EB] dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800/70 transition-colors"
+                >
+                  {link.label}
+                </a>
+              ))}
+            </div>
 
-            <div className="pt-2 border-t border-slate-100 dark:border-slate-800 mt-2 flex items-center justify-between px-2">
+            <div className="flex items-center justify-between px-2 pt-1">
               <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-                {userT('Security')} / {userT('Operations')}
+                {userT('Language')}
               </span>
               <LanguageSelector
                 dropdownAlign="left"
@@ -196,9 +198,9 @@ export default function LandingPage({ onGoToLogin }: LandingPageProps) {
                   setMobileMenuOpen(false);
                   onGoToLogin();
                 }}
-                className="w-full py-2.5 px-4 rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white text-sm font-bold text-center shadow-xs"
+                className="w-full py-3 px-4 rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white text-sm font-bold text-center shadow-md shadow-blue-600/20"
               >
-                {user ? userT('Go to Dashboard') : userT('Login')}
+                {user ? userT('Go to Dashboard') : userT('Access FieldSync Platform')}
               </button>
             </div>
           </div>
@@ -208,7 +210,7 @@ export default function LandingPage({ onGoToLogin }: LandingPageProps) {
       {/* ============================================================== */}
       {/* 2. HERO SECTION                                                */}
       {/* ============================================================== */}
-      <section className="relative pt-16 pb-20 lg:pt-24 lg:pb-28 bg-[#F8FAFC] dark:bg-slate-900 border-b border-[#E2E8F0] dark:border-slate-800 overflow-hidden transition-colors duration-200">
+      <section className="relative pt-10 pb-16 sm:pt-14 sm:pb-20 lg:pt-20 lg:pb-24 bg-[#F8FAFC] dark:bg-slate-900 border-b border-[#E2E8F0] dark:border-slate-800 overflow-hidden transition-colors duration-200">
         
         {/* Subtle Engineering Dot Grid */}
         <div className="absolute inset-0 bg-[radial-gradient(#CBD5E1_1px,transparent_1px)] dark:bg-[radial-gradient(#1E293B_1px,transparent_1px)] [background-size:24px_24px] opacity-40 dark:opacity-25 pointer-events-none" />
@@ -216,31 +218,22 @@ export default function LandingPage({ onGoToLogin }: LandingPageProps) {
         {/* Ambient Gradient Glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[420px] bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-teal-500/10 dark:from-blue-500/15 dark:via-indigo-500/15 dark:to-teal-500/15 blur-3xl -z-10 pointer-events-none rounded-full" />
 
-        <div className="max-w-[1440px] 2xl:max-w-[1560px] mx-auto px-4 sm:px-6 lg:pl-6 lg:pr-8 xl:pl-8 xl:pr-12 relative z-10">
+        <div className="max-w-[1440px] 2xl:max-w-[1560px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-14 items-center">
             
-            {/* Left Column: Image utilizing left-side space */}
-            <div className="lg:col-span-7 xl:col-span-7 relative group lg:-ml-2 xl:-ml-6">
-              {/* Subtle ambient backlight glow behind the image */}
-              <div className="absolute -inset-2 bg-gradient-to-r from-blue-600/20 via-indigo-600/20 to-teal-500/20 rounded-3xl blur-2xl opacity-60 dark:opacity-40 pointer-events-none" />
+            {/* Left Column (Desktop) / Top Column (Mobile/Tablet): Hero Headlines, Narrative and CTAs */}
+            <div className="order-1 lg:col-span-6 xl:col-span-6 text-left space-y-5 sm:space-y-6 max-w-2xl">
               
-              {/* Image Container */}
-              <div className="relative rounded-2xl lg:rounded-3xl overflow-hidden border border-[#E2E8F0] dark:border-slate-800 shadow-xl hover:shadow-2xl transition-all duration-300">
-                <img
-                  src={heroImage}
-                  alt="FieldSync Officer performing offline citizen registration in remote Ethiopia"
-                  className="w-full h-auto max-h-[660px] xl:max-h-[720px] object-cover object-center rounded-2xl lg:rounded-3xl transform group-hover:scale-[1.01] transition-transform duration-500 block"
-                />
+              {/* Status / Scope Pill */}
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 dark:bg-blue-950/70 border border-blue-200/80 dark:border-blue-800 text-xs font-bold text-blue-700 dark:text-blue-300 shadow-2xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>{userT('Official Citizen Registration Platform')}</span>
               </div>
-            </div>
 
-            {/* Right Column: Hero Headlines and Subtitle Text */}
-            <div className="lg:col-span-5 xl:col-span-5 text-left space-y-6 max-w-xl">
-              
               {/* Main Headline */}
               <div className="space-y-2 animate-hero-headline">
-                <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-[3.5rem] font-black text-[#0F172A] dark:text-[#F8FAFC] tracking-tight leading-[1.08]">
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-[3.4rem] font-black text-[#0F172A] dark:text-[#F8FAFC] tracking-tight leading-[1.1]">
                   {userT('Connecting Field Teams')} <br className="hidden sm:inline" />
                   <span className="bg-gradient-to-r from-[#2563EB] via-indigo-600 to-sky-500 dark:from-[#60A5FA] dark:via-indigo-300 dark:to-sky-300 bg-clip-text text-transparent">
                     {userT('to the National Registry')}
@@ -250,21 +243,91 @@ export default function LandingPage({ onGoToLogin }: LandingPageProps) {
 
               {/* Subtitle */}
               <div className="animate-hero-subtitle">
-                <p className="text-xl sm:text-2xl lg:text-[1.65rem] font-bold text-[#0F172A] dark:text-white tracking-tight leading-snug">
+                <p className="text-lg sm:text-xl lg:text-2xl font-bold text-[#0F172A] dark:text-white tracking-tight leading-snug">
                   {userT('Register citizens securely from anywhere — even without internet.')}
                 </p>
               </div>
 
               {/* Explanatory Narrative */}
-              <div className="space-y-4 text-lg sm:text-xl leading-relaxed">
-                <p className="animate-hero-desc1 font-medium text-[#1E293B] dark:text-[#E2E8F0]">
+              <div className="space-y-3 text-base sm:text-lg leading-relaxed">
+                <p className="font-medium text-[#1E293B] dark:text-[#E2E8F0]">
                   {userT('FieldSync is an offline-first citizen registration platform built for field teams working in remote and low-connectivity areas.')}
                 </p>
-                <p className="animate-hero-desc2 text-[#334155] dark:text-slate-300">
+                <p className="text-[#334155] dark:text-slate-300 text-sm sm:text-base">
                   {userT('Field officers can register citizens, securely store records on their devices, and automatically synchronize data with the central system when connectivity is restored.')}
                 </p>
               </div>
 
+              {/* Primary & Secondary Hero Action Buttons (Crucial on Mobile!) */}
+              <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => onGoToLogin()}
+                  className="px-6 py-3.5 rounded-xl bg-[#2563EB] hover:bg-blue-700 active:scale-[0.99] text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2.5 shadow-lg shadow-blue-600/30 hover:shadow-xl hover:shadow-blue-600/40 transition-all cursor-pointer"
+                >
+                  <span>{user ? userT('Go to Dashboard') : userT('Access Platform')}</span>
+                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                </button>
+                <a
+                  href="#built-for-field"
+                  className="px-6 py-3.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 font-bold text-sm sm:text-base flex items-center justify-center transition-all shadow-xs"
+                >
+                  {userT('Explore Capabilities')}
+                </a>
+              </div>
+
+              {/* Quick Feature Badges Row */}
+              <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800/80 flex flex-wrap items-center gap-y-2 gap-x-5 text-xs font-semibold text-slate-600 dark:text-slate-400">
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <span>{userT('Offline SQLite / IndexedDB')}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <span>{userT('14 Ethiopian Regions')}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <span>{userT('SHA-256 Conflict Engine')}</span>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Right Column (Desktop) / Second Column (Mobile/Tablet): Hero Image with Floating Badges */}
+            <div className="order-2 lg:col-span-6 xl:col-span-6 relative group">
+              {/* Ambient backlight glow */}
+              <div className="absolute -inset-2 bg-gradient-to-r from-blue-600/20 via-indigo-600/20 to-teal-500/20 rounded-3xl blur-2xl opacity-60 dark:opacity-40 pointer-events-none" />
+              
+              {/* Image Container with Badges */}
+              <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-[#E2E8F0] dark:border-slate-800 shadow-xl hover:shadow-2xl transition-all duration-300 bg-slate-900">
+                <img
+                  src={heroImage}
+                  alt="FieldSync Officer performing offline citizen registration in remote Ethiopia"
+                  className="w-full h-auto max-h-[500px] sm:max-h-[560px] lg:max-h-[640px] object-cover object-center transform group-hover:scale-[1.01] transition-transform duration-500 block"
+                />
+
+                {/* Floating Badge: Offline Resilience (Bottom Left) */}
+                <div className="absolute bottom-3 left-3 sm:bottom-5 sm:left-5 bg-slate-900/90 backdrop-blur-md rounded-xl sm:rounded-2xl border border-white/15 p-3 sm:p-4 text-white shadow-xl flex items-center gap-3 max-w-[260px] sm:max-w-xs">
+                  <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-blue-500/25 text-blue-400 flex items-center justify-center shrink-0">
+                    <WifiOff className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-xs sm:text-sm font-bold leading-tight">
+                      {userT('Offline Resilience')}
+                    </p>
+                    <p className="text-[10px] sm:text-xs text-slate-300 mt-0.5 leading-snug">
+                      {userT('Records saved locally without internet')}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Floating Badge: Live Sync Ready (Top Right) */}
+                <div className="absolute top-3 right-3 sm:top-5 sm:right-5 bg-slate-900/90 backdrop-blur-md rounded-xl border border-emerald-500/30 px-3 py-1.5 sm:px-3.5 sm:py-2 text-emerald-300 text-xs font-bold shadow-xl flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                  <span>{userT('Auto-Sync Ready')}</span>
+                </div>
+              </div>
             </div>
 
           </div>
@@ -522,10 +585,10 @@ export default function LandingPage({ onGoToLogin }: LandingPageProps) {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
             
             {/* Role 1: Field Officer */}
-            <div className="bg-white dark:bg-slate-800 rounded-2xl border border-[#E2E8F0] dark:border-slate-700 p-6 sm:p-7 flex flex-col justify-between shadow-xs hover:shadow-lg transition-all duration-200">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl border border-[#E2E8F0] dark:border-slate-700 p-5 sm:p-7 flex flex-col justify-between shadow-xs hover:shadow-lg transition-all duration-200">
               <div>
                 <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/80 text-[#2563EB] dark:text-blue-400 flex items-center justify-center mb-4 shadow-xs">
                   <Smartphone className="w-6 h-6" />
@@ -534,31 +597,31 @@ export default function LandingPage({ onGoToLogin }: LandingPageProps) {
                 <h3 className="text-xl sm:text-2xl font-bold text-[#0F172A] dark:text-[#F8FAFC]">
                   {userT('Field Officer')}
                 </h3>
-                <p className="text-base text-[#334155] dark:text-slate-300 leading-relaxed mt-2 mb-5">
+                <p className="text-sm sm:text-base text-[#334155] dark:text-slate-300 leading-relaxed mt-2 mb-5">
                   {userT('Register citizens, capture required information, and continue working offline from the field.')}
                 </p>
 
                 {/* Work list with right check icons */}
-                <ul className="space-y-3 text-sm sm:text-base font-semibold text-[#1E293B] dark:text-[#E2E8F0] pt-5 border-t border-slate-100 dark:border-slate-800">
-                  <li className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <ul className="space-y-2.5 sm:space-y-3 text-xs sm:text-sm font-semibold text-[#1E293B] dark:text-[#E2E8F0] pt-4 sm:pt-5 border-t border-slate-100 dark:border-slate-800">
+                  <li className="flex items-center gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                     <span>{userT('Demographic & vital records intake')}</span>
                   </li>
-                  <li className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  <li className="flex items-center gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                     <span>{userT('Offline local storage with automatic sync')}</span>
                   </li>
-                  <li className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  <li className="flex items-center gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                     <span>{userT('Daily field attendance & activity logs')}</span>
                   </li>
                 </ul>
               </div>
 
-              <div className="mt-7 pt-5 border-t border-slate-100 dark:border-slate-800">
+              <div className="mt-6 sm:mt-7 pt-4 sm:pt-5 border-t border-slate-100 dark:border-slate-800">
                 <button
                   onClick={() => onGoToLogin('FIELD_OFFICER')}
-                  className="w-full py-3.5 px-5 rounded-xl bg-[#2563EB] hover:bg-blue-700 active:scale-[0.99] text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2.5 shadow-md shadow-blue-600/20 cursor-pointer"
+                  className="w-full py-3 sm:py-3.5 px-4 sm:px-5 rounded-xl bg-[#2563EB] hover:bg-blue-700 active:scale-[0.99] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-blue-600/20 cursor-pointer"
                 >
                   <span>{userT('Enter Field Officer Portal')}</span>
                   <ArrowRight className="w-4 h-4" />
@@ -567,7 +630,7 @@ export default function LandingPage({ onGoToLogin }: LandingPageProps) {
             </div>
 
             {/* Role 2: Zonal Supervisor */}
-            <div className="bg-white dark:bg-slate-800 rounded-2xl border border-[#E2E8F0] dark:border-slate-700 p-6 sm:p-7 flex flex-col justify-between shadow-xs hover:shadow-lg transition-all duration-200">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl border border-[#E2E8F0] dark:border-slate-700 p-5 sm:p-7 flex flex-col justify-between shadow-xs hover:shadow-lg transition-all duration-200">
               <div>
                 <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-4 shadow-xs">
                   <Building2 className="w-6 h-6" />
@@ -576,31 +639,31 @@ export default function LandingPage({ onGoToLogin }: LandingPageProps) {
                 <h3 className="text-xl sm:text-2xl font-bold text-[#0F172A] dark:text-[#F8FAFC]">
                   {userT('Zonal Supervisor')}
                 </h3>
-                <p className="text-base text-[#334155] dark:text-slate-300 leading-relaxed mt-2 mb-5">
+                <p className="text-sm sm:text-base text-[#334155] dark:text-slate-300 leading-relaxed mt-2 mb-5">
                   {userT('Review registrations, monitor assigned field officers, verify records, and track activity across the zone.')}
                 </p>
 
                 {/* Work list with right check icons */}
-                <ul className="space-y-3 text-sm sm:text-base font-semibold text-[#1E293B] dark:text-[#E2E8F0] pt-5 border-t border-slate-100 dark:border-slate-800">
-                  <li className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                <ul className="space-y-2.5 sm:space-y-3 text-xs sm:text-sm font-semibold text-[#1E293B] dark:text-[#E2E8F0] pt-4 sm:pt-5 border-t border-slate-100 dark:border-slate-800">
+                  <li className="flex items-center gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600 dark:text-indigo-400 shrink-0" />
                     <span>{userT('Registration queue review & validation')}</span>
                   </li>
-                  <li className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                  <li className="flex items-center gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600 dark:text-indigo-400 shrink-0" />
                     <span>{userT('Duplicate detection & conflict resolution')}</span>
                   </li>
-                  <li className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                  <li className="flex items-center gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600 dark:text-indigo-400 shrink-0" />
                     <span>{userT('Field officer monitoring & assignments')}</span>
                   </li>
                 </ul>
               </div>
 
-              <div className="mt-7 pt-5 border-t border-slate-100 dark:border-slate-800">
+              <div className="mt-6 sm:mt-7 pt-4 sm:pt-5 border-t border-slate-100 dark:border-slate-800">
                 <button
                   onClick={() => onGoToLogin('SUPERVISOR')}
-                  className="w-full py-3.5 px-5 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2.5 shadow-md shadow-indigo-600/20 cursor-pointer"
+                  className="w-full py-3 sm:py-3.5 px-4 sm:px-5 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-indigo-600/20 cursor-pointer"
                 >
                   <span>{userT('Enter Supervisor Portal')}</span>
                   <ArrowRight className="w-4 h-4" />
@@ -609,7 +672,7 @@ export default function LandingPage({ onGoToLogin }: LandingPageProps) {
             </div>
 
             {/* Role 3: National Manager */}
-            <div className="bg-white dark:bg-slate-800 rounded-2xl border border-[#E2E8F0] dark:border-slate-700 p-6 sm:p-7 flex flex-col justify-between shadow-xs hover:shadow-lg transition-all duration-200">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl border border-[#E2E8F0] dark:border-slate-700 p-5 sm:p-7 flex flex-col justify-between shadow-xs hover:shadow-lg transition-all duration-200">
               <div>
                 <div className="w-12 h-12 rounded-xl bg-teal-50 dark:bg-teal-950/80 text-[#0F766E] dark:text-[#2DD4BF] flex items-center justify-center mb-4 shadow-xs">
                   <BarChart3 className="w-6 h-6" />
@@ -618,31 +681,31 @@ export default function LandingPage({ onGoToLogin }: LandingPageProps) {
                 <h3 className="text-xl sm:text-2xl font-bold text-[#0F172A] dark:text-[#F8FAFC]">
                   {userT('National Manager')}
                 </h3>
-                <p className="text-base text-[#334155] dark:text-slate-300 leading-relaxed mt-2 mb-5">
+                <p className="text-sm sm:text-base text-[#334155] dark:text-slate-300 leading-relaxed mt-2 mb-5">
                   {userT('Monitor national operations, compare regions and zones, and oversee registration activity across the system.')}
                 </p>
 
                 {/* Work list with right check icons */}
-                <ul className="space-y-3 text-sm sm:text-base font-semibold text-[#1E293B] dark:text-[#E2E8F0] pt-5 border-t border-slate-100 dark:border-slate-800">
-                  <li className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-[#0F766E] dark:text-[#2DD4BF] shrink-0" />
+                <ul className="space-y-2.5 sm:space-y-3 text-xs sm:text-sm font-semibold text-[#1E293B] dark:text-[#E2E8F0] pt-4 sm:pt-5 border-t border-slate-100 dark:border-slate-800">
+                  <li className="flex items-center gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-[#0F766E] dark:text-[#2DD4BF] shrink-0" />
                     <span>{userT('National registration dashboards & KPI tracking')}</span>
                   </li>
-                  <li className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-[#0F766E] dark:text-[#2DD4BF] shrink-0" />
+                  <li className="flex items-center gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-[#0F766E] dark:text-[#2DD4BF] shrink-0" />
                     <span>{userT('Regional & zonal comparative metrics')}</span>
                   </li>
-                  <li className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-[#0F766E] dark:text-[#2DD4BF] shrink-0" />
+                  <li className="flex items-center gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-[#0F766E] dark:text-[#2DD4BF] shrink-0" />
                     <span>{userT('Staff provisioning & operational oversight')}</span>
                   </li>
                 </ul>
               </div>
 
-              <div className="mt-7 pt-5 border-t border-slate-100 dark:border-slate-800">
+              <div className="mt-6 sm:mt-7 pt-4 sm:pt-5 border-t border-slate-100 dark:border-slate-800">
                 <button
                   onClick={() => onGoToLogin('MANAGER')}
-                  className="w-full py-3.5 px-5 rounded-xl bg-[#0F766E] hover:bg-teal-700 active:scale-[0.99] text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2.5 shadow-md shadow-teal-700/20 cursor-pointer"
+                  className="w-full py-3 sm:py-3.5 px-4 sm:px-5 rounded-xl bg-[#0F766E] hover:bg-teal-700 active:scale-[0.99] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-teal-700/20 cursor-pointer"
                 >
                   <span>{userT('Enter Manager Portal')}</span>
                   <ArrowRight className="w-4 h-4" />
@@ -657,81 +720,81 @@ export default function LandingPage({ onGoToLogin }: LandingPageProps) {
       {/* ============================================================== */}
       {/* 7. FIELD OPERATIONS ACROSS ETHIOPIA                            */}
       {/* ============================================================== */}
-      <section id="operations" className="py-20 sm:py-24 bg-white dark:bg-slate-900 border-b border-[#E2E8F0] dark:border-slate-800 transition-colors duration-200">
+      <section id="operations" className="py-16 sm:py-20 lg:py-24 bg-white dark:bg-slate-900 border-b border-[#E2E8F0] dark:border-slate-800 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="text-center max-w-3xl mx-auto mb-14">
+          <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#0F172A] dark:text-[#F8FAFC]">
               {userT('Field Operations Across Ethiopia')}
             </h2>
-            <p className="mt-4 text-[#334155] dark:text-slate-300 text-lg sm:text-xl font-medium leading-relaxed">
+            <p className="mt-3 sm:mt-4 text-[#334155] dark:text-slate-300 text-base sm:text-lg lg:text-xl font-medium leading-relaxed">
               {userT('A connected view of national field registration activity.')}
             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 sm:gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-5">
             
             {/* Stat 1: 14 Regions */}
-            <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200 text-center">
-              <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/80 text-[#2563EB] dark:text-blue-400 flex items-center justify-center mx-auto mb-4 shadow-xs">
-                <Globe className="w-6 h-6" />
+            <div className="p-4 sm:p-5 lg:p-6 rounded-2xl bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200 text-center">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-blue-50 dark:bg-blue-950/80 text-[#2563EB] dark:text-blue-400 flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-xs">
+                <Globe className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
-              <div className="text-4xl sm:text-5xl font-black text-[#0F172A] dark:text-white tracking-tight">
+              <div className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#0F172A] dark:text-white tracking-tight">
                 {telemetry.counts.regions || 14}
               </div>
-              <p className="mt-2.5 text-sm sm:text-base font-extrabold uppercase tracking-wide text-[#1E293B] dark:text-slate-300">
+              <p className="mt-2 text-xs sm:text-sm font-extrabold uppercase tracking-wide text-[#1E293B] dark:text-slate-300">
                 {userT('Regions')}
               </p>
             </div>
 
             {/* Stat 2: 107 Zones */}
-            <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200 text-center">
-              <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto mb-4 shadow-xs">
-                <Building2 className="w-6 h-6" />
+            <div className="p-4 sm:p-5 lg:p-6 rounded-2xl bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200 text-center">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-xs">
+                <Building2 className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
-              <div className="text-4xl sm:text-5xl font-black text-[#0F172A] dark:text-white tracking-tight">
+              <div className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#0F172A] dark:text-white tracking-tight">
                 {telemetry.counts.zones || 107}
               </div>
-              <p className="mt-2.5 text-sm sm:text-base font-extrabold uppercase tracking-wide text-[#1E293B] dark:text-slate-300">
+              <p className="mt-2 text-xs sm:text-sm font-extrabold uppercase tracking-wide text-[#1E293B] dark:text-slate-300">
                 {userT('Zones')}
               </p>
             </div>
 
             {/* Stat 3: 929 Districts */}
-            <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200 text-center">
-              <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/80 text-[#16A34A] dark:text-emerald-400 flex items-center justify-center mx-auto mb-4 shadow-xs">
-                <MapPin className="w-6 h-6" />
+            <div className="p-4 sm:p-5 lg:p-6 rounded-2xl bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200 text-center">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/80 text-[#16A34A] dark:text-emerald-400 flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-xs">
+                <MapPin className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
-              <div className="text-4xl sm:text-5xl font-black text-[#0F172A] dark:text-white tracking-tight">
+              <div className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#0F172A] dark:text-white tracking-tight">
                 {telemetry.counts.woredas || 929}
               </div>
-              <p className="mt-2.5 text-sm sm:text-base font-extrabold uppercase tracking-wide text-[#1E293B] dark:text-slate-300">
+              <p className="mt-2 text-xs sm:text-sm font-extrabold uppercase tracking-wide text-[#1E293B] dark:text-slate-300">
                 {userT('Districts')}
               </p>
             </div>
 
             {/* Stat 4: 14 Registered Citizens */}
-            <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200 text-center">
-              <div className="w-12 h-12 rounded-xl bg-cyan-50 dark:bg-cyan-950/80 text-cyan-600 dark:text-cyan-400 flex items-center justify-center mx-auto mb-4 shadow-xs">
-                <Users className="w-6 h-6" />
+            <div className="p-4 sm:p-5 lg:p-6 rounded-2xl bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200 text-center">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-cyan-50 dark:bg-cyan-950/80 text-cyan-600 dark:text-cyan-400 flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-xs">
+                <Users className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
-              <div className="text-4xl sm:text-5xl font-black text-[#0F172A] dark:text-white tracking-tight">
+              <div className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#0F172A] dark:text-white tracking-tight">
                 {telemetry.counts.citizens || 14}
               </div>
-              <p className="mt-2.5 text-sm sm:text-base font-extrabold uppercase tracking-wide text-[#1E293B] dark:text-slate-300">
+              <p className="mt-2 text-xs sm:text-sm font-extrabold uppercase tracking-wide text-[#1E293B] dark:text-slate-300">
                 {userT('Registered Citizens')}
               </p>
             </div>
 
             {/* Stat 5: 19 Field Staff */}
-            <div className="col-span-2 md:col-span-1 p-6 sm:p-7 rounded-2xl bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200 text-center">
-              <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/80 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto mb-4 shadow-xs">
-                <ShieldCheck className="w-6 h-6" />
+            <div className="col-span-2 sm:col-span-1 p-4 sm:p-5 lg:p-6 rounded-2xl bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200 text-center">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-amber-50 dark:bg-amber-950/80 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-xs">
+                <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
-              <div className="text-4xl sm:text-5xl font-black text-[#0F172A] dark:text-white tracking-tight">
+              <div className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#0F172A] dark:text-white tracking-tight">
                 {telemetry.counts.users || 19}
               </div>
-              <p className="mt-2.5 text-sm sm:text-base font-extrabold uppercase tracking-wide text-[#1E293B] dark:text-slate-300">
+              <p className="mt-2 text-xs sm:text-sm font-extrabold uppercase tracking-wide text-[#1E293B] dark:text-slate-300">
                 {userT('Field Staff')}
               </p>
             </div>
