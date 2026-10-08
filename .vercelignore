@@ -1,0 +1,7 @@
+# FieldSync - Vercel Deployment Exclusions
+# Deploy ONLY the root Vite frontend application.
+# Do not deploy the Render backend, legacy api, or archived prototypes.
+
+server/
+api/
+_archive/
