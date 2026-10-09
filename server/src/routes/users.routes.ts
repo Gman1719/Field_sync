@@ -832,7 +832,11 @@ async function handleUpdateUser(req: Request, res: Response): Promise<void> {
     const { id } = req.params;
     const validated = adminUpdateUserSchema.parse(req.body);
 
-    const user = await prisma.user.findUnique({ where: { id } });
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [{ id }, { email: id }],
+      },
+    });
     if (!user) {
       res.status(404).json({ success: false, error: 'User not found' });
       return;
@@ -1029,7 +1033,11 @@ router.patch('/:id/assignment', authenticate, requireManager, async (req: Reques
     const { id } = req.params;
     const validated = reassignLocationSchema.parse(req.body);
 
-    const user = await prisma.user.findUnique({ where: { id } });
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [{ id }, { email: id }],
+      },
+    });
     if (!user) {
       res.status(404).json({ success: false, error: 'User not found' });
       return;

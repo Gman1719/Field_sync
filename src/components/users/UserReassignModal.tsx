@@ -390,30 +390,66 @@ export default function UserReassignModal({
         payload.officerTransfers = officerTransferMap;
       }
 
-      const response = await fetch(`${API_BASE}/users/${user.id}/assignment`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify(payload),
-      });
+      let updatedUser: any = {
+        ...user,
+        regionId: assignment.regionId || user.regionId,
+        region: (assignment as any).region || user.region,
+        zoneId: assignment.zoneId || user.zoneId,
+        zone: (assignment as any).zone || user.zone,
+        woredaId: assignment.woredaId || user.woredaId,
+        woreda: (assignment as any).woreda || user.woreda,
+        supervisorId: assignment.supervisorId !== undefined && assignment.supervisorId !== '' ? assignment.supervisorId : user.supervisorId,
+        updatedAt: new Date().toISOString(),
+      };
 
-      const resData = await response.json();
-      if (!response.ok || !resData.success) {
-        if (resData.code === 'REASSIGNMENT_REQUIRED') {
-          throw new Error(resData.error || 'Reassignment Required: All Field Officers must be transferred first.');
+      if (assignment.supervisorId && allUsers && allUsers.length > 0) {
+        const foundSup = allUsers.find((u: any) => u.id === assignment.supervisorId);
+        if (foundSup) {
+          updatedUser.supervisor = foundSup.fullName || foundSup.name;
         }
-        throw new Error(resData.error || 'Failed to reassign user');
       }
 
-      const updatedUser = resData.user || resData.data;
+      if (navigator.onLine && token) {
+        try {
+          const response = await fetch(`${API_BASE}/users/${user.id}/assignment`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(payload),
+          });
+
+          if (response.ok) {
+            const resData = await response.json();
+            if (resData.success && (resData.user || resData.data)) {
+              updatedUser = { ...updatedUser, ...(resData.user || resData.data) };
+            }
+          } else {
+            const resData = await response.json().catch(() => ({}));
+            if (resData.code === 'REASSIGNMENT_REQUIRED') {
+              throw new Error(resData.error || 'Reassignment Required: All Field Officers must be transferred first.');
+            }
+            console.warn('Backend assignment update returned non-OK, persisting locally:', resData.error);
+          }
+        } catch (apiErr: any) {
+          if (apiErr.message && apiErr.message.includes('Reassignment Required')) {
+            throw apiErr;
+          }
+          console.warn('Backend API update failed, persisting locally:', apiErr.message);
+        }
+      }
 
       // Update user in local DB
-      await db.users.update(user.id, updatedUser);
       try {
-        await offlineDb.users.update(user.id, updatedUser);
-      } catch (_e) {}
+        await db.users.put(updatedUser);
+        await offlineDb.users.put(updatedUser);
+      } catch (_e) {
+        try {
+          await db.users.update(user.id, updatedUser);
+          await offlineDb.users.update(user.id, updatedUser);
+        } catch (_inner) {}
+      }
 
       // If officers were transferred, update each one in local DB
       if (Object.keys(officerTransferMap).length > 0) {

@@ -2,13 +2,13 @@ export const ETHIOPIAN_PHONE_REGEX = /^(?:\+251[97]\d{8}|251[97]\d{8}|0[97]\d{8}
 
 export const isValidEthiopianPhone = (phone?: string | number | null): boolean => {
   if (!phone) return false;
-  const str = phone.toString().trim();
+  const str = phone.toString().trim().replace(/[\s\-\.\(\)]/g, '');
   return ETHIOPIAN_PHONE_REGEX.test(str);
 };
 
 export const normalizeEthiopianPhone = (phone?: string | number | null): string => {
   if (!phone) return '';
-  const trimmed = phone.toString().trim();
+  const trimmed = phone.toString().trim().replace(/[\s\-\.\(\)]/g, '');
   if (trimmed.startsWith('0')) {
     return '+251' + trimmed.slice(1);
   }
@@ -31,42 +31,46 @@ export const validateEthiopianPhone = (
   required = true,
   customError: string | null = null
 ): PhoneValidationResult & string => {
-  const trimmed = (phone || '').toString().trim();
+  const original = (phone || '').toString().trim();
+  const cleaned = original.replace(/[\s\-\.\(\)]/g, '');
   let message = '';
   let isValid = true;
 
-  if (!trimmed) {
+  if (!cleaned) {
     if (required) {
       isValid = false;
       message = 'Phone number is required';
     }
-  } else if (/^0[97]/.test(trimmed)) {
-    if (trimmed.length !== 10) {
+  } else if (/^0[97]/.test(cleaned)) {
+    if (cleaned.length !== 10) {
       isValid = false;
       message =
         customError ||
-        `Phone number length must be 10 digits (currently ${trimmed.length}). Exactly 8 numbers required after 09/07.`;
-    } else if (!/^0[97]\d{8}$/.test(trimmed)) {
+        `Phone number length must be 10 digits (currently ${cleaned.length}). Exactly 8 numbers required after 09/07.`;
+    } else if (!/^0[97]\d{8}$/.test(cleaned)) {
       isValid = false;
       message = customError || 'Phone must contain only numbers after 09 or 07';
     }
-  } else if (/^\+251[97]/.test(trimmed)) {
-    const after = trimmed.slice(5);
+  } else if (/^\+251[97]/.test(cleaned)) {
+    const after = cleaned.slice(5);
     if (after.length !== 8 || !/^\d{8}$/.test(after)) {
       isValid = false;
       message =
         customError ||
         `There must be exactly 8 numbers after +2519 or +2517 (found ${after.length}).`;
     }
-  } else if (/^251[97]/.test(trimmed)) {
-    const after = trimmed.slice(4);
+  } else if (/^251[97]/.test(cleaned)) {
+    const after = cleaned.slice(4);
     if (after.length !== 8 || !/^\d{8}$/.test(after)) {
       isValid = false;
       message =
         customError ||
         `There must be exactly 8 numbers after 2519 or 2517 (found ${after.length}).`;
     }
-  } else if (!/^[97]\d{8}$/.test(trimmed)) {
+  } else if (/^[97]\d{8}$/.test(cleaned)) {
+    isValid = true;
+    message = '';
+  } else {
     isValid = false;
     message =
       customError ||
