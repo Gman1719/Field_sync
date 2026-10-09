@@ -15,7 +15,7 @@ import {
   Bell, BellOff, ExternalLink, ShieldCheck, ChevronRight,
   Filter, FileSpreadsheet, Eye, AlertCircle,
   CornerUpLeft, CheckSquare, Square, Trash2, Copy, MoreHorizontal,
-  Link2, Play, Volume2, Maximize2, WifiOff
+  Link2, Play, Volume2, Maximize2, WifiOff, Pencil
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -200,12 +200,17 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
   const [isSending, setIsSending] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [selectedAttachment, setSelectedAttachment] = useState<{
+  const [selectedAttachments, setSelectedAttachments] = useState<{
+    id: string;
     name: string;
     type: string;
     size: string;
     dataUrl?: string;
-  } | null>(null);
+  }[]>([]);
+  const [groupItems, setGroupItems] = useState(true);
+  const [openMenuFileId, setOpenMenuFileId] = useState<string | null>(null);
+  const [editingFileId, setEditingFileId] = useState<string | null>(null);
+  const [editingFileName, setEditingFileName] = useState('');
 
   // Replying state
   const [replyingTo, setReplyingTo] = useState<ChatMessage | null>(null);
@@ -511,32 +516,85 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
     }
   }, [messages.length, isSelectionMode]);
 
-  // File selection with FileReader for real downloadable data
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  // Rename staged attachment
+  const handleSaveRename = (fileId: string) => {
+    const trimmed = editingFileName.trim();
+    if (trimmed) {
+      setSelectedAttachments((prev) =>
+        prev.map((f) => (f.id === fileId ? { ...f, name: trimmed } : f))
+      );
+      toast.success('File renamed');
+    }
+    setEditingFileId(null);
+    setEditingFileName('');
+  };
 
-    if (file.size > 15 * 1024 * 1024) {
-      toast.error('File size exceeds 15MB limit');
-      return;
+  // Close three-dots menu when clicking outside
+  useEffect(() => {
+    const handleGlobalClick = () => {
+      setOpenMenuFileId(null);
+    };
+    if (openMenuFileId) {
+      window.addEventListener('click', handleGlobalClick);
+      return () => window.removeEventListener('click', handleGlobalClick);
+    }
+  }, [openMenuFileId]);
+
+  // File selection with FileReader for real downloadable data (supports multiple files)
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const validFiles: File[] = [];
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if (file.size > 15 * 1024 * 1024) {
+        toast.error(`${file.name} exceeds 15MB limit`);
+      } else {
+        validFiles.push(file);
+      }
     }
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      setSelectedAttachment({
-        name: file.name,
-        type: file.type || 'application/octet-stream',
-        size: file.size < 1024 * 1024
-          ? `${(file.size / 1024).toFixed(1)} KB`
-          : `${(file.size / (1024 * 1024)).toFixed(2)} MB`,
-        dataUrl: reader.result as string,
-      });
-      toast.success(`Attached ${file.name}`);
-    };
-    reader.onerror = () => {
-      toast.error('Failed to read attachment file');
-    };
-    reader.readAsDataURL(file);
+    if (validFiles.length === 0) return;
+
+    let completed = 0;
+    const newStaged: {
+      id: string;
+      name: string;
+      type: string;
+      size: string;
+      dataUrl?: string;
+    }[] = [];
+
+    validFiles.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        newStaged.push({
+          id: `att_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+          name: file.name,
+          type: file.type || 'application/octet-stream',
+          size: file.size < 1024
+            ? `${file.size} B`
+            : file.size < 1024 * 1024
+            ? `${(file.size / 1024).toFixed(1)} KB`
+            : `${(file.size / (1024 * 1024)).toFixed(2)} MB`,
+          dataUrl: reader.result as string,
+        });
+        completed++;
+        if (completed === validFiles.length) {
+          setSelectedAttachments((prev) => [...prev, ...newStaged]);
+          toast.success(`Attached ${validFiles.length} file${validFiles.length > 1 ? 's' : ''}`);
+        }
+      };
+      reader.onerror = () => {
+        completed++;
+        toast.error(`Failed to read ${file.name}`);
+        if (completed === validFiles.length && newStaged.length > 0) {
+          setSelectedAttachments((prev) => [...prev, ...newStaged]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
 
     e.target.value = '';
   };
@@ -572,14 +630,14 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
     }
   };
 
-  // Send message handler (supports replyTo)
+  // Send message handler (supports multiple attachments and replyTo)
   const handleSendMessage = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if ((!inputText.trim() && !selectedAttachment) || !selectedContact || !user?.id) return;
+    if ((!inputText.trim() && selectedAttachments.length === 0) || !selectedContact || !user?.id) return;
 
     setIsSending(true);
     const textToSend = inputText.trim();
-    const attToSend = selectedAttachment ? { ...selectedAttachment } : undefined;
+    const attachmentsToSend = [...selectedAttachments];
     const replyContext = replyingTo ? {
       id: replyingTo.id,
       senderName: replyingTo.senderName,
@@ -587,24 +645,54 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
     } : undefined;
 
     setInputText('');
-    setSelectedAttachment(null);
+    setSelectedAttachments([]);
     setShowEmojiPicker(false);
     setReplyingTo(null);
+    setOpenMenuFileId(null);
+    setEditingFileId(null);
 
     try {
       const currentSenderId = normalizeUserId(user.id);
       const currentReceiverId = normalizeUserId(selectedContact.id);
 
-      await sendMessage({
-        senderId: currentSenderId,
-        senderName: user.fullName || user.name || (isManager ? 'System Manager' : 'Supervisor'),
-        senderRole: isManager ? 'manager' : 'supervisor',
-        receiverId: currentReceiverId,
-        receiverName: selectedContact.fullName || selectedContact.name || 'Recipient',
-        text: textToSend,
-        replyTo: replyContext,
-        attachment: attToSend,
-      });
+      if (attachmentsToSend.length > 0) {
+        // Send each attachment sequentially
+        for (let i = 0; i < attachmentsToSend.length; i++) {
+          const att = attachmentsToSend[i];
+          const captionForThis = i === 0 ? textToSend : '';
+          const replyForThis = i === 0 ? replyContext : undefined;
+
+          await sendMessage({
+            senderId: currentSenderId,
+            senderName: user.fullName || user.name || (isManager ? 'System Manager' : 'Supervisor'),
+            senderRole: isManager ? 'manager' : 'supervisor',
+            receiverId: currentReceiverId,
+            receiverName: selectedContact.fullName || selectedContact.name || 'Recipient',
+            text: captionForThis,
+            replyTo: replyForThis,
+            attachment: {
+              name: att.name,
+              type: att.type,
+              size: att.size,
+              dataUrl: att.dataUrl,
+            },
+          });
+
+          if (attachmentsToSend.length > 1 && i < attachmentsToSend.length - 1) {
+            await new Promise((resolve) => setTimeout(resolve, 60));
+          }
+        }
+      } else {
+        await sendMessage({
+          senderId: currentSenderId,
+          senderName: user.fullName || user.name || (isManager ? 'System Manager' : 'Supervisor'),
+          senderRole: isManager ? 'manager' : 'supervisor',
+          receiverId: currentReceiverId,
+          receiverName: selectedContact.fullName || selectedContact.name || 'Recipient',
+          text: textToSend,
+          replyTo: replyContext,
+        });
+      }
 
       if (!isChatOnline()) {
         toast('Offline: Message queued. It will be delivered once back online.', { icon: '⏳' });
@@ -1953,55 +2041,161 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
               </div>
             )}
 
-            {/* "Send as a file" Staging Card matching User Image 3 */}
-            {selectedAttachment ? (
-              <div className="bg-white dark:bg-[#17212B] rounded-2xl border border-slate-200/90 dark:border-[#242F3D] shadow-lg p-4 transition-all duration-200 animate-in fade-in zoom-in-95">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  className="hidden"
-                  onChange={handleFileSelect}
-                />
+            {/* Hidden Multi-File Input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              className="hidden"
+              onChange={handleFileSelect}
+            />
 
+            {/* "Send as a file" / Multi-file Staging Card matching User Image 2 */}
+            {selectedAttachments.length > 0 ? (
+              <div className="bg-white dark:bg-[#17212B] rounded-2xl border border-slate-200/90 dark:border-[#242F3D] shadow-lg p-4 transition-all duration-200 animate-in fade-in zoom-in-95">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-3.5">
                   <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-100 tracking-tight">
-                    {userT('Send as a file')}
+                    {selectedAttachments.length > 1
+                      ? `${selectedAttachments.length} ${userT('files selected')}`
+                      : userT('Send as a file')}
                   </h4>
                 </div>
 
-                {/* File Row */}
-                <div className="flex items-center gap-3.5 mb-4">
-                  {/* Circular Blue Icon matching Image 3 */}
-                  <div className="w-12 h-12 rounded-full bg-[#2A86D4] text-white flex items-center justify-center shrink-0 shadow-xs">
-                    <FileText className="w-6 h-6 text-white" />
-                  </div>
+                {/* Files List matching Screenshot 2 */}
+                <div className="max-h-60 overflow-y-auto space-y-2.5 mb-3.5 pr-1 divide-y divide-slate-100 dark:divide-slate-800/60">
+                  {selectedAttachments.map((att) => (
+                    <div key={att.id} className="pt-2 first:pt-0 flex items-center gap-3.5 relative">
+                      {/* Circular Blue Icon matching Screenshot 2 */}
+                      <div className="w-11 h-11 rounded-full bg-[#2A86D4] text-white flex items-center justify-center shrink-0 shadow-xs">
+                        <FileText className="w-5.5 h-5.5 text-white" />
+                      </div>
 
-                  {/* Filename & Filesize */}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-slate-900 dark:text-white truncate" title={selectedAttachment.name}>
-                      {selectedAttachment.name}
-                    </p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
-                      {selectedAttachment.size}
-                    </p>
-                  </div>
+                      {/* Filename & Filesize (with inline rename support) */}
+                      <div className="flex-1 min-w-0">
+                        {editingFileId === att.id ? (
+                          <div className="flex items-center gap-1.5 py-0.5">
+                            <input
+                              type="text"
+                              value={editingFileName}
+                              onChange={(e) => setEditingFileName(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  handleSaveRename(att.id);
+                                } else if (e.key === 'Escape') {
+                                  setEditingFileId(null);
+                                }
+                              }}
+                              autoFocus
+                              className="w-full text-xs font-semibold bg-slate-100 dark:bg-slate-700/80 text-slate-900 dark:text-white px-2 py-1 rounded border border-[#2A86D4] focus:outline-none"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleSaveRename(att.id)}
+                              className="p-1 text-emerald-500 hover:text-emerald-400 cursor-pointer"
+                              title="Save name"
+                            >
+                              <Check className="w-4 h-4" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setEditingFileId(null)}
+                              className="p-1 text-slate-400 hover:text-slate-300 cursor-pointer"
+                              title="Cancel"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <p className="text-sm font-semibold text-slate-900 dark:text-white truncate" title={att.name}>
+                              {att.name}
+                            </p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+                              {att.size}
+                            </p>
+                          </>
+                        )}
+                      </div>
 
-                  {/* Remove attachment button */}
+                      {/* Actions: Three dots menu & Remove button */}
+                      <div className="flex items-center gap-1 shrink-0">
+                        {/* Three dots button */}
+                        <div className="relative">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setOpenMenuFileId(openMenuFileId === att.id ? null : att.id);
+                            }}
+                            className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer"
+                            title="More options"
+                          >
+                            <MoreVertical className="w-4.5 h-4.5" />
+                          </button>
+
+                          {/* Options Dropdown Menu */}
+                          {openMenuFileId === att.id && (
+                            <div
+                              onClick={(e) => e.stopPropagation()}
+                              className="absolute right-0 bottom-full mb-1 z-50 w-44 bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl py-1 text-xs animate-in fade-in zoom-in-95 duration-100"
+                            >
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setEditingFileId(att.id);
+                                  setEditingFileName(att.name);
+                                  setOpenMenuFileId(null);
+                                }}
+                                className="w-full px-3 py-2 text-left flex items-center gap-2 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer"
+                              >
+                                <Pencil className="w-3.5 h-3.5 text-[#2A86D4]" />
+                                <span>{userT('Rename file name')}</span>
+                              </button>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Remove attachment button */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedAttachments((prev) => prev.filter((f) => f.id !== att.id));
+                            if (openMenuFileId === att.id) setOpenMenuFileId(null);
+                            if (editingFileId === att.id) setEditingFileId(null);
+                          }}
+                          className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer"
+                          title="Remove file"
+                        >
+                          <X className="w-4.5 h-4.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Group items checkbox matching Screenshot 2 */}
+                <div className="flex items-center gap-2.5 mb-3.5 select-none">
                   <button
                     type="button"
-                    onClick={() => {
-                      setSelectedAttachment(null);
-                      setInputText('');
-                    }}
-                    className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer"
-                    title="Remove file"
+                    onClick={() => setGroupItems(!groupItems)}
+                    className="flex items-center gap-2.5 cursor-pointer text-sm font-medium text-slate-700 dark:text-slate-200 hover:opacity-90"
                   >
-                    <X className="w-4.5 h-4.5" />
+                    <div
+                      className={`w-4.5 h-4.5 rounded flex items-center justify-center transition-colors ${
+                        groupItems
+                          ? 'bg-[#2A86D4] text-white shadow-2xs'
+                          : 'border-2 border-slate-400 dark:border-slate-500 bg-transparent'
+                      }`}
+                    >
+                      {groupItems && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                    </div>
+                    <span>{userT('Group items')}</span>
                   </button>
                 </div>
 
-                {/* Caption Input Field (Optional) with underline matching Image 3 */}
+                {/* Caption Input Field (Optional) with underline and Emoji Button */}
                 <div className="relative border-b border-[#2A86D4]/60 focus-within:border-[#2A86D4] pb-1.5 mb-3.5 transition-colors">
                   <div className="flex items-center gap-2">
                     <input
@@ -2017,20 +2211,65 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                       placeholder={userT('Caption')}
                       className="w-full bg-transparent text-sm text-slate-900 dark:text-white placeholder-[#2A86D4]/80 dark:placeholder-[#5288c1] focus:outline-none"
                     />
-                    <button
-                      type="button"
-                      onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                      className={`p-1 transition-colors cursor-pointer rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 ${
-                        showEmojiPicker ? 'text-[#2A86D4]' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
-                      }`}
-                      title="Insert emoji"
-                    >
-                      <Smile className="w-5 h-5" />
-                    </button>
+                    <div className="relative shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                        className={`p-1 transition-colors cursor-pointer rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 ${
+                          showEmojiPicker ? 'text-[#2A86D4]' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
+                        }`}
+                        title="Insert emoji"
+                      >
+                        <Smile className="w-5 h-5" />
+                      </button>
+
+                      {/* Working Emoji Drawer directly inside staging card */}
+                      {showEmojiPicker && (
+                        <div
+                          onClick={(e) => e.stopPropagation()}
+                          className="absolute right-0 bottom-full mb-3 z-50 w-72 sm:w-80 bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-slate-700 shadow-2xl rounded-2xl p-3 flex flex-col gap-2 animate-in fade-in zoom-in-95 duration-150"
+                        >
+                          <div className="flex items-center justify-between pb-1.5 border-b border-slate-100 dark:border-slate-800">
+                            <span className="text-xs font-bold text-[#0F172A] dark:text-slate-100">{userT('Emojis')}</span>
+                            <button
+                              type="button"
+                              onClick={() => setShowEmojiPicker(false)}
+                              className="p-1 text-[#64748B] hover:text-[#0F172A] dark:hover:text-slate-200 rounded-lg cursor-pointer"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+
+                          <div className="max-h-60 overflow-y-auto space-y-3 pr-1">
+                            {EMOJI_CATEGORIES.map((cat) => (
+                              <div key={cat.name}>
+                                <span className="text-[10px] font-bold text-[#64748B] dark:text-slate-400 uppercase tracking-wider block mb-1">
+                                  {cat.name}
+                                </span>
+                                <div className="grid grid-cols-7 sm:grid-cols-8 gap-1">
+                                  {cat.emojis.map((emoji) => (
+                                    <button
+                                      key={emoji}
+                                      type="button"
+                                      onClick={() => {
+                                        setInputText((prev) => prev + emoji);
+                                      }}
+                                      className="p-1 text-base hover:scale-130 transition-transform cursor-pointer rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center"
+                                    >
+                                      {emoji}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 
-                {/* Bottom Actions: Add on left | Cancel & Send on right matching Image 3 */}
+                {/* Bottom Actions: Add on left | Cancel & Send on right matching Screenshot 2 */}
                 <div className="flex items-center justify-between pt-1">
                   <button
                     type="button"
@@ -2044,8 +2283,10 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                     <button
                       type="button"
                       onClick={() => {
-                        setSelectedAttachment(null);
+                        setSelectedAttachments([]);
                         setInputText('');
+                        setOpenMenuFileId(null);
+                        setEditingFileId(null);
                       }}
                       className="text-sm font-semibold text-[#2A86D4] dark:text-[#5288c1] hover:underline cursor-pointer"
                     >
@@ -2077,12 +2318,6 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
               >
                 <Paperclip className="w-5 h-5 -rotate-45" />
               </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                className="hidden"
-                onChange={handleFileSelect}
-              />
 
               {/* Textarea with right-side spacing that auto-expands up to 3 lines, scrollable above */}
               <div className="flex-1 min-w-0 pr-4 mr-1.5">
@@ -2156,7 +2391,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                 )}
 
                 {/* Circular Send Button (shown when user types or has an attachment) */}
-                {(inputText.trim() || selectedAttachment) && (
+                {(inputText.trim() || selectedAttachments.length > 0) && (
                   <button
                     type="submit"
                     disabled={isSending}
