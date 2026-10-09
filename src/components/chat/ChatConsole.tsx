@@ -280,6 +280,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const emojiPickerRef = useRef<HTMLDivElement>(null);
 
   // Auto-resize composer textarea up to 3 lines (max ~76px), scrollable thereafter
   useEffect(() => {
@@ -539,6 +540,19 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
       return () => window.removeEventListener('click', handleGlobalClick);
     }
   }, [openMenuFileId]);
+
+  // Close emoji picker when clicking outside the box
+  useEffect(() => {
+    const handleEmojiOutsideClick = (e: MouseEvent) => {
+      if (showEmojiPicker && emojiPickerRef.current && !emojiPickerRef.current.contains(e.target as Node)) {
+        setShowEmojiPicker(false);
+      }
+    };
+    if (showEmojiPicker) {
+      document.addEventListener('mousedown', handleEmojiOutsideClick);
+      return () => document.removeEventListener('mousedown', handleEmojiOutsideClick);
+    }
+  }, [showEmojiPicker]);
 
   // File selection with FileReader for real downloadable data (supports multiple files)
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -2058,7 +2072,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                   <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-100 tracking-tight">
                     {selectedAttachments.length > 1
                       ? `${selectedAttachments.length} ${userT('files selected')}`
-                      : userT('Send as a file')}
+                      : userT('Send a file')}
                   </h4>
                 </div>
 
@@ -2175,26 +2189,6 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                   ))}
                 </div>
 
-                {/* Group items checkbox matching Screenshot 2 */}
-                <div className="flex items-center gap-2.5 mb-3.5 select-none">
-                  <button
-                    type="button"
-                    onClick={() => setGroupItems(!groupItems)}
-                    className="flex items-center gap-2.5 cursor-pointer text-sm font-medium text-slate-700 dark:text-slate-200 hover:opacity-90"
-                  >
-                    <div
-                      className={`w-4.5 h-4.5 rounded flex items-center justify-center transition-colors ${
-                        groupItems
-                          ? 'bg-[#2A86D4] text-white shadow-2xs'
-                          : 'border-2 border-slate-400 dark:border-slate-500 bg-transparent'
-                      }`}
-                    >
-                      {groupItems && <Check className="w-3.5 h-3.5 stroke-[3]" />}
-                    </div>
-                    <span>{userT('Group items')}</span>
-                  </button>
-                </div>
-
                 {/* Caption Input Field (Optional) with underline and Emoji Button */}
                 <div className="relative border-b border-[#2A86D4]/60 focus-within:border-[#2A86D4] pb-1.5 mb-3.5 transition-colors">
                   <div className="flex items-center gap-2">
@@ -2211,7 +2205,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                       placeholder={userT('Caption')}
                       className="w-full bg-transparent text-sm text-slate-900 dark:text-white placeholder-[#2A86D4]/80 dark:placeholder-[#5288c1] focus:outline-none"
                     />
-                    <div className="relative shrink-0">
+                    <div ref={emojiPickerRef} className="relative shrink-0">
                       <button
                         type="button"
                         onClick={() => setShowEmojiPicker(!showEmojiPicker)}
@@ -2334,7 +2328,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
               </div>
 
               {/* Right icons: Smile & Send button */}
-              <div className="flex items-center gap-2 shrink-0 relative mb-0.5">
+              <div ref={emojiPickerRef} className="flex items-center gap-2 shrink-0 relative mb-0.5">
                 <button
                   type="button"
                   onClick={() => setShowEmojiPicker(!showEmojiPicker)}
