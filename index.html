@@ -10,20 +10,21 @@
     <title>fieldsync</title>
     <script>
       (function() {
-        var BUILD_ID = 'build_20261009_v3';
-        var current = localStorage.getItem('fieldsync_build_version');
-        if (current !== BUILD_ID) {
-          localStorage.setItem('fieldsync_build_version', BUILD_ID);
-          if ('caches' in window) {
-            caches.keys().then(function(keys) {
-              keys.forEach(function(k) { caches.delete(k); });
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(function(regs) {
+            for (var i = 0; i < regs.length; i++) {
+              regs[i].unregister();
+            }
+          });
+        }
+        if ('caches' in window) {
+          caches.keys().then(function(keys) {
+            keys.forEach(function(k) {
+              if (!k.includes('google-fonts')) {
+                caches.delete(k);
+              }
             });
-          }
-          if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(function(regs) {
-              regs.forEach(function(r) { r.unregister(); });
-            });
-          }
+          });
         }
       })();
     </script>
