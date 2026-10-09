@@ -1,4 +1,4 @@
-import React, { type ElementType } from 'react';
+import React, { useState, useEffect, type ElementType } from 'react';
 import {
   LayoutDashboard,
   UserPlus,
@@ -23,6 +23,7 @@ import {
   X,
 } from 'lucide-react';
 import { useUserLanguage } from '../../context/UserLanguageContext';
+import { getTotalUnreadCount } from '../../services/chatService';
 
 export interface NavItem {
   id: string;
@@ -64,6 +65,47 @@ export default function Sidebar({
   const isSupervisor = user?.role === 'supervisor';
   const isManager = user?.role === 'manager';
 
+  const [unreadChatCount, setUnreadChatCount] = useState(0);
+  const [_avatarVersion, setAvatarVersion] = useState(0);
+
+  useEffect(() => {
+    const updateChatCount = async () => {
+      if (!user?.id) return;
+      if (activeTab === 'chat') {
+        setUnreadChatCount(0);
+        return;
+      }
+      try {
+        const count = await getTotalUnreadCount(user.id);
+        setUnreadChatCount(count);
+      } catch (_e) {
+        setUnreadChatCount(0);
+      }
+    };
+
+    updateChatCount();
+
+    const handleProfileUpdate = () => {
+      setAvatarVersion((v) => v + 1);
+    };
+
+    window.addEventListener('fieldsync-chat-read', updateChatCount);
+    window.addEventListener('fieldsync-chat-update', updateChatCount);
+    window.addEventListener('fieldsync-unread-count-changed', updateChatCount);
+    window.addEventListener('fieldsync-profile-updated', handleProfileUpdate);
+    window.addEventListener('user-profile-updated', handleProfileUpdate);
+    window.addEventListener('storage', handleProfileUpdate);
+
+    return () => {
+      window.removeEventListener('fieldsync-chat-read', updateChatCount);
+      window.removeEventListener('fieldsync-chat-update', updateChatCount);
+      window.removeEventListener('fieldsync-unread-count-changed', updateChatCount);
+      window.removeEventListener('fieldsync-profile-updated', handleProfileUpdate);
+      window.removeEventListener('user-profile-updated', handleProfileUpdate);
+      window.removeEventListener('storage', handleProfileUpdate);
+    };
+  }, [user?.id, activeTab]);
+
   const getNavSections = (): NavSection[] => {
     const sections: NavSection[] = [];
 
@@ -102,7 +144,13 @@ export default function Sidebar({
 
     if (isSupervisor) {
       sections[0].items.push(
-        { id: 'chat', label: 'Manager Chat', icon: MessageSquare },
+        {
+          id: 'chat',
+          label: 'Manager Chat',
+          icon: MessageSquare,
+          badge: unreadChatCount > 0 ? (unreadChatCount > 9 ? '9+' : unreadChatCount) : null,
+          badgeColor: 'bg-blue-600',
+        },
         { id: 'citizens', label: 'Registered Citizens', icon: Database },
         { id: 'team', label: 'Officers', icon: Users },
         { id: 'requests', label: 'Leave & Permissions', icon: CalendarClock },
@@ -124,7 +172,13 @@ export default function Sidebar({
     if (isManager) {
       sections[0].items.push(
         { id: 'users', label: 'User Management', icon: UserCog },
-        { id: 'chat', label: 'Supervisor Chat', icon: MessageSquare },
+        {
+          id: 'chat',
+          label: 'Supervisor Chat',
+          icon: MessageSquare,
+          badge: unreadChatCount > 0 ? (unreadChatCount > 9 ? '9+' : unreadChatCount) : null,
+          badgeColor: 'bg-blue-600',
+        },
         { id: 'citizens', label: 'Registered Citizens', icon: Database },
         { id: 'team', label: 'Team', icon: Users },
         { id: 'activity_logs', label: 'Activity Logs', icon: Activity },
@@ -138,6 +192,9 @@ export default function Sidebar({
   const navSections = getNavSections();
 
   const handleNavClick = (id: string) => {
+    if (id === 'chat') {
+      setUnreadChatCount(0);
+    }
     try {
       localStorage.setItem('fieldsync_active_tab', id);
       window.dispatchEvent(new CustomEvent('fieldsync-tab-change', { detail: { tab: id } }));
@@ -251,15 +308,28 @@ export default function Sidebar({
               title="View My Profile"
             >
               <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-950 text-[#2563EB] dark:text-blue-400 flex items-center justify-center font-bold text-sm shrink-0 overflow-hidden">
-                {(user?.profilePhotoUrl || (user?.id ? localStorage.getItem(`fieldsync_avatar_${user.id}`) : null)) ? (
-                  <img
-                    src={user?.profilePhotoUrl || (user?.id ? localStorage.getItem(`fieldsync_avatar_${user.id}`) : null) || ''}
-                    alt="Avatar"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  (user?.fullName || user?.name || user?.email || 'U')[0].toUpperCase()
-                )}
+                {(() => {
+                  const resolvedPhoto =
+                    (user?.id ? localStorage.getItem(`fieldsync_avatar_${user.id}`) : null) ||
+                    (user?.email ? localStorage.getItem(`fieldsync_avatar_${user.email.toLowerCase()}`) : null) ||
+                    (user?.role === 'manager' || (user?.email || '').toLowerCase() === 'manager@fieldsync.com'
+                      ? localStorage.getItem('fieldsync_avatar_u_mgr')
+                      : null) ||
+                    (user?.role === 'supervisor' || (user?.email || '').toLowerCase() === 'supervisor@fieldsync.com'
+                      ? localStorage.getItem('fieldsync_avatar_u_sup')
+                      : null) ||
+                    user?.profilePhotoUrl;
+
+                  return resolvedPhoto ? (
+                    <img
+                      src={resolvedPhoto}
+                      alt="Avatar"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    (user?.fullName || user?.name || user?.email || 'U')[0].toUpperCase()
+                  );
+                })()}
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-bold text-slate-900 dark:text-white truncate">

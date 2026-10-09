@@ -22,6 +22,7 @@ import analyticsRoutes from './routes/analytics.routes.js';
 import notificationsRoutes from './routes/notifications.routes.js';
 import auditLogsRoutes from './routes/auditLogs.routes.js';
 import workMonitoringRoutes from './routes/workMonitoring.routes.js';
+import chatRoutes from './routes/chat.routes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -78,6 +79,7 @@ export const createApp = (): Express => {
   app.use('/api/audit-logs', auditLogsRoutes);
   app.use('/api/audit', auditLogsRoutes);
   app.use('/api/work-monitoring', workMonitoringRoutes);
+  app.use('/api/chat', chatRoutes);
 
   // Phase 1 Health Check & Database Verification
   app.get('/api/health', async (_req: Request, res: Response) => {

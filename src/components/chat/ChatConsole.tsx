@@ -99,11 +99,20 @@ function getContactPhoto(c: any): string | null {
   const cId = c.id;
   const normId = normalizeUserId(cId);
 
-  // Check persistent photo in localStorage
-  const local = (cId ? localStorage.getItem(`fieldsync_avatar_${cId}`) : null) ||
-                (normId ? localStorage.getItem(`fieldsync_avatar_${normId}`) : null) ||
-                (c.email ? localStorage.getItem(`fieldsync_avatar_${c.email.toLowerCase()}`) : null);
-  if (local) return local;
+  // Check persistent photo in localStorage across all possible aliases
+  const keys = [
+    cId ? `fieldsync_avatar_${cId}` : null,
+    normId ? `fieldsync_avatar_${normId}` : null,
+    c.email ? `fieldsync_avatar_${c.email.toLowerCase()}` : null,
+    normId === 'u_mgr' || c.role === 'manager' || (c.email || '').toLowerCase() === 'manager@fieldsync.com' ? 'fieldsync_avatar_u_mgr' : null,
+    normId === 'u_mgr' || c.role === 'manager' || (c.email || '').toLowerCase() === 'manager@fieldsync.com' ? 'fieldsync_avatar_manager@fieldsync.com' : null,
+    normId === 'u_sup' || c.role === 'supervisor' || (c.email || '').toLowerCase() === 'supervisor@fieldsync.com' ? 'fieldsync_avatar_u_sup' : null,
+  ].filter(Boolean) as string[];
+
+  for (const k of keys) {
+    const val = localStorage.getItem(k);
+    if (val && val.trim().length > 0) return val;
+  }
 
   // Direct properties
   if (c.profilePhotoUrl) return c.profilePhotoUrl;
@@ -312,6 +321,25 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
     }
   }, [isSupervisor, isManager, defaultManager, supervisorsList, user?.id]);
 
+  // Reactive profile avatar version (reloads pictures when supervisor/manager changes dashboard photo)
+  const [avatarVersion, setAvatarVersion] = useState(0);
+
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      setAvatarVersion((v) => v + 1);
+    };
+
+    window.addEventListener('fieldsync-profile-updated', handleProfileUpdate);
+    window.addEventListener('user-profile-updated', handleProfileUpdate);
+    window.addEventListener('storage', handleProfileUpdate);
+
+    return () => {
+      window.removeEventListener('fieldsync-profile-updated', handleProfileUpdate);
+      window.removeEventListener('user-profile-updated', handleProfileUpdate);
+      window.removeEventListener('storage', handleProfileUpdate);
+    };
+  }, []);
+
   // Load active conversation messages
   const loadMessages = async () => {
     if (!selectedContact || !user?.id) return;
@@ -321,22 +349,51 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
       const msgs = await getConversationMessages(myId, theirId, myId);
       setMessages(msgs);
       await markConversationAsRead(myId, theirId, myId);
+
+      // Immediately discard/clear unread count for this contact when seen
+      setUnreadMap((prev) => ({
+        ...prev,
+        [selectedContact.id]: 0,
+        [theirId]: 0,
+      }));
+
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('fieldsync-unread-count-changed', { detail: { unread: 0 } }));
+      }
     } catch (err) {
       console.warn('Failed to load conversation messages:', err);
     }
   };
 
-  // Recalculate unread message counts per contact (for manager)
+  // Recalculate unread message counts per contact (for manager & supervisor)
   const refreshUnreadCounts = async () => {
-    if (!isManager || !user?.id) return;
+    if (!user?.id) return;
     try {
       const counts: Record<string, number> = {};
       const myId = normalizeUserId(user.id);
-      for (const sup of supervisorsList) {
-        const theirId = normalizeUserId(sup.id);
-        const msgs = await getConversationMessages(myId, theirId, myId);
-        const unread = msgs.filter((m) => normalizeUserId(m.receiverId) === myId && !m.isRead).length;
-        counts[sup.id] = unread;
+      const activeContactId = selectedContact ? normalizeUserId(selectedContact.id) : '';
+
+      if (isManager) {
+        for (const sup of supervisorsList) {
+          const theirId = normalizeUserId(sup.id);
+          // If viewing this conversation right now, discard unread count to 0!
+          if (activeContactId && (activeContactId === theirId || activeContactId === sup.id)) {
+            counts[sup.id] = 0;
+            continue;
+          }
+          const msgs = await getConversationMessages(myId, theirId, myId);
+          const unread = msgs.filter((m) => normalizeUserId(m.receiverId) === myId && !m.isRead).length;
+          counts[sup.id] = unread;
+        }
+      } else if (isSupervisor) {
+        const mgrId = normalizeUserId(defaultManager.id);
+        if (activeContactId && (activeContactId === mgrId || activeContactId === defaultManager.id)) {
+          counts[defaultManager.id] = 0;
+        } else {
+          const msgs = await getConversationMessages(myId, mgrId, myId);
+          const unread = msgs.filter((m) => normalizeUserId(m.receiverId) === myId && !m.isRead).length;
+          counts[defaultManager.id] = unread;
+        }
       }
       setUnreadMap(counts);
     } catch (err) {
@@ -867,10 +924,19 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
     );
   }
 
-  // Active contact profile photo resolution
-  const contactPhoto = getContactPhoto(selectedContact);
+  // Active contact & current user profile photo resolution
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const contactPhoto = useMemo(() => getContactPhoto(selectedContact), [selectedContact, avatarVersion]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const currentUserPhoto = useMemo(() => getContactPhoto(user), [user, avatarVersion]);
 
   const selectedContactInitials = (selectedContact?.fullName || selectedContact?.name || (isSupervisor ? 'Manager' : 'Supervisor'))
+    .split(' ')
+    .map((w: string) => w[0])
+    .slice(0, 2)
+    .join('');
+
+  const currentUserInitials = (user?.fullName || user?.name || (isManager ? 'Manager' : 'Supervisor'))
     .split(' ')
     .map((w: string) => w[0])
     .slice(0, 2)
@@ -981,6 +1047,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                     type="button"
                     onClick={() => {
                       setSelectedContact(sup);
+                      setUnreadMap((prev) => ({ ...prev, [sup.id]: 0 }));
                       setShowMobileSidebar(false);
                     }}
                     className={`w-full p-3.5 text-left flex items-start gap-3 transition-all duration-150 cursor-pointer ${
@@ -1825,6 +1892,30 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                           <Square className="w-5 h-5 text-slate-300 dark:text-[#5A4032]" />
                         )}
                       </button>
+                    )}
+
+                    {/* Sender Avatar for My Sent Messages */}
+                    {isMine && !isSelectionMode && (
+                      <div className="w-8 h-8 shrink-0 self-end mb-0.5">
+                        {isLastInGroup ? (
+                          <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center text-xs font-bold border border-slate-200 dark:border-slate-700 shadow-2xs">
+                            {currentUserPhoto ? (
+                              <img
+                                src={currentUserPhoto}
+                                alt={user?.name || user?.fullName || 'Me'}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  (e.currentTarget as HTMLElement).style.display = 'none';
+                                }}
+                              />
+                            ) : (
+                              <span>{currentUserInitials || 'ME'}</span>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="w-8 h-8" aria-hidden="true" />
+                        )}
+                      </div>
                     )}
                   </div>
                 </React.Fragment>

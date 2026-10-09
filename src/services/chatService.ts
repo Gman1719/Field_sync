@@ -6,6 +6,7 @@ import type { ChatMessage } from '../types/index';
 import { SAMPLE_USERS } from '../utils/constants';
 import { checkRealInternet } from './database';
 import { generateMessageId } from '../utils/idGenerator';
+import { API_BASE } from '../config/api';
 
 const CHAT_CHANNEL_NAME = 'fieldsync_chat_channel';
 let broadcastChannel: BroadcastChannel | null = null;
@@ -149,6 +150,21 @@ export async function getConversationMessages(
 
   await seedInitialChatIfEmpty();
 
+  // If online, fetch remote messages from persistent backend store
+  if (_lastOnlineVerified || (typeof navigator !== 'undefined' && navigator.onLine)) {
+    try {
+      const res = await fetch(`${API_BASE}/chat/messages?userIdA=${encodeURIComponent(normA)}&userIdB=${encodeURIComponent(normB)}`);
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+          await offlineDb.chatMessages.bulkPut(json.data);
+        }
+      }
+    } catch (_e) {
+      // Offline fallback
+    }
+  }
+
   // Robust bidirectional lookup: matches conversationId or direct normalized sender-receiver pairings
   const all = await offlineDb.chatMessages.toArray();
   const msgs = all
@@ -168,6 +184,20 @@ export async function getConversationMessages(
       return true;
     })
     .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+
+  // Background backup to server for local delivered/read messages if server is online
+  if (_lastOnlineVerified && msgs.length > 0) {
+    const localDelivered = msgs.filter((m) => m.status !== 'sending');
+    if (localDelivered.length > 0) {
+      for (const m of localDelivered.slice(-5)) {
+        fetch(`${API_BASE}/chat/messages`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(m),
+        }).catch(() => {});
+      }
+    }
+  }
 
   return msgs;
 }
@@ -217,6 +247,17 @@ export async function sendMessage(params: {
 
   await offlineDb.chatMessages.put(newMsg);
 
+  // If online, save to persistent backend endpoint
+  if (online) {
+    try {
+      fetch(`${API_BASE}/chat/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newMsg),
+      }).catch(() => {});
+    } catch (_e) {}
+  }
+
   // Dispatch local window event for the sender's UI so they see the queued message with clock icon
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('fieldsync-chat-update', { detail: { message: newMsg } }));
@@ -262,6 +303,15 @@ export async function deliverPendingChatMessages(currentUserId?: string): Promis
     };
     await offlineDb.chatMessages.put(updated);
 
+    // Save to persistent backend endpoint
+    try {
+      fetch(`${API_BASE}/chat/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updated),
+      }).catch(() => {});
+    } catch (_e) {}
+
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('fieldsync-chat-update', { detail: { message: updated } }));
       if (broadcastChannel) {
@@ -298,8 +348,25 @@ export async function markConversationAsRead(userIdA: string, userIdB: string, c
         status: 'read',
       });
     }
+
+    if (_lastOnlineVerified || (typeof navigator !== 'undefined' && navigator.onLine)) {
+      try {
+        fetch(`${API_BASE}/chat/read`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userIdA: normCurrentUserId,
+            userIdB: normOtherUserId,
+            currentUserId: normCurrentUserId,
+            conversationId: convId,
+          }),
+        }).catch(() => {});
+      } catch (_e) {}
+    }
+
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('fieldsync-chat-read', { detail: { conversationId: convId } }));
+      window.dispatchEvent(new CustomEvent('fieldsync-unread-count-changed', { detail: { conversationId: convId } }));
       if (broadcastChannel) {
         try {
           broadcastChannel.postMessage({ type: 'READ_UPDATE', conversationId: convId });
@@ -355,6 +422,16 @@ export async function addMessageReaction(messageId: string, emoji: string, userI
     reactions: currentReactions,
   });
 
+  if (_lastOnlineVerified || (typeof navigator !== 'undefined' && navigator.onLine)) {
+    try {
+      fetch(`${API_BASE}/chat/reaction`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messageId, emoji, userId: normUserId }),
+      }).catch(() => {});
+    } catch (_e) {}
+  }
+
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('fieldsync-chat-reaction', { detail: { messageId, reactions: currentReactions } }));
     if (broadcastChannel) {
@@ -372,8 +449,19 @@ export async function deleteMessages(messageIds: string[]): Promise<void> {
   if (!messageIds || messageIds.length === 0) return;
   await offlineDb.chatMessages.bulkDelete(messageIds);
 
+  if (_lastOnlineVerified || (typeof navigator !== 'undefined' && navigator.onLine)) {
+    try {
+      fetch(`${API_BASE}/chat/messages`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messageIds }),
+      }).catch(() => {});
+    } catch (_e) {}
+  }
+
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('fieldsync-chat-update', { detail: { deletedIds: messageIds } }));
+    window.dispatchEvent(new CustomEvent('fieldsync-unread-count-changed', { detail: { deletedIds: messageIds } }));
     if (broadcastChannel) {
       try {
         broadcastChannel.postMessage({ type: 'DELETE_MESSAGES', messageIds });

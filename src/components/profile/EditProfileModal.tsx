@@ -101,14 +101,30 @@ export default function EditProfileModal({ isOpen, onClose, user, onProfileUpdat
     setIsSubmitting(true);
     const photoUrl = profilePhotoUrl ? profilePhotoUrl.trim() : '';
 
-    // Persist photo permanently in localStorage - STRICTLY per-user ID!
+    // Persist photo permanently in localStorage - across all user aliases
+    const photoKeyIds = new Set<string>();
     if (user?.id) {
-      if (photoUrl) {
-        localStorage.setItem(`fieldsync_avatar_${user.id}`, photoUrl);
-      } else {
-        localStorage.removeItem(`fieldsync_avatar_${user.id}`);
-      }
+      photoKeyIds.add(String(user.id));
+      photoKeyIds.add(String(user.id).toLowerCase());
     }
+    if (user?.email) {
+      photoKeyIds.add(String(user.email).toLowerCase());
+    }
+    if (user?.role === 'manager' || (user?.email || '').toLowerCase() === 'manager@fieldsync.com') {
+      photoKeyIds.add('u_mgr');
+      photoKeyIds.add('manager@fieldsync.com');
+    }
+    if (user?.role === 'supervisor' || (user?.email || '').toLowerCase() === 'supervisor@fieldsync.com') {
+      photoKeyIds.add('u_sup');
+    }
+
+    photoKeyIds.forEach((k) => {
+      if (photoUrl) {
+        localStorage.setItem(`fieldsync_avatar_${k}`, photoUrl);
+      } else {
+        localStorage.removeItem(`fieldsync_avatar_${k}`);
+      }
+    });
 
     try {
       localStorage.removeItem('fieldsync_user_avatar');
@@ -118,6 +134,10 @@ export default function EditProfileModal({ isOpen, onClose, user, onProfileUpdat
       ...user,
       profilePhotoUrl: photoUrl || null,
     };
+
+    try {
+      localStorage.setItem('fieldsync_user', JSON.stringify(updatedUser));
+    } catch (_e) {}
 
     try {
       const token = localStorage.getItem('fieldsync_token');
@@ -164,6 +184,10 @@ export default function EditProfileModal({ isOpen, onClose, user, onProfileUpdat
 
     // Dispatch global event for instant reactive update across app components
     window.dispatchEvent(new CustomEvent('fieldsync-profile-updated', { detail: { user: updatedUser } }));
+    window.dispatchEvent(new CustomEvent('user-profile-updated', { detail: updatedUser }));
+    try {
+      window.dispatchEvent(new StorageEvent('storage', { key: `fieldsync_avatar_${user?.id}` }));
+    } catch (_e) {}
 
     toast.success(userT('Profile picture updated successfully'));
     if (onProfileUpdated) {

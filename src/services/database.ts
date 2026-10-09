@@ -961,18 +961,7 @@ export const purgeLegacyDirectionalUsers = async () => {
       if (delOffScTime.length) await offlineDb.dailyScreenTimes.bulkDelete(delOffScTime);
     } catch (_e) {}
 
-    try {
-      const offChat = await offlineDb.chatMessages.toArray();
-      const delOffChat = offChat.filter(m => 
-        idList.includes(m.senderId) || 
-        idList.includes(m.receiverId) || 
-        targetNames.has((m.senderName || '').toLowerCase()) ||
-        m.conversationId?.includes('s1') ||
-        m.conversationId?.includes('s2') ||
-        m.conversationId?.includes('s3')
-      ).map(m => m.id);
-      if (delOffChat.length) await offlineDb.chatMessages.bulkDelete(delOffChat);
-    } catch (_e) {}
+    // Note: Chat messages between manager and supervisor are permanently preserved and NEVER auto-purged
 
     // Ensure u_sup and u_off have real Bole Sub-City attributes
     const existingSup = await db.users.get('u_sup');

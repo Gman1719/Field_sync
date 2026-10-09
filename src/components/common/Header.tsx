@@ -89,6 +89,7 @@ export default function Header({
 
   const [recentNotifications, setRecentNotifications] = useState<any[]>([]);
   const [liveUnreadCount, setLiveUnreadCount] = useState(0);
+  const [_avatarVersion, setAvatarVersion] = useState(0);
 
   const loadNotificationsData = useCallback(async () => {
     try {
@@ -114,11 +115,21 @@ export default function Header({
       loadNotificationsData();
     };
 
+    const handleProfileUpdate = () => {
+      setAvatarVersion((v) => v + 1);
+    };
+
     window.addEventListener('notifications-updated', handleUpdate);
+    window.addEventListener('fieldsync-profile-updated', handleProfileUpdate);
+    window.addEventListener('user-profile-updated', handleProfileUpdate);
+    window.addEventListener('storage', handleProfileUpdate);
     const interval = setInterval(loadNotificationsData, 20000);
 
     return () => {
       window.removeEventListener('notifications-updated', handleUpdate);
+      window.removeEventListener('fieldsync-profile-updated', handleProfileUpdate);
+      window.removeEventListener('user-profile-updated', handleProfileUpdate);
+      window.removeEventListener('storage', handleProfileUpdate);
       clearInterval(interval);
     };
   }, [loadNotificationsData]);
@@ -335,17 +346,30 @@ export default function Header({
             className="flex items-center gap-2.5 p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
           >
             <div className="w-9 h-9 rounded-full bg-[#2563EB] text-white font-bold text-sm flex items-center justify-center shadow-xs overflow-hidden">
-              {(user?.profilePhotoUrl || (user?.id ? localStorage.getItem(`fieldsync_avatar_${user.id}`) : null)) ? (
-                <img
-                  src={user?.profilePhotoUrl || (user?.id ? localStorage.getItem(`fieldsync_avatar_${user.id}`) : null) || ''}
-                  alt="Avatar"
-                  className="w-full h-full object-cover"
-                />
-              ) : user?.name ? (
-                user.name.charAt(0).toUpperCase()
-              ) : (
-                'U'
-              )}
+              {(() => {
+                const resolvedPhoto =
+                  (user?.id ? localStorage.getItem(`fieldsync_avatar_${user.id}`) : null) ||
+                  (user?.email ? localStorage.getItem(`fieldsync_avatar_${user.email.toLowerCase()}`) : null) ||
+                  (user?.role === 'manager' || (user?.email || '').toLowerCase() === 'manager@fieldsync.com'
+                    ? localStorage.getItem('fieldsync_avatar_u_mgr')
+                    : null) ||
+                  (user?.role === 'supervisor' || (user?.email || '').toLowerCase() === 'supervisor@fieldsync.com'
+                    ? localStorage.getItem('fieldsync_avatar_u_sup')
+                    : null) ||
+                  user?.profilePhotoUrl;
+
+                return resolvedPhoto ? (
+                  <img
+                    src={resolvedPhoto}
+                    alt="Avatar"
+                    className="w-full h-full object-cover"
+                  />
+                ) : user?.name ? (
+                  user.name.charAt(0).toUpperCase()
+                ) : (
+                  'U'
+                );
+              })()}
             </div>
             <span className="hidden md:inline text-sm font-bold text-slate-800 dark:text-slate-200">
               {user?.name?.split(' ')[0] || 'User'}
