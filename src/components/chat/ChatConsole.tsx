@@ -597,11 +597,11 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
 
       await sendMessage({
         senderId: currentSenderId,
-        senderName: user.fullName || user.name || (isManager ? 'አበበ በቀለ' : 'Supervisor'),
+        senderName: user.fullName || user.name || (isManager ? 'System Manager' : 'Supervisor'),
         senderRole: isManager ? 'manager' : 'supervisor',
         receiverId: currentReceiverId,
         receiverName: selectedContact.fullName || selectedContact.name || 'Recipient',
-        text: textToSend || (attToSend ? `Shared an operational attachment: ${attToSend.name}` : ''),
+        text: textToSend,
         replyTo: replyContext,
         attachment: attToSend,
       });
@@ -1953,32 +1953,121 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
               </div>
             )}
 
-            {/* Attached File Preview Badge (if pending) */}
-            {selectedAttachment && (
-              <div className="mb-2 px-3 py-1.5 bg-blue-50/70 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-900 rounded-xl flex items-center justify-between">
-                <div className="flex items-center gap-2 text-xs text-[#2563EB] dark:text-blue-300 font-semibold truncate">
-                  <FileText className="w-4 h-4 text-[#2563EB] dark:text-blue-400 shrink-0" />
-                  <span className="truncate">{selectedAttachment.name}</span>
-                  <span className="text-[10px] text-[#64748B] dark:text-slate-400 font-mono shrink-0">
-                    ({selectedAttachment.size})
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setSelectedAttachment(null)}
-                  className="text-[#64748B] dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-200 p-0.5 cursor-pointer"
-                  title="Remove attachment"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            )}
+            {/* "Send as a file" Staging Card matching User Image 3 */}
+            {selectedAttachment ? (
+              <div className="bg-white dark:bg-[#17212B] rounded-2xl border border-slate-200/90 dark:border-[#242F3D] shadow-lg p-4 transition-all duration-200 animate-in fade-in zoom-in-95">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  className="hidden"
+                  onChange={handleFileSelect}
+                />
 
-            {/* Clean Single-Line Bar matching Image 1: [Paperclip] [Auto-growing Textarea] [Smile] [Send] */}
-            <form
-              onSubmit={handleSendMessage}
-              className="flex items-end gap-2.5 bg-white dark:bg-slate-800 rounded-2xl border border-[#E2E8F0] dark:border-slate-800 shadow-sm px-4 py-2 focus-within:border-[#2563EB] dark:focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/10 transition-all duration-150"
-            >
+                {/* Header */}
+                <div className="flex items-center justify-between mb-3.5">
+                  <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-100 tracking-tight">
+                    {userT('Send as a file')}
+                  </h4>
+                </div>
+
+                {/* File Row */}
+                <div className="flex items-center gap-3.5 mb-4">
+                  {/* Circular Blue Icon matching Image 3 */}
+                  <div className="w-12 h-12 rounded-full bg-[#2A86D4] text-white flex items-center justify-center shrink-0 shadow-xs">
+                    <FileText className="w-6 h-6 text-white" />
+                  </div>
+
+                  {/* Filename & Filesize */}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-slate-900 dark:text-white truncate" title={selectedAttachment.name}>
+                      {selectedAttachment.name}
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+                      {selectedAttachment.size}
+                    </p>
+                  </div>
+
+                  {/* Remove attachment button */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedAttachment(null);
+                      setInputText('');
+                    }}
+                    className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer"
+                    title="Remove file"
+                  >
+                    <X className="w-4.5 h-4.5" />
+                  </button>
+                </div>
+
+                {/* Caption Input Field (Optional) with underline matching Image 3 */}
+                <div className="relative border-b border-[#2A86D4]/60 focus-within:border-[#2A86D4] pb-1.5 mb-3.5 transition-colors">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={inputText}
+                      onChange={(e) => setInputText(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleSendMessage();
+                        }
+                      }}
+                      placeholder={userT('Caption')}
+                      className="w-full bg-transparent text-sm text-slate-900 dark:text-white placeholder-[#2A86D4]/80 dark:placeholder-[#5288c1] focus:outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                      className={`p-1 transition-colors cursor-pointer rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 ${
+                        showEmojiPicker ? 'text-[#2A86D4]' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
+                      }`}
+                      title="Insert emoji"
+                    >
+                      <Smile className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Bottom Actions: Add on left | Cancel & Send on right matching Image 3 */}
+                <div className="flex items-center justify-between pt-1">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="text-sm font-semibold text-[#2A86D4] dark:text-[#5288c1] hover:underline cursor-pointer"
+                  >
+                    {userT('Add')}
+                  </button>
+
+                  <div className="flex items-center gap-6">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedAttachment(null);
+                        setInputText('');
+                      }}
+                      className="text-sm font-semibold text-[#2A86D4] dark:text-[#5288c1] hover:underline cursor-pointer"
+                    >
+                      {userT('Cancel')}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={isSending}
+                      onClick={() => handleSendMessage()}
+                      className="text-sm font-bold text-[#2A86D4] dark:text-[#5288c1] hover:underline cursor-pointer disabled:opacity-50"
+                    >
+                      {isSending ? userT('Sending...') : userT('Send')}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* Clean Single-Line Bar matching Image 1: [Paperclip] [Auto-growing Textarea] [Smile] [Send] */
+              <form
+                onSubmit={handleSendMessage}
+                className="flex items-end gap-2.5 bg-white dark:bg-slate-800 rounded-2xl border border-[#E2E8F0] dark:border-slate-800 shadow-sm px-4 py-2 focus-within:border-[#2563EB] dark:focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/10 transition-all duration-150"
+              >
               {/* Paperclip Button on left */}
               <button
                 type="button"
@@ -2079,6 +2168,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                 )}
               </div>
             </form>
+          )}
           </div>
         </div>
       </div>
