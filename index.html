@@ -2,9 +2,31 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>fieldsync</title>
+    <script>
+      (function() {
+        var BUILD_ID = 'build_20261009_v3';
+        var current = localStorage.getItem('fieldsync_build_version');
+        if (current !== BUILD_ID) {
+          localStorage.setItem('fieldsync_build_version', BUILD_ID);
+          if ('caches' in window) {
+            caches.keys().then(function(keys) {
+              keys.forEach(function(k) { caches.delete(k); });
+            });
+          }
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(regs) {
+              regs.forEach(function(r) { r.unregister(); });
+            });
+          }
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
