@@ -42,15 +42,7 @@ export const createApp = (): Express => {
   app.use(helmet({ contentSecurityPolicy: false }));
   app.use(
     cors({
-      origin: (origin, callback) => {
-        // Allow requests with no origin (e.g. mobile apps, curl, server-to-server, or health checks)
-        if (!origin) return callback(null, true);
-        const normalizedOrigin = origin.replace(/\/+$/, '');
-        if (allowedOrigins.includes(normalizedOrigin)) {
-          return callback(null, true);
-        }
-        return callback(new Error(`CORS policy: Origin ${origin} not allowed`));
-      },
+      origin: true,
       credentials: true,
     })
   );

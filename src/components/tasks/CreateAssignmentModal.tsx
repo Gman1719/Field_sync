@@ -3,6 +3,7 @@ import { Briefcase, User, Calendar, MapPin, Target, X, Check } from 'lucide-reac
 import toast from 'react-hot-toast';
 import { offlineDb } from '../../db/offlineDb';
 import { API_BASE } from '../../config/api';
+import { ensureOfflineLocationsSeeded } from '../../services/locationData';
 import ActivityLogger from '../../services/activityLogger';
 
 import Button from '../ui/Button';
@@ -42,20 +43,9 @@ export default function CreateAssignmentModal({
 
     const loadData = async () => {
       try {
+        await ensureOfflineLocationsSeeded();
         // Load regions
         let regs = await offlineDb.regions.orderBy('name').toArray();
-        if (regs.length === 0 && navigator.onLine) {
-          try {
-            const rRes = await fetch(`${API_BASE}/locations/regions`);
-            if (rRes.ok) {
-              const rData = await rRes.json();
-              if (rData.success && Array.isArray(rData.data) && rData.data.length > 0) {
-                regs = rData.data;
-                offlineDb.regions.bulkPut(rData.data).catch(() => {});
-              }
-            }
-          } catch (_rErr) {}
-        }
         setRegions(regs);
 
         // Load officers from server or Dexie

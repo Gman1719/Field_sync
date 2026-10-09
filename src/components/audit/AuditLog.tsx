@@ -10,6 +10,7 @@ import {
 import toast from 'react-hot-toast';
 
 import { API_BASE } from '../../config/api';
+import { db } from '../../services/database';
 import { exportCSV, exportJSON } from '../../utils/helpers';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
 import Button from '../ui/Button';
@@ -24,7 +25,7 @@ export interface AuditLogProps {
   [key: string]: any;
 }
 
-export default function AuditLog({ user }: AuditLogProps) {
+export default function AuditLog({ user, auditLog = [] }: AuditLogProps) {
   const [logs, setLogs] = useState([]);
   const [pagination, setPagination] = useState({ total: 0, page: 1, limit: 15, totalPages: 1 });
   const [isLoading, setIsLoading] = useState(true);
@@ -74,45 +75,76 @@ export default function AuditLog({ user }: AuditLogProps) {
     if (!isSilent) setIsLoading(true);
     else setIsRefreshing(true);
 
-    try {
-      const token = localStorage.getItem('fieldsync_token');
-      if (!token) {
-        setIsLoading(false);
-        setIsRefreshing(false);
-        return;
-      }
+    let loaded = false;
+    const token = localStorage.getItem('fieldsync_token');
 
-      const params = new URLSearchParams();
-      params.append('page', String(page));
-      params.append('limit', '15');
-      if (searchTerm.trim()) params.append('search', searchTerm.trim());
-      if (selectedRole !== 'ALL') params.append('role', selectedRole);
-      if (selectedAction !== 'ALL') params.append('action', selectedAction);
-      if (selectedEntity !== 'ALL') params.append('entityType', selectedEntity);
-      if (startDate) params.append('startDate', startDate);
-      if (endDate) params.append('endDate', endDate);
+    if (navigator.onLine && token) {
+      try {
+        const params = new URLSearchParams();
+        params.append('page', String(page));
+        params.append('limit', '15');
+        if (searchTerm.trim()) params.append('search', searchTerm.trim());
+        if (selectedRole !== 'ALL') params.append('role', selectedRole);
+        if (selectedAction !== 'ALL') params.append('action', selectedAction);
+        if (selectedEntity !== 'ALL') params.append('entityType', selectedEntity);
+        if (startDate) params.append('startDate', startDate);
+        if (endDate) params.append('endDate', endDate);
 
-      const res = await fetch(`${API_BASE}/audit-logs?${params.toString()}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 2500);
+        const res = await fetch(`${API_BASE}/audit-logs?${params.toString()}`, {
+          headers: { Authorization: `Bearer ${token}` },
+          signal: controller.signal,
+        });
+        clearTimeout(timeout);
 
-      if (res.ok) {
-        const json = await res.json();
-        if (json.success) {
-          setLogs(json.data || []);
-          setPagination(json.pagination || { total: json.data?.length || 0, page, limit: 15, totalPages: 1 });
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success) {
+            setLogs(json.data || []);
+            setPagination(json.pagination || { total: json.data?.length || 0, page, limit: 15, totalPages: 1 });
+            loaded = true;
+          }
         }
-      } else {
-        const errJson = await res.json().catch(() => ({}));
-        toast.error(errJson.error || 'Failed to fetch audit logs');
+      } catch (_err) {
+        // Backend offline, fall back to local store
       }
-    } catch (err) {
-      console.error('Audit fetch error:', err);
-      toast.error('Network error loading audit logs');
-    } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
     }
+
+    if (!loaded) {
+      try {
+        const localLogs = (auditLog && auditLog.length > 0) ? auditLog : await db.audit.toArray();
+        const normalized = localLogs.map((l: any) => ({
+          id: l.id,
+          action: l.action || 'USER_ACTION',
+          actorName: l.userName || l.actorName || user?.name || 'System',
+          actorRole: l.role || user?.role || 'field_officer',
+          entityType: l.entityType || 'SYSTEM',
+          entityId: l.entityId || l.id,
+          description: l.details || l.description || l.action,
+          createdAt: l.timestamp || l.createdAt || new Date().toISOString(),
+          ipAddress: l.ip || '127.0.0.1',
+        }));
+
+        let filtered = normalized;
+        if (searchTerm.trim()) {
+          const q = searchTerm.toLowerCase();
+          filtered = filtered.filter((l: any) =>
+            l.action.toLowerCase().includes(q) ||
+            l.actorName.toLowerCase().includes(q) ||
+            l.description.toLowerCase().includes(q)
+          );
+        }
+
+        setLogs(filtered);
+        setPagination({ total: filtered.length, page: 1, limit: 15, totalPages: Math.max(1, Math.ceil(filtered.length / 15)) });
+      } catch (_e) {
+        setLogs([]);
+      }
+    }
+
+    setIsLoading(false);
+    setIsRefreshing(false);
   }, [page, searchTerm, selectedRole, selectedAction, selectedEntity, startDate, endDate]);
 
   useEffect(() => {

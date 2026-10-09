@@ -1,0 +1,5508 @@
+[
+  {
+    "id": "reg-addis-ababa",
+    "code": "AA",
+    "name": "Addis Ababa",
+    "type": "chartered_city",
+    "zones": [
+      {
+        "id": "zone-aa-bole",
+        "code": "AA-BOL",
+        "name": "Bole Sub-City",
+        "woredas": [
+          {
+            "id": "wor-aa-bol-01",
+            "code": "AA-BOL-01",
+            "name": "Bole Woreda 01"
+          },
+          {
+            "id": "wor-aa-bol-02",
+            "code": "AA-BOL-02",
+            "name": "Bole Woreda 02"
+          },
+          {
+            "id": "wor-aa-bol-03",
+            "code": "AA-BOL-03",
+            "name": "Bole Woreda 03"
+          },
+          {
+            "id": "wor-aa-bol-04",
+            "code": "AA-BOL-04",
+            "name": "Bole Woreda 04"
+          },
+          {
+            "id": "wor-aa-bol-05",
+            "code": "AA-BOL-05",
+            "name": "Bole Woreda 05"
+          },
+          {
+            "id": "wor-aa-bol-06",
+            "code": "AA-BOL-06",
+            "name": "Bole Woreda 06"
+          },
+          {
+            "id": "wor-aa-bol-07",
+            "code": "AA-BOL-07",
+            "name": "Bole Woreda 07"
+          },
+          {
+            "id": "wor-aa-bol-08",
+            "code": "AA-BOL-08",
+            "name": "Bole Woreda 08"
+          },
+          {
+            "id": "wor-aa-bol-09",
+            "code": "AA-BOL-09",
+            "name": "Bole Woreda 09"
+          },
+          {
+            "id": "wor-aa-bol-10",
+            "code": "AA-BOL-10",
+            "name": "Bole Woreda 10"
+          },
+          {
+            "id": "wor-aa-bol-11",
+            "code": "AA-BOL-11",
+            "name": "Bole Woreda 11"
+          },
+          {
+            "id": "wor-aa-bol-12",
+            "code": "AA-BOL-12",
+            "name": "Bole Woreda 12"
+          },
+          {
+            "id": "wor-aa-bol-13",
+            "code": "AA-BOL-13",
+            "name": "Bole Woreda 13"
+          },
+          {
+            "id": "wor-aa-bol-14",
+            "code": "AA-BOL-14",
+            "name": "Bole Woreda 14"
+          }
+        ]
+      },
+      {
+        "id": "zone-aa-yeka",
+        "code": "AA-YEK",
+        "name": "Yeka Sub-City",
+        "woredas": [
+          {
+            "id": "wor-aa-yek-01",
+            "code": "AA-YEK-01",
+            "name": "Yeka Woreda 01"
+          },
+          {
+            "id": "wor-aa-yek-02",
+            "code": "AA-YEK-02",
+            "name": "Yeka Woreda 02"
+          },
+          {
+            "id": "wor-aa-yek-03",
+            "code": "AA-YEK-03",
+            "name": "Yeka Woreda 03"
+          },
+          {
+            "id": "wor-aa-yek-04",
+            "code": "AA-YEK-04",
+            "name": "Yeka Woreda 04"
+          },
+          {
+            "id": "wor-aa-yek-05",
+            "code": "AA-YEK-05",
+            "name": "Yeka Woreda 05"
+          },
+          {
+            "id": "wor-aa-yek-06",
+            "code": "AA-YEK-06",
+            "name": "Yeka Woreda 06"
+          },
+          {
+            "id": "wor-aa-yek-07",
+            "code": "AA-YEK-07",
+            "name": "Yeka Woreda 07"
+          },
+          {
+            "id": "wor-aa-yek-08",
+            "code": "AA-YEK-08",
+            "name": "Yeka Woreda 08"
+          },
+          {
+            "id": "wor-aa-yek-09",
+            "code": "AA-YEK-09",
+            "name": "Yeka Woreda 09"
+          },
+          {
+            "id": "wor-aa-yek-10",
+            "code": "AA-YEK-10",
+            "name": "Yeka Woreda 10"
+          },
+          {
+            "id": "wor-aa-yek-11",
+            "code": "AA-YEK-11",
+            "name": "Yeka Woreda 11"
+          },
+          {
+            "id": "wor-aa-yek-12",
+            "code": "AA-YEK-12",
+            "name": "Yeka Woreda 12"
+          },
+          {
+            "id": "wor-aa-yek-13",
+            "code": "AA-YEK-13",
+            "name": "Yeka Woreda 13"
+          },
+          {
+            "id": "wor-aa-yek-14",
+            "code": "AA-YEK-14",
+            "name": "Yeka Woreda 14"
+          }
+        ]
+      },
+      {
+        "id": "zone-aa-kirkos",
+        "code": "AA-KIR",
+        "name": "Kirkos Sub-City",
+        "woredas": [
+          {
+            "id": "wor-aa-kir-01",
+            "code": "AA-KIR-01",
+            "name": "Kirkos Woreda 01"
+          },
+          {
+            "id": "wor-aa-kir-02",
+            "code": "AA-KIR-02",
+            "name": "Kirkos Woreda 02"
+          },
+          {
+            "id": "wor-aa-kir-03",
+            "code": "AA-KIR-03",
+            "name": "Kirkos Woreda 03"
+          },
+          {
+            "id": "wor-aa-kir-04",
+            "code": "AA-KIR-04",
+            "name": "Kirkos Woreda 04"
+          },
+          {
+            "id": "wor-aa-kir-05",
+            "code": "AA-KIR-05",
+            "name": "Kirkos Woreda 05"
+          },
+          {
+            "id": "wor-aa-kir-06",
+            "code": "AA-KIR-06",
+            "name": "Kirkos Woreda 06"
+          },
+          {
+            "id": "wor-aa-kir-07",
+            "code": "AA-KIR-07",
+            "name": "Kirkos Woreda 07"
+          },
+          {
+            "id": "wor-aa-kir-08",
+            "code": "AA-KIR-08",
+            "name": "Kirkos Woreda 08"
+          },
+          {
+            "id": "wor-aa-kir-09",
+            "code": "AA-KIR-09",
+            "name": "Kirkos Woreda 09"
+          },
+          {
+            "id": "wor-aa-kir-10",
+            "code": "AA-KIR-10",
+            "name": "Kirkos Woreda 10"
+          },
+          {
+            "id": "wor-aa-kir-11",
+            "code": "AA-KIR-11",
+            "name": "Kirkos Woreda 11"
+          }
+        ]
+      },
+      {
+        "id": "zone-aa-arada",
+        "code": "AA-ARA",
+        "name": "Arada Sub-City",
+        "woredas": [
+          {
+            "id": "wor-aa-ara-01",
+            "code": "AA-ARA-01",
+            "name": "Arada Woreda 01"
+          },
+          {
+            "id": "wor-aa-ara-02",
+            "code": "AA-ARA-02",
+            "name": "Arada Woreda 02"
+          },
+          {
+            "id": "wor-aa-ara-03",
+            "code": "AA-ARA-03",
+            "name": "Arada Woreda 03"
+          },
+          {
+            "id": "wor-aa-ara-04",
+            "code": "AA-ARA-04",
+            "name": "Arada Woreda 04"
+          },
+          {
+            "id": "wor-aa-ara-05",
+            "code": "AA-ARA-05",
+            "name": "Arada Woreda 05"
+          },
+          {
+            "id": "wor-aa-ara-06",
+            "code": "AA-ARA-06",
+            "name": "Arada Woreda 06"
+          },
+          {
+            "id": "wor-aa-ara-07",
+            "code": "AA-ARA-07",
+            "name": "Arada Woreda 07"
+          },
+          {
+            "id": "wor-aa-ara-08",
+            "code": "AA-ARA-08",
+            "name": "Arada Woreda 08"
+          },
+          {
+            "id": "wor-aa-ara-09",
+            "code": "AA-ARA-09",
+            "name": "Arada Woreda 09"
+          },
+          {
+            "id": "wor-aa-ara-10",
+            "code": "AA-ARA-10",
+            "name": "Arada Woreda 10"
+          }
+        ]
+      },
+      {
+        "id": "zone-aa-lideta",
+        "code": "AA-LID",
+        "name": "Lideta Sub-City",
+        "woredas": [
+          {
+            "id": "wor-aa-lid-01",
+            "code": "AA-LID-01",
+            "name": "Lideta Woreda 01"
+          },
+          {
+            "id": "wor-aa-lid-02",
+            "code": "AA-LID-02",
+            "name": "Lideta Woreda 02"
+          },
+          {
+            "id": "wor-aa-lid-03",
+            "code": "AA-LID-03",
+            "name": "Lideta Woreda 03"
+          },
+          {
+            "id": "wor-aa-lid-04",
+            "code": "AA-LID-04",
+            "name": "Lideta Woreda 04"
+          },
+          {
+            "id": "wor-aa-lid-05",
+            "code": "AA-LID-05",
+            "name": "Lideta Woreda 05"
+          },
+          {
+            "id": "wor-aa-lid-06",
+            "code": "AA-LID-06",
+            "name": "Lideta Woreda 06"
+          },
+          {
+            "id": "wor-aa-lid-07",
+            "code": "AA-LID-07",
+            "name": "Lideta Woreda 07"
+          },
+          {
+            "id": "wor-aa-lid-08",
+            "code": "AA-LID-08",
+            "name": "Lideta Woreda 08"
+          },
+          {
+            "id": "wor-aa-lid-09",
+            "code": "AA-LID-09",
+            "name": "Lideta Woreda 09"
+          },
+          {
+            "id": "wor-aa-lid-10",
+            "code": "AA-LID-10",
+            "name": "Lideta Woreda 10"
+          }
+        ]
+      },
+      {
+        "id": "zone-aa-nfl",
+        "code": "AA-NFL",
+        "name": "Nefas Silk-Lafto Sub-City",
+        "woredas": [
+          {
+            "id": "wor-aa-nfl-01",
+            "code": "AA-NFL-01",
+            "name": "Nefas Silk Woreda 01"
+          },
+          {
+            "id": "wor-aa-nfl-02",
+            "code": "AA-NFL-02",
+            "name": "Nefas Silk Woreda 02"
+          },
+          {
+            "id": "wor-aa-nfl-03",
+            "code": "AA-NFL-03",
+            "name": "Nefas Silk Woreda 03"
+          },
+          {
+            "id": "wor-aa-nfl-04",
+            "code": "AA-NFL-04",
+            "name": "Nefas Silk Woreda 04"
+          },
+          {
+            "id": "wor-aa-nfl-05",
+            "code": "AA-NFL-05",
+            "name": "Nefas Silk Woreda 05"
+          },
+          {
+            "id": "wor-aa-nfl-06",
+            "code": "AA-NFL-06",
+            "name": "Nefas Silk Woreda 06"
+          },
+          {
+            "id": "wor-aa-nfl-07",
+            "code": "AA-NFL-07",
+            "name": "Nefas Silk Woreda 07"
+          },
+          {
+            "id": "wor-aa-nfl-08",
+            "code": "AA-NFL-08",
+            "name": "Nefas Silk Woreda 08"
+          },
+          {
+            "id": "wor-aa-nfl-09",
+            "code": "AA-NFL-09",
+            "name": "Nefas Silk Woreda 09"
+          },
+          {
+            "id": "wor-aa-nfl-10",
+            "code": "AA-NFL-10",
+            "name": "Nefas Silk Woreda 10"
+          },
+          {
+            "id": "wor-aa-nfl-11",
+            "code": "AA-NFL-11",
+            "name": "Nefas Silk Woreda 11"
+          },
+          {
+            "id": "wor-aa-nfl-12",
+            "code": "AA-NFL-12",
+            "name": "Nefas Silk Woreda 12"
+          },
+          {
+            "id": "wor-aa-nfl-13",
+            "code": "AA-NFL-13",
+            "name": "Nefas Silk Woreda 13"
+          },
+          {
+            "id": "wor-aa-nfl-14",
+            "code": "AA-NFL-14",
+            "name": "Nefas Silk Woreda 14"
+          },
+          {
+            "id": "wor-aa-nfl-15",
+            "code": "AA-NFL-15",
+            "name": "Nefas Silk Woreda 15"
+          }
+        ]
+      },
+      {
+        "id": "zone-aa-kolfe",
+        "code": "AA-KOL",
+        "name": "Kolfe Keranio Sub-City",
+        "woredas": [
+          {
+            "id": "wor-aa-kol-01",
+            "code": "AA-KOL-01",
+            "name": "Kolfe Keranio Woreda 01"
+          },
+          {
+            "id": "wor-aa-kol-02",
+            "code": "AA-KOL-02",
+            "name": "Kolfe Keranio Woreda 02"
+          },
+          {
+            "id": "wor-aa-kol-03",
+            "code": "AA-KOL-03",
+            "name": "Kolfe Keranio Woreda 03"
+          },
+          {
+            "id": "wor-aa-kol-04",
+            "code": "AA-KOL-04",
+            "name": "Kolfe Keranio Woreda 04"
+          },
+          {
+            "id": "wor-aa-kol-05",
+            "code": "AA-KOL-05",
+            "name": "Kolfe Keranio Woreda 05"
+          },
+          {
+            "id": "wor-aa-kol-06",
+            "code": "AA-KOL-06",
+            "name": "Kolfe Keranio Woreda 06"
+          },
+          {
+            "id": "wor-aa-kol-07",
+            "code": "AA-KOL-07",
+            "name": "Kolfe Keranio Woreda 07"
+          },
+          {
+            "id": "wor-aa-kol-08",
+            "code": "AA-KOL-08",
+            "name": "Kolfe Keranio Woreda 08"
+          },
+          {
+            "id": "wor-aa-kol-09",
+            "code": "AA-KOL-09",
+            "name": "Kolfe Keranio Woreda 09"
+          },
+          {
+            "id": "wor-aa-kol-10",
+            "code": "AA-KOL-10",
+            "name": "Kolfe Keranio Woreda 10"
+          },
+          {
+            "id": "wor-aa-kol-11",
+            "code": "AA-KOL-11",
+            "name": "Kolfe Keranio Woreda 11"
+          },
+          {
+            "id": "wor-aa-kol-12",
+            "code": "AA-KOL-12",
+            "name": "Kolfe Keranio Woreda 12"
+          },
+          {
+            "id": "wor-aa-kol-13",
+            "code": "AA-KOL-13",
+            "name": "Kolfe Keranio Woreda 13"
+          },
+          {
+            "id": "wor-aa-kol-14",
+            "code": "AA-KOL-14",
+            "name": "Kolfe Keranio Woreda 14"
+          },
+          {
+            "id": "wor-aa-kol-15",
+            "code": "AA-KOL-15",
+            "name": "Kolfe Keranio Woreda 15"
+          }
+        ]
+      },
+      {
+        "id": "zone-aa-gullele",
+        "code": "AA-GUL",
+        "name": "Gullele Sub-City",
+        "woredas": [
+          {
+            "id": "wor-aa-gul-01",
+            "code": "AA-GUL-01",
+            "name": "Gullele Woreda 01"
+          },
+          {
+            "id": "wor-aa-gul-02",
+            "code": "AA-GUL-02",
+            "name": "Gullele Woreda 02"
+          },
+          {
+            "id": "wor-aa-gul-03",
+            "code": "AA-GUL-03",
+            "name": "Gullele Woreda 03"
+          },
+          {
+            "id": "wor-aa-gul-04",
+            "code": "AA-GUL-04",
+            "name": "Gullele Woreda 04"
+          },
+          {
+            "id": "wor-aa-gul-05",
+            "code": "AA-GUL-05",
+            "name": "Gullele Woreda 05"
+          },
+          {
+            "id": "wor-aa-gul-06",
+            "code": "AA-GUL-06",
+            "name": "Gullele Woreda 06"
+          },
+          {
+            "id": "wor-aa-gul-07",
+            "code": "AA-GUL-07",
+            "name": "Gullele Woreda 07"
+          },
+          {
+            "id": "wor-aa-gul-08",
+            "code": "AA-GUL-08",
+            "name": "Gullele Woreda 08"
+          },
+          {
+            "id": "wor-aa-gul-09",
+            "code": "AA-GUL-09",
+            "name": "Gullele Woreda 09"
+          },
+          {
+            "id": "wor-aa-gul-10",
+            "code": "AA-GUL-10",
+            "name": "Gullele Woreda 10"
+          }
+        ]
+      },
+      {
+        "id": "zone-aa-addis-ketema",
+        "code": "AA-AKET",
+        "name": "Addis Ketema Sub-City",
+        "woredas": [
+          {
+            "id": "wor-aa-aket-01",
+            "code": "AA-AKET-01",
+            "name": "Addis Ketema Woreda 01"
+          },
+          {
+            "id": "wor-aa-aket-02",
+            "code": "AA-AKET-02",
+            "name": "Addis Ketema Woreda 02"
+          },
+          {
+            "id": "wor-aa-aket-03",
+            "code": "AA-AKET-03",
+            "name": "Addis Ketema Woreda 03"
+          },
+          {
+            "id": "wor-aa-aket-04",
+            "code": "AA-AKET-04",
+            "name": "Addis Ketema Woreda 04"
+          },
+          {
+            "id": "wor-aa-aket-05",
+            "code": "AA-AKET-05",
+            "name": "Addis Ketema Woreda 05"
+          },
+          {
+            "id": "wor-aa-aket-06",
+            "code": "AA-AKET-06",
+            "name": "Addis Ketema Woreda 06"
+          },
+          {
+            "id": "wor-aa-aket-07",
+            "code": "AA-AKET-07",
+            "name": "Addis Ketema Woreda 07"
+          },
+          {
+            "id": "wor-aa-aket-08",
+            "code": "AA-AKET-08",
+            "name": "Addis Ketema Woreda 08"
+          },
+          {
+            "id": "wor-aa-aket-09",
+            "code": "AA-AKET-09",
+            "name": "Addis Ketema Woreda 09"
+          },
+          {
+            "id": "wor-aa-aket-10",
+            "code": "AA-AKET-10",
+            "name": "Addis Ketema Woreda 10"
+          }
+        ]
+      },
+      {
+        "id": "zone-aa-akaki",
+        "code": "AA-AKK",
+        "name": "Akaki Kality Sub-City",
+        "woredas": [
+          {
+            "id": "wor-aa-akk-01",
+            "code": "AA-AKK-01",
+            "name": "Akaki Kality Woreda 01"
+          },
+          {
+            "id": "wor-aa-akk-02",
+            "code": "AA-AKK-02",
+            "name": "Akaki Kality Woreda 02"
+          },
+          {
+            "id": "wor-aa-akk-03",
+            "code": "AA-AKK-03",
+            "name": "Akaki Kality Woreda 03"
+          },
+          {
+            "id": "wor-aa-akk-04",
+            "code": "AA-AKK-04",
+            "name": "Akaki Kality Woreda 04"
+          },
+          {
+            "id": "wor-aa-akk-05",
+            "code": "AA-AKK-05",
+            "name": "Akaki Kality Woreda 05"
+          },
+          {
+            "id": "wor-aa-akk-06",
+            "code": "AA-AKK-06",
+            "name": "Akaki Kality Woreda 06"
+          },
+          {
+            "id": "wor-aa-akk-07",
+            "code": "AA-AKK-07",
+            "name": "Akaki Kality Woreda 07"
+          },
+          {
+            "id": "wor-aa-akk-08",
+            "code": "AA-AKK-08",
+            "name": "Akaki Kality Woreda 08"
+          },
+          {
+            "id": "wor-aa-akk-09",
+            "code": "AA-AKK-09",
+            "name": "Akaki Kality Woreda 09"
+          },
+          {
+            "id": "wor-aa-akk-10",
+            "code": "AA-AKK-10",
+            "name": "Akaki Kality Woreda 10"
+          },
+          {
+            "id": "wor-aa-akk-11",
+            "code": "AA-AKK-11",
+            "name": "Akaki Kality Woreda 11"
+          },
+          {
+            "id": "wor-aa-akk-12",
+            "code": "AA-AKK-12",
+            "name": "Akaki Kality Woreda 12"
+          },
+          {
+            "id": "wor-aa-akk-13",
+            "code": "AA-AKK-13",
+            "name": "Akaki Kality Woreda 13"
+          }
+        ]
+      },
+      {
+        "id": "zone-aa-lemi-kura",
+        "code": "AA-LEM",
+        "name": "Lemi Kura Sub-City",
+        "woredas": [
+          {
+            "id": "wor-aa-lem-01",
+            "code": "AA-LEM-01",
+            "name": "Lemi Kura Woreda 01"
+          },
+          {
+            "id": "wor-aa-lem-02",
+            "code": "AA-LEM-02",
+            "name": "Lemi Kura Woreda 02"
+          },
+          {
+            "id": "wor-aa-lem-03",
+            "code": "AA-LEM-03",
+            "name": "Lemi Kura Woreda 03"
+          },
+          {
+            "id": "wor-aa-lem-04",
+            "code": "AA-LEM-04",
+            "name": "Lemi Kura Woreda 04"
+          },
+          {
+            "id": "wor-aa-lem-05",
+            "code": "AA-LEM-05",
+            "name": "Lemi Kura Woreda 05"
+          },
+          {
+            "id": "wor-aa-lem-06",
+            "code": "AA-LEM-06",
+            "name": "Lemi Kura Woreda 06"
+          },
+          {
+            "id": "wor-aa-lem-07",
+            "code": "AA-LEM-07",
+            "name": "Lemi Kura Woreda 07"
+          },
+          {
+            "id": "wor-aa-lem-08",
+            "code": "AA-LEM-08",
+            "name": "Lemi Kura Woreda 08"
+          },
+          {
+            "id": "wor-aa-lem-09",
+            "code": "AA-LEM-09",
+            "name": "Lemi Kura Woreda 09"
+          },
+          {
+            "id": "wor-aa-lem-10",
+            "code": "AA-LEM-10",
+            "name": "Lemi Kura Woreda 10"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "reg-dire-dawa",
+    "code": "DD",
+    "name": "Dire Dawa",
+    "type": "chartered_city",
+    "zones": [
+      {
+        "id": "zone-dd-urban",
+        "code": "DD-URB",
+        "name": "Dire Dawa Urban Administration",
+        "woredas": [
+          {
+            "id": "wor-dd-sabian",
+            "code": "DD-SAB",
+            "name": "Sabian Woreda"
+          },
+          {
+            "id": "wor-dd-gende-kore",
+            "code": "DD-GDK",
+            "name": "Gende Kore Woreda"
+          },
+          {
+            "id": "wor-dd-addis-ketema",
+            "code": "DD-AKET",
+            "name": "Addis Ketema Woreda"
+          },
+          {
+            "id": "wor-dd-melka-jebdu",
+            "code": "DD-MLK",
+            "name": "Melka Jebdu Woreda"
+          },
+          {
+            "id": "wor-dd-debre-zeyit",
+            "code": "DD-DBZ",
+            "name": "Debre Zeyit Woreda"
+          },
+          {
+            "id": "wor-dd-goro",
+            "code": "DD-GOR",
+            "name": "Goro Woreda"
+          },
+          {
+            "id": "wor-dd-kebele-01",
+            "code": "DD-K01",
+            "name": "Kebele 01"
+          },
+          {
+            "id": "wor-dd-kebele-02",
+            "code": "DD-K02",
+            "name": "Kebele 02"
+          },
+          {
+            "id": "wor-dd-kebele-03",
+            "code": "DD-K03",
+            "name": "Kebele 03"
+          },
+          {
+            "id": "wor-dd-kebele-04",
+            "code": "DD-K04",
+            "name": "Kebele 04"
+          }
+        ]
+      },
+      {
+        "id": "zone-dd-rural",
+        "code": "DD-RUR",
+        "name": "Dire Dawa Rural Administration",
+        "woredas": [
+          {
+            "id": "wor-dd-biyowale",
+            "code": "DD-BIY",
+            "name": "Biyowale Woreda"
+          },
+          {
+            "id": "wor-dd-wahil",
+            "code": "DD-WAH",
+            "name": "Wahil Woreda"
+          },
+          {
+            "id": "wor-dd-jeldesa",
+            "code": "DD-JEL",
+            "name": "Jeldesa Woreda"
+          },
+          {
+            "id": "wor-dd-aseliso",
+            "code": "DD-ASE",
+            "name": "Aseliso Woreda"
+          },
+          {
+            "id": "wor-dd-legehare-r",
+            "code": "DD-LGR",
+            "name": "Legehare Rural Woreda"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "reg-oromia",
+    "code": "OR",
+    "name": "Oromia",
+    "type": "region",
+    "zones": [
+      {
+        "id": "zone-or-finfinne",
+        "code": "OR-FIN",
+        "name": "Finfinne Special Zone",
+        "woredas": [
+          {
+            "id": "wor-or-dukam",
+            "code": "OR-DUK",
+            "name": "Dukam City"
+          },
+          {
+            "id": "wor-or-burayu",
+            "code": "OR-BUR",
+            "name": "Burayu City"
+          },
+          {
+            "id": "wor-or-sebeta-c",
+            "code": "OR-SBC",
+            "name": "Sebeta City"
+          },
+          {
+            "id": "wor-or-sebeta-h",
+            "code": "OR-SBH",
+            "name": "Sebeta Hawas"
+          },
+          {
+            "id": "wor-or-sululta-c",
+            "code": "OR-SLC",
+            "name": "Sululta City"
+          },
+          {
+            "id": "wor-or-sululta-r",
+            "code": "OR-SLR",
+            "name": "Sululta Rural"
+          },
+          {
+            "id": "wor-or-gelan",
+            "code": "OR-GEL",
+            "name": "Gelan City"
+          },
+          {
+            "id": "wor-or-legetafo",
+            "code": "OR-LEG",
+            "name": "Legetafo Legedadi"
+          },
+          {
+            "id": "wor-or-holeta",
+            "code": "OR-HOL",
+            "name": "Holeta City"
+          },
+          {
+            "id": "wor-or-welmera",
+            "code": "OR-WEL",
+            "name": "Welmera Woreda"
+          },
+          {
+            "id": "wor-or-bereh",
+            "code": "OR-BER",
+            "name": "Bereh Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-or-east-shewa",
+        "code": "OR-ESH",
+        "name": "East Shewa Zone",
+        "woredas": [
+          {
+            "id": "wor-or-adama-c",
+            "code": "OR-ADC",
+            "name": "Adama City"
+          },
+          {
+            "id": "wor-or-adama-r",
+            "code": "OR-ADR",
+            "name": "Adama Rural"
+          },
+          {
+            "id": "wor-or-bishoftu",
+            "code": "OR-BSH",
+            "name": "Bishoftu City"
+          },
+          {
+            "id": "wor-or-adaa",
+            "code": "OR-ADA",
+            "name": "Ada'a Woreda"
+          },
+          {
+            "id": "wor-or-mojo",
+            "code": "OR-MOJ",
+            "name": "Mojo Town"
+          },
+          {
+            "id": "wor-or-lome",
+            "code": "OR-LOM",
+            "name": "Lome Woreda"
+          },
+          {
+            "id": "wor-or-boset",
+            "code": "OR-BOS",
+            "name": "Boset Woreda"
+          },
+          {
+            "id": "wor-or-bora",
+            "code": "OR-BOR",
+            "name": "Bora Woreda"
+          },
+          {
+            "id": "wor-or-dugda",
+            "code": "OR-DUG",
+            "name": "Dugda Woreda"
+          },
+          {
+            "id": "wor-or-liben-ch",
+            "code": "OR-LBC",
+            "name": "Liben Chukala"
+          },
+          {
+            "id": "wor-or-gimbichu",
+            "code": "OR-GIM",
+            "name": "Gimbichu Woreda"
+          },
+          {
+            "id": "wor-or-fentale",
+            "code": "OR-FEN",
+            "name": "Fentale (Metehara)"
+          }
+        ]
+      },
+      {
+        "id": "zone-or-west-shewa",
+        "code": "OR-WSH",
+        "name": "West Shewa Zone",
+        "woredas": [
+          {
+            "id": "wor-or-ambo-c",
+            "code": "OR-AMC",
+            "name": "Ambo City"
+          },
+          {
+            "id": "wor-or-ambo-r",
+            "code": "OR-AMR",
+            "name": "Ambo Rural"
+          },
+          {
+            "id": "wor-or-dendi",
+            "code": "OR-DEN",
+            "name": "Dendi (Gersu)"
+          },
+          {
+            "id": "wor-or-toke-k",
+            "code": "OR-TKK",
+            "name": "Toke Kutaye"
+          },
+          {
+            "id": "wor-or-jeldu",
+            "code": "OR-JEL",
+            "name": "Jeldu Woreda"
+          },
+          {
+            "id": "wor-or-ginde-b",
+            "code": "OR-GND",
+            "name": "Ginde Beret"
+          },
+          {
+            "id": "wor-or-abuna-g",
+            "code": "OR-ABG",
+            "name": "Abuna Ginde Beret"
+          },
+          {
+            "id": "wor-or-ejere",
+            "code": "OR-EJE",
+            "name": "Ejere Woreda"
+          },
+          {
+            "id": "wor-or-bako-t",
+            "code": "OR-BKT",
+            "name": "Bako Tibe"
+          },
+          {
+            "id": "wor-or-cheliya",
+            "code": "OR-CHL",
+            "name": "Cheliya Woreda"
+          },
+          {
+            "id": "wor-or-meta-r",
+            "code": "OR-MTR",
+            "name": "Meta Robi"
+          },
+          {
+            "id": "wor-or-midakegn",
+            "code": "OR-MID",
+            "name": "Mida Kegn"
+          },
+          {
+            "id": "wor-or-danno",
+            "code": "OR-DAN",
+            "name": "Danno Woreda"
+          },
+          {
+            "id": "wor-or-dire-ench",
+            "code": "OR-DEN2",
+            "name": "Dire Enchini"
+          },
+          {
+            "id": "wor-or-jibat",
+            "code": "OR-JIB",
+            "name": "Jibat Woreda"
+          },
+          {
+            "id": "wor-or-ilfata",
+            "code": "OR-ILF",
+            "name": "Ilfata Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-or-north-shewa",
+        "code": "OR-NSH",
+        "name": "North Shewa Zone (Salale)",
+        "woredas": [
+          {
+            "id": "wor-or-fitche-c",
+            "code": "OR-FTC",
+            "name": "Fitche City"
+          },
+          {
+            "id": "wor-or-degem",
+            "code": "OR-DEG",
+            "name": "Degem Woreda"
+          },
+          {
+            "id": "wor-or-kuyu",
+            "code": "OR-KUY",
+            "name": "Kuyu Woreda"
+          },
+          {
+            "id": "wor-or-wara-j",
+            "code": "OR-WRJ",
+            "name": "Wara Jarso"
+          },
+          {
+            "id": "wor-or-yaya-g",
+            "code": "OR-YYG",
+            "name": "Yaya Gulele"
+          },
+          {
+            "id": "wor-or-gerar-j",
+            "code": "OR-GRJ",
+            "name": "Gerar Jarso"
+          },
+          {
+            "id": "wor-or-hidabu-a",
+            "code": "OR-HDA",
+            "name": "Hidabu Abote"
+          },
+          {
+            "id": "wor-or-debre-l",
+            "code": "OR-DBL",
+            "name": "Debre Libanos"
+          },
+          {
+            "id": "wor-or-jida",
+            "code": "OR-JID",
+            "name": "Jida Woreda"
+          },
+          {
+            "id": "wor-or-abichu-g",
+            "code": "OR-ABG2",
+            "name": "Abichu Gnea"
+          },
+          {
+            "id": "wor-or-aleletu",
+            "code": "OR-ALL",
+            "name": "Aleletu Woreda"
+          },
+          {
+            "id": "wor-or-wuchale",
+            "code": "OR-WCH",
+            "name": "Wuchale Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-or-south-west-shewa",
+        "code": "OR-SWS",
+        "name": "South West Shewa Zone",
+        "woredas": [
+          {
+            "id": "wor-or-waliso-c",
+            "code": "OR-WLC",
+            "name": "Waliso City"
+          },
+          {
+            "id": "wor-or-waliso-r",
+            "code": "OR-WLR",
+            "name": "Waliso Rural"
+          },
+          {
+            "id": "wor-or-wonchi",
+            "code": "OR-WNC",
+            "name": "Wonchi Woreda"
+          },
+          {
+            "id": "wor-or-dawo",
+            "code": "OR-DAW",
+            "name": "Dawo Woreda"
+          },
+          {
+            "id": "wor-or-seden-s",
+            "code": "OR-SDS",
+            "name": "Seden Sodo"
+          },
+          {
+            "id": "wor-or-kersa-m",
+            "code": "OR-KRM",
+            "name": "Kersa Malima"
+          },
+          {
+            "id": "wor-or-amaya",
+            "code": "OR-AMA",
+            "name": "Amaya Woreda"
+          },
+          {
+            "id": "wor-or-becho",
+            "code": "OR-BCH",
+            "name": "Becho Woreda"
+          },
+          {
+            "id": "wor-or-goro-sws",
+            "code": "OR-GRS",
+            "name": "Goro Woreda"
+          },
+          {
+            "id": "wor-or-tole",
+            "code": "OR-TOL",
+            "name": "Tole Woreda"
+          },
+          {
+            "id": "wor-or-sodo-d",
+            "code": "OR-SDD",
+            "name": "Sodo Dachi"
+          }
+        ]
+      },
+      {
+        "id": "zone-or-arsi",
+        "code": "OR-ARS",
+        "name": "Arsi Zone",
+        "woredas": [
+          {
+            "id": "wor-or-asella-c",
+            "code": "OR-ASC",
+            "name": "Asella City"
+          },
+          {
+            "id": "wor-or-tiyo",
+            "code": "OR-TIY",
+            "name": "Tiyo Woreda"
+          },
+          {
+            "id": "wor-or-ziway-d",
+            "code": "OR-ZWD",
+            "name": "Ziway Dugda"
+          },
+          {
+            "id": "wor-or-hetosa",
+            "code": "OR-HET",
+            "name": "Hetosa Woreda"
+          },
+          {
+            "id": "wor-or-dodota",
+            "code": "OR-DOD",
+            "name": "Dodota Woreda"
+          },
+          {
+            "id": "wor-or-sire",
+            "code": "OR-SIR",
+            "name": "Sire Woreda"
+          },
+          {
+            "id": "wor-or-lemu-b",
+            "code": "OR-LMB",
+            "name": "Lemu Bilbilo"
+          },
+          {
+            "id": "wor-or-shirka",
+            "code": "OR-SHR",
+            "name": "Shirka Woreda"
+          },
+          {
+            "id": "wor-or-digelu-t",
+            "code": "OR-DGT",
+            "name": "Digelu Tijo"
+          },
+          {
+            "id": "wor-or-merti",
+            "code": "OR-MRT",
+            "name": "Merti Woreda"
+          },
+          {
+            "id": "wor-or-robe-ars",
+            "code": "OR-RBA",
+            "name": "Robe Woreda"
+          },
+          {
+            "id": "wor-or-jeju",
+            "code": "OR-JEJ",
+            "name": "Jeju Woreda"
+          },
+          {
+            "id": "wor-or-cholle",
+            "code": "OR-CHL2",
+            "name": "Cholle Woreda"
+          },
+          {
+            "id": "wor-or-gololcha-a",
+            "code": "OR-GLA",
+            "name": "Gololcha Woreda"
+          },
+          {
+            "id": "wor-or-tena",
+            "code": "OR-TEN",
+            "name": "Tena Woreda"
+          },
+          {
+            "id": "wor-or-honkolo",
+            "code": "OR-HNK",
+            "name": "Honkolo Wabe"
+          },
+          {
+            "id": "wor-or-guna",
+            "code": "OR-GUN",
+            "name": "Guna Woreda"
+          },
+          {
+            "id": "wor-or-asida",
+            "code": "OR-ASD",
+            "name": "Aseko Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-or-west-arsi",
+        "code": "OR-WAR",
+        "name": "West Arsi Zone",
+        "woredas": [
+          {
+            "id": "wor-or-shashamane-c",
+            "code": "OR-SHC",
+            "name": "Shashamane City"
+          },
+          {
+            "id": "wor-or-shashamane-r",
+            "code": "OR-SHR2",
+            "name": "Shashamane Rural"
+          },
+          {
+            "id": "wor-or-arsi-negele",
+            "code": "OR-ARN",
+            "name": "Arsi Negele"
+          },
+          {
+            "id": "wor-or-kofele",
+            "code": "OR-KOF",
+            "name": "Kofele Woreda"
+          },
+          {
+            "id": "wor-or-dodola",
+            "code": "OR-DDL",
+            "name": "Dodola Woreda"
+          },
+          {
+            "id": "wor-or-kere",
+            "code": "OR-KER",
+            "name": "Kore Woreda"
+          },
+          {
+            "id": "wor-or-nensebo",
+            "code": "OR-NNS",
+            "name": "Nensebo Woreda"
+          },
+          {
+            "id": "wor-or-adaba",
+            "code": "OR-ADB",
+            "name": "Adaba Woreda"
+          },
+          {
+            "id": "wor-or-gedeb-a",
+            "code": "OR-GDA",
+            "name": "Gedeb Asasa"
+          },
+          {
+            "id": "wor-or-shalla",
+            "code": "OR-SHA",
+            "name": "Shalla Woreda"
+          },
+          {
+            "id": "wor-or-siraro",
+            "code": "OR-SRR",
+            "name": "Siraro Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-or-bale",
+        "code": "OR-BAL",
+        "name": "Bale Zone",
+        "woredas": [
+          {
+            "id": "wor-or-robe-bal",
+            "code": "OR-RBB",
+            "name": "Robe City"
+          },
+          {
+            "id": "wor-or-goba-c",
+            "code": "OR-GBC",
+            "name": "Goba City"
+          },
+          {
+            "id": "wor-or-goba-r",
+            "code": "OR-GBR",
+            "name": "Goba Rural"
+          },
+          {
+            "id": "wor-or-sinana",
+            "code": "OR-SIN",
+            "name": "Sinana Woreda"
+          },
+          {
+            "id": "wor-or-agarfa",
+            "code": "OR-AGA",
+            "name": "Agarfa Woreda"
+          },
+          {
+            "id": "wor-or-berbere",
+            "code": "OR-BRB",
+            "name": "Berbere Woreda"
+          },
+          {
+            "id": "wor-or-dinsho",
+            "code": "OR-DIN",
+            "name": "Dinsho Woreda"
+          },
+          {
+            "id": "wor-or-gasera",
+            "code": "OR-GAS",
+            "name": "Gasera Woreda"
+          },
+          {
+            "id": "wor-or-delo-m",
+            "code": "OR-DLM",
+            "name": "Delo Mena"
+          },
+          {
+            "id": "wor-or-meda-w",
+            "code": "OR-MDW",
+            "name": "Meda Welabu"
+          },
+          {
+            "id": "wor-or-harena-b",
+            "code": "OR-HRB",
+            "name": "Harena Buluk"
+          },
+          {
+            "id": "wor-or-guradamole",
+            "code": "OR-GRD",
+            "name": "Gura Damole"
+          }
+        ]
+      },
+      {
+        "id": "zone-or-east-bale",
+        "code": "OR-EBL",
+        "name": "East Bale Zone",
+        "woredas": [
+          {
+            "id": "wor-or-ginir-c",
+            "code": "OR-GNC",
+            "name": "Ginir City"
+          },
+          {
+            "id": "wor-or-ginir-r",
+            "code": "OR-GNR",
+            "name": "Ginir Rural"
+          },
+          {
+            "id": "wor-or-dawe-s",
+            "code": "OR-DWS",
+            "name": "Dawe Serer"
+          },
+          {
+            "id": "wor-or-dawe-k",
+            "code": "OR-DWK",
+            "name": "Dawe Kachen"
+          },
+          {
+            "id": "wor-or-legehida-b",
+            "code": "OR-LGH",
+            "name": "Legehida Woreda"
+          },
+          {
+            "id": "wor-or-rayitu",
+            "code": "OR-RAY",
+            "name": "Rayitu Woreda"
+          },
+          {
+            "id": "wor-or-seweyna",
+            "code": "OR-SEW",
+            "name": "Seweyna Woreda"
+          },
+          {
+            "id": "wor-or-gololcha-b",
+            "code": "OR-GLB",
+            "name": "Gololcha Bale"
+          }
+        ]
+      },
+      {
+        "id": "zone-or-borena",
+        "code": "OR-BOR2",
+        "name": "Borena Zone",
+        "woredas": [
+          {
+            "id": "wor-or-yabelo-c",
+            "code": "OR-YBC",
+            "name": "Yabelo City"
+          },
+          {
+            "id": "wor-or-yabelo-r",
+            "code": "OR-YBR",
+            "name": "Yabelo Rural"
+          },
+          {
+            "id": "wor-or-moyale-or",
+            "code": "OR-MOY",
+            "name": "Moyale Oromia"
+          },
+          {
+            "id": "wor-or-dillo",
+            "code": "OR-DIL",
+            "name": "Dillo Woreda"
+          },
+          {
+            "id": "wor-or-teltele",
+            "code": "OR-TEL",
+            "name": "Teltele Woreda"
+          },
+          {
+            "id": "wor-or-dire",
+            "code": "OR-DIR",
+            "name": "Dire Woreda"
+          },
+          {
+            "id": "wor-or-dubluk",
+            "code": "OR-DUB",
+            "name": "Dubluk Woreda"
+          },
+          {
+            "id": "wor-or-arero",
+            "code": "OR-ARE",
+            "name": "Arero Woreda"
+          },
+          {
+            "id": "wor-or-elwaye",
+            "code": "OR-ELW",
+            "name": "Elwaye Woreda"
+          },
+          {
+            "id": "wor-or-wachile",
+            "code": "OR-WAC",
+            "name": "Wachile Woreda"
+          },
+          {
+            "id": "wor-or-miyo",
+            "code": "OR-MIY",
+            "name": "Miyo Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-or-guji",
+        "code": "OR-GUJ",
+        "name": "Guji Zone",
+        "woredas": [
+          {
+            "id": "wor-or-negele-c",
+            "code": "OR-NGC",
+            "name": "Negele Borana City"
+          },
+          {
+            "id": "wor-or-adola-r",
+            "code": "OR-ADL",
+            "name": "Adola Rede"
+          },
+          {
+            "id": "wor-or-shakiso-c",
+            "code": "OR-SHK",
+            "name": "Shakiso City"
+          },
+          {
+            "id": "wor-or-odo-shakiso",
+            "code": "OR-ODS",
+            "name": "Odo Shakiso"
+          },
+          {
+            "id": "wor-or-wadera",
+            "code": "OR-WAD",
+            "name": "Wadera Woreda"
+          },
+          {
+            "id": "wor-or-uraga",
+            "code": "OR-URA",
+            "name": "Uraga Woreda"
+          },
+          {
+            "id": "wor-or-liben-guj",
+            "code": "OR-LBG",
+            "name": "Liben Woreda"
+          },
+          {
+            "id": "wor-or-saba-b",
+            "code": "OR-SBB",
+            "name": "Saba Boru"
+          },
+          {
+            "id": "wor-or-aga-wayu",
+            "code": "OR-AGW",
+            "name": "Aga Wayu"
+          },
+          {
+            "id": "wor-or-gorodola",
+            "code": "OR-GRD2",
+            "name": "Goro Dola"
+          },
+          {
+            "id": "wor-or-ana-sora",
+            "code": "OR-ANS",
+            "name": "Ana Sora"
+          }
+        ]
+      },
+      {
+        "id": "zone-or-west-guji",
+        "code": "OR-WGU",
+        "name": "West Guji Zone",
+        "woredas": [
+          {
+            "id": "wor-or-bule-hora-c",
+            "code": "OR-BHC",
+            "name": "Bule Hora City"
+          },
+          {
+            "id": "wor-or-bule-hora-r",
+            "code": "OR-BHR",
+            "name": "Bule Hora Rural"
+          },
+          {
+            "id": "wor-or-kercha",
+            "code": "OR-KRC",
+            "name": "Kercha Woreda"
+          },
+          {
+            "id": "wor-or-birbirsa",
+            "code": "OR-BRB2",
+            "name": "Birbirsa Kojowa"
+          },
+          {
+            "id": "wor-or-dugda-d",
+            "code": "OR-DGD",
+            "name": "Dugda Dawa"
+          },
+          {
+            "id": "wor-or-melka-s",
+            "code": "OR-MLS",
+            "name": "Melka Soda"
+          },
+          {
+            "id": "wor-or-suro-b",
+            "code": "OR-SRB",
+            "name": "Suro Berguda"
+          },
+          {
+            "id": "wor-or-abaya",
+            "code": "OR-ABY",
+            "name": "Abaya Woreda"
+          },
+          {
+            "id": "wor-or-gelana",
+            "code": "OR-GLN",
+            "name": "Gelana Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-or-jimma",
+        "code": "OR-JIM",
+        "name": "Jimma Zone",
+        "woredas": [
+          {
+            "id": "wor-or-jimma-c",
+            "code": "OR-JMC",
+            "name": "Jimma City"
+          },
+          {
+            "id": "wor-or-mana",
+            "code": "OR-MAN",
+            "name": "Mana Woreda"
+          },
+          {
+            "id": "wor-or-gomma",
+            "code": "OR-GOM",
+            "name": "Gomma (Agaro)"
+          },
+          {
+            "id": "wor-or-seka-ch",
+            "code": "OR-SKC",
+            "name": "Seka Chekorsa"
+          },
+          {
+            "id": "wor-or-kersa-j",
+            "code": "OR-KRJ",
+            "name": "Kersa Woreda"
+          },
+          {
+            "id": "wor-or-limmu-k",
+            "code": "OR-LMK",
+            "name": "Limmu Kosa"
+          },
+          {
+            "id": "wor-or-limmu-s",
+            "code": "OR-LMS",
+            "name": "Limmu Seka"
+          },
+          {
+            "id": "wor-or-dedo",
+            "code": "OR-DED",
+            "name": "Dedo Woreda"
+          },
+          {
+            "id": "wor-or-omo-n",
+            "code": "OR-OMN",
+            "name": "Omo Nada"
+          },
+          {
+            "id": "wor-or-tiro-a",
+            "code": "OR-TRA",
+            "name": "Tiro Afeta"
+          },
+          {
+            "id": "wor-or-gera",
+            "code": "OR-GER",
+            "name": "Gera Woreda"
+          },
+          {
+            "id": "wor-or-sigmo",
+            "code": "OR-SIG",
+            "name": "Sigmo Woreda"
+          },
+          {
+            "id": "wor-or-setema",
+            "code": "OR-SET",
+            "name": "Setema Woreda"
+          },
+          {
+            "id": "wor-or-shebe-s",
+            "code": "OR-SHS",
+            "name": "Shebe Senbo"
+          },
+          {
+            "id": "wor-or-chora-b",
+            "code": "OR-CRB",
+            "name": "Chora Botor"
+          },
+          {
+            "id": "wor-or-nonno-b",
+            "code": "OR-NNB",
+            "name": "Nonno Benja"
+          }
+        ]
+      },
+      {
+        "id": "zone-or-ilubabor",
+        "code": "OR-ILU",
+        "name": "Ilubabor Zone",
+        "woredas": [
+          {
+            "id": "wor-or-mettu-c",
+            "code": "OR-MTC",
+            "name": "Mettu City"
+          },
+          {
+            "id": "wor-or-mettu-r",
+            "code": "OR-MTR2",
+            "name": "Mettu Rural"
+          },
+          {
+            "id": "wor-or-yayo",
+            "code": "OR-YAY",
+            "name": "Yayo Woreda"
+          },
+          {
+            "id": "wor-or-alle",
+            "code": "OR-ALL2",
+            "name": "Alle Woreda"
+          },
+          {
+            "id": "wor-or-hurumu",
+            "code": "OR-HUR",
+            "name": "Hurumu Woreda"
+          },
+          {
+            "id": "wor-or-bure-ilu",
+            "code": "OR-BRI",
+            "name": "Bure Woreda"
+          },
+          {
+            "id": "wor-or-darimu",
+            "code": "OR-DAR",
+            "name": "Darimu Woreda"
+          },
+          {
+            "id": "wor-or-doreni",
+            "code": "OR-DOR",
+            "name": "Doreni Woreda"
+          },
+          {
+            "id": "wor-or-nono-s",
+            "code": "OR-NNS2",
+            "name": "Nono Sele"
+          },
+          {
+            "id": "wor-or-bilo-n",
+            "code": "OR-BLN",
+            "name": "Bilo Nopha"
+          },
+          {
+            "id": "wor-or-halu",
+            "code": "OR-HAL",
+            "name": "Halu Woreda"
+          },
+          {
+            "id": "wor-or-becho-ilu",
+            "code": "OR-BCI",
+            "name": "Becho (Didu)"
+          }
+        ]
+      },
+      {
+        "id": "zone-or-buno-bedele",
+        "code": "OR-BBD",
+        "name": "Buno Bedele Zone",
+        "woredas": [
+          {
+            "id": "wor-or-bedele-c",
+            "code": "OR-BDC",
+            "name": "Bedele City"
+          },
+          {
+            "id": "wor-or-bedele-r",
+            "code": "OR-BDR",
+            "name": "Bedele Rural"
+          },
+          {
+            "id": "wor-or-dabo-h",
+            "code": "OR-DBH",
+            "name": "Dabo Hana"
+          },
+          {
+            "id": "wor-or-chora",
+            "code": "OR-CHO",
+            "name": "Chora Woreda"
+          },
+          {
+            "id": "wor-or-gechi",
+            "code": "OR-GEC",
+            "name": "Gechi Woreda"
+          },
+          {
+            "id": "wor-or-borecha",
+            "code": "OR-BRC",
+            "name": "Borecha Woreda"
+          },
+          {
+            "id": "wor-or-chewaka",
+            "code": "OR-CHW",
+            "name": "Chewaka Woreda"
+          },
+          {
+            "id": "wor-or-dega",
+            "code": "OR-DEG2",
+            "name": "Dega Woreda"
+          },
+          {
+            "id": "wor-or-mako",
+            "code": "OR-MAK",
+            "name": "Mako Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-or-east-wollega",
+        "code": "OR-EWL",
+        "name": "East Wollega Zone",
+        "woredas": [
+          {
+            "id": "wor-or-nekemte-c",
+            "code": "OR-NKC",
+            "name": "Nekemte City"
+          },
+          {
+            "id": "wor-or-guto-g",
+            "code": "OR-GTG",
+            "name": "Guto Gida"
+          },
+          {
+            "id": "wor-or-wayu-t",
+            "code": "OR-WYT",
+            "name": "Wayu Tuka"
+          },
+          {
+            "id": "wor-or-sibu-s",
+            "code": "OR-SBS",
+            "name": "Sibu Sire"
+          },
+          {
+            "id": "wor-or-diga",
+            "code": "OR-DIG",
+            "name": "Diga Woreda"
+          },
+          {
+            "id": "wor-or-sasiga",
+            "code": "OR-SAS",
+            "name": "Sasiga Woreda"
+          },
+          {
+            "id": "wor-or-gida-a",
+            "code": "OR-GDA2",
+            "name": "Gida Ayana"
+          },
+          {
+            "id": "wor-or-limmu-ewl",
+            "code": "OR-LME",
+            "name": "Limmu Woreda"
+          },
+          {
+            "id": "wor-or-ibantu",
+            "code": "OR-IBA",
+            "name": "Ibantu Woreda"
+          },
+          {
+            "id": "wor-or-wama-h",
+            "code": "OR-WMH",
+            "name": "Wama Hagalo"
+          },
+          {
+            "id": "wor-or-jimma-arg",
+            "code": "OR-JMA",
+            "name": "Jimma Arjo"
+          },
+          {
+            "id": "wor-or-nunu-k",
+            "code": "OR-NNK",
+            "name": "Nunu Kumba"
+          },
+          {
+            "id": "wor-or-haro-l",
+            "code": "OR-HRL",
+            "name": "Haro Limmu"
+          }
+        ]
+      },
+      {
+        "id": "zone-or-west-wollega",
+        "code": "OR-WWL",
+        "name": "West Wollega Zone",
+        "woredas": [
+          {
+            "id": "wor-or-gimbi-c",
+            "code": "OR-GMC",
+            "name": "Gimbi City"
+          },
+          {
+            "id": "wor-or-gimbi-r",
+            "code": "OR-GMR",
+            "name": "Gimbi Rural"
+          },
+          {
+            "id": "wor-or-boji-c",
+            "code": "OR-BJC",
+            "name": "Boji Chokorsa"
+          },
+          {
+            "id": "wor-or-boji-d",
+            "code": "OR-BJD",
+            "name": "Boji Dirmeji"
+          },
+          {
+            "id": "wor-or-ayira",
+            "code": "OR-AYI",
+            "name": "Ayira Woreda"
+          },
+          {
+            "id": "wor-or-guliso",
+            "code": "OR-GLS",
+            "name": "Guliso Woreda"
+          },
+          {
+            "id": "wor-or-jarso-wwl",
+            "code": "OR-JRS",
+            "name": "Jarso Woreda"
+          },
+          {
+            "id": "wor-or-kiltu-k",
+            "code": "OR-KTK",
+            "name": "Kiltu Kara"
+          },
+          {
+            "id": "wor-or-mana-sibu",
+            "code": "OR-MNS",
+            "name": "Mana Sibu"
+          },
+          {
+            "id": "wor-or-nejo",
+            "code": "OR-NEJ",
+            "name": "Nejo Woreda"
+          },
+          {
+            "id": "wor-or-nole-k",
+            "code": "OR-NLK",
+            "name": "Nole Kaba"
+          },
+          {
+            "id": "wor-or-yubdo",
+            "code": "OR-YUB",
+            "name": "Yubdo Woreda"
+          },
+          {
+            "id": "wor-or-haru",
+            "code": "OR-HRU",
+            "name": "Haru Woreda"
+          },
+          {
+            "id": "wor-or-kondala",
+            "code": "OR-KND",
+            "name": "Kondala Woreda"
+          },
+          {
+            "id": "wor-or-bega",
+            "code": "OR-BEG",
+            "name": "Bega Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-or-kellem-wollega",
+        "code": "OR-KWL",
+        "name": "Kellem Wollega Zone",
+        "woredas": [
+          {
+            "id": "wor-or-dambi-dollo",
+            "code": "OR-DMD",
+            "name": "Dambi Dollo City"
+          },
+          {
+            "id": "wor-or-sayo",
+            "code": "OR-SAY",
+            "name": "Sayo Woreda"
+          },
+          {
+            "id": "wor-or-dale-s",
+            "code": "OR-DLS",
+            "name": "Dale Sedi"
+          },
+          {
+            "id": "wor-or-dale-w",
+            "code": "OR-DLW",
+            "name": "Dale Wabera"
+          },
+          {
+            "id": "wor-or-hawa-g",
+            "code": "OR-HWG",
+            "name": "Hawa Gelan"
+          },
+          {
+            "id": "wor-or-gawo-k",
+            "code": "OR-GWK",
+            "name": "Gawo Kebe"
+          },
+          {
+            "id": "wor-or-gidami",
+            "code": "OR-GDM",
+            "name": "Gidami Woreda"
+          },
+          {
+            "id": "wor-or-anfillo",
+            "code": "OR-ANF",
+            "name": "Anfillo Woreda"
+          },
+          {
+            "id": "wor-or-jimma-h",
+            "code": "OR-JMH",
+            "name": "Jimma Horo"
+          },
+          {
+            "id": "wor-or-lalo-k",
+            "code": "OR-LLK",
+            "name": "Lalo Kile"
+          },
+          {
+            "id": "wor-or-seka-kwl",
+            "code": "OR-SKW",
+            "name": "Seka Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-or-horo-guduru",
+        "code": "OR-HGW",
+        "name": "Horo Guduru Wollega Zone",
+        "woredas": [
+          {
+            "id": "wor-or-shambu-c",
+            "code": "OR-SMC",
+            "name": "Shambu City"
+          },
+          {
+            "id": "wor-or-jimma-rare",
+            "code": "OR-JMR",
+            "name": "Jimma Rare"
+          },
+          {
+            "id": "wor-or-guduru",
+            "code": "OR-GDR",
+            "name": "Guduru Woreda"
+          },
+          {
+            "id": "wor-or-horo",
+            "code": "OR-HRO",
+            "name": "Horo Woreda"
+          },
+          {
+            "id": "wor-or-hababo-g",
+            "code": "OR-HBG",
+            "name": "Hababo Guduru"
+          },
+          {
+            "id": "wor-or-abay-ch",
+            "code": "OR-ABC",
+            "name": "Abay Chomen"
+          },
+          {
+            "id": "wor-or-abe-d",
+            "code": "OR-ABD",
+            "name": "Abe Dongoro"
+          },
+          {
+            "id": "wor-or-amuru",
+            "code": "OR-AMU",
+            "name": "Amuru Woreda"
+          },
+          {
+            "id": "wor-or-jardega-j",
+            "code": "OR-JDJ",
+            "name": "Jardega Jarte"
+          }
+        ]
+      },
+      {
+        "id": "zone-or-east-hararghe",
+        "code": "OR-EHA",
+        "name": "East Hararghe Zone",
+        "woredas": [
+          {
+            "id": "wor-or-harar-z",
+            "code": "OR-HRZ",
+            "name": "Harar Zuria"
+          },
+          {
+            "id": "wor-or-babille-or",
+            "code": "OR-BAB",
+            "name": "Babille Woreda"
+          },
+          {
+            "id": "wor-or-fedis",
+            "code": "OR-FED",
+            "name": "Fedis Woreda"
+          },
+          {
+            "id": "wor-or-gursum-or",
+            "code": "OR-GRS2",
+            "name": "Gursum Woreda"
+          },
+          {
+            "id": "wor-or-jarso-eha",
+            "code": "OR-JRS2",
+            "name": "Jarso Woreda"
+          },
+          {
+            "id": "wor-or-kombolcha-h",
+            "code": "OR-KMH",
+            "name": "Kombolcha Woreda"
+          },
+          {
+            "id": "wor-or-kersa-h",
+            "code": "OR-KRH",
+            "name": "Kersa Woreda"
+          },
+          {
+            "id": "wor-or-meta-eha",
+            "code": "OR-MTE",
+            "name": "Meta Woreda"
+          },
+          {
+            "id": "wor-or-deder",
+            "code": "OR-DDR",
+            "name": "Deder Woreda"
+          },
+          {
+            "id": "wor-or-bedeno",
+            "code": "OR-BDN",
+            "name": "Bedeno Woreda"
+          },
+          {
+            "id": "wor-or-goro-gutu",
+            "code": "OR-GGT",
+            "name": "Goro Gutu"
+          },
+          {
+            "id": "wor-or-kurfa-ch",
+            "code": "OR-KFC",
+            "name": "Kurfa Chele"
+          },
+          {
+            "id": "wor-or-girawa",
+            "code": "OR-GRW",
+            "name": "Girawa Woreda"
+          },
+          {
+            "id": "wor-or-chinaksen",
+            "code": "OR-CHN",
+            "name": "Chinaksen Woreda"
+          },
+          {
+            "id": "wor-or-midhaga-t",
+            "code": "OR-MDT",
+            "name": "Midhaga Tola"
+          },
+          {
+            "id": "wor-or-golo-oda",
+            "code": "OR-GLO",
+            "name": "Golo Oda"
+          },
+          {
+            "id": "wor-or-meyu-m",
+            "code": "OR-MYM",
+            "name": "Meyu Muleke"
+          }
+        ]
+      },
+      {
+        "id": "zone-or-west-hararghe",
+        "code": "OR-WHA",
+        "name": "West Hararghe Zone",
+        "woredas": [
+          {
+            "id": "wor-or-chiro-c",
+            "code": "OR-CHC",
+            "name": "Chiro City"
+          },
+          {
+            "id": "wor-or-chiro-r",
+            "code": "OR-CHR",
+            "name": "Chiro Rural"
+          },
+          {
+            "id": "wor-or-badessa",
+            "code": "OR-BDS",
+            "name": "Badessa Town"
+          },
+          {
+            "id": "wor-or-gemechis",
+            "code": "OR-GMC2",
+            "name": "Gemechis Woreda"
+          },
+          {
+            "id": "wor-or-doba",
+            "code": "OR-DOB",
+            "name": "Doba Woreda"
+          },
+          {
+            "id": "wor-or-mieso-or",
+            "code": "OR-MSO",
+            "name": "Mieso Woreda"
+          },
+          {
+            "id": "wor-or-tullo",
+            "code": "OR-TUL",
+            "name": "Tullo Woreda"
+          },
+          {
+            "id": "wor-or-habro",
+            "code": "OR-HBR",
+            "name": "Habro Woreda"
+          },
+          {
+            "id": "wor-or-boke",
+            "code": "OR-BOK",
+            "name": "Boke Woreda"
+          },
+          {
+            "id": "wor-or-kuni",
+            "code": "OR-KUN",
+            "name": "Kuni Woreda"
+          },
+          {
+            "id": "wor-or-oda-b",
+            "code": "OR-ODB",
+            "name": "Oda Bultum"
+          },
+          {
+            "id": "wor-or-guba-k",
+            "code": "OR-GBK",
+            "name": "Guba Koricha"
+          },
+          {
+            "id": "wor-or-anchar",
+            "code": "OR-ANC",
+            "name": "Anchar Woreda"
+          },
+          {
+            "id": "wor-or-burka-d",
+            "code": "OR-BKD",
+            "name": "Burka Dimtu"
+          },
+          {
+            "id": "wor-or-hawwi-g",
+            "code": "OR-HWG2",
+            "name": "Hawwi Gudina"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "reg-amhara",
+    "code": "AM",
+    "name": "Amhara",
+    "type": "region",
+    "zones": [
+      {
+        "id": "zone-am-bahir-dar",
+        "code": "AM-BD",
+        "name": "Bahir Dar Special City Administration",
+        "woredas": [
+          {
+            "id": "wor-am-bd-fasil",
+            "code": "AM-BDF",
+            "name": "Fasil Sub-City"
+          },
+          {
+            "id": "wor-am-bd-belay-z",
+            "code": "AM-BDB",
+            "name": "Belay Zeleke Sub-City"
+          },
+          {
+            "id": "wor-am-bd-gimbichu",
+            "code": "AM-BDG",
+            "name": "Gimbichu Sub-City"
+          },
+          {
+            "id": "wor-am-bd-hidar-11",
+            "code": "AM-BDH",
+            "name": "Hidar 11 Sub-City"
+          },
+          {
+            "id": "wor-am-bd-shimbit",
+            "code": "AM-BDS",
+            "name": "Shimbit Sub-City"
+          },
+          {
+            "id": "wor-am-bd-tana",
+            "code": "AM-BDT",
+            "name": "Tana Sub-City"
+          },
+          {
+            "id": "wor-am-bd-tis-abay",
+            "code": "AM-BDA",
+            "name": "Tis Abay Satellite Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-am-central-gondar",
+        "code": "AM-CGON",
+        "name": "Central Gondar Zone",
+        "woredas": [
+          {
+            "id": "wor-am-gondar-c",
+            "code": "AM-GNC",
+            "name": "Gondar City"
+          },
+          {
+            "id": "wor-am-dembia",
+            "code": "AM-DMB",
+            "name": "Dembia (Koladiba)"
+          },
+          {
+            "id": "wor-am-chilga",
+            "code": "AM-CHL",
+            "name": "Chilga Woreda"
+          },
+          {
+            "id": "wor-am-wegera",
+            "code": "AM-WEG",
+            "name": "Wegera Woreda"
+          },
+          {
+            "id": "wor-am-lay-arm",
+            "code": "AM-LYA",
+            "name": "Lay Armachiho"
+          },
+          {
+            "id": "wor-am-west-bel",
+            "code": "AM-WBL",
+            "name": "West Belessa"
+          },
+          {
+            "id": "wor-am-east-bel",
+            "code": "AM-EBL",
+            "name": "East Belessa"
+          },
+          {
+            "id": "wor-am-gondar-z",
+            "code": "AM-GNZ",
+            "name": "Gondar Zuria"
+          },
+          {
+            "id": "wor-am-takusa",
+            "code": "AM-TAK",
+            "name": "Takusa Woreda"
+          },
+          {
+            "id": "wor-am-tach-arm",
+            "code": "AM-TCA",
+            "name": "Tach Armachiho"
+          }
+        ]
+      },
+      {
+        "id": "zone-am-north-gondar",
+        "code": "AM-NGON",
+        "name": "North Gondar Zone",
+        "woredas": [
+          {
+            "id": "wor-am-debark-c",
+            "code": "AM-DBC",
+            "name": "Debark City"
+          },
+          {
+            "id": "wor-am-debark-r",
+            "code": "AM-DBR",
+            "name": "Debark Rural"
+          },
+          {
+            "id": "wor-am-dabat",
+            "code": "AM-DAB",
+            "name": "Dabat Woreda"
+          },
+          {
+            "id": "wor-am-adi-arkay",
+            "code": "AM-ADA",
+            "name": "Adi Arkay Woreda"
+          },
+          {
+            "id": "wor-am-beyeda",
+            "code": "AM-BEY",
+            "name": "Beyeda Woreda"
+          },
+          {
+            "id": "wor-am-jan-amora",
+            "code": "AM-JAN",
+            "name": "Jan Amora"
+          },
+          {
+            "id": "wor-am-telemt",
+            "code": "AM-TEL",
+            "name": "Telemt Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-am-south-gondar",
+        "code": "AM-SGON",
+        "name": "South Gondar Zone",
+        "woredas": [
+          {
+            "id": "wor-am-debre-tabor",
+            "code": "AM-DBT",
+            "name": "Debre Tabor City"
+          },
+          {
+            "id": "wor-am-farta",
+            "code": "AM-FAR",
+            "name": "Farta Woreda"
+          },
+          {
+            "id": "wor-am-fogera",
+            "code": "AM-FOG",
+            "name": "Fogera (Woreta)"
+          },
+          {
+            "id": "wor-am-libo-k",
+            "code": "AM-LBK",
+            "name": "Libo Kemkem (Addis Zemen)"
+          },
+          {
+            "id": "wor-am-dera",
+            "code": "AM-DER",
+            "name": "Dera Woreda"
+          },
+          {
+            "id": "wor-am-estie",
+            "code": "AM-EST",
+            "name": "Estie Woreda"
+          },
+          {
+            "id": "wor-am-andabet",
+            "code": "AM-AND",
+            "name": "Andabet Woreda"
+          },
+          {
+            "id": "wor-am-simada",
+            "code": "AM-SIM",
+            "name": "Simada Woreda"
+          },
+          {
+            "id": "wor-am-ebinat",
+            "code": "AM-EBN",
+            "name": "Ebinat Woreda"
+          },
+          {
+            "id": "wor-am-lay-gayint",
+            "code": "AM-LYG",
+            "name": "Lay Gayint"
+          },
+          {
+            "id": "wor-am-tach-gayint",
+            "code": "AM-TCG",
+            "name": "Tach Gayint"
+          },
+          {
+            "id": "wor-am-sedie-muja",
+            "code": "AM-SDM",
+            "name": "Sedie Muja"
+          }
+        ]
+      },
+      {
+        "id": "zone-am-west-gondar",
+        "code": "AM-WGON",
+        "name": "West Gondar Zone",
+        "woredas": [
+          {
+            "id": "wor-am-metema-c",
+            "code": "AM-MTC",
+            "name": "Metema (Genda Wuha)"
+          },
+          {
+            "id": "wor-am-metema-y",
+            "code": "AM-MTY",
+            "name": "Metema Yohannes"
+          },
+          {
+            "id": "wor-am-quara",
+            "code": "AM-QUR",
+            "name": "Quara Woreda"
+          },
+          {
+            "id": "wor-am-mirab-arm",
+            "code": "AM-MRA",
+            "name": "Mirab Armachiho"
+          }
+        ]
+      },
+      {
+        "id": "zone-am-north-wollo",
+        "code": "AM-NWOL",
+        "name": "North Wollo Zone",
+        "woredas": [
+          {
+            "id": "wor-am-woldiya-c",
+            "code": "AM-WLC",
+            "name": "Woldiya City"
+          },
+          {
+            "id": "wor-am-lalibela-c",
+            "code": "AM-LLC",
+            "name": "Lalibela City"
+          },
+          {
+            "id": "wor-am-bugna",
+            "code": "AM-BUG",
+            "name": "Bugna Woreda"
+          },
+          {
+            "id": "wor-am-lasta",
+            "code": "AM-LAS",
+            "name": "Lasta Woreda"
+          },
+          {
+            "id": "wor-am-meket",
+            "code": "AM-MKT",
+            "name": "Meket Woreda"
+          },
+          {
+            "id": "wor-am-wadla",
+            "code": "AM-WAD",
+            "name": "Wadla Woreda"
+          },
+          {
+            "id": "wor-am-gidan",
+            "code": "AM-GID",
+            "name": "Gidan Woreda"
+          },
+          {
+            "id": "wor-am-gubalafto",
+            "code": "AM-GBL",
+            "name": "Gubalafto Woreda"
+          },
+          {
+            "id": "wor-am-habru",
+            "code": "AM-HAB",
+            "name": "Habru (Mersa)"
+          },
+          {
+            "id": "wor-am-kobo",
+            "code": "AM-KOB",
+            "name": "Kobo (Raya Kobo)"
+          }
+        ]
+      },
+      {
+        "id": "zone-am-south-wollo",
+        "code": "AM-SWOL",
+        "name": "South Wollo Zone",
+        "woredas": [
+          {
+            "id": "wor-am-dessie-c",
+            "code": "AM-DSC",
+            "name": "Dessie City"
+          },
+          {
+            "id": "wor-am-kombolcha-c",
+            "code": "AM-KMC",
+            "name": "Kombolcha City"
+          },
+          {
+            "id": "wor-am-kalu",
+            "code": "AM-KAL",
+            "name": "Kalu (Harbu)"
+          },
+          {
+            "id": "wor-am-tehuledere",
+            "code": "AM-TEH",
+            "name": "Tehuledere (Hayk)"
+          },
+          {
+            "id": "wor-am-ambasel",
+            "code": "AM-AMB",
+            "name": "Ambasel Woreda"
+          },
+          {
+            "id": "wor-am-kutaber",
+            "code": "AM-KUT",
+            "name": "Kutaber Woreda"
+          },
+          {
+            "id": "wor-am-tenta",
+            "code": "AM-TNT",
+            "name": "Tenta Woreda"
+          },
+          {
+            "id": "wor-am-legambo",
+            "code": "AM-LGB",
+            "name": "Legambo (Akesta)"
+          },
+          {
+            "id": "wor-am-sayint",
+            "code": "AM-SAY",
+            "name": "Sayint Woreda"
+          },
+          {
+            "id": "wor-am-delanta",
+            "code": "AM-DEL",
+            "name": "Delanta Woreda"
+          },
+          {
+            "id": "wor-am-were-ilu",
+            "code": "AM-WRI",
+            "name": "Were Ilu"
+          },
+          {
+            "id": "wor-am-were-babu",
+            "code": "AM-WRB",
+            "name": "Were Babu"
+          },
+          {
+            "id": "wor-am-kelala",
+            "code": "AM-KLL",
+            "name": "Kelala Woreda"
+          },
+          {
+            "id": "wor-am-jama",
+            "code": "AM-JAM",
+            "name": "Jama Woreda"
+          },
+          {
+            "id": "wor-am-legehida-am",
+            "code": "AM-LGH",
+            "name": "Legehida Woreda"
+          },
+          {
+            "id": "wor-am-albuko",
+            "code": "AM-ALB",
+            "name": "Albuko Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-am-north-shewa",
+        "code": "AM-NSH",
+        "name": "North Shewa Zone",
+        "woredas": [
+          {
+            "id": "wor-am-debre-berhan",
+            "code": "AM-DBB",
+            "name": "Debre Berhan City"
+          },
+          {
+            "id": "wor-am-ankober",
+            "code": "AM-ANK",
+            "name": "Ankober Woreda"
+          },
+          {
+            "id": "wor-am-angolela-t",
+            "code": "AM-ANG",
+            "name": "Angolela Tera"
+          },
+          {
+            "id": "wor-am-asagirt",
+            "code": "AM-ASA",
+            "name": "Asagirt Woreda"
+          },
+          {
+            "id": "wor-am-basona-w",
+            "code": "AM-BSW",
+            "name": "Basona Werana"
+          },
+          {
+            "id": "wor-am-hagere-m",
+            "code": "AM-HGM",
+            "name": "Hagere Mariam Kesem"
+          },
+          {
+            "id": "wor-am-menz-gera",
+            "code": "AM-MZG",
+            "name": "Menz Gera Midir"
+          },
+          {
+            "id": "wor-am-menz-lalo",
+            "code": "AM-MZL",
+            "name": "Menz Lalo"
+          },
+          {
+            "id": "wor-am-menz-mama",
+            "code": "AM-MZM",
+            "name": "Menz Mama Midir"
+          },
+          {
+            "id": "wor-am-moretna-j",
+            "code": "AM-MRJ",
+            "name": "Moretna Jiru"
+          },
+          {
+            "id": "wor-am-siyadebrina",
+            "code": "AM-SYD",
+            "name": "Siyadebrina Wayu"
+          },
+          {
+            "id": "wor-am-ensaro",
+            "code": "AM-ENS",
+            "name": "Ensaro Woreda"
+          },
+          {
+            "id": "wor-am-efratana-g",
+            "code": "AM-EFG",
+            "name": "Efratana Gidim"
+          },
+          {
+            "id": "wor-am-kewet",
+            "code": "AM-KEW",
+            "name": "Kewet (Shewa Robit)"
+          },
+          {
+            "id": "wor-am-termaber",
+            "code": "AM-TRM",
+            "name": "Termaber (Debre Sina)"
+          },
+          {
+            "id": "wor-am-gishe",
+            "code": "AM-GSH",
+            "name": "Gishe Rabel"
+          },
+          {
+            "id": "wor-am-antsoyia",
+            "code": "AM-ANT",
+            "name": "Antsokiyana Gemza"
+          }
+        ]
+      },
+      {
+        "id": "zone-am-east-gojjam",
+        "code": "AM-EGJ",
+        "name": "East Gojjam Zone",
+        "woredas": [
+          {
+            "id": "wor-am-debre-markos",
+            "code": "AM-DMK",
+            "name": "Debre Markos City"
+          },
+          {
+            "id": "wor-am-aneded",
+            "code": "AM-ANE",
+            "name": "Aneded Woreda"
+          },
+          {
+            "id": "wor-am-awabel",
+            "code": "AM-AWA",
+            "name": "Awabel (Lumame)"
+          },
+          {
+            "id": "wor-am-baso-liben",
+            "code": "AM-BSL",
+            "name": "Baso Liben"
+          },
+          {
+            "id": "wor-am-dejen",
+            "code": "AM-DEJ",
+            "name": "Dejen Woreda"
+          },
+          {
+            "id": "wor-am-enemay",
+            "code": "AM-ENM",
+            "name": "Enemay (Bichena)"
+          },
+          {
+            "id": "wor-am-enarj-e",
+            "code": "AM-ENE",
+            "name": "Enarj Enawga"
+          },
+          {
+            "id": "wor-am-enbise-s",
+            "code": "AM-EBS",
+            "name": "Enbise Sar Midir"
+          },
+          {
+            "id": "wor-am-gozamin",
+            "code": "AM-GOZ",
+            "name": "Gozamin Woreda"
+          },
+          {
+            "id": "wor-am-machakel",
+            "code": "AM-MCK",
+            "name": "Machakel Woreda"
+          },
+          {
+            "id": "wor-am-shebel-b",
+            "code": "AM-SHB",
+            "name": "Shebel Berenta"
+          },
+          {
+            "id": "wor-am-sinan",
+            "code": "AM-SNN",
+            "name": "Sinan Woreda"
+          },
+          {
+            "id": "wor-am-hulet-ej",
+            "code": "AM-HEE",
+            "name": "Hulet Ej Enese"
+          },
+          {
+            "id": "wor-am-sedie",
+            "code": "AM-SED",
+            "name": "Sedie Woreda"
+          },
+          {
+            "id": "wor-am-debre-elias",
+            "code": "AM-DBE",
+            "name": "Debre Elias"
+          }
+        ]
+      },
+      {
+        "id": "zone-am-west-gojjam",
+        "code": "AM-WGJ",
+        "name": "West Gojjam Zone",
+        "woredas": [
+          {
+            "id": "wor-am-finote-selam",
+            "code": "AM-FNS",
+            "name": "Finote Selam City"
+          },
+          {
+            "id": "wor-am-burie-c",
+            "code": "AM-BRC2",
+            "name": "Burie City"
+          },
+          {
+            "id": "wor-am-burie-z",
+            "code": "AM-BRZ",
+            "name": "Burie Zuria"
+          },
+          {
+            "id": "wor-am-jabi-tehnan",
+            "code": "AM-JBT",
+            "name": "Jabi Tehnan"
+          },
+          {
+            "id": "wor-am-dembecha",
+            "code": "AM-DMC",
+            "name": "Dembecha Woreda"
+          },
+          {
+            "id": "wor-am-dega-damot",
+            "code": "AM-DGD2",
+            "name": "Dega Damot"
+          },
+          {
+            "id": "wor-am-mecha",
+            "code": "AM-MCH",
+            "name": "Mecha (Merawi)"
+          },
+          {
+            "id": "wor-am-yilmana-d",
+            "code": "AM-YLD",
+            "name": "Yilmana Densa"
+          },
+          {
+            "id": "wor-am-north-ach",
+            "code": "AM-NAC",
+            "name": "North Achefer"
+          },
+          {
+            "id": "wor-am-south-ach",
+            "code": "AM-SAC",
+            "name": "South Achefer"
+          },
+          {
+            "id": "wor-am-sekela",
+            "code": "AM-SKL",
+            "name": "Sekela Woreda"
+          },
+          {
+            "id": "wor-am-quarit",
+            "code": "AM-QRT",
+            "name": "Quarit Woreda"
+          },
+          {
+            "id": "wor-am-bahir-dar-z",
+            "code": "AM-BDZ",
+            "name": "Bahir Dar Zuria"
+          }
+        ]
+      },
+      {
+        "id": "zone-am-awi",
+        "code": "AM-AWI",
+        "name": "Awi Zone (Agew)",
+        "woredas": [
+          {
+            "id": "wor-am-injibara-c",
+            "code": "AM-INJ",
+            "name": "Injibara City"
+          },
+          {
+            "id": "wor-am-dangila-c",
+            "code": "AM-DGC",
+            "name": "Dangila City"
+          },
+          {
+            "id": "wor-am-dangila-r",
+            "code": "AM-DGR",
+            "name": "Dangila Rural"
+          },
+          {
+            "id": "wor-am-banja-s",
+            "code": "AM-BNS",
+            "name": "Banja Shekudad"
+          },
+          {
+            "id": "wor-am-ankesha-g",
+            "code": "AM-AKG",
+            "name": "Ankesha Guagusa"
+          },
+          {
+            "id": "wor-am-guangua",
+            "code": "AM-GNG",
+            "name": "Guangua (Chagni)"
+          },
+          {
+            "id": "wor-am-faggeta-l",
+            "code": "AM-FGL",
+            "name": "Faggeta Lekoma"
+          },
+          {
+            "id": "wor-am-jawi",
+            "code": "AM-JAW",
+            "name": "Jawi Woreda"
+          },
+          {
+            "id": "wor-am-zigem",
+            "code": "AM-ZGM",
+            "name": "Zigem Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-am-wag-hemra",
+        "code": "AM-WAG",
+        "name": "Wag Hemra Zone",
+        "woredas": [
+          {
+            "id": "wor-am-sekota-c",
+            "code": "AM-SKC",
+            "name": "Sekota City"
+          },
+          {
+            "id": "wor-am-sekota-r",
+            "code": "AM-SKR",
+            "name": "Sekota Rural"
+          },
+          {
+            "id": "wor-am-dehana",
+            "code": "AM-DHN",
+            "name": "Dehana Woreda"
+          },
+          {
+            "id": "wor-am-zikuala",
+            "code": "AM-ZKL",
+            "name": "Zikuala Woreda"
+          },
+          {
+            "id": "wor-am-soqota",
+            "code": "AM-SQT",
+            "name": "Soqota Woreda"
+          },
+          {
+            "id": "wor-am-gazgibla",
+            "code": "AM-GZB",
+            "name": "Gazgibla Woreda"
+          },
+          {
+            "id": "wor-am-abergele-am",
+            "code": "AM-ABG",
+            "name": "Abergele Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-am-oromia-special",
+        "code": "AM-ORS",
+        "name": "Oromia Special Zone (Amhara)",
+        "woredas": [
+          {
+            "id": "wor-am-kemise-c",
+            "code": "AM-KMC2",
+            "name": "Kemise City"
+          },
+          {
+            "id": "wor-am-bati",
+            "code": "AM-BAT",
+            "name": "Bati Woreda"
+          },
+          {
+            "id": "wor-am-dawa-ch",
+            "code": "AM-DWC",
+            "name": "Dawa Chefa"
+          },
+          {
+            "id": "wor-am-artuma-f",
+            "code": "AM-ATF",
+            "name": "Artuma Fursi"
+          },
+          {
+            "id": "wor-am-jile-t",
+            "code": "AM-JLT",
+            "name": "Jile Timuga"
+          },
+          {
+            "id": "wor-am-dawa-harewa",
+            "code": "AM-DWH",
+            "name": "Dawa Harewa"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "reg-tigray",
+    "code": "TG",
+    "name": "Tigray",
+    "type": "region",
+    "zones": [
+      {
+        "id": "zone-tg-mekelle",
+        "code": "TG-MK",
+        "name": "Mekelle Special Zone",
+        "woredas": [
+          {
+            "id": "wor-tg-ayder",
+            "code": "TG-AYD",
+            "name": "Ayder Sub-City"
+          },
+          {
+            "id": "wor-tg-hadnet",
+            "code": "TG-HDN",
+            "name": "Hadnet Sub-City"
+          },
+          {
+            "id": "wor-tg-hawelti",
+            "code": "TG-HWL",
+            "name": "Hawelti Sub-City"
+          },
+          {
+            "id": "wor-tg-kedamay-w",
+            "code": "TG-KDW",
+            "name": "Kedamay Weyane Sub-City"
+          },
+          {
+            "id": "wor-tg-quiha",
+            "code": "TG-QUH",
+            "name": "Quiha Sub-City"
+          },
+          {
+            "id": "wor-tg-semien",
+            "code": "TG-SMN",
+            "name": "Semien Sub-City"
+          },
+          {
+            "id": "wor-tg-adi-haki",
+            "code": "TG-ADH",
+            "name": "Adi Haki Sub-City"
+          }
+        ]
+      },
+      {
+        "id": "zone-tg-central",
+        "code": "TG-CEN",
+        "name": "Central Tigray Zone",
+        "woredas": [
+          {
+            "id": "wor-tg-axum-c",
+            "code": "TG-AXC",
+            "name": "Axum City"
+          },
+          {
+            "id": "wor-tg-adwa-c",
+            "code": "TG-ADC",
+            "name": "Adwa City"
+          },
+          {
+            "id": "wor-tg-adwa-r",
+            "code": "TG-ADR",
+            "name": "Adwa Rural"
+          },
+          {
+            "id": "wor-tg-enticho",
+            "code": "TG-ENT",
+            "name": "Enticho Woreda"
+          },
+          {
+            "id": "wor-tg-kola-t",
+            "code": "TG-KLT",
+            "name": "Kola Tembien"
+          },
+          {
+            "id": "wor-tg-tanqua-a",
+            "code": "TG-TQA",
+            "name": "Tanqua Abergelle"
+          },
+          {
+            "id": "wor-tg-werie-l",
+            "code": "TG-WRL",
+            "name": "Werie Lehe"
+          },
+          {
+            "id": "wor-tg-mereb-l",
+            "code": "TG-MRL",
+            "name": "Mereb Lehe"
+          },
+          {
+            "id": "wor-tg-ahferom",
+            "code": "TG-AHF",
+            "name": "Ahferom Woreda"
+          },
+          {
+            "id": "wor-tg-rama",
+            "code": "TG-RAM",
+            "name": "Rama Woreda"
+          },
+          {
+            "id": "wor-tg-egela",
+            "code": "TG-EGL",
+            "name": "Egela Woreda"
+          },
+          {
+            "id": "wor-tg-nebelet",
+            "code": "TG-NBL",
+            "name": "Nebelet Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-tg-eastern",
+        "code": "TG-EAS",
+        "name": "Eastern Tigray Zone",
+        "woredas": [
+          {
+            "id": "wor-tg-adigrat-c",
+            "code": "TG-AGC",
+            "name": "Adigrat City"
+          },
+          {
+            "id": "wor-tg-ganta-a",
+            "code": "TG-GTA",
+            "name": "Ganta Afeshum"
+          },
+          {
+            "id": "wor-tg-gulomahda",
+            "code": "TG-GLM",
+            "name": "Gulomahda Woreda"
+          },
+          {
+            "id": "wor-tg-erob",
+            "code": "TG-ERO",
+            "name": "Erob Woreda"
+          },
+          {
+            "id": "wor-tg-saesi-t",
+            "code": "TG-SST",
+            "name": "Saesi Tsaedaemba"
+          },
+          {
+            "id": "wor-tg-kilte-a",
+            "code": "TG-KTA",
+            "name": "Kilte Awlaelo (Wukro)"
+          },
+          {
+            "id": "wor-tg-hawzen",
+            "code": "TG-HWZ",
+            "name": "Hawzen Woreda"
+          },
+          {
+            "id": "wor-tg-atsbi-w",
+            "code": "TG-ASW",
+            "name": "Atsbi Wonberta"
+          },
+          {
+            "id": "wor-tg-tsirae-w",
+            "code": "TG-TRW",
+            "name": "Tsirae Womberta"
+          }
+        ]
+      },
+      {
+        "id": "zone-tg-north-western",
+        "code": "TG-NW",
+        "name": "North Western Tigray Zone",
+        "woredas": [
+          {
+            "id": "wor-tg-shire-c",
+            "code": "TG-SHC",
+            "name": "Shire Endaselassie City"
+          },
+          {
+            "id": "wor-tg-asgede-t",
+            "code": "TG-AGT",
+            "name": "Asgede Tsimbla"
+          },
+          {
+            "id": "wor-tg-medebay-z",
+            "code": "TG-MDZ",
+            "name": "Medebay Zana"
+          },
+          {
+            "id": "wor-tg-tahtay-k",
+            "code": "TG-TTK",
+            "name": "Tahtay Koraro"
+          },
+          {
+            "id": "wor-tg-tahtay-m",
+            "code": "TG-TTM",
+            "name": "Tahtay Maychew"
+          },
+          {
+            "id": "wor-tg-tselemti",
+            "code": "TG-TSL",
+            "name": "Tselemti Woreda"
+          },
+          {
+            "id": "wor-tg-laelay-a",
+            "code": "TG-LLA",
+            "name": "La'elay Adiyabo"
+          },
+          {
+            "id": "wor-tg-tahtay-a",
+            "code": "TG-TTA",
+            "name": "Tahtay Adiyabo"
+          }
+        ]
+      },
+      {
+        "id": "zone-tg-south-eastern",
+        "code": "TG-SE",
+        "name": "South Eastern Tigray Zone",
+        "woredas": [
+          {
+            "id": "wor-tg-dogua-t",
+            "code": "TG-DGT",
+            "name": "Dogu'a Tembien (Hagere Selam)"
+          },
+          {
+            "id": "wor-tg-enderta",
+            "code": "TG-END",
+            "name": "Enderta Woreda"
+          },
+          {
+            "id": "wor-tg-hintalo-w",
+            "code": "TG-HTW",
+            "name": "Hintalo Wajirat"
+          },
+          {
+            "id": "wor-tg-seharti-s",
+            "code": "TG-SHS",
+            "name": "Seharti Samre"
+          },
+          {
+            "id": "wor-tg-wejerat",
+            "code": "TG-WEJ",
+            "name": "Wejerat Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-tg-southern",
+        "code": "TG-SOU",
+        "name": "Southern Tigray Zone",
+        "woredas": [
+          {
+            "id": "wor-tg-maychew-c",
+            "code": "TG-MYC",
+            "name": "Maychew City"
+          },
+          {
+            "id": "wor-tg-alaje",
+            "code": "TG-ALJ",
+            "name": "Alaje Woreda"
+          },
+          {
+            "id": "wor-tg-endamehoni",
+            "code": "TG-EDM",
+            "name": "Endamehoni Woreda"
+          },
+          {
+            "id": "wor-tg-ofla",
+            "code": "TG-OFL",
+            "name": "Ofla Woreda"
+          },
+          {
+            "id": "wor-tg-raya-azebo",
+            "code": "TG-RYZ",
+            "name": "Raya Azebo"
+          },
+          {
+            "id": "wor-tg-raya-alamata",
+            "code": "TG-RYA",
+            "name": "Raya Alamata"
+          },
+          {
+            "id": "wor-tg-alamata-c",
+            "code": "TG-ALC",
+            "name": "Alamata City"
+          },
+          {
+            "id": "wor-tg-kobo-tg",
+            "code": "TG-KOB",
+            "name": "Kobo Tigray"
+          },
+          {
+            "id": "wor-tg-mehoni",
+            "code": "TG-MEH",
+            "name": "Mehoni Town"
+          }
+        ]
+      },
+      {
+        "id": "zone-tg-western",
+        "code": "TG-WES",
+        "name": "Western Tigray Zone",
+        "woredas": [
+          {
+            "id": "wor-tg-humera-c",
+            "code": "TG-HMC",
+            "name": "Humera City"
+          },
+          {
+            "id": "wor-tg-kafta-h",
+            "code": "TG-KFH",
+            "name": "Kafta Humera"
+          },
+          {
+            "id": "wor-tg-welkait",
+            "code": "TG-WEL",
+            "name": "Welkait Woreda"
+          },
+          {
+            "id": "wor-tg-tsegede-tg",
+            "code": "TG-TSG",
+            "name": "Tsegede Woreda"
+          },
+          {
+            "id": "wor-tg-dansha",
+            "code": "TG-DAN",
+            "name": "Dansha Town"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "reg-somali",
+    "code": "SO",
+    "name": "Somali",
+    "type": "region",
+    "zones": [
+      {
+        "id": "zone-so-fafan",
+        "code": "SO-FAF",
+        "name": "Fafan Zone",
+        "woredas": [
+          {
+            "id": "wor-so-jigjiga-c",
+            "code": "SO-JGC",
+            "name": "Jigjiga City"
+          },
+          {
+            "id": "wor-so-jigjiga-r",
+            "code": "SO-JGR",
+            "name": "Jigjiga Rural"
+          },
+          {
+            "id": "wor-so-awbare",
+            "code": "SO-AWB",
+            "name": "Awbare Woreda"
+          },
+          {
+            "id": "wor-so-kebri-b",
+            "code": "SO-KBB",
+            "name": "Kebri Beyah"
+          },
+          {
+            "id": "wor-so-babille-so",
+            "code": "SO-BAB",
+            "name": "Babille Woreda"
+          },
+          {
+            "id": "wor-so-harshin",
+            "code": "SO-HRS",
+            "name": "Harshin Woreda"
+          },
+          {
+            "id": "wor-so-gursum-so",
+            "code": "SO-GRS",
+            "name": "Gursum Woreda"
+          },
+          {
+            "id": "wor-so-tuliguled",
+            "code": "SO-TLG",
+            "name": "Tuli Guled"
+          },
+          {
+            "id": "wor-so-goljano",
+            "code": "SO-GLJ",
+            "name": "Goljano Woreda"
+          },
+          {
+            "id": "wor-so-wajaale",
+            "code": "SO-WAJ",
+            "name": "Tog Wajale City"
+          }
+        ]
+      },
+      {
+        "id": "zone-so-siti",
+        "code": "SO-SIT",
+        "name": "Siti Zone",
+        "woredas": [
+          {
+            "id": "wor-so-shinile",
+            "code": "SO-SHI",
+            "name": "Shinile Woreda"
+          },
+          {
+            "id": "wor-so-afdem",
+            "code": "SO-AFD",
+            "name": "Afdem Woreda"
+          },
+          {
+            "id": "wor-so-dembel",
+            "code": "SO-DMB",
+            "name": "Dembel Woreda"
+          },
+          {
+            "id": "wor-so-erer",
+            "code": "SO-ERE",
+            "name": "Erer Woreda"
+          },
+          {
+            "id": "wor-so-mieso-so",
+            "code": "SO-MSO",
+            "name": "Mieso Somali"
+          },
+          {
+            "id": "wor-so-bike",
+            "code": "SO-BIK",
+            "name": "Bike Woreda"
+          },
+          {
+            "id": "wor-so-ayesha",
+            "code": "SO-AYE",
+            "name": "Ayesha Woreda"
+          },
+          {
+            "id": "wor-so-hadhagala",
+            "code": "SO-HDH",
+            "name": "Hadhagala Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-so-erer",
+        "code": "SO-ERR",
+        "name": "Erer Zone",
+        "woredas": [
+          {
+            "id": "wor-so-fiq-c",
+            "code": "SO-FQC",
+            "name": "Fiq City"
+          },
+          {
+            "id": "wor-so-fiq-r",
+            "code": "SO-FQR",
+            "name": "Fiq Rural"
+          },
+          {
+            "id": "wor-so-mayumuluko",
+            "code": "SO-MYM",
+            "name": "Mayumuluko Woreda"
+          },
+          {
+            "id": "wor-so-hamero",
+            "code": "SO-HMR",
+            "name": "Hamero Woreda"
+          },
+          {
+            "id": "wor-so-yahob",
+            "code": "SO-YAH",
+            "name": "Yahob Woreda"
+          },
+          {
+            "id": "wor-so-lagahida",
+            "code": "SO-LGH",
+            "name": "Lagahida Woreda"
+          },
+          {
+            "id": "wor-so-salahad",
+            "code": "SO-SLH",
+            "name": "Salahad Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-so-nogob",
+        "code": "SO-NOG",
+        "name": "Nogob Zone",
+        "woredas": [
+          {
+            "id": "wor-so-elweyne",
+            "code": "SO-ELW",
+            "name": "Elweyne Woreda"
+          },
+          {
+            "id": "wor-so-segeg",
+            "code": "SO-SEG",
+            "name": "Segeg Woreda"
+          },
+          {
+            "id": "wor-so-gerbo",
+            "code": "SO-GRB",
+            "name": "Gerbo Woreda"
+          },
+          {
+            "id": "wor-so-hor-shagah",
+            "code": "SO-HRS2",
+            "name": "Hor-shagah Woreda"
+          },
+          {
+            "id": "wor-so-ayun",
+            "code": "SO-AYU",
+            "name": "Ayun Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-so-jarar",
+        "code": "SO-JAR",
+        "name": "Jarar Zone",
+        "woredas": [
+          {
+            "id": "wor-so-degehabur-c",
+            "code": "SO-DGC",
+            "name": "Degehabur City"
+          },
+          {
+            "id": "wor-so-degehabur-r",
+            "code": "SO-DGR",
+            "name": "Degehabur Rural"
+          },
+          {
+            "id": "wor-so-bilcil-bur",
+            "code": "SO-BCB",
+            "name": "Bilcil-Bur Woreda"
+          },
+          {
+            "id": "wor-so-birqod",
+            "code": "SO-BRQ",
+            "name": "Birqod Woreda"
+          },
+          {
+            "id": "wor-so-aware",
+            "code": "SO-AWR",
+            "name": "Aware Woreda"
+          },
+          {
+            "id": "wor-so-gunagado",
+            "code": "SO-GNG",
+            "name": "Gunagado Woreda"
+          },
+          {
+            "id": "wor-so-dig",
+            "code": "SO-DIG",
+            "name": "Dig Woreda"
+          },
+          {
+            "id": "wor-so-yoale",
+            "code": "SO-YOL",
+            "name": "Yo'ale Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-so-doollo",
+        "code": "SO-DOL",
+        "name": "Doollo Zone",
+        "woredas": [
+          {
+            "id": "wor-so-warder-c",
+            "code": "SO-WDC",
+            "name": "Warder City"
+          },
+          {
+            "id": "wor-so-warder-r",
+            "code": "SO-WDR",
+            "name": "Warder Rural"
+          },
+          {
+            "id": "wor-so-danot",
+            "code": "SO-DNT",
+            "name": "Danot Woreda"
+          },
+          {
+            "id": "wor-so-bokh",
+            "code": "SO-BKH",
+            "name": "Bokh Woreda"
+          },
+          {
+            "id": "wor-so-galadi",
+            "code": "SO-GLD",
+            "name": "Galadi Woreda"
+          },
+          {
+            "id": "wor-so-daratole",
+            "code": "SO-DRT",
+            "name": "Daratole Woreda"
+          },
+          {
+            "id": "wor-so-lehel-y",
+            "code": "SO-LHY",
+            "name": "Lehel-Yucub"
+          }
+        ]
+      },
+      {
+        "id": "zone-so-korahe",
+        "code": "SO-KOR",
+        "name": "Korahe Zone",
+        "woredas": [
+          {
+            "id": "wor-so-qabridahar-c",
+            "code": "SO-QDC",
+            "name": "Qabridahar City"
+          },
+          {
+            "id": "wor-so-qabridahar-r",
+            "code": "SO-QDR",
+            "name": "Qabridahar Rural"
+          },
+          {
+            "id": "wor-so-shilabo",
+            "code": "SO-SHL",
+            "name": "Shilabo Woreda"
+          },
+          {
+            "id": "wor-so-debeweyin",
+            "code": "SO-DBW",
+            "name": "Debeweyin Woreda"
+          },
+          {
+            "id": "wor-so-marsin",
+            "code": "SO-MRN",
+            "name": "Marsin Woreda"
+          },
+          {
+            "id": "wor-so-higloley",
+            "code": "SO-HGL",
+            "name": "Higloley Woreda"
+          },
+          {
+            "id": "wor-so-lasdhankeyre",
+            "code": "SO-LSD",
+            "name": "Lasdhankeyre Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-so-shabelle",
+        "code": "SO-SHB",
+        "name": "Shabelle Zone",
+        "woredas": [
+          {
+            "id": "wor-so-gode-c",
+            "code": "SO-GDC",
+            "name": "Gode City"
+          },
+          {
+            "id": "wor-so-gode-r",
+            "code": "SO-GDR",
+            "name": "Gode Rural"
+          },
+          {
+            "id": "wor-so-adadle",
+            "code": "SO-ADL",
+            "name": "Adadle Woreda"
+          },
+          {
+            "id": "wor-so-danan",
+            "code": "SO-DNN",
+            "name": "Danan Woreda"
+          },
+          {
+            "id": "wor-so-berano",
+            "code": "SO-BRN",
+            "name": "Ber'ano Woreda"
+          },
+          {
+            "id": "wor-so-kelafo",
+            "code": "SO-KLF",
+            "name": "Kelafo Woreda"
+          },
+          {
+            "id": "wor-so-mustahil",
+            "code": "SO-MST",
+            "name": "Mustahil Woreda"
+          },
+          {
+            "id": "wor-so-ferfer",
+            "code": "SO-FRF",
+            "name": "Ferfer Woreda"
+          },
+          {
+            "id": "wor-so-east-imey",
+            "code": "SO-EIM",
+            "name": "East Imey"
+          }
+        ]
+      },
+      {
+        "id": "zone-so-afder",
+        "code": "SO-AFD2",
+        "name": "Afder Zone",
+        "woredas": [
+          {
+            "id": "wor-so-hargele",
+            "code": "SO-HRG",
+            "name": "Hargele Woreda"
+          },
+          {
+            "id": "wor-so-cherati",
+            "code": "SO-CHR",
+            "name": "Cherati Woreda"
+          },
+          {
+            "id": "wor-so-bare",
+            "code": "SO-BAR",
+            "name": "Bare Woreda"
+          },
+          {
+            "id": "wor-so-dolobay",
+            "code": "SO-DLB",
+            "name": "Dolobay Woreda"
+          },
+          {
+            "id": "wor-so-elkere",
+            "code": "SO-ELK",
+            "name": "Elkere Woreda"
+          },
+          {
+            "id": "wor-so-god-god",
+            "code": "SO-GDG",
+            "name": "God-God Woreda"
+          },
+          {
+            "id": "wor-so-west-imey",
+            "code": "SO-WIM",
+            "name": "West Imey"
+          },
+          {
+            "id": "wor-so-raso",
+            "code": "SO-RAS",
+            "name": "Raso Woreda"
+          },
+          {
+            "id": "wor-so-qohle",
+            "code": "SO-QHL",
+            "name": "Qohle Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-so-liben",
+        "code": "SO-LIB",
+        "name": "Liben Zone",
+        "woredas": [
+          {
+            "id": "wor-so-filtu-c",
+            "code": "SO-FLC",
+            "name": "Filtu City"
+          },
+          {
+            "id": "wor-so-filtu-r",
+            "code": "SO-FLR",
+            "name": "Filtu Rural"
+          },
+          {
+            "id": "wor-so-dolo-odo",
+            "code": "SO-DLO",
+            "name": "Dolo Odo Woreda"
+          },
+          {
+            "id": "wor-so-bokolmanyo",
+            "code": "SO-BKM",
+            "name": "Bokolmanyo Woreda"
+          },
+          {
+            "id": "wor-so-dekasuftu",
+            "code": "SO-DKS",
+            "name": "Dekasuftu Woreda"
+          },
+          {
+            "id": "wor-so-goro-baqaqsa",
+            "code": "SO-GBQ",
+            "name": "Goro Baqaqsa"
+          },
+          {
+            "id": "wor-so-guradamole-so",
+            "code": "SO-GDM",
+            "name": "Gura Damole Somali"
+          }
+        ]
+      },
+      {
+        "id": "zone-so-daawa",
+        "code": "SO-DAA",
+        "name": "Daawa Zone",
+        "woredas": [
+          {
+            "id": "wor-so-moyale-so",
+            "code": "SO-MOY",
+            "name": "Moyale Somali"
+          },
+          {
+            "id": "wor-so-mubarak",
+            "code": "SO-MBR",
+            "name": "Mubarak Woreda"
+          },
+          {
+            "id": "wor-so-kadaduma",
+            "code": "SO-KDD",
+            "name": "Kadaduma Woreda"
+          },
+          {
+            "id": "wor-so-hudet",
+            "code": "SO-HUD",
+            "name": "Hudet Woreda"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "reg-afar",
+    "code": "AF",
+    "name": "Afar",
+    "type": "region",
+    "zones": [
+      {
+        "id": "zone-af-zone1",
+        "code": "AF-Z1",
+        "name": "Awsi Rasu (Zone 1)",
+        "woredas": [
+          {
+            "id": "wor-af-semera-c",
+            "code": "AF-SMC",
+            "name": "Semera City"
+          },
+          {
+            "id": "wor-af-asayita",
+            "code": "AF-ASA",
+            "name": "Asayita Woreda"
+          },
+          {
+            "id": "wor-af-afambo",
+            "code": "AF-AFA",
+            "name": "Afambo Woreda"
+          },
+          {
+            "id": "wor-af-chifra",
+            "code": "AF-CHF",
+            "name": "Chifra Woreda"
+          },
+          {
+            "id": "wor-af-dubti",
+            "code": "AF-DUB",
+            "name": "Dubti Woreda"
+          },
+          {
+            "id": "wor-af-elidar",
+            "code": "AF-ELI",
+            "name": "Elidar Woreda"
+          },
+          {
+            "id": "wor-af-kori",
+            "code": "AF-KOR",
+            "name": "Kori Woreda"
+          },
+          {
+            "id": "wor-af-mille",
+            "code": "AF-MIL",
+            "name": "Mille Woreda"
+          },
+          {
+            "id": "wor-af-ayesha-af",
+            "code": "AF-AYE",
+            "name": "Ayesha Afar"
+          }
+        ]
+      },
+      {
+        "id": "zone-af-zone2",
+        "code": "AF-Z2",
+        "name": "Kilbet Rasu (Zone 2)",
+        "woredas": [
+          {
+            "id": "wor-af-abala",
+            "code": "AF-ABA",
+            "name": "Abala Woreda"
+          },
+          {
+            "id": "wor-af-afdera",
+            "code": "AF-AFD",
+            "name": "Afdera Woreda"
+          },
+          {
+            "id": "wor-af-berhale",
+            "code": "AF-BRH",
+            "name": "Berhale Woreda"
+          },
+          {
+            "id": "wor-af-bidu",
+            "code": "AF-BID",
+            "name": "Bidu Woreda"
+          },
+          {
+            "id": "wor-af-dallol",
+            "code": "AF-DAL",
+            "name": "Dallol Woreda"
+          },
+          {
+            "id": "wor-af-erebti",
+            "code": "AF-ERE",
+            "name": "Erebti Woreda"
+          },
+          {
+            "id": "wor-af-koneba",
+            "code": "AF-KON",
+            "name": "Koneba Woreda"
+          },
+          {
+            "id": "wor-af-megale",
+            "code": "AF-MEG",
+            "name": "Megale Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-af-zone3",
+        "code": "AF-Z3",
+        "name": "Gabi Rasu (Zone 3)",
+        "woredas": [
+          {
+            "id": "wor-af-amibara",
+            "code": "AF-AMI",
+            "name": "Amibara Woreda"
+          },
+          {
+            "id": "wor-af-awash-fen",
+            "code": "AF-AWF",
+            "name": "Awash Fentale"
+          },
+          {
+            "id": "wor-af-bure-mud",
+            "code": "AF-BRM",
+            "name": "Bure Mudaytu"
+          },
+          {
+            "id": "wor-af-dulecha",
+            "code": "AF-DUL",
+            "name": "Dulecha Woreda"
+          },
+          {
+            "id": "wor-af-gewane",
+            "code": "AF-GEW",
+            "name": "Gewane Woreda"
+          },
+          {
+            "id": "wor-af-argobba",
+            "code": "AF-ARG",
+            "name": "Argobba Special Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-af-zone4",
+        "code": "AF-Z4",
+        "name": "Fantena Rasu (Zone 4)",
+        "woredas": [
+          {
+            "id": "wor-af-ewa",
+            "code": "AF-EWA",
+            "name": "Ewa Woreda"
+          },
+          {
+            "id": "wor-af-golina",
+            "code": "AF-GOL",
+            "name": "Golina Woreda"
+          },
+          {
+            "id": "wor-af-teru",
+            "code": "AF-TER",
+            "name": "Teru Woreda"
+          },
+          {
+            "id": "wor-af-yalo",
+            "code": "AF-YAL",
+            "name": "Yalo Woreda"
+          },
+          {
+            "id": "wor-af-gulina",
+            "code": "AF-GUL",
+            "name": "Gulina Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-af-zone5",
+        "code": "AF-Z5",
+        "name": "Hari Rasu (Zone 5)",
+        "woredas": [
+          {
+            "id": "wor-af-dawe",
+            "code": "AF-DAW",
+            "name": "Dawe Woreda"
+          },
+          {
+            "id": "wor-af-hadele-e",
+            "code": "AF-HDE",
+            "name": "Hadele Ele"
+          },
+          {
+            "id": "wor-af-samurobi",
+            "code": "AF-SMR",
+            "name": "Samurobi Woreda"
+          },
+          {
+            "id": "wor-af-telalak",
+            "code": "AF-TEL",
+            "name": "Telalak Woreda"
+          },
+          {
+            "id": "wor-af-dalifage",
+            "code": "AF-DLF",
+            "name": "Dalifage Woreda"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "reg-sidama",
+    "code": "SD",
+    "name": "Sidama",
+    "type": "region",
+    "zones": [
+      {
+        "id": "zone-sd-hawassa",
+        "code": "SD-HAW",
+        "name": "Hawassa City Administration",
+        "woredas": [
+          {
+            "id": "wor-sd-menahariya",
+            "code": "SD-MNH",
+            "name": "Menahariya Sub-City"
+          },
+          {
+            "id": "wor-sd-tabor",
+            "code": "SD-TAB",
+            "name": "Tabor Sub-City"
+          },
+          {
+            "id": "wor-sd-haik-dar",
+            "code": "SD-HKD",
+            "name": "Haik Dar Sub-City"
+          },
+          {
+            "id": "wor-sd-misrak",
+            "code": "SD-MSR",
+            "name": "Misrak Sub-City"
+          },
+          {
+            "id": "wor-sd-mehal-k",
+            "code": "SD-MHK",
+            "name": "Mehal Ketema Sub-City"
+          },
+          {
+            "id": "wor-sd-addis-k",
+            "code": "SD-ADK",
+            "name": "Addis Ketema Sub-City"
+          },
+          {
+            "id": "wor-sd-bahil-a",
+            "code": "SD-BHA",
+            "name": "Bahil Adarash Sub-City"
+          },
+          {
+            "id": "wor-sd-hawela-t",
+            "code": "SD-HWT",
+            "name": "Hawela Tula Sub-City"
+          }
+        ]
+      },
+      {
+        "id": "zone-sd-central",
+        "code": "SD-CEN",
+        "name": "Central Sidama Zone",
+        "woredas": [
+          {
+            "id": "wor-sd-irgalem-c",
+            "code": "SD-IRG",
+            "name": "Yirgalem City"
+          },
+          {
+            "id": "wor-sd-dale",
+            "code": "SD-DAL",
+            "name": "Dale Woreda"
+          },
+          {
+            "id": "wor-sd-wonsho",
+            "code": "SD-WNS",
+            "name": "Wonsho Woreda"
+          },
+          {
+            "id": "wor-sd-loko-abaya",
+            "code": "SD-LKA",
+            "name": "Loko Abaya"
+          },
+          {
+            "id": "wor-sd-shebedino",
+            "code": "SD-SHB",
+            "name": "Shebedino Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-sd-eastern",
+        "code": "SD-EAS",
+        "name": "Eastern Sidama Zone",
+        "woredas": [
+          {
+            "id": "wor-sd-aleta-w-c",
+            "code": "SD-AWC",
+            "name": "Aleta Wondo City"
+          },
+          {
+            "id": "wor-sd-aleta-w-r",
+            "code": "SD-AWR",
+            "name": "Aleta Wondo Rural"
+          },
+          {
+            "id": "wor-sd-chire",
+            "code": "SD-CHR",
+            "name": "Chire Woreda"
+          },
+          {
+            "id": "wor-sd-bensa",
+            "code": "SD-BNS",
+            "name": "Bensa (Daye)"
+          },
+          {
+            "id": "wor-sd-bona-z",
+            "code": "SD-BNZ",
+            "name": "Bona Zuria"
+          },
+          {
+            "id": "wor-sd-hula",
+            "code": "SD-HUL",
+            "name": "Hula Woreda"
+          },
+          {
+            "id": "wor-sd-dawo-sd",
+            "code": "SD-DAW",
+            "name": "Dawo Woreda"
+          },
+          {
+            "id": "wor-sd-arorisa",
+            "code": "SD-ARR",
+            "name": "Arorisa Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-sd-northern",
+        "code": "SD-NOR",
+        "name": "Northern Sidama Zone",
+        "woredas": [
+          {
+            "id": "wor-sd-hawassa-z",
+            "code": "SD-HWZ",
+            "name": "Hawassa Zuria"
+          },
+          {
+            "id": "wor-sd-wondo-g",
+            "code": "SD-WDG",
+            "name": "Wondo Genet"
+          },
+          {
+            "id": "wor-sd-malga",
+            "code": "SD-MLG",
+            "name": "Malga Woreda"
+          },
+          {
+            "id": "wor-sd-boricha",
+            "code": "SD-BOR",
+            "name": "Boricha Woreda"
+          },
+          {
+            "id": "wor-sd-bilate-z",
+            "code": "SD-BLZ",
+            "name": "Bilate Zuria"
+          },
+          {
+            "id": "wor-sd-gorche",
+            "code": "SD-GRC",
+            "name": "Gorche Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-sd-southern",
+        "code": "SD-SOU",
+        "name": "Southern Sidama Zone",
+        "woredas": [
+          {
+            "id": "wor-sd-chuko-c",
+            "code": "SD-CKC",
+            "name": "Aleta Chuko City"
+          },
+          {
+            "id": "wor-sd-chuko-r",
+            "code": "SD-CKR",
+            "name": "Aleta Chuko Rural"
+          },
+          {
+            "id": "wor-sd-dara",
+            "code": "SD-DAR",
+            "name": "Dara Woreda"
+          },
+          {
+            "id": "wor-sd-dara-otilcho",
+            "code": "SD-DRO",
+            "name": "Dara Otilcho"
+          },
+          {
+            "id": "wor-sd-hawa-siyaye",
+            "code": "SD-HWS",
+            "name": "Hawa Siyaye"
+          },
+          {
+            "id": "wor-sd-teticha",
+            "code": "SD-TET",
+            "name": "Teticha Woreda"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "reg-central-ethiopia",
+    "code": "CE",
+    "name": "Central Ethiopia",
+    "type": "region",
+    "zones": [
+      {
+        "id": "zone-ce-gurage",
+        "code": "CE-GUR",
+        "name": "Gurage Zone",
+        "woredas": [
+          {
+            "id": "wor-ce-wolkite-c",
+            "code": "CE-WKC",
+            "name": "Wolkite City"
+          },
+          {
+            "id": "wor-ce-butajira-c",
+            "code": "CE-BJC",
+            "name": "Butajira City"
+          },
+          {
+            "id": "wor-ce-cheha",
+            "code": "CE-CHH",
+            "name": "Cheha Woreda"
+          },
+          {
+            "id": "wor-ce-ennemor-e",
+            "code": "CE-ENE",
+            "name": "Ennemor Ener"
+          },
+          {
+            "id": "wor-ce-ezha",
+            "code": "CE-EZH",
+            "name": "Ezha Woreda"
+          },
+          {
+            "id": "wor-ce-gumer",
+            "code": "CE-GMR",
+            "name": "Gumer Woreda"
+          },
+          {
+            "id": "wor-ce-geta",
+            "code": "CE-GET",
+            "name": "Geta Woreda"
+          },
+          {
+            "id": "wor-ce-abeshge",
+            "code": "CE-ABS",
+            "name": "Abeshge Woreda"
+          },
+          {
+            "id": "wor-ce-kebena",
+            "code": "CE-KEB",
+            "name": "Kebena Woreda"
+          },
+          {
+            "id": "wor-ce-mareko",
+            "code": "CE-MRK",
+            "name": "Mareko Woreda"
+          },
+          {
+            "id": "wor-ce-meskan",
+            "code": "CE-MSK",
+            "name": "Meskan Woreda"
+          },
+          {
+            "id": "wor-ce-sodo-gur",
+            "code": "CE-SDG",
+            "name": "Sodo Gurage"
+          },
+          {
+            "id": "wor-ce-mihur-a",
+            "code": "CE-MHA",
+            "name": "Mihur Aklil"
+          },
+          {
+            "id": "wor-ce-endegagn",
+            "code": "CE-EDG",
+            "name": "Endegagn Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-ce-silte",
+        "code": "CE-SIL",
+        "name": "Silte Zone",
+        "woredas": [
+          {
+            "id": "wor-ce-werabe-c",
+            "code": "CE-WRC",
+            "name": "Werabe City"
+          },
+          {
+            "id": "wor-ce-dalocha",
+            "code": "CE-DAL",
+            "name": "Dalocha Woreda"
+          },
+          {
+            "id": "wor-ce-sankurra",
+            "code": "CE-SAN",
+            "name": "Sankurra Woreda"
+          },
+          {
+            "id": "wor-ce-lanfro",
+            "code": "CE-LAN",
+            "name": "Lanfro Woreda"
+          },
+          {
+            "id": "wor-ce-hulbareg",
+            "code": "CE-HUL",
+            "name": "Hulbareg Woreda"
+          },
+          {
+            "id": "wor-ce-alicho-w",
+            "code": "CE-ALW",
+            "name": "Alicho Weriro"
+          },
+          {
+            "id": "wor-ce-silti",
+            "code": "CE-SLT",
+            "name": "Silti Woreda"
+          },
+          {
+            "id": "wor-ce-mito",
+            "code": "CE-MIT",
+            "name": "Mito Woreda"
+          },
+          {
+            "id": "wor-ce-m-azernet",
+            "code": "CE-MAZ",
+            "name": "Mirab Azernet Berbere"
+          },
+          {
+            "id": "wor-ce-e-azernet",
+            "code": "CE-EAZ",
+            "name": "Misraq Azernet Berbere"
+          }
+        ]
+      },
+      {
+        "id": "zone-ce-halaba",
+        "code": "CE-HAL",
+        "name": "Halaba Zone",
+        "woredas": [
+          {
+            "id": "wor-ce-halaba-kulito",
+            "code": "CE-HKL",
+            "name": "Halaba Kulito City"
+          },
+          {
+            "id": "wor-ce-atote-ulo",
+            "code": "CE-ATU",
+            "name": "Atote Ulo Woreda"
+          },
+          {
+            "id": "wor-ce-wera-diko",
+            "code": "CE-WRD",
+            "name": "Wera Diko Woreda"
+          },
+          {
+            "id": "wor-ce-wera-lenda",
+            "code": "CE-WRL",
+            "name": "Wera Lenda Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-ce-hadiya",
+        "code": "CE-HAD",
+        "name": "Hadiya Zone",
+        "woredas": [
+          {
+            "id": "wor-ce-hosanna-c",
+            "code": "CE-HSC",
+            "name": "Hosanna City"
+          },
+          {
+            "id": "wor-ce-lemo",
+            "code": "CE-LEM",
+            "name": "Lemo Woreda"
+          },
+          {
+            "id": "wor-ce-misha",
+            "code": "CE-MSH",
+            "name": "Misha Woreda"
+          },
+          {
+            "id": "wor-ce-shashogo",
+            "code": "CE-SHS",
+            "name": "Shashogo Woreda"
+          },
+          {
+            "id": "wor-ce-duna",
+            "code": "CE-DUN",
+            "name": "Duna Woreda"
+          },
+          {
+            "id": "wor-ce-soro",
+            "code": "CE-SOR",
+            "name": "Soro Woreda"
+          },
+          {
+            "id": "wor-ce-gibe",
+            "code": "CE-GIB",
+            "name": "Gibe Woreda"
+          },
+          {
+            "id": "wor-ce-anlemo",
+            "code": "CE-ANL",
+            "name": "Anlemo Woreda"
+          },
+          {
+            "id": "wor-ce-m-badawacho",
+            "code": "CE-MBD",
+            "name": "Mirab Badawacho"
+          },
+          {
+            "id": "wor-ce-e-badawacho",
+            "code": "CE-EBD",
+            "name": "Misraq Badawacho"
+          },
+          {
+            "id": "wor-ce-siraro-ce",
+            "code": "CE-SRR",
+            "name": "Siraro Hadiya"
+          }
+        ]
+      },
+      {
+        "id": "zone-ce-kembata",
+        "code": "CE-KEM",
+        "name": "Kembata Zone",
+        "woredas": [
+          {
+            "id": "wor-ce-durame-c",
+            "code": "CE-DRC",
+            "name": "Durame City"
+          },
+          {
+            "id": "wor-ce-damboya",
+            "code": "CE-DMB",
+            "name": "Damboya Woreda"
+          },
+          {
+            "id": "wor-ce-angecha",
+            "code": "CE-ANG",
+            "name": "Angecha Woreda"
+          },
+          {
+            "id": "wor-ce-kacha-bira",
+            "code": "CE-KCB",
+            "name": "Kacha Bira"
+          },
+          {
+            "id": "wor-ce-hadero-t",
+            "code": "CE-HDT",
+            "name": "Hadero Tunto"
+          },
+          {
+            "id": "wor-ce-tembaro",
+            "code": "CE-TMB",
+            "name": "Tembaro Special Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-ce-yem",
+        "code": "CE-YEM",
+        "name": "Yem Zone",
+        "woredas": [
+          {
+            "id": "wor-ce-saja-c",
+            "code": "CE-SJC",
+            "name": "Saja City"
+          },
+          {
+            "id": "wor-ce-fofa",
+            "code": "CE-FOF",
+            "name": "Fofa Town"
+          },
+          {
+            "id": "wor-ce-yem-special",
+            "code": "CE-YMS",
+            "name": "Yem Special Woreda"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "reg-south-ethiopia",
+    "code": "SE",
+    "name": "South Ethiopia",
+    "type": "region",
+    "zones": [
+      {
+        "id": "zone-se-wolayita",
+        "code": "SE-WOL",
+        "name": "Wolayita Zone",
+        "woredas": [
+          {
+            "id": "wor-se-sodo-c",
+            "code": "SE-SDC",
+            "name": "Wolayita Sodo City"
+          },
+          {
+            "id": "wor-se-sodo-z",
+            "code": "SE-SDZ",
+            "name": "Sodo Zuria"
+          },
+          {
+            "id": "wor-se-areka-c",
+            "code": "SE-ARC",
+            "name": "Areka City"
+          },
+          {
+            "id": "wor-se-damot-gale",
+            "code": "SE-DMG",
+            "name": "Damot Gale"
+          },
+          {
+            "id": "wor-se-damot-weyde",
+            "code": "SE-DMW",
+            "name": "Damot Weyde (Bedessa)"
+          },
+          {
+            "id": "wor-se-damot-sore",
+            "code": "SE-DMS",
+            "name": "Damot Sore"
+          },
+          {
+            "id": "wor-se-boloso-sore",
+            "code": "SE-BLS",
+            "name": "Boloso Sore"
+          },
+          {
+            "id": "wor-se-boloso-bombe",
+            "code": "SE-BLB",
+            "name": "Boloso Bombe"
+          },
+          {
+            "id": "wor-se-humbo",
+            "code": "SE-HMB",
+            "name": "Humbo (Tebela)"
+          },
+          {
+            "id": "wor-se-kindo-k",
+            "code": "SE-KDK",
+            "name": "Kindo Koysha"
+          },
+          {
+            "id": "wor-se-kindo-d",
+            "code": "SE-KDD",
+            "name": "Kindo Didaye"
+          },
+          {
+            "id": "wor-se-ofa",
+            "code": "SE-OFA",
+            "name": "Ofa Woreda"
+          },
+          {
+            "id": "wor-se-duguna-f",
+            "code": "SE-DGF",
+            "name": "Duguna Fango"
+          },
+          {
+            "id": "wor-se-bayra-k",
+            "code": "SE-BYK",
+            "name": "Bayra Koysha"
+          },
+          {
+            "id": "wor-se-hobicha",
+            "code": "SE-HBC",
+            "name": "Hobicha Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-se-gamo",
+        "code": "SE-GAM",
+        "name": "Gamo Zone",
+        "woredas": [
+          {
+            "id": "wor-se-arba-minch-c",
+            "code": "SE-AMC",
+            "name": "Arba Minch City"
+          },
+          {
+            "id": "wor-se-arba-minch-z",
+            "code": "SE-AMZ",
+            "name": "Arba Minch Zuria"
+          },
+          {
+            "id": "wor-se-chencha",
+            "code": "SE-CHC",
+            "name": "Chencha Woreda"
+          },
+          {
+            "id": "wor-se-dita",
+            "code": "SE-DIT",
+            "name": "Dita Woreda"
+          },
+          {
+            "id": "wor-se-bonke",
+            "code": "SE-BNK",
+            "name": "Bonke Woreda"
+          },
+          {
+            "id": "wor-se-boreda",
+            "code": "SE-BRD",
+            "name": "Boreda Woreda"
+          },
+          {
+            "id": "wor-se-kamba",
+            "code": "SE-KMB",
+            "name": "Kamba Woreda"
+          },
+          {
+            "id": "wor-se-mirab-abaya",
+            "code": "SE-MRA",
+            "name": "Mirab Abaya"
+          },
+          {
+            "id": "wor-se-deramalo",
+            "code": "SE-DRM",
+            "name": "Deramalo Woreda"
+          },
+          {
+            "id": "wor-se-gerese",
+            "code": "SE-GRS",
+            "name": "Gerese Woreda"
+          },
+          {
+            "id": "wor-se-zala-gam",
+            "code": "SE-ZLG",
+            "name": "Zala Gamo"
+          }
+        ]
+      },
+      {
+        "id": "zone-se-gofa",
+        "code": "SE-GOF",
+        "name": "Gofa Zone",
+        "woredas": [
+          {
+            "id": "wor-se-sawla-c",
+            "code": "SE-SWC",
+            "name": "Sawla City"
+          },
+          {
+            "id": "wor-se-demba-gofa",
+            "code": "SE-DBG",
+            "name": "Demba Gofa"
+          },
+          {
+            "id": "wor-se-zala-gof",
+            "code": "SE-ZLF",
+            "name": "Zala Gofa"
+          },
+          {
+            "id": "wor-se-uba-d",
+            "code": "SE-UBD",
+            "name": "Uba Debretsehay"
+          },
+          {
+            "id": "wor-se-oyda",
+            "code": "SE-OYD",
+            "name": "Oyda Woreda"
+          },
+          {
+            "id": "wor-se-geze-gofa",
+            "code": "SE-GZG",
+            "name": "Geze Gofa"
+          },
+          {
+            "id": "wor-se-melekoza",
+            "code": "SE-MLK",
+            "name": "Melekoza Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-se-south-omo",
+        "code": "SE-SOM",
+        "name": "South Omo Zone",
+        "woredas": [
+          {
+            "id": "wor-se-jinka-c",
+            "code": "SE-JKC",
+            "name": "Jinka City"
+          },
+          {
+            "id": "wor-se-bako-gazer",
+            "code": "SE-BKG",
+            "name": "Bako Gazer"
+          },
+          {
+            "id": "wor-se-hamer",
+            "code": "SE-HMR",
+            "name": "Hamer (Dimeka)"
+          },
+          {
+            "id": "wor-se-bena-t",
+            "code": "SE-BNT",
+            "name": "Bena Tsemay (Key Afer)"
+          },
+          {
+            "id": "wor-se-dasenech",
+            "code": "SE-DSN",
+            "name": "Dasenech (Omorate)"
+          },
+          {
+            "id": "wor-se-gnangatom",
+            "code": "SE-GNG",
+            "name": "Gnangatom (Kangaten)"
+          },
+          {
+            "id": "wor-se-salamago",
+            "code": "SE-SLM",
+            "name": "Salamago (Hana)"
+          },
+          {
+            "id": "wor-se-male",
+            "code": "SE-MAL",
+            "name": "Male Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-se-konso",
+        "code": "SE-KON",
+        "name": "Konso Zone",
+        "woredas": [
+          {
+            "id": "wor-se-karat-c",
+            "code": "SE-KRC",
+            "name": "Karat City"
+          },
+          {
+            "id": "wor-se-karat-z",
+            "code": "SE-KRZ",
+            "name": "Karat Zuria"
+          },
+          {
+            "id": "wor-se-kena",
+            "code": "SE-KEN",
+            "name": "Kena Woreda"
+          },
+          {
+            "id": "wor-se-segen-z",
+            "code": "SE-SGZ",
+            "name": "Segen Zuria"
+          }
+        ]
+      },
+      {
+        "id": "zone-se-basketo",
+        "code": "SE-BAS",
+        "name": "Basketo Zone",
+        "woredas": [
+          {
+            "id": "wor-se-laska-c",
+            "code": "SE-LKC",
+            "name": "Laska City"
+          },
+          {
+            "id": "wor-se-basketo-sp",
+            "code": "SE-BSP",
+            "name": "Basketo Special Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-se-alle",
+        "code": "SE-ALL",
+        "name": "Alle Zone",
+        "woredas": [
+          {
+            "id": "wor-se-kolme-c",
+            "code": "SE-KLC",
+            "name": "Kolme City"
+          },
+          {
+            "id": "wor-se-alle-sp",
+            "code": "SE-ALP",
+            "name": "Alle Special Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-se-derashe",
+        "code": "SE-DER",
+        "name": "Derashe Zone",
+        "woredas": [
+          {
+            "id": "wor-se-gidole-c",
+            "code": "SE-GDC",
+            "name": "Gidole City"
+          },
+          {
+            "id": "wor-se-derashe-sp",
+            "code": "SE-DRP",
+            "name": "Derashe Special Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-se-burji",
+        "code": "SE-BUR",
+        "name": "Burji Zone",
+        "woredas": [
+          {
+            "id": "wor-se-soyama-c",
+            "code": "SE-SYC",
+            "name": "Soyama City"
+          },
+          {
+            "id": "wor-se-burji-sp",
+            "code": "SE-BRP",
+            "name": "Burji Special Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-se-amaro",
+        "code": "SE-AMA",
+        "name": "Amaro Zone",
+        "woredas": [
+          {
+            "id": "wor-se-kelle-c",
+            "code": "SE-KEC",
+            "name": "Kelle City"
+          },
+          {
+            "id": "wor-se-amaro-sp",
+            "code": "SE-AMP",
+            "name": "Amaro Special Woreda"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "reg-south-west",
+    "code": "SWE",
+    "name": "South West Ethiopia Peoples",
+    "type": "region",
+    "zones": [
+      {
+        "id": "zone-swe-keffa",
+        "code": "SWE-KEF",
+        "name": "Keffa Zone",
+        "woredas": [
+          {
+            "id": "wor-swe-bonga-c",
+            "code": "SWE-BGC",
+            "name": "Bonga City"
+          },
+          {
+            "id": "wor-swe-gimbo",
+            "code": "SWE-GMB",
+            "name": "Gimbo Woreda"
+          },
+          {
+            "id": "wor-swe-decha",
+            "code": "SWE-DCH",
+            "name": "Decha Woreda"
+          },
+          {
+            "id": "wor-swe-chena",
+            "code": "SWE-CHN",
+            "name": "Chena Woreda"
+          },
+          {
+            "id": "wor-swe-chetta",
+            "code": "SWE-CHT",
+            "name": "Chetta Woreda"
+          },
+          {
+            "id": "wor-swe-menjiwo",
+            "code": "SWE-MNJ",
+            "name": "Menjiwo Woreda"
+          },
+          {
+            "id": "wor-swe-saylem",
+            "code": "SWE-SYL",
+            "name": "Saylem Woreda"
+          },
+          {
+            "id": "wor-swe-gesha",
+            "code": "SWE-GSH",
+            "name": "Gesha Woreda"
+          },
+          {
+            "id": "wor-swe-bita",
+            "code": "SWE-BIT",
+            "name": "Bita Woreda"
+          },
+          {
+            "id": "wor-swe-gewata",
+            "code": "SWE-GWT",
+            "name": "Gewata Woreda"
+          },
+          {
+            "id": "wor-swe-shisho-e",
+            "code": "SWE-SHE",
+            "name": "Shisho Ende"
+          },
+          {
+            "id": "wor-swe-adiyo",
+            "code": "SWE-ADI",
+            "name": "Adiyo Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-swe-sheka",
+        "code": "SWE-SHK",
+        "name": "Sheka Zone",
+        "woredas": [
+          {
+            "id": "wor-swe-masha-c",
+            "code": "SWE-MSC",
+            "name": "Masha City"
+          },
+          {
+            "id": "wor-swe-masha-r",
+            "code": "SWE-MSR",
+            "name": "Masha Rural"
+          },
+          {
+            "id": "wor-swe-teppi-c",
+            "code": "SWE-TPC",
+            "name": "Teppi City"
+          },
+          {
+            "id": "wor-swe-yeki",
+            "code": "SWE-YEK",
+            "name": "Yeki Woreda"
+          },
+          {
+            "id": "wor-swe-anderacha",
+            "code": "SWE-AND",
+            "name": "Anderacha Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-swe-bench",
+        "code": "SWE-BEN",
+        "name": "Bench Sheko Zone",
+        "woredas": [
+          {
+            "id": "wor-swe-mizan-c",
+            "code": "SWE-MZC",
+            "name": "Mizan Teferi City"
+          },
+          {
+            "id": "wor-swe-semen-b",
+            "code": "SWE-SMB",
+            "name": "Semen Bench"
+          },
+          {
+            "id": "wor-swe-debub-b",
+            "code": "SWE-DBB",
+            "name": "Debub Bench"
+          },
+          {
+            "id": "wor-swe-guraferda",
+            "code": "SWE-GRF",
+            "name": "Guraferda Woreda"
+          },
+          {
+            "id": "wor-swe-sheko",
+            "code": "SWE-SHK2",
+            "name": "Sheko Woreda"
+          },
+          {
+            "id": "wor-swe-shay-b",
+            "code": "SWE-SHB",
+            "name": "Shay Bench"
+          }
+        ]
+      },
+      {
+        "id": "zone-swe-dawro",
+        "code": "SWE-DAW",
+        "name": "Dawro Zone",
+        "woredas": [
+          {
+            "id": "wor-swe-tarcha-c",
+            "code": "SWE-TRC",
+            "name": "Tarcha City"
+          },
+          {
+            "id": "wor-swe-tarcha-z",
+            "code": "SWE-TRZ",
+            "name": "Tarcha Zuria"
+          },
+          {
+            "id": "wor-swe-mareka",
+            "code": "SWE-MRK",
+            "name": "Mareka Woreda"
+          },
+          {
+            "id": "wor-swe-loma",
+            "code": "SWE-LOM",
+            "name": "Loma Woreda"
+          },
+          {
+            "id": "wor-swe-isara",
+            "code": "SWE-ISR",
+            "name": "Isara Woreda"
+          },
+          {
+            "id": "wor-swe-tocha",
+            "code": "SWE-TCH",
+            "name": "Tocha Woreda"
+          },
+          {
+            "id": "wor-swe-gena-bosa",
+            "code": "SWE-GNB",
+            "name": "Gena Bosa"
+          },
+          {
+            "id": "wor-swe-disa",
+            "code": "SWE-DIS",
+            "name": "Disa Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-swe-west-omo",
+        "code": "SWE-WOM",
+        "name": "West Omo Zone",
+        "woredas": [
+          {
+            "id": "wor-swe-maji",
+            "code": "SWE-MAJ",
+            "name": "Maji Woreda"
+          },
+          {
+            "id": "wor-swe-surma",
+            "code": "SWE-SUR",
+            "name": "Surma Woreda"
+          },
+          {
+            "id": "wor-swe-bero",
+            "code": "SWE-BER",
+            "name": "Bero Woreda"
+          },
+          {
+            "id": "wor-swe-meinit-s",
+            "code": "SWE-MNS",
+            "name": "Meinit Shasha"
+          },
+          {
+            "id": "wor-swe-meinit-g",
+            "code": "SWE-MNG",
+            "name": "Meinit Goldiya"
+          }
+        ]
+      },
+      {
+        "id": "zone-swe-konta",
+        "code": "SWE-KON",
+        "name": "Konta Zone",
+        "woredas": [
+          {
+            "id": "wor-swe-ameya-c",
+            "code": "SWE-AMC",
+            "name": "Ameya City"
+          },
+          {
+            "id": "wor-swe-konta-sp",
+            "code": "SWE-KNP",
+            "name": "Konta Special Woreda"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "reg-benishangul",
+    "code": "BG",
+    "name": "Benishangul-Gumuz",
+    "type": "region",
+    "zones": [
+      {
+        "id": "zone-bg-assosa",
+        "code": "BG-ASO",
+        "name": "Assosa Zone",
+        "woredas": [
+          {
+            "id": "wor-bg-assosa-c",
+            "code": "BG-ASC",
+            "name": "Assosa City"
+          },
+          {
+            "id": "wor-bg-assosa-r",
+            "code": "BG-ASR",
+            "name": "Assosa Rural"
+          },
+          {
+            "id": "wor-bg-bambasi",
+            "code": "BG-BAM",
+            "name": "Bambasi Woreda"
+          },
+          {
+            "id": "wor-bg-kormuk",
+            "code": "BG-KOR",
+            "name": "Kormuk Woreda"
+          },
+          {
+            "id": "wor-bg-homesha",
+            "code": "BG-HOM",
+            "name": "Homesha Woreda"
+          },
+          {
+            "id": "wor-bg-menge",
+            "code": "BG-MNG",
+            "name": "Menge Woreda"
+          },
+          {
+            "id": "wor-bg-oda-b",
+            "code": "BG-ODB",
+            "name": "Oda Buldigilu"
+          },
+          {
+            "id": "wor-bg-sherkole",
+            "code": "BG-SHR",
+            "name": "Sherkole Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-bg-metekel",
+        "code": "BG-MET",
+        "name": "Metekel Zone",
+        "woredas": [
+          {
+            "id": "wor-bg-gilgel-beles",
+            "code": "BG-GLB",
+            "name": "Gilgel Beles City"
+          },
+          {
+            "id": "wor-bg-pawe",
+            "code": "BG-PAW",
+            "name": "Pawe Special Woreda"
+          },
+          {
+            "id": "wor-bg-dangur",
+            "code": "BG-DAN",
+            "name": "Dangur (Manbuk)"
+          },
+          {
+            "id": "wor-bg-dibate",
+            "code": "BG-DIB",
+            "name": "Dibate Woreda"
+          },
+          {
+            "id": "wor-bg-guba",
+            "code": "BG-GUB",
+            "name": "Guba (Mankush)"
+          },
+          {
+            "id": "wor-bg-mandura",
+            "code": "BG-MND",
+            "name": "Mandura Woreda"
+          },
+          {
+            "id": "wor-bg-wenbera",
+            "code": "BG-WNB",
+            "name": "Wenbera Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-bg-kamashi",
+        "code": "BG-KAM",
+        "name": "Kamashi Zone",
+        "woredas": [
+          {
+            "id": "wor-bg-kamashi",
+            "code": "BG-KMS",
+            "name": "Kamashi Woreda"
+          },
+          {
+            "id": "wor-bg-agalo-m",
+            "code": "BG-AGM",
+            "name": "Agalo Mite"
+          },
+          {
+            "id": "wor-bg-belo-j",
+            "code": "BG-BLJ",
+            "name": "Belo Jegonfoy"
+          },
+          {
+            "id": "wor-bg-sedal",
+            "code": "BG-SED",
+            "name": "Sedal Woreda"
+          },
+          {
+            "id": "wor-bg-yaso",
+            "code": "BG-YAS",
+            "name": "Yaso Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-bg-mao-komo",
+        "code": "BG-MAO",
+        "name": "Mao-Komo Special Zone",
+        "woredas": [
+          {
+            "id": "wor-bg-tongo-c",
+            "code": "BG-TNG",
+            "name": "Tongo City"
+          },
+          {
+            "id": "wor-bg-mao-komo-sp",
+            "code": "BG-MKP",
+            "name": "Mao-Komo Special Woreda"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "reg-gambela",
+    "code": "GM",
+    "name": "Gambela",
+    "type": "region",
+    "zones": [
+      {
+        "id": "zone-gm-anuak",
+        "code": "GM-ANU",
+        "name": "Anuak Zone",
+        "woredas": [
+          {
+            "id": "wor-gm-gambela-c",
+            "code": "GM-GMC",
+            "name": "Gambela City"
+          },
+          {
+            "id": "wor-gm-gambela-z",
+            "code": "GM-GMZ",
+            "name": "Gambela Zuria"
+          },
+          {
+            "id": "wor-gm-abobo",
+            "code": "GM-ABO",
+            "name": "Abobo Woreda"
+          },
+          {
+            "id": "wor-gm-gog",
+            "code": "GM-GOG",
+            "name": "Gog Woreda"
+          },
+          {
+            "id": "wor-gm-jor",
+            "code": "GM-JOR",
+            "name": "Jor Woreda"
+          },
+          {
+            "id": "wor-gm-dimma",
+            "code": "GM-DIM",
+            "name": "Dimma Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-gm-nuer",
+        "code": "GM-NUE",
+        "name": "Nuer Zone",
+        "woredas": [
+          {
+            "id": "wor-gm-lare",
+            "code": "GM-LAR",
+            "name": "Lare Woreda"
+          },
+          {
+            "id": "wor-gm-jikawo",
+            "code": "GM-JIK",
+            "name": "Jikawo Woreda"
+          },
+          {
+            "id": "wor-gm-akobo",
+            "code": "GM-AKB",
+            "name": "Akobo Woreda"
+          },
+          {
+            "id": "wor-gm-wantuwo",
+            "code": "GM-WAN",
+            "name": "Wantuwo Woreda"
+          },
+          {
+            "id": "wor-gm-makuey",
+            "code": "GM-MAK",
+            "name": "Makuey Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-gm-majang",
+        "code": "GM-MAJ",
+        "name": "Majang Zone",
+        "woredas": [
+          {
+            "id": "wor-gm-metti-c",
+            "code": "GM-MTC",
+            "name": "Metti City"
+          },
+          {
+            "id": "wor-gm-godere",
+            "code": "GM-GDR",
+            "name": "Godere Woreda"
+          },
+          {
+            "id": "wor-gm-mengesh",
+            "code": "GM-MNG",
+            "name": "Mengesh Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-gm-itang",
+        "code": "GM-ITG",
+        "name": "Itang Special Zone",
+        "woredas": [
+          {
+            "id": "wor-gm-itang-c",
+            "code": "GM-ITC",
+            "name": "Itang Town"
+          },
+          {
+            "id": "wor-gm-itang-r",
+            "code": "GM-ITR",
+            "name": "Itang Rural Woreda"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "reg-harari",
+    "code": "HA",
+    "name": "Harari",
+    "type": "region",
+    "zones": [
+      {
+        "id": "zone-ha-urban",
+        "code": "HA-URB",
+        "name": "Harari Urban Administration",
+        "woredas": [
+          {
+            "id": "wor-ha-jugol",
+            "code": "HA-JUG",
+            "name": "Jugol Woreda (Old Walled City)"
+          },
+          {
+            "id": "wor-ha-aboker",
+            "code": "HA-ABO",
+            "name": "Aboker Woreda"
+          },
+          {
+            "id": "wor-ha-shenkor",
+            "code": "HA-SHE",
+            "name": "Shenkor Woreda"
+          },
+          {
+            "id": "wor-ha-amir-nur",
+            "code": "HA-AMN",
+            "name": "Amir Nur Woreda"
+          },
+          {
+            "id": "wor-ha-jin-eala",
+            "code": "HA-JIN",
+            "name": "Jin'Eala Woreda"
+          },
+          {
+            "id": "wor-ha-hakim",
+            "code": "HA-HAK",
+            "name": "Hakim Woreda"
+          }
+        ]
+      },
+      {
+        "id": "zone-ha-rural",
+        "code": "HA-RUR",
+        "name": "Harari Rural Administration",
+        "woredas": [
+          {
+            "id": "wor-ha-sofi",
+            "code": "HA-SOF",
+            "name": "Sofi Woreda"
+          },
+          {
+            "id": "wor-ha-erere",
+            "code": "HA-ERE",
+            "name": "Erere Woreda"
+          },
+          {
+            "id": "wor-ha-dire-t",
+            "code": "HA-DRT",
+            "name": "Dire Teyara Woreda"
+          }
+        ]
+      }
+    ]
+  }
+]

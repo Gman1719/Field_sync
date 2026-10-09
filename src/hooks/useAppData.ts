@@ -16,6 +16,8 @@ import {
 import { getToday, uid } from '../utils/helpers';
 import { API_BASE } from '../config/api';
 import { offlineDb } from '../db/offlineDb';
+import syncEngine from '../services/unifiedSyncEngine';
+import { ensureOfflineLocationsSeeded } from '../services/locationData';
 
 export function useAppData(user: any) {
   const [reports, setReports] = useState<any[]>([]);
@@ -123,6 +125,7 @@ export function useAppData(user: any) {
     setSyncing(true);
     try {
       await processSyncQueue(true);
+      await syncEngine.syncAll(true).catch(() => {});
 
       const [
         updatedReports,
@@ -162,23 +165,9 @@ export function useAppData(user: any) {
         await initializeAllData();
         (window as any).db = db;
 
-        // Pre-load and cache Ethiopian Location Hierarchy from backend if needed
+        // Pre-load and cache Ethiopian Location Hierarchy (with offline dataset fallback)
         try {
-          const regionCount = await offlineDb.regions.count();
-          if (regionCount === 0 && navigator.onLine) {
-            const bundleRes = await fetch(`${API_BASE}/locations/bundle`);
-            if (bundleRes.ok) {
-              const bundleData = await bundleRes.json();
-              if (bundleData.success && bundleData.data) {
-                await Promise.all([
-                  offlineDb.regions.bulkPut(bundleData.data.regions),
-                  offlineDb.zones.bulkPut(bundleData.data.zones),
-                  offlineDb.woredas.bulkPut(bundleData.data.woredas),
-                  offlineDb.kebeles.bulkPut(bundleData.data.kebeles),
-                ]);
-              }
-            }
-          }
+          await ensureOfflineLocationsSeeded();
         } catch (_locErr) {
           console.warn('Could not preload location hierarchy:', _locErr);
         }

@@ -5,6 +5,7 @@ import { Router, Request, Response } from 'express';
 import prisma from '../config/db.js';
 import { authenticate } from '../middleware/auth.middleware.js';
 import { Role, SyncStatus, DuplicateReviewStatus, Gender, NotificationPriority } from '@prisma/client';
+import { ensureGeographicHierarchy } from '../utils/geoHelper.js';
 import {
   createNotification,
   notifyOfficer,
@@ -96,6 +97,17 @@ router.post('/batch', authenticate, async (req: Request, res: Response): Promise
         }
 
         const validGender = Object.values(Gender).includes(c.gender) ? (c.gender as Gender) : Gender.OTHER;
+
+        await ensureGeographicHierarchy({
+          regionId: c.regionId,
+          regionName: c.regionName || c.region,
+          zoneId: c.zoneId,
+          zoneName: c.zoneName || c.zone,
+          woredaId: c.woredaId,
+          woredaName: c.woredaName || c.woreda,
+          kebeleId: c.kebeleId,
+          kebeleName: c.kebeleName || c.kebele,
+        });
 
         // Upsert citizen record by stable clientRecordId
         const savedCitizen = await prisma.citizen.upsert({

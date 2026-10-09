@@ -1,6 +1,10 @@
 // server/src/server.ts
 // FieldSync Server Entrypoint
 
+import dns from 'node:dns';
+if (dns.setDefaultResultOrder) {
+  dns.setDefaultResultOrder('ipv4first');
+}
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';

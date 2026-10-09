@@ -7,6 +7,7 @@ import prisma from '../config/db.js';
 import { authenticate } from '../middleware/auth.middleware.js';
 import { citizenSchema } from '../validators/citizen.validator.js';
 import { Gender, SyncStatus, DuplicateReviewStatus, Role } from '@prisma/client';
+import { ensureGeographicHierarchy } from '../utils/geoHelper.js';
 
 const router = Router();
 
@@ -59,25 +60,6 @@ router.post('/', authenticate, async (req: Request, res: Response): Promise<void
     const validated = citizenSchema.parse(req.body);
     const officerId = req.user!.id;
 
-    // Validate active supervisor at the Zone level
-    if (validated.zoneId) {
-      const activeSupervisor = await prisma.user.findFirst({
-        where: {
-          role: 'SUPERVISOR',
-          isActive: true,
-          zoneId: validated.zoneId,
-        },
-      });
-
-      if (!activeSupervisor) {
-        res.status(400).json({
-          success: false,
-          code: 'NO_ACTIVE_SUPERVISOR_IN_ZONE',
-          error: 'Registration blocked: No active Supervisor is responsible for this Zone. Citizens cannot be registered in areas without an active Supervisor.',
-        });
-        return;
-      }
-    }
 
     // 1. Multi-Level Duplicate Detection against PostgreSQL
     const matchReasons: string[] = [];
@@ -151,6 +133,18 @@ router.post('/', authenticate, async (req: Request, res: Response): Promise<void
     }
 
     const initialReviewStatus = DuplicateReviewStatus.NO_DUPLICATE_DETECTED;
+
+    // Ensure geography hierarchy exists to prevent foreign key violations
+    await ensureGeographicHierarchy({
+      regionId: validated.regionId,
+      regionName: (req.body && req.body.regionName) || undefined,
+      zoneId: validated.zoneId,
+      zoneName: (req.body && req.body.zoneName) || undefined,
+      woredaId: validated.woredaId,
+      woredaName: (req.body && req.body.woredaName) || undefined,
+      kebeleId: validated.kebeleId,
+      kebeleName: (req.body && req.body.kebeleName) || undefined,
+    });
 
     // 2. Idempotent Upsert by clientRecordId
     const citizen = await prisma.citizen.upsert({

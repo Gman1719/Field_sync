@@ -20,6 +20,7 @@ import ForceChangePassword from './components/auth/ForceChangePassword';
 import VerificationPopup from './components/verification/VerificationPopup';
 import ForceSessionModal from './components/sessions/ForceSessionModal';
 import MainLayout from './components/layout/MainLayout';
+import syncEngine from './services/unifiedSyncEngine';
 
 function AppContent() {
   const [authView, setAuthView] = React.useState('landing'); // 'landing' | 'login'
@@ -62,6 +63,13 @@ function AppContent() {
     logout,
     handleSetNewPassword
   } = useAuth();
+
+  // Auto-sync pending records when user is logged in and online
+  React.useEffect(() => {
+    if (user && typeof navigator !== 'undefined' && navigator.onLine) {
+      syncEngine.syncAll(true).catch(() => {});
+    }
+  }, [user]);
 
   const appData = useAppData(user);
   const screenTimeInfo = useScreenTime(user);

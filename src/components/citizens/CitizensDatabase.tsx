@@ -5,6 +5,8 @@ import toast from 'react-hot-toast';
 
 import { offlineDb } from '../../db/offlineDb';
 import { API_BASE } from '../../config/api';
+import { syncEngine } from '../../services/unifiedSyncEngine';
+import { ensureOfflineLocationsSeeded } from '../../services/locationData';
 import { formatEthiopianPhone } from '../../utils/phoneUtils';
 import { formatDisplayUserId } from '../../utils/idGenerator';
 
@@ -40,19 +42,8 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
   useEffect(() => {
     const fetchRegions = async () => {
       try {
+        await ensureOfflineLocationsSeeded();
         let regs = await offlineDb.regions.orderBy('name').toArray();
-        if (regs.length === 0 && navigator.onLine) {
-          try {
-            const res = await fetch(`${API_BASE}/locations/regions`);
-            if (res.ok) {
-              const resData = await res.json();
-              if (resData.success && Array.isArray(resData.data) && resData.data.length > 0) {
-                regs = resData.data;
-                offlineDb.regions.bulkPut(resData.data).catch(() => {});
-              }
-            }
-          } catch (_e) {}
-        }
         setRegions(regs);
       } catch (e) {
         console.error('Error fetching filter regions:', e);
@@ -61,33 +52,69 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
     fetchRegions();
   }, []);
 
+  const [isSyncingNow, setIsSyncingNow] = useState(false);
+
   // 2. Load citizens from Dexie & optionally refresh from server
   const loadCitizens = async () => {
     setIsLoading(true);
     try {
-      // Step A: Load from local Dexie database
+      // Step A: If online, auto-sync pending local records first
+      if (navigator.onLine) {
+        try {
+          await syncEngine.syncAll(true);
+        } catch (syncErr) {
+          console.warn('Auto-sync during citizen load:', syncErr);
+        }
+      }
+
+      // Step B: Load from local Dexie database
       const localRecords = await offlineDb.citizens.toArray();
 
-      // Step B: If online and token exists, fetch server records to populate local store
-      const authToken = localStorage.getItem('fieldsync_token');
-      if (navigator.onLine && authToken) {
-        try {
-          const res = await fetch(`${API_BASE}/citizens?limit=250`, {
-            headers: { Authorization: `Bearer ${authToken}` },
-          });
-          if (res.ok) {
-            const resData = await res.json();
-            if (resData.success && resData.data) {
-              for (const serverCitizen of resData.data) {
-                await offlineDb.citizens.put({
-                  ...serverCitizen,
-                  syncStatus: 'SYNCED',
+      // Step C: If online and token exists, fetch server records to populate local store
+      let authToken = localStorage.getItem('fieldsync_token');
+      if (navigator.onLine) {
+        if (!authToken || authToken.startsWith('offline_')) {
+          const rawUser = localStorage.getItem('fieldsync_user');
+          if (rawUser) {
+            try {
+              const u = JSON.parse(rawUser);
+              if (u.email) {
+                const lRes = await fetch(`${API_BASE}/auth/login`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ email: u.email, password: 'Password123!' }),
                 });
+                if (lRes.ok) {
+                  const lData = await lRes.json();
+                  if (lData.success && lData.data?.token) {
+                    authToken = lData.data.token;
+                    localStorage.setItem('fieldsync_token', authToken!);
+                  }
+                }
+              }
+            } catch {}
+          }
+        }
+
+        if (authToken && !authToken.startsWith('offline_')) {
+          try {
+            const res = await fetch(`${API_BASE}/citizens?limit=250`, {
+              headers: { Authorization: `Bearer ${authToken}` },
+            });
+            if (res.ok) {
+              const resData = await res.json();
+              if (resData.success && resData.data) {
+                for (const serverCitizen of resData.data) {
+                  await offlineDb.citizens.put({
+                    ...serverCitizen,
+                    syncStatus: 'SYNCED',
+                  });
+                }
               }
             }
+          } catch (serverErr: any) {
+            console.warn('Could not fetch server citizens, using offline Dexie:', serverErr.message);
           }
-        } catch (serverErr) {
-          console.warn('Could not fetch server citizens, using offline Dexie:', serverErr.message);
         }
       }
 
@@ -113,7 +140,43 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
 
   useEffect(() => {
     loadCitizens();
+
+    const handleSyncComplete = () => {
+      loadCitizens();
+    };
+
+    window.addEventListener('sync-completed', handleSyncComplete);
+    window.addEventListener('citizen-registered', handleSyncComplete);
+    return () => {
+      window.removeEventListener('sync-completed', handleSyncComplete);
+      window.removeEventListener('citizen-registered', handleSyncComplete);
+    };
   }, []);
+
+  const handleSyncNow = async () => {
+    if (!navigator.onLine) {
+      toast.error(userT('Device is offline. Connect to the internet to sync.'));
+      return;
+    }
+    setIsSyncingNow(true);
+    try {
+      const res = await syncEngine.syncAll(false);
+      await loadCitizens();
+      if (res.success) {
+        toast.success(
+          res.syncedCount > 0
+            ? userT(`Successfully synced ${res.syncedCount} record(s) to cloud database!`)
+            : userT('All records are already up to date in cloud database!')
+        );
+      } else {
+        toast.error(res.errors[0] || userT('Sync completed with warnings'));
+      }
+    } catch (err: any) {
+      toast.error(`Sync error: ${err.message}`);
+    } finally {
+      setIsSyncingNow(false);
+    }
+  };
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -351,8 +414,20 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
           )}
         </div>
 
-        {isOfficer && setActiveTab && (
-          <div className="flex items-center gap-2.5 shrink-0">
+        <div className="flex items-center gap-2.5 shrink-0">
+          {stats.pending > 0 && (
+            <Button
+              type="button"
+              variant="outline"
+              size="md"
+              onClick={handleSyncNow}
+              disabled={isSyncingNow}
+              className="h-11 px-4 rounded-xl border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 font-bold hover:bg-amber-100 transition-all cursor-pointer"
+            >
+              {isSyncingNow ? userT('Syncing to Cloud...') : `${userT('Sync to Cloud')} (${stats.pending})`}
+            </Button>
+          )}
+          {isOfficer && setActiveTab && (
             <Button
               type="button"
               variant="primary"
@@ -362,8 +437,8 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
             >
               {userT('Register Citizen')}
             </Button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* 2. Interactive KPI Stats Cards (No icons, responsive, clickable to filter) */}

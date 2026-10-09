@@ -5,6 +5,7 @@ import { MapPin, Building, Home, UserCheck, Loader2, AlertCircle } from 'lucide-
 import Select from '../ui/Select';
 import { API_BASE } from '../../config/api';
 import { offlineDb } from '../../db/offlineDb';
+import { ensureOfflineLocationsSeeded } from '../../services/locationData';
 import { db } from '../../services/database';
 import { useUserLanguage } from '../../context/UserLanguageContext';
 
@@ -132,6 +133,7 @@ export default function LocationDropdown({
     let isMounted = true;
     const fetchRegions = async () => {
       setLoadingRegions(true);
+      await ensureOfflineLocationsSeeded();
       try {
         if (navigator.onLine) {
           const res = await fetch(`${API_BASE}/locations/regions`);
