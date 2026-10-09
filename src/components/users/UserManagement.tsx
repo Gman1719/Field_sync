@@ -26,6 +26,7 @@ import UserDetailsModal from './UserDetailsModal';
 import UserEditModal from './UserEditModal';
 import UserReassignModal from './UserReassignModal';
 import UserRoleModal from './UserRoleModal';
+import UserPasswordResetModal from './UserPasswordResetModal';
 import { useUserLanguage } from '../../context/UserLanguageContext';
 
 export default function UserManagement({
@@ -40,6 +41,7 @@ export default function UserManagement({
   const [selectedUserEdit, setSelectedUserEdit] = useState(null);
   const [selectedUserReassign, setSelectedUserReassign] = useState(null);
   const [selectedUserRole, setSelectedUserRole] = useState(null);
+  const [selectedUserResetPassword, setSelectedUserResetPassword] = useState(null);
   const [tempPasswordModalData, setTempPasswordModalData] = useState(null);
 
   // Filters & Search
@@ -498,63 +500,8 @@ export default function UserManagement({
   };
 
   // 8. Handle Password Reset
-  const handleResetPassword = async (user) => {
-    const displayName = user.fullName || user.name || 'User';
-    const confirmResetPrompt = `${userT('Reset Password')} - ${displayName}?\n${userT('A new temporary password will be generated and required to change on next login.')}`;
-    if (!window.confirm(confirmResetPrompt)) {
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem('fieldsync_token');
-      const response = await fetch(`${API_BASE}/users/${user.id}/password-reset`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-      });
-
-      const resData = await response.json();
-      if (!response.ok || !resData.success) {
-        throw new Error(resData.error || 'Failed to reset password');
-      }
-
-      const tempPassword = resData.temporaryPassword || resData.data?.temporaryPassword;
-
-      // Update local state to require password change
-      const updated = { ...user, mustChangePassword: true };
-      await db.users.update(user.id, updated);
-      if (setUsers) {
-        setUsers(prev => prev.map(u => u.id === user.id ? updated : u));
-      }
-      if (selectedUserDetails && selectedUserDetails.id === user.id) {
-        setSelectedUserDetails(prev => ({ ...prev, mustChangePassword: true }));
-      }
-
-      toast.success(userT('Password reset successfully'));
-
-      // Log activity
-      try {
-        await ActivityLogger.log(
-          'USER_PASSWORD_RESET',
-          `Generated temporary password for ${displayName} (${user.email})`,
-          {
-            relatedRecordId: user.id,
-            metadata: { targetUserId: user.id, email: user.email },
-          }
-        );
-      } catch (_e) {}
-
-      setTempPasswordModalData({
-        userName: displayName,
-        userEmail: user.email,
-        tempPassword: tempPassword,
-      });
-    } catch (err: any) {
-      console.error('Reset error:', err);
-      toast.error(`${userT('Failed to reset password:')} ${err.message ? userT(err.message) : userT('Unknown error')}`);
-    }
+  const handleResetPassword = (user: any) => {
+    setSelectedUserResetPassword(user);
   };
 
   // 9. Callback when user is updated in Edit, Reassign, or Role modals
@@ -1340,7 +1287,11 @@ export default function UserManagement({
           handleToggleStatus(u);
         }}
         onResetPassword={(u) => {
-          handleResetPassword(u);
+          const target = u || selectedUserDetails;
+          setSelectedUserDetails(null);
+          setTimeout(() => {
+            setSelectedUserResetPassword(target);
+          }, 50);
         }}
         onUserUpdated={handleUserUpdated}
       />
@@ -1371,7 +1322,15 @@ export default function UserManagement({
         allUsers={users}
       />
 
-      {/* 10. Temporary Password Modal */}
+      {/* 10. Interactive User Password Reset Modal */}
+      <UserPasswordResetModal
+        user={selectedUserResetPassword}
+        isOpen={Boolean(selectedUserResetPassword)}
+        onClose={() => setSelectedUserResetPassword(null)}
+        onUserUpdated={handleUserUpdated}
+      />
+
+      {/* 11. Temporary Password Modal */}
       {tempPasswordModalData && (
         <TempPasswordModal
           userName={tempPasswordModalData.userName}

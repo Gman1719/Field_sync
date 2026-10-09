@@ -55,8 +55,10 @@ export default function UserEditModal({ user, isOpen, onClose, onUserUpdated }: 
     if (!formData.lastName.trim()) errs.lastName = userT('Grandfather name is required');
 
     if (formData.phone && formData.phone.trim()) {
-      const phoneErr = validateEthiopianPhone(formData.phone.trim(), false, userT('Enter 10 digits (09/07...) or +251'));
-      if (phoneErr) errs.phone = userT(phoneErr);
+      const phoneRes = validateEthiopianPhone(formData.phone.trim(), false, userT('Enter 10 digits (09/07...) or +251'));
+      if (phoneRes && !phoneRes.isValid) {
+        errs.phone = phoneRes.message || userT('Enter 10 digits (09/07...) or +251');
+      }
     }
 
     setErrors(errs);
@@ -86,9 +88,10 @@ export default function UserEditModal({ user, isOpen, onClose, onUserUpdated }: 
     };
 
     try {
-      const token = localStorage.getItem('fieldsync_token');
+      const token = localStorage.getItem('fieldsync_token') || localStorage.getItem('token');
       if (navigator.onLine && token) {
         try {
+          const cleanedPhone = formData.phone?.trim() ? formData.phone.trim().replace(/[\s\-\.\(\)]/g, '') : null;
           const putRes = await fetch(`${API_BASE}/users/${user.id}`, {
             method: 'PUT',
             headers: {
@@ -99,8 +102,8 @@ export default function UserEditModal({ user, isOpen, onClose, onUserUpdated }: 
               firstName: formData.firstName.trim(),
               middleName: formData.middleName.trim(),
               lastName: formData.lastName.trim(),
-              phoneNumber: formData.phone?.trim() || null,
-              phone: formData.phone?.trim() || null,
+              phoneNumber: cleanedPhone,
+              phone: cleanedPhone,
             }),
           });
 
@@ -219,7 +222,10 @@ export default function UserEditModal({ user, isOpen, onClose, onUserUpdated }: 
               <Input
                 label={userT('First Name (Given)')}
                 value={formData.firstName}
-                onChange={(e) => setFormData(p => ({ ...p, firstName: e.target.value }))}
+                onChange={(e) => {
+                  setFormData(p => ({ ...p, firstName: e.target.value }));
+                  if (errors.firstName) setErrors(p => ({ ...p, firstName: '' }));
+                }}
                 placeholder={userT('e.g. Aster')}
                 required
                 error={errors.firstName ? userT(errors.firstName) : undefined}
@@ -229,7 +235,10 @@ export default function UserEditModal({ user, isOpen, onClose, onUserUpdated }: 
               <Input
                 label={userT('Father Name (Middle)')}
                 value={formData.middleName}
-                onChange={(e) => setFormData(p => ({ ...p, middleName: e.target.value }))}
+                onChange={(e) => {
+                  setFormData(p => ({ ...p, middleName: e.target.value }));
+                  if (errors.middleName) setErrors(p => ({ ...p, middleName: '' }));
+                }}
                 placeholder={userT('e.g. Awoke')}
                 required
                 error={errors.middleName ? userT(errors.middleName) : undefined}
@@ -239,7 +248,10 @@ export default function UserEditModal({ user, isOpen, onClose, onUserUpdated }: 
               <Input
                 label={userT('Grandfather (Last)')}
                 value={formData.lastName}
-                onChange={(e) => setFormData(p => ({ ...p, lastName: e.target.value }))}
+                onChange={(e) => {
+                  setFormData(p => ({ ...p, lastName: e.target.value }));
+                  if (errors.lastName) setErrors(p => ({ ...p, lastName: '' }));
+                }}
                 placeholder={userT('e.g. Tesfu')}
                 required
                 error={errors.lastName ? userT(errors.lastName) : undefined}
@@ -278,7 +290,10 @@ export default function UserEditModal({ user, isOpen, onClose, onUserUpdated }: 
                 label={userT('Direct Phone Number')}
                 type="text"
                 value={formData.phone}
-                onChange={(e) => setFormData(p => ({ ...p, phone: e.target.value }))}
+                onChange={(e) => {
+                  setFormData(p => ({ ...p, phone: e.target.value }));
+                  if (errors.phone) setErrors(p => ({ ...p, phone: '' }));
+                }}
                 placeholder={userT('+2519XXXXXXXX or 09XXXXXXXX')}
                 helperText={userT('Ethiopian mobile format (09/07 + 8 digits) or +251')}
                 error={errors.phone ? userT(errors.phone) : undefined}

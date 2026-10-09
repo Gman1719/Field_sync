@@ -1591,20 +1591,28 @@ router.post('/:id/password-reset', authenticate, requireManager, async (req: Req
   try {
     const { id } = req.params;
 
-    const user = await prisma.user.findUnique({ where: { id } });
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [{ id }, { email: id }],
+      },
+    });
     if (!user) {
       res.status(404).json({ success: false, error: 'User not found' });
       return;
     }
 
-    const tempPassword = generateSecureTempPassword();
+    const tempPassword = (typeof req.body?.temporaryPassword === 'string' && req.body.temporaryPassword.trim())
+      ? req.body.temporaryPassword.trim()
+      : generateSecureTempPassword();
     const passwordHash = await bcrypt.hash(tempPassword, 10);
 
+    const mustChangePassword = req.body?.mustChangePassword !== undefined ? Boolean(req.body.mustChangePassword) : true;
+
     await prisma.user.update({
-      where: { id },
+      where: { id: user.id },
       data: {
         passwordHash,
-        mustChangePassword: true,
+        mustChangePassword,
       },
     });
 
@@ -1613,7 +1621,7 @@ router.post('/:id/password-reset', authenticate, requireManager, async (req: Req
       req,
       action: 'USER_PASSWORD_RESET',
       entityType: 'User',
-      entityId: id,
+      entityId: user.id,
       zoneId: user.zoneId,
       summary: `${req.user!.fullName} reset password for user ${user.fullName} (${user.email})`,
       metadata: { email: user.email },

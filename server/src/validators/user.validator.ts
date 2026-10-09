@@ -77,11 +77,10 @@ export const adminUpdateUserSchema = z.object({
   fullName: z.string().trim().min(1).optional(),
   email: z.string().trim().email().toLowerCase().optional(),
   phoneNumber: z
-    .string()
-    .trim()
-    .regex(ETHIOPIAN_PHONE_REGEX, 'Invalid Ethiopian phone number')
-    .nullable()
-    .optional(),
+    .preprocess(
+      (val) => (typeof val === 'string' ? val.trim().replace(/[\s\-\.\(\)]/g, '') : val),
+      z.string().regex(ETHIOPIAN_PHONE_REGEX, 'Invalid Ethiopian phone number').nullable().optional()
+    ),
   phone: z.string().trim().nullable().optional(),
   role: z.preprocess((val) => (val ? normalizeRole(val) : undefined), z.nativeEnum(Role).optional()),
   isActive: z.boolean().optional(),
@@ -98,11 +97,10 @@ export const createUserSchema = z.object({
   lastName: z.string().trim().min(1, 'Last name is required').max(50),
   email: z.string().trim().email('Invalid email address').toLowerCase(),
   phoneNumber: z
-    .string()
-    .trim()
-    .regex(ETHIOPIAN_PHONE_REGEX, 'Invalid Ethiopian phone number. Use 09..., 07..., or +251...')
-    .nullable()
-    .optional(),
+    .preprocess(
+      (val) => (typeof val === 'string' ? val.trim().replace(/[\s\-\.\(\)]/g, '') : val),
+      z.string().regex(ETHIOPIAN_PHONE_REGEX, 'Invalid Ethiopian phone number. Use 09..., 07..., or +251...').nullable().optional()
+    ),
   phone: z.string().trim().nullable().optional(),
   role: z.preprocess((val) => normalizeRole(val), z.nativeEnum(Role)).default(Role.FIELD_OFFICER),
   regionId: z.string().nullable().optional(),
