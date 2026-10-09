@@ -10,21 +10,22 @@ try {
   localStorage.removeItem('fieldsync_user_avatar');
 } catch (_e) {}
 
-// Force update and activate latest build across all tabs
+// Unregister stale service workers and clear outdated application caches so latest deployment is loaded immediately
 if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
   navigator.serviceWorker.getRegistrations().then((registrations) => {
     for (const r of registrations) {
-      r.update().catch(() => {});
+      r.unregister();
     }
   });
-
-  let hasRefreshed = false;
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (!hasRefreshed) {
-      hasRefreshed = true;
-      window.location.reload();
-    }
-  });
+  if ('caches' in window) {
+    caches.keys().then((names) => {
+      for (const name of names) {
+        if (!name.includes('google-fonts')) {
+          caches.delete(name);
+        }
+      }
+    });
+  }
 }
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

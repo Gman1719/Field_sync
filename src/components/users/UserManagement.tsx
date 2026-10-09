@@ -98,15 +98,35 @@ export default function UserManagement({
     fetchStats();
   }, [fetchStats, users.length]);
 
+  // Helper to exclude legacy directional mock users and extra non-system managers
+  const isInvalidDirectional = (u: any) => {
+    if (!u) return true;
+    const email = (u.email || '').trim().toLowerCase();
+    const role = (u.role || '').trim().toLowerCase();
+    // System is restricted to a single System Manager (manager@fieldsync.com)
+    if (role === 'manager' && email !== 'manager@fieldsync.com') return true;
+    if (email === 'abebe@fieldsync.com' || u.id === 'u_demo_mgr' || u.id === 'm1') return true;
+
+    const reg = (u.region || '').trim().toLowerCase();
+    const zone = (u.zone || '').trim().toLowerCase();
+    const name = (u.name || u.fullName || '').trim().toLowerCase();
+    const isDirectionalReg = ['north', 'south', 'east', 'west', 'all'].includes(reg);
+    const isZonalDummy = zone.includes('zonal jurisdiction') || reg.includes('organization-wide');
+    const isLegacyMockId = /^([so]\d+|m1)$/i.test(u.id) || /^FO00[1-9]/i.test(u.employeeId || '') || /^SUP00[1-9]/i.test(u.employeeId || '');
+    const isMockName = ['ብርሃን ገብረእግዚአብሔር', 'ሣህለ ሙሉጌታ', 'ኪዳን ጥላሁን', 'dawit haile mariam'].includes(name);
+    return isDirectionalReg || isZonalDummy || isLegacyMockId || isMockName;
+  };
+
   // 2. Computed KPI Stats fallback & live updates
   const stats = useMemo(() => {
-    const total = users.length;
-    const managers = users.filter(u => u.role === 'manager').length;
-    const supervisors = users.filter(u => u.role === 'supervisor').length;
-    const fieldOfficers = users.filter(u => u.role === 'field_officer').length;
-    const active = users.filter(u => u.status === 'active').length;
-    const inactive = users.filter(u => u.status === 'inactive').length;
-    const unassignedOfficers = users.filter(
+    const validUsers = users.filter(u => !isInvalidDirectional(u));
+    const total = validUsers.length;
+    const managers = validUsers.filter(u => u.role === 'manager').length;
+    const supervisors = validUsers.filter(u => u.role === 'supervisor').length;
+    const fieldOfficers = validUsers.filter(u => u.role === 'field_officer').length;
+    const active = validUsers.filter(u => u.status === 'active').length;
+    const inactive = validUsers.filter(u => u.status === 'inactive').length;
+    const unassignedOfficers = validUsers.filter(
       u => u.role === 'field_officer' && (!u.supervisorId || !u.woredaId)
     ).length;
 
@@ -120,18 +140,6 @@ export default function UserManagement({
       unassignedFieldOfficers: serverStats?.unassignedFieldOfficers ?? unassignedOfficers
     };
   }, [users, serverStats]);
-
-  // Helper to exclude legacy directional mock users
-  const isInvalidDirectional = (u: any) => {
-    const reg = (u.region || '').trim().toLowerCase();
-    const zone = (u.zone || '').trim().toLowerCase();
-    const name = (u.name || u.fullName || '').trim().toLowerCase();
-    const isDirectionalReg = ['north', 'south', 'east', 'west', 'all'].includes(reg);
-    const isZonalDummy = zone.includes('zonal jurisdiction') || reg.includes('organization-wide');
-    const isLegacyMockId = /^([so]\d+|m1)$/i.test(u.id) || /^FO00[1-9]/i.test(u.employeeId || '') || /^SUP00[1-9]/i.test(u.employeeId || '');
-    const isMockName = ['ብርሃን ገብረእግዚአብሔር', 'ሣህለ ሙሉጌታ', 'ኪዳን ጥላሁን', 'dawit haile mariam'].includes(name);
-    return isDirectionalReg || isZonalDummy || isLegacyMockId || isMockName;
-  };
 
   // 3. Extract unique regions for filter dropdown
   const availableRegions = useMemo(() => {

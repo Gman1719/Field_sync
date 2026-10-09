@@ -761,6 +761,10 @@ export const purgeLegacyDirectionalUsers = async () => {
       const empId = (u.employeeId || '').trim();
       const id = String(u.id || '').trim();
 
+      const role = String(u.role || '').trim().toLowerCase();
+      // Only manager@fieldsync.com can be manager; purge all other managers
+      if (role === 'manager' && email !== 'manager@fieldsync.com') return true;
+      if (email === 'abebe@fieldsync.com' || id === 'u_demo_mgr' || id === 'm1') return true;
       if (['north', 'south', 'east', 'west'].includes(reg)) return true;
       if (zone.includes('zonal jurisdiction') || reg.includes('organization-wide')) return true;
       if (/^([so]\d+|m1)$/i.test(id)) return true;

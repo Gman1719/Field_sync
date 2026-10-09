@@ -627,7 +627,7 @@ export default function UserRoleModal({
           <label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider block">
             {userT('1. Select New Operational Role')}
           </label>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             {ROLES.map((role) => {
               const isSelected = selectedRole === role.id;
               const Icon = role.icon;

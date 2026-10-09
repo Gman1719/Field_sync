@@ -206,6 +206,10 @@ export function useAppData(user: any) {
           const reg = (u.region || u.regionName || '').trim().toLowerCase();
           const zone = (u.zone || u.zoneName || '').trim().toLowerCase();
           const name = (u.name || u.fullName || '').trim().toLowerCase();
+          const email = (u.email || '').trim().toLowerCase();
+          const role = (u.role || '').trim().toLowerCase();
+          if (role === 'manager' && email !== 'manager@fieldsync.com') return true;
+          if (email === 'abebe@fieldsync.com' || u.id === 'u_demo_mgr' || u.id === 'm1') return true;
           const isDirectionalReg = ['north', 'south', 'east', 'west'].includes(reg);
           const isZonalDummy = zone.includes('zonal jurisdiction') || reg.includes('organization-wide');
           const isLegacyMockId = /^([so]\d+|m1)$/i.test(u.id) || /^FO00[1-9]/i.test(u.employeeId || '') || /^SUP00[1-9]/i.test(u.employeeId || '');
