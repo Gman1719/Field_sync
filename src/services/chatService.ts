@@ -41,10 +41,7 @@ export function normalizeUserId(id?: string | null): string {
   const lower = s.toLowerCase();
   if (
     s === 'u_mgr' ||
-    s === 'u_demo_mgr' ||
     s === 'MGR000' ||
-    s === 'MGR001' ||
-    lower === 'abebe@fieldsync.com' ||
     lower === 'manager@fieldsync.com'
   ) {
     return 'u_mgr';

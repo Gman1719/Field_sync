@@ -127,25 +127,25 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
   const isManager = user?.role === 'manager';
   const isSupervisor = user?.role === 'supervisor';
 
-  // Resolved Manager contact for Supervisor
+  // Resolved Manager contact for Supervisor (Only one Manager: manager@fieldsync.com)
   const defaultManager = useMemo(() => {
     const list = users && users.length > 0 ? users : SAMPLE_USERS;
     const found = list.find((u) => {
       const uId = normalizeUserId(u.id);
       const email = (u.email || '').toLowerCase();
-      return uId === 'm1' || email === 'abebe@fieldsync.com' || u.role === 'manager';
+      return uId === 'u_mgr' || email === 'manager@fieldsync.com' || u.role === 'manager';
     });
     const mgr = found || {
-      id: 'm1',
-      name: 'አበበ በቀለ (Manager)',
-      email: 'abebe@fieldsync.com',
+      id: 'u_mgr',
+      name: 'System Manager',
+      email: 'manager@fieldsync.com',
       role: 'manager',
-      phone: '+251-911-000001',
-      department: 'Executive Operations',
+      phone: '+251-911-000000',
+      department: 'Administration',
     };
     return {
       ...mgr,
-      id: normalizeUserId(mgr.id) || 'm1',
+      id: normalizeUserId(mgr.id) || 'u_mgr',
     };
   }, [users]);
 

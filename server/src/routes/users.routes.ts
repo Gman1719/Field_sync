@@ -559,6 +559,15 @@ router.post('/', authenticate, requireManager, async (req: Request, res: Respons
       return;
     }
 
+    // System is restricted to a single System Manager
+    if (validated.role === Role.MANAGER) {
+      res.status(400).json({
+        success: false,
+        error: 'System is restricted to a single System Manager (manager@fieldsync.com). Additional managers cannot be registered.',
+      });
+      return;
+    }
+
     // Validate Ethiopian Location Hierarchy based on Role
     const hierarchy = await validateLocationHierarchyAndRole(
       validated.role,
@@ -838,6 +847,31 @@ async function handleUpdateUser(req: Request, res: Response): Promise<void> {
     }
 
     const targetRole = validated.role || user.role;
+
+    // Guard: System is restricted to a single Manager (manager@fieldsync.com)
+    if (targetRole === Role.MANAGER && user.role !== Role.MANAGER) {
+      res.status(400).json({
+        success: false,
+        error: 'System is restricted to a single System Manager (manager@fieldsync.com). Users cannot be promoted to Manager.',
+      });
+      return;
+    }
+
+    if (user.role === Role.MANAGER && targetRole !== Role.MANAGER) {
+      res.status(400).json({
+        success: false,
+        error: 'The System Manager role is permanent and cannot be modified.',
+      });
+      return;
+    }
+
+    if (user.role === Role.MANAGER && validated.isActive === false) {
+      res.status(400).json({
+        success: false,
+        error: 'The System Manager account is permanent and cannot be deactivated.',
+      });
+      return;
+    }
 
     // If role or any location fields were provided, validate location hierarchy
     const hasLocationUpdate =
@@ -1269,6 +1303,23 @@ router.patch('/:id/role', authenticate, requireManager, async (req: Request, res
       return;
     }
 
+    // Guard: System is restricted to a single Manager (manager@fieldsync.com)
+    if (newRole === Role.MANAGER) {
+      res.status(400).json({
+        success: false,
+        error: 'System is restricted to a single System Manager (manager@fieldsync.com). Users cannot be promoted to Manager.',
+      });
+      return;
+    }
+
+    if (user.role === Role.MANAGER) {
+      res.status(400).json({
+        success: false,
+        error: 'The System Manager role is permanent and cannot be modified.',
+      });
+      return;
+    }
+
     // Role-change validation: If user is currently SUPERVISOR and being changed to non-supervisor
     let transferredOfficersCount = 0;
     if (user.role === Role.SUPERVISOR && newRole !== Role.SUPERVISOR) {
@@ -1404,6 +1455,15 @@ router.patch('/:id/status', authenticate, requireManager, async (req: Request, r
     const existingUser = await prisma.user.findUnique({ where: { id } });
     if (!existingUser) {
       res.status(404).json({ success: false, error: 'User record not found in database' });
+      return;
+    }
+
+    // Guard: Prevent deactivating the single System Manager
+    if (existingUser.role === Role.MANAGER && !newActiveState) {
+      res.status(400).json({
+        success: false,
+        error: 'The System Manager account is permanent and cannot be deactivated.',
+      });
       return;
     }
 

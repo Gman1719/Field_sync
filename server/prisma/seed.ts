@@ -161,24 +161,8 @@ async function main() {
   console.log(`   - Field Officer: ${officer.email}`);
 
   // 2.4 Quick-Sign-In Demo Accounts matching UI buttons
-  const demoManagerHash = await bcrypt.hash('manager123', 10);
   const demoSuperHash = await bcrypt.hash('super123', 10);
   const demoOfficerHash = await bcrypt.hash('officer123', 10);
-
-  const demoManager = await prisma.user.upsert({
-    where: { email: 'abebe@fieldsync.com' },
-    update: { fullName: 'Abebe Kebede (Manager)', passwordHash: demoManagerHash, role: Role.MANAGER },
-    create: {
-      id: 'u_demo_mgr',
-      fullName: 'Abebe Kebede (Manager)',
-      email: 'abebe@fieldsync.com',
-      passwordHash: demoManagerHash,
-      role: Role.MANAGER,
-      phoneNumber: '+251911112233',
-      isActive: true,
-      mustChangePassword: false,
-    },
-  });
 
   const demoSupervisor = await prisma.user.upsert({
     where: { email: 'birhan@fieldsync.com' },

@@ -206,6 +206,11 @@ export default function UserManagement({
       }
     }
 
+    // Only Field Officer and Supervisor can be registered; system is limited to a single Manager
+    if (newUser.role === 'manager') {
+      errs.role = userT('There is only one Manager in the system (manager@fieldsync.com). Additional managers cannot be registered.');
+    }
+
     // Role-specific location rules
     if (newUser.role === 'supervisor') {
       if (!newUser.regionId) errs.regionId = userT('Region is required for Supervisors');
@@ -387,6 +392,12 @@ export default function UserManagement({
     const newStatus = isCurrentlyActive ? 'inactive' : 'active';
     const actionName = newStatus === 'active' ? 'activate' : 'deactivate';
     const displayName = user.fullName || user.name || 'User';
+
+    // Validation: prevent deactivating the permanent system manager
+    if (user.role === 'manager') {
+      toast.error(userT('The System Manager account is permanent and cannot be deactivated.'));
+      return;
+    }
 
     // Validation: prevent deactivating a supervisor with assigned field officers
     if (user.role === 'supervisor' && newStatus === 'inactive') {
@@ -1232,7 +1243,6 @@ export default function UserManagement({
               >
                 <option value="field_officer">{userT('Field Officer (Frontline Intake)')}</option>
                 <option value="supervisor">{userT('Supervisor (Zonal Oversight)')}</option>
-                <option value="manager">{userT('Manager (National Command)')}</option>
               </Select>
             </div>
           </div>

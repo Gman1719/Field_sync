@@ -41,13 +41,6 @@ const ROLES = [
     description: 'Zonal operational oversight, officer coordination, and monitoring aggregate registrations.',
     icon: Users,
   },
-  {
-    id: 'manager',
-    title: 'Manager',
-    badge: 'primary',
-    description: 'National command authority, full system administration, staff management, and analytics.',
-    icon: Building2,
-  },
 ];
 
 export default function UserRoleModal({
@@ -294,6 +287,27 @@ export default function UserRoleModal({
     supervisedOfficers.length > 0;
 
   if (!isOpen || !user) return null;
+
+  if (user?.role?.toLowerCase() === 'manager') {
+    return (
+      <Modal isOpen={isOpen} onClose={onClose} title={userT('System Manager Role')} size="md">
+        <div className="p-6 text-center space-y-4">
+          <div className="w-12 h-12 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300 mx-auto flex items-center justify-center">
+            <ShieldCheck className="w-6 h-6" />
+          </div>
+          <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
+            {userT('System Manager Role is Permanent')}
+          </h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            {userT('There is only one System Manager (manager@fieldsync.com) in FieldSync. This role is permanent and cannot be changed.')}
+          </p>
+          <Button variant="primary" onClick={onClose} className="w-full">
+            {userT('Close')}
+          </Button>
+        </div>
+      </Modal>
+    );
+  }
 
   const handleLocationChange = (values: Record<string, string>) => {
     setAssignment((prev) => ({

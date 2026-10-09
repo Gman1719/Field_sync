@@ -325,8 +325,8 @@ export default function UserDetailsModal({
               </button>
             )}
 
-            {/* 2. Change Role */}
-            {onChangeRole && (
+            {/* 2. Change Role (Disabled for single System Manager) */}
+            {onChangeRole && current.role !== 'manager' && (
               <button
                 type="button"
                 onClick={(e) => {
@@ -369,8 +369,8 @@ export default function UserDetailsModal({
               </button>
             )}
 
-            {/* 5. Deactivate Account / Activate Account */}
-            {onToggleStatus && (
+            {/* 5. Deactivate Account / Activate Account (Manager cannot be deactivated) */}
+            {onToggleStatus && current.role !== 'manager' && (
               <button
                 type="button"
                 onClick={handleStatusToggle}
