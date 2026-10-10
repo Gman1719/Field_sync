@@ -134,7 +134,7 @@ export default function UserPasswordResetModal({
       }
     }
 
-    const finalPassword = currentPassword;
+    let finalPassword = currentPassword;
     if (!finalPassword) {
       toast.error(userT('Password cannot be empty'));
       return;
@@ -167,14 +167,27 @@ export default function UserPasswordResetModal({
               temporaryPassword: finalPassword,
               password: finalPassword,
               mustChangePassword,
+              email: user.email,
             }),
           });
 
           const contentType = response.headers.get('content-type') || '';
           if (contentType.includes('application/json')) {
             const resData = await response.json();
-            if (response.ok && resData.success && (resData.user || resData.data)) {
-              updatedUser = { ...updatedUser, ...(resData.user || resData.data), password: finalPassword, temporaryPassword: finalPassword };
+            if (response.ok && resData.success) {
+              const serverTempPwd = resData.data?.temporaryPassword || resData.temporaryPassword;
+              if (serverTempPwd && mode === 'auto') {
+                finalPassword = serverTempPwd;
+              }
+              if (resData.user || resData.data?.user) {
+                updatedUser = {
+                  ...updatedUser,
+                  ...(resData.user || resData.data?.user),
+                  password: finalPassword,
+                  temporaryPassword: finalPassword,
+                  tempPassword: finalPassword,
+                };
+              }
             }
           }
         } catch (apiErr: any) {

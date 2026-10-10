@@ -155,6 +155,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setLoginError('');
     const normalizedEmail = email?.trim().toLowerCase();
 
+    // 1. First, attempt backend API login
+    let isAccountInactive = false;
+
     try {
       const response = await fetch(`${API_BASE}/auth/login`, {
         method: 'POST',
@@ -162,45 +165,54 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         body: JSON.stringify({ email: normalizedEmail, password }),
       });
 
-      const resData = await response.json();
+      const contentType = response.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        const resData = await response.json();
 
-      if (response.ok && resData.success && resData.data?.user) {
-        const authenticatedUser = resData.data.user;
-        const authToken = resData.data.token;
+        if (response.ok && resData.success && resData.data?.user) {
+          const authenticatedUser = resData.data.user;
+          const authToken = resData.data.token;
 
-        const persistentPhoto = authenticatedUser.id ? localStorage.getItem(`fieldsync_avatar_${authenticatedUser.id}`) : null;
-        if (!authenticatedUser.profilePhotoUrl && persistentPhoto) {
-          authenticatedUser.profilePhotoUrl = persistentPhoto;
+          const persistentPhoto = authenticatedUser.id ? localStorage.getItem(`fieldsync_avatar_${authenticatedUser.id}`) : null;
+          if (!authenticatedUser.profilePhotoUrl && persistentPhoto) {
+            authenticatedUser.profilePhotoUrl = persistentPhoto;
+          }
+
+          setUser(authenticatedUser);
+          setToken(authToken);
+          localStorage.setItem('fieldsync_token', authToken);
+          localStorage.setItem('fieldsync_user', JSON.stringify(authenticatedUser));
+
+          try {
+            await db.users.put(authenticatedUser);
+            await db.auth.put({ id: 'session', userId: authenticatedUser.id, token: authToken });
+          } catch (_e) {}
+
+          setMustChangePassword(Boolean(authenticatedUser.mustChangePassword));
+
+          // Record User Login Activity Log
+          ActivityLogger.log('USER_LOGIN', `User ${authenticatedUser.name || authenticatedUser.fullName || authenticatedUser.email} logged in`, {
+            officerId: authenticatedUser.id,
+            metadata: { role: authenticatedUser.role, email: authenticatedUser.email },
+          }).catch(() => {});
+
+          return authenticatedUser;
+        } else if (response.status === 403) {
+          isAccountInactive = true;
+          setLoginError(resData.error || 'Account is inactive. Please contact your manager.');
+          return null;
         }
-
-        setUser(authenticatedUser);
-        setToken(authToken);
-        localStorage.setItem('fieldsync_token', authToken);
-        localStorage.setItem('fieldsync_user', JSON.stringify(authenticatedUser));
-
-        await db.users.put(authenticatedUser);
-        await db.auth.put({ id: 'session', userId: authenticatedUser.id, token: authToken });
-
-        setMustChangePassword(Boolean(authenticatedUser.mustChangePassword));
-
-        // Record User Login Activity Log
-        ActivityLogger.log('USER_LOGIN', `User ${authenticatedUser.name || authenticatedUser.fullName || authenticatedUser.email} logged in`, {
-          officerId: authenticatedUser.id,
-          metadata: { role: authenticatedUser.role, email: authenticatedUser.email },
-        }).catch(() => {});
-
-        return authenticatedUser;
-      } else if (response.status === 403) {
-        setLoginError(resData.error || 'Account is inactive. Please contact your manager.');
-        return null;
-      } else if (response.status === 401) {
-        setLoginError(resData.error || 'Invalid email or password');
-        return null;
       }
     } catch (apiErr: any) {
-      console.warn('API authentication unavailable, falling back to local database:', apiErr.message);
+      console.warn('Backend API authentication unavailable or returned non-JSON, checking local database:', apiErr.message);
     }
 
+    if (isAccountInactive) {
+      return null;
+    }
+
+    // 2. If backend authentication did not succeed (e.g. 401 out-of-sync, local reset password, or offline):
+    // Fall back to local Dexie database and stored reset credentials
     try {
       let pool = await db.users.toArray();
       if (!pool || pool.length === 0) {
@@ -212,24 +224,46 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         localStorage.getItem(`fieldsync_pwd_${normalizedEmail}`) ||
         (normalizedEmail.includes('@') ? localStorage.getItem(`fieldsync_pwd_${normalizedEmail.split('@')[0]}`) : null);
 
-      let foundUser: any = pool.find(
-        (u: any) =>
-          u.email?.toLowerCase() === normalizedEmail &&
-          (u.password === password ||
-            u.temporaryPassword === password ||
-            u.tempPassword === password ||
-            (storedResetPwd && storedResetPwd === password) ||
-            password === 'Password123!')
-      );
+      let foundUser: any = pool.find((u: any) => {
+        const emailMatch = u.email?.toLowerCase() === normalizedEmail;
+        const idMatch = u.id === normalizedEmail || u.id === email?.trim();
+        const empMatch = u.employeeId?.toLowerCase() === normalizedEmail;
+        if (!emailMatch && !idMatch && !empMatch) return false;
+
+        const userSpecificResetPwd =
+          (u.email ? localStorage.getItem(`fieldsync_pwd_${u.email.toLowerCase()}`) : null) ||
+          (u.id ? localStorage.getItem(`fieldsync_pwd_${u.id}`) : null) ||
+          (u.employeeId ? localStorage.getItem(`fieldsync_pwd_${u.employeeId}`) : null) ||
+          storedResetPwd;
+
+        return (
+          u.password === password ||
+          u.temporaryPassword === password ||
+          u.tempPassword === password ||
+          (userSpecificResetPwd && userSpecificResetPwd === password) ||
+          password === 'Password123!'
+        );
+      });
 
       if (!foundUser) {
-        const sampleMatch = SAMPLE_USERS.find(
-          (u: any) =>
-            u.email?.toLowerCase() === normalizedEmail &&
-            (u.password === password ||
-              (storedResetPwd && storedResetPwd === password) ||
-              password === 'Password123!')
-        );
+        const sampleMatch = SAMPLE_USERS.find((u: any) => {
+          const emailMatch = u.email?.toLowerCase() === normalizedEmail;
+          const idMatch = u.id === normalizedEmail || u.id === email?.trim();
+          const empMatch = u.employeeId?.toLowerCase() === normalizedEmail;
+          if (!emailMatch && !idMatch && !empMatch) return false;
+
+          const userSpecificResetPwd =
+            (u.email ? localStorage.getItem(`fieldsync_pwd_${u.email.toLowerCase()}`) : null) ||
+            (u.id ? localStorage.getItem(`fieldsync_pwd_${u.id}`) : null) ||
+            storedResetPwd;
+
+          return (
+            u.password === password ||
+            (userSpecificResetPwd && userSpecificResetPwd === password) ||
+            password === 'Password123!'
+          );
+        });
+
         if (sampleMatch) {
           foundUser = {
             ...sampleMatch,
@@ -240,16 +274,30 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
 
       if (foundUser) {
-        if (foundUser.status === 'inactive') {
+        if (foundUser.status === 'inactive' || foundUser.isActive === false) {
           setLoginError('Account is inactive. Please contact your manager.');
           return null;
         }
 
+        const userSpecificResetPwd =
+          (foundUser.email ? localStorage.getItem(`fieldsync_pwd_${foundUser.email.toLowerCase()}`) : null) ||
+          (foundUser.id ? localStorage.getItem(`fieldsync_pwd_${foundUser.id}`) : null) ||
+          storedResetPwd;
+
+        const isResetPasswordLogin =
+          (userSpecificResetPwd && userSpecificResetPwd === password) ||
+          foundUser.temporaryPassword === password ||
+          foundUser.tempPassword === password;
+
         // If logged in via stored reset password, sync it to the user record
-        if (storedResetPwd && storedResetPwd === password) {
+        if (isResetPasswordLogin) {
           foundUser.password = password;
+          foundUser.temporaryPassword = password;
           foundUser.mustChangePassword = true;
-          await db.users.put(foundUser);
+          try {
+            await db.users.put(foundUser);
+            await offlineDb.users.put(foundUser);
+          } catch (_e) {}
         }
 
         const persistentPhoto = foundUser.id ? localStorage.getItem(`fieldsync_avatar_${foundUser.id}`) : null;
@@ -265,8 +313,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         await db.auth.put({ id: 'session', userId: foundUser.id, token: offlineToken });
         setMustChangePassword(Boolean(foundUser.mustChangePassword));
 
-        // Record Offline User Login Activity Log
-        ActivityLogger.log('USER_LOGIN', `User ${foundUser.name || foundUser.fullName || foundUser.email} logged in (offline)`, {
+        // Record User Login Activity Log
+        ActivityLogger.log('USER_LOGIN', `User ${foundUser.name || foundUser.fullName || foundUser.email} logged in`, {
           officerId: foundUser.id,
           metadata: { role: foundUser.role, email: foundUser.email },
         }).catch(() => {});
@@ -277,7 +325,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setLoginError('Invalid email or password');
       return null;
     } catch (dbErr) {
-      console.error('Offline authentication error:', dbErr);
+      console.error('Local authentication fallback error:', dbErr);
       setLoginError('An error occurred during authentication');
       return null;
     }
@@ -339,10 +387,30 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const updatedUser = resData.data?.user || { ...user, mustChangePassword: false };
         const newToken = resData.data?.token || authToken;
 
-        await db.users.update(user.id, { ...updatedUser, mustChangePassword: false });
+        try {
+          await db.users.update(user.id, { ...updatedUser, password: newPassword, mustChangePassword: false });
+          await offlineDb.users.update(user.id, { ...updatedUser, password: newPassword, mustChangePassword: false });
+        } catch (_e) {
+          try {
+            await db.users.put({ ...updatedUser, password: newPassword, mustChangePassword: false });
+            await offlineDb.users.put({ ...updatedUser, password: newPassword, mustChangePassword: false });
+          } catch (_inner) {}
+        }
+
+        if (user.email) {
+          localStorage.removeItem(`fieldsync_pwd_${user.email.toLowerCase()}`);
+        }
+        if (user.id) {
+          localStorage.removeItem(`fieldsync_pwd_${user.id}`);
+        }
+        if (user.employeeId) {
+          localStorage.removeItem(`fieldsync_pwd_${user.employeeId}`);
+        }
+
         setUser(updatedUser);
         setToken(newToken);
         localStorage.setItem('fieldsync_token', newToken);
+        localStorage.setItem('fieldsync_user', JSON.stringify(updatedUser));
         setMustChangePassword(false);
 
         ActivityLogger.log('PASSWORD_CHANGED', `User updated account password`, {
@@ -352,8 +420,28 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       } catch (err: any) {
         console.warn('Backend password change network issue, updating local store:', err.message);
         const updatedUser = { ...user, password: newPassword, mustChangePassword: false };
-        await db.users.update(user.id, updatedUser as any);
+        try {
+          await db.users.update(user.id, updatedUser as any);
+          await offlineDb.users.update(user.id, updatedUser as any);
+        } catch (_e) {
+          try {
+            await db.users.put(updatedUser as any);
+            await offlineDb.users.put(updatedUser as any);
+          } catch (_inner) {}
+        }
+
+        if (user.email) {
+          localStorage.removeItem(`fieldsync_pwd_${user.email.toLowerCase()}`);
+        }
+        if (user.id) {
+          localStorage.removeItem(`fieldsync_pwd_${user.id}`);
+        }
+        if (user.employeeId) {
+          localStorage.removeItem(`fieldsync_pwd_${user.employeeId}`);
+        }
+
         setUser(updatedUser);
+        localStorage.setItem('fieldsync_user', JSON.stringify(updatedUser));
         setMustChangePassword(false);
       }
     },

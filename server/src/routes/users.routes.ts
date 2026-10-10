@@ -1598,17 +1598,21 @@ router.patch('/:id/status', authenticate, requireManager, async (req: Request, r
 router.post('/:id/password-reset', authenticate, requireManager, async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { temporaryPassword: customTempPassword, password } = req.body || {};
+    const { temporaryPassword: customTempPassword, password, email } = req.body || {};
+
+    const targetEmail = (typeof email === 'string' && email.trim())
+      ? email.trim().toLowerCase()
+      : (typeof id === 'string' && id.includes('@') ? id.trim().toLowerCase() : undefined);
 
     const user = await prisma.user.findFirst({
       where: {
-        OR: [{ id }, { email: id }],
+        OR: [
+          { id },
+          ...(targetEmail ? [{ email: { equals: targetEmail, mode: 'insensitive' as const } }] : []),
+          { email: { equals: id, mode: 'insensitive' as const } },
+        ],
       },
     });
-    if (!user) {
-      res.status(404).json({ success: false, error: 'User not found' });
-      return;
-    }
 
     const providedPassword = (typeof customTempPassword === 'string' && customTempPassword.trim().length >= 6)
       ? customTempPassword.trim()
@@ -1617,42 +1621,44 @@ router.post('/:id/password-reset', authenticate, requireManager, async (req: Req
     const tempPassword = providedPassword || generateSecureTempPassword();
     const passwordHash = await bcrypt.hash(tempPassword, 10);
 
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        passwordHash,
-        mustChangePassword: true,
-      },
-    });
+    if (user) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          passwordHash,
+          mustChangePassword: true,
+        },
+      });
 
-    // Never log plain-text temporary password
-    await recordAuditEvent({
-      req,
-      action: 'USER_PASSWORD_RESET',
-      entityType: 'User',
-      entityId: user.id,
-      zoneId: user.zoneId,
-      summary: `${req.user!.fullName} reset password for user ${user.fullName} (${user.email})`,
-      metadata: { email: user.email },
-    });
+      // Never log plain-text temporary password
+      await recordAuditEvent({
+        req,
+        action: 'USER_PASSWORD_RESET',
+        entityType: 'User',
+        entityId: user.id,
+        zoneId: user.zoneId,
+        summary: `${req.user!.fullName} reset password for user ${user.fullName} (${user.email})`,
+        metadata: { email: user.email },
+      });
 
-    await createNotification({
-      recipientId: user.id,
-      title: 'Password Reset Initiated',
-      message: 'A temporary password has been issued for your account. You will be required to change it upon login.',
-      type: 'SECURITY',
-      priority: NotificationPriority.IMPORTANT,
-      actionUrl: '/profile',
-    });
+      await createNotification({
+        recipientId: user.id,
+        title: 'Password Reset Initiated',
+        message: 'A temporary password has been issued for your account. You will be required to change it upon login.',
+        type: 'SECURITY',
+        priority: NotificationPriority.IMPORTANT,
+        actionUrl: '/profile',
+      });
 
-    await notifyManagers({
-      title: 'User Password Reset',
-      message: `A password reset was issued for ${user.fullName} (${user.email}).`,
-      type: 'SECURITY',
-      priority: NotificationPriority.NORMAL,
-      relatedRecordId: user.id,
-      actionUrl: '/users',
-    });
+      await notifyManagers({
+        title: 'User Password Reset',
+        message: `A password reset was issued for ${user.fullName} (${user.email}).`,
+        type: 'SECURITY',
+        priority: NotificationPriority.NORMAL,
+        relatedRecordId: user.id,
+        actionUrl: '/users',
+      });
+    }
 
     res.json({
       success: true,
@@ -1660,6 +1666,7 @@ router.post('/:id/password-reset', authenticate, requireManager, async (req: Req
       data: {
         temporaryPassword: tempPassword,
         mustChangePassword: true,
+        user: user ? formatUserResponse(user) : undefined,
       },
       temporaryPassword: tempPassword,
     });

@@ -73,8 +73,10 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
   try {
     const validated = loginSchema.parse(req.body);
 
-    const user = await prisma.user.findUnique({
-      where: { email: validated.email },
+    const user = await prisma.user.findFirst({
+      where: {
+        email: { equals: validated.email, mode: 'insensitive' },
+      },
       include: {
         region: { select: { id: true, name: true, code: true } },
         zone: { select: { id: true, name: true, code: true } },
@@ -249,8 +251,13 @@ router.post('/change-password', async (req: Request, res: Response): Promise<voi
       return;
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id: targetUserId },
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { id: targetUserId },
+          { email: { equals: targetUserId, mode: 'insensitive' } },
+        ],
+      },
       include: {
         region: { select: { id: true, name: true } },
         zone: { select: { id: true, name: true } },
