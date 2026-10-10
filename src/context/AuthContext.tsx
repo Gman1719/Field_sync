@@ -208,17 +208,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         pool = await db.users.toArray();
       }
 
+      const storedResetPwd =
+        localStorage.getItem(`fieldsync_pwd_${normalizedEmail}`) ||
+        (normalizedEmail.includes('@') ? localStorage.getItem(`fieldsync_pwd_${normalizedEmail.split('@')[0]}`) : null);
+
       let foundUser: any = pool.find(
         (u: any) =>
           u.email?.toLowerCase() === normalizedEmail &&
-          (u.password === password || password === 'Password123!')
+          (u.password === password ||
+            u.temporaryPassword === password ||
+            u.tempPassword === password ||
+            (storedResetPwd && storedResetPwd === password) ||
+            password === 'Password123!')
       );
 
       if (!foundUser) {
         const sampleMatch = SAMPLE_USERS.find(
           (u: any) =>
             u.email?.toLowerCase() === normalizedEmail &&
-            (u.password === password || password === 'Password123!')
+            (u.password === password ||
+              (storedResetPwd && storedResetPwd === password) ||
+              password === 'Password123!')
         );
         if (sampleMatch) {
           foundUser = {
@@ -233,6 +243,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (foundUser.status === 'inactive') {
           setLoginError('Account is inactive. Please contact your manager.');
           return null;
+        }
+
+        // If logged in via stored reset password, sync it to the user record
+        if (storedResetPwd && storedResetPwd === password) {
+          foundUser.password = password;
+          foundUser.mustChangePassword = true;
+          await db.users.put(foundUser);
         }
 
         const persistentPhoto = foundUser.id ? localStorage.getItem(`fieldsync_avatar_${foundUser.id}`) : null;

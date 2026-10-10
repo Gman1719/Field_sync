@@ -145,15 +145,19 @@ export default function UserPasswordResetModal({
 
     let updatedUser = {
       ...user,
+      password: finalPassword,
+      temporaryPassword: finalPassword,
+      tempPassword: finalPassword,
       mustChangePassword,
       updatedAt: new Date().toISOString(),
     };
 
     try {
       const token = localStorage.getItem('fieldsync_token') || localStorage.getItem('token');
-      if (navigator.onLine && token) {
+      if (navigator.onLine && token && !token.startsWith('offline_')) {
         try {
-          const response = await fetch(`${API_BASE}/users/${user.id}/password-reset`, {
+          const targetIdentifier = user.id || user.email;
+          const response = await fetch(`${API_BASE}/users/${targetIdentifier}/password-reset`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -161,22 +165,32 @@ export default function UserPasswordResetModal({
             },
             body: JSON.stringify({
               temporaryPassword: finalPassword,
+              password: finalPassword,
               mustChangePassword,
             }),
           });
 
-          if (response.ok) {
+          const contentType = response.headers.get('content-type') || '';
+          if (contentType.includes('application/json')) {
             const resData = await response.json();
-            if (resData.success && (resData.user || resData.data)) {
-              updatedUser = { ...updatedUser, ...(resData.user || resData.data) };
+            if (response.ok && resData.success && (resData.user || resData.data)) {
+              updatedUser = { ...updatedUser, ...(resData.user || resData.data), password: finalPassword, temporaryPassword: finalPassword };
             }
-          } else {
-            const resData = await response.json().catch(() => ({}));
-            console.warn('Backend password reset returned non-OK, persisting locally:', resData.error);
           }
         } catch (apiErr: any) {
           console.warn('Backend API password reset call failed, falling back to local:', apiErr.message);
         }
+      }
+
+      // Persist in localStorage across user aliases so immediate login always works
+      if (user.email) {
+        localStorage.setItem(`fieldsync_pwd_${user.email.toLowerCase()}`, finalPassword);
+      }
+      if (user.id) {
+        localStorage.setItem(`fieldsync_pwd_${user.id}`, finalPassword);
+      }
+      if (user.employeeId) {
+        localStorage.setItem(`fieldsync_pwd_${user.employeeId}`, finalPassword);
       }
 
       // Persist in local DBs

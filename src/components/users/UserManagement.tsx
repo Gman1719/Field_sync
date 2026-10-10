@@ -501,7 +501,9 @@ export default function UserManagement({
 
   // 8. Handle Password Reset - Open Interactive Reset Password Modal
   const handleResetPassword = (user: any) => {
-    setSelectedUserResetPassword(user);
+    if (!user) return;
+    const fullUser = (users || []).find((usr) => usr.id === user.id || (usr.email && usr.email.toLowerCase() === (user.email || '').toLowerCase())) || user;
+    setSelectedUserResetPassword(fullUser);
   };
 
   // 9. Callback when user is updated in Edit, Reassign, Role, or Reset Password modals
@@ -1141,9 +1143,17 @@ export default function UserManagement({
                               <button
                                 type="button"
                                 onClick={() => setSelectedUserDetails(u)}
-                                className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white transition-all cursor-pointer shadow-xs active:scale-95"
+                                className="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white transition-all cursor-pointer shadow-xs active:scale-95"
                               >
                                 {userT('Detail')}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleResetPassword(u)}
+                                className="p-1.5 rounded-lg text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60 transition-all cursor-pointer shadow-2xs active:scale-95"
+                                title={userT('Reset Password')}
+                              >
+                                <KeyRound className="w-3.5 h-3.5" />
                               </button>
                             </div>
                           </td>
