@@ -21,8 +21,12 @@ import {
   CalendarClock,
   AlertTriangle,
   X,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { useUserLanguage } from '../../context/UserLanguageContext';
+import { useTheme } from '../../context/ThemeContext';
+import LanguageSelector from './LanguageSelector';
 import { getTotalUnreadCount } from '../../services/chatService';
 
 export interface NavItem {
@@ -61,6 +65,7 @@ export default function Sidebar({
   setIsMobileOpen,
 }: SidebarProps) {
   const { userT } = useUserLanguage();
+  const { theme, toggleTheme } = useTheme();
   const isOfficer = user?.role === 'field_officer';
   const isSupervisor = user?.role === 'supervisor';
   const isManager = user?.role === 'manager';
@@ -252,6 +257,26 @@ export default function Sidebar({
           </button>
         </div>
 
+        {/* Mobile Quick Action Strip (Theme + Language + Quick Role indicator) */}
+        <div className="lg:hidden px-4 py-2.5 bg-slate-50/90 dark:bg-slate-800/60 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600 shadow-xs"
+            >
+              {theme === 'dark' ? <Sun className="w-3.5 h-3.5 text-amber-400" /> : <Moon className="w-3.5 h-3.5 text-blue-500" />}
+              <span>{theme === 'dark' ? 'Light' : 'Dark'}</span>
+            </button>
+            <div className="scale-90 origin-left">
+              <LanguageSelector />
+            </div>
+          </div>
+          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300">
+            {user?.role?.replace('_', ' ') || 'Staff'}
+          </span>
+        </div>
+
         <div className="flex-1 overflow-y-auto px-3.5 py-4 space-y-6">
           {navSections.map((section, idx) => (
             <div key={idx} className={section.title ? 'space-y-1.5' : 'space-y-1'}>
@@ -300,7 +325,7 @@ export default function Sidebar({
           ))}
         </div>
 
-        <div className="p-3.5 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/70">
+        <div className="p-3.5 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/70 pb-safe">
           <div className="flex items-center justify-between gap-3">
             <div
               className="flex items-center gap-3 min-w-0 cursor-pointer hover:opacity-80 transition-opacity"

@@ -1045,8 +1045,15 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
     .join('');
 
   return (
-    <div className="h-[calc(100vh-7.5rem)] min-h-[640px] flex bg-white dark:bg-[#160F0D] rounded-2xl border border-slate-200/90 dark:border-slate-700/60 shadow-sm overflow-hidden transition-all duration-200">
-      
+    <div className="h-[calc(100dvh-10rem)] sm:h-[calc(100vh-7.5rem)] min-h-[480px] sm:min-h-[600px] flex bg-white dark:bg-[#160F0D] rounded-2xl border border-slate-200/90 dark:border-slate-700/60 shadow-sm overflow-hidden transition-all duration-200 relative">
+      {/* Mobile Backdrop for Supervisors List */}
+      {isManager && showMobileSidebar && (
+        <div
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-35 md:hidden"
+          onClick={() => setShowMobileSidebar(false)}
+        />
+      )}
+
       {/* ============================================================== */}
       {/* LEFT SIDEBAR: Supervisors List (Manager Only)                  */}
       {/* ============================================================== */}

@@ -848,7 +848,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
         </Card>
 
         {/* 4. Action Controls & Provenance Footer */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-white dark:bg-slate-800 rounded-2xl border border-[#E2E8F0] dark:border-slate-700 shadow-xs">
+        <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-3 sm:gap-4 p-4 sm:p-5 bg-white dark:bg-slate-800 rounded-2xl border border-[#E2E8F0] dark:border-slate-700 shadow-xs">
           <Button
             type="button"
             variant="outline"

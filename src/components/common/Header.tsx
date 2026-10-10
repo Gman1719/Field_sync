@@ -4,6 +4,7 @@ import {
   Bell,
   Clock,
   ChevronRight,
+  ChevronLeft,
   User,
   LogOut,
   Check,
@@ -159,17 +160,31 @@ export default function Header({
   };
 
   return (
-    <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-30 px-3 sm:px-6 flex items-center justify-between gap-2 shadow-xs transition-colors duration-200">
-      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+    <header className="h-16 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30 px-3 sm:px-6 flex items-center justify-between gap-2 shadow-xs transition-colors duration-200">
+      <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
+        {/* Contextual Back Button on Mobile when navigated away from Dashboard */}
+        {activeTab !== 'dashboard' && setActiveTab ? (
+          <button
+            type="button"
+            onClick={() => setActiveTab('dashboard')}
+            className="lg:hidden h-9 px-2 sm:px-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/60 dark:hover:bg-blue-900/60 text-blue-600 dark:text-blue-400 border border-blue-200/80 dark:border-blue-800 flex items-center gap-1 shrink-0 cursor-pointer shadow-2xs transition-all active:scale-95 text-xs font-bold"
+            title={userT('Back to Dashboard')}
+            aria-label={userT('Back to Dashboard')}
+          >
+            <ChevronLeft className="w-4 h-4 shrink-0" />
+            <span className="hidden xs:inline">{userT('Back')}</span>
+          </button>
+        ) : null}
+
         {/* Prominent, Accessible Mobile Hamburger Menu Button */}
         <button
           type="button"
           onClick={() => setIsMobileOpen && setIsMobileOpen(true)}
-          className="lg:hidden w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 border border-slate-200/80 dark:border-slate-700 flex items-center justify-center shrink-0 cursor-pointer shadow-2xs transition-all active:scale-95"
+          className="lg:hidden w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 border border-slate-200/80 dark:border-slate-700 flex items-center justify-center shrink-0 cursor-pointer shadow-2xs transition-all active:scale-95"
           title={userT('Open Menu')}
           aria-label={userT('Open Navigation Menu')}
         >
-          <Menu className="w-5 h-5 text-slate-700 dark:text-slate-200" />
+          <Menu className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700 dark:text-slate-200" />
         </button>
 
         <div className="min-w-0">
@@ -180,13 +195,13 @@ export default function Header({
               {userT(user?.role?.replace('_', ' ') || 'Staff')}
             </span>
           </div>
-          <h1 className="text-sm sm:text-base lg:text-lg font-bold text-slate-900 dark:text-white truncate tracking-tight">
+          <h1 className="text-xs sm:text-base lg:text-lg font-bold text-slate-900 dark:text-white truncate tracking-tight">
             {userT(tabTitles[activeTab] || 'Overview')}
           </h1>
         </div>
       </div>
 
-      <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+      <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
         <SyncBadge
           isOnline={isOnline}
           syncing={syncing}
@@ -196,7 +211,7 @@ export default function Header({
 
         {isOfficer && (
           <div
-            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono font-medium border shadow-xs ${
+            className={`hidden xs:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono font-medium border shadow-xs ${
               isScreenTimeRunning
                 ? 'bg-blue-50 text-[#2563EB] border-blue-200 dark:bg-blue-950/60 dark:text-blue-400 dark:border-blue-900/60'
                 : 'bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'
@@ -212,12 +227,13 @@ export default function Header({
           </div>
         )}
 
+        {/* Theme and Language on tablets and desktops (also accessible directly in Mobile Drawer) */}
         <button
           type="button"
           onClick={toggleTheme}
           aria-label="Toggle color theme"
           title={theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
-          className="p-2 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+          className="hidden sm:inline-flex p-2 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
         >
           {theme === 'dark' ? (
             <Sun className="w-4 h-4 text-amber-400" />
@@ -226,7 +242,9 @@ export default function Header({
           )}
         </button>
 
-        <LanguageSelector />
+        <div className="hidden sm:inline-flex">
+          <LanguageSelector />
+        </div>
 
         <div className="relative">
           <button

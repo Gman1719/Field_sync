@@ -387,7 +387,7 @@ export default function MainLayout({
           onLogout={onLogout}
         />
 
-        <main className="flex-1 p-3 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto pb-24 lg:pb-8">
+        <main className="flex-1 p-3 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto pb-28 sm:pb-24 lg:pb-8">
           {/* Dashboard - All Roles */}
           {activeTab === 'dashboard' && (
             <Dashboard
@@ -678,22 +678,24 @@ export default function MainLayout({
         {/* ============================================================== */}
         {/* MOBILE BOTTOM NAVIGATION BAR (Visible on < lg screens)        */}
         {/* ============================================================== */}
+        {/* MOBILE BOTTOM NAVIGATION BAR (Visible on < lg screens)        */}
+        {/* ============================================================== */}
         <nav
           aria-label="Mobile Navigation"
-          className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 shadow-lg px-2 py-1.5 flex items-center justify-around"
+          className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border-t border-slate-200/80 dark:border-slate-800/80 shadow-[0_-8px_25px_rgba(0,0,0,0.06)] dark:shadow-[0_-8px_25px_rgba(0,0,0,0.35)] px-2 pt-1.5 pb-safe flex items-center justify-around"
         >
           {/* Tab 1: Dashboard / Home (All roles) */}
           <button
             type="button"
             onClick={() => setActiveTab('dashboard')}
-            className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-[10px] font-bold transition-all cursor-pointer ${
+            className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-2xl text-[10px] font-bold transition-all mobile-tap-active cursor-pointer ${
               activeTab === 'dashboard'
-                ? 'text-[#2563EB] dark:text-blue-400 font-extrabold'
+                ? 'bg-blue-50/90 dark:bg-blue-950/70 text-blue-600 dark:text-blue-400 font-extrabold shadow-xs scale-[1.02]'
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <LayoutDashboard className="w-5 h-5 mb-0.5" />
-            <span>{userT('Home')}</span>
+            <LayoutDashboard className="w-5 h-5 mb-0.5 shrink-0" />
+            <span className="truncate max-w-[64px]">{userT('Home')}</span>
           </button>
 
           {/* Tab 2: Role-Specific Primary Tab */}
@@ -701,14 +703,14 @@ export default function MainLayout({
             <button
               type="button"
               onClick={() => setActiveTab('users')}
-              className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-[10px] font-bold transition-all cursor-pointer ${
+              className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-2xl text-[10px] font-bold transition-all mobile-tap-active cursor-pointer ${
                 activeTab === 'users'
-                  ? 'text-[#2563EB] dark:text-blue-400 font-extrabold'
+                  ? 'bg-blue-50/90 dark:bg-blue-950/70 text-blue-600 dark:text-blue-400 font-extrabold shadow-xs scale-[1.02]'
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
-              <UserCog className="w-5 h-5 mb-0.5" />
-              <span>{userT('Users')}</span>
+              <UserCog className="w-5 h-5 mb-0.5 shrink-0" />
+              <span className="truncate max-w-[64px]">{userT('Users')}</span>
             </button>
           )}
 
@@ -716,14 +718,14 @@ export default function MainLayout({
             <button
               type="button"
               onClick={() => setActiveTab('attendance')}
-              className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-[10px] font-bold transition-all cursor-pointer ${
+              className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-2xl text-[10px] font-bold transition-all mobile-tap-active cursor-pointer ${
                 activeTab === 'attendance'
-                  ? 'text-[#2563EB] dark:text-blue-400 font-extrabold'
+                  ? 'bg-blue-50/90 dark:bg-blue-950/70 text-blue-600 dark:text-blue-400 font-extrabold shadow-xs scale-[1.02]'
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
-              <CalendarClock className="w-5 h-5 mb-0.5" />
-              <span>{userT('Attendance')}</span>
+              <CalendarClock className="w-5 h-5 mb-0.5 shrink-0" />
+              <span className="truncate max-w-[64px]">{userT('Attendance')}</span>
             </button>
           )}
 
@@ -731,14 +733,14 @@ export default function MainLayout({
             <button
               type="button"
               onClick={() => setActiveTab('register')}
-              className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-[10px] font-bold transition-all cursor-pointer ${
+              className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-2xl text-[10px] font-bold transition-all mobile-tap-active cursor-pointer ${
                 activeTab === 'register'
-                  ? 'text-[#2563EB] dark:text-blue-400 font-extrabold'
+                  ? 'bg-blue-600 text-white font-extrabold shadow-md shadow-blue-500/25 scale-[1.02]'
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
-              <UserPlus className="w-5 h-5 mb-0.5" />
-              <span>{userT('Register')}</span>
+              <UserPlus className="w-5 h-5 mb-0.5 shrink-0" />
+              <span className="truncate max-w-[64px]">{userT('Register')}</span>
             </button>
           )}
 
@@ -747,14 +749,14 @@ export default function MainLayout({
             <button
               type="button"
               onClick={() => setActiveTab('citizens')}
-              className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-[10px] font-bold transition-all cursor-pointer ${
+              className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-2xl text-[10px] font-bold transition-all mobile-tap-active cursor-pointer ${
                 activeTab === 'citizens'
-                  ? 'text-[#2563EB] dark:text-blue-400 font-extrabold'
+                  ? 'bg-blue-50/90 dark:bg-blue-950/70 text-blue-600 dark:text-blue-400 font-extrabold shadow-xs scale-[1.02]'
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
-              <Database className="w-5 h-5 mb-0.5" />
-              <span>{userT('Citizens')}</span>
+              <Database className="w-5 h-5 mb-0.5 shrink-0" />
+              <span className="truncate max-w-[64px]">{userT('Citizens')}</span>
             </button>
           )}
 
@@ -762,14 +764,14 @@ export default function MainLayout({
             <button
               type="button"
               onClick={() => setActiveTab('reports')}
-              className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-[10px] font-bold transition-all cursor-pointer ${
+              className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-2xl text-[10px] font-bold transition-all mobile-tap-active cursor-pointer ${
                 activeTab === 'reports' || activeTab === 'all_reports'
-                  ? 'text-[#2563EB] dark:text-blue-400 font-extrabold'
+                  ? 'bg-blue-50/90 dark:bg-blue-950/70 text-blue-600 dark:text-blue-400 font-extrabold shadow-xs scale-[1.02]'
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
-              <FileText className="w-5 h-5 mb-0.5" />
-              <span>{userT('Reports')}</span>
+              <FileText className="w-5 h-5 mb-0.5 shrink-0" />
+              <span className="truncate max-w-[64px]">{userT('Reports')}</span>
             </button>
           )}
 
@@ -777,14 +779,14 @@ export default function MainLayout({
             <button
               type="button"
               onClick={() => setActiveTab('daily_report')}
-              className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-[10px] font-bold transition-all cursor-pointer ${
+              className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-2xl text-[10px] font-bold transition-all mobile-tap-active cursor-pointer ${
                 activeTab === 'daily_report' || activeTab === 'report_new'
-                  ? 'text-[#2563EB] dark:text-blue-400 font-extrabold'
+                  ? 'bg-blue-50/90 dark:bg-blue-950/70 text-blue-600 dark:text-blue-400 font-extrabold shadow-xs scale-[1.02]'
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
-              <FilePlus2 className="w-5 h-5 mb-0.5" />
-              <span>{userT('Report')}</span>
+              <FilePlus2 className="w-5 h-5 mb-0.5 shrink-0" />
+              <span className="truncate max-w-[64px]">{userT('Report')}</span>
             </button>
           )}
 
@@ -793,27 +795,27 @@ export default function MainLayout({
             <button
               type="button"
               onClick={() => setActiveTab('chat')}
-              className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-[10px] font-bold transition-all cursor-pointer ${
+              className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-2xl text-[10px] font-bold transition-all mobile-tap-active cursor-pointer ${
                 activeTab === 'chat'
-                  ? 'text-[#2563EB] dark:text-blue-400 font-extrabold'
+                  ? 'bg-blue-50/90 dark:bg-blue-950/70 text-blue-600 dark:text-blue-400 font-extrabold shadow-xs scale-[1.02]'
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
-              <MessageSquare className="w-5 h-5 mb-0.5" />
-              <span>{userT('Chat')}</span>
+              <MessageSquare className="w-5 h-5 mb-0.5 shrink-0" />
+              <span className="truncate max-w-[64px]">{userT('Chat')}</span>
             </button>
           ) : (
             <button
               type="button"
               onClick={() => setActiveTab('my_reports')}
-              className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-[10px] font-bold transition-all cursor-pointer ${
+              className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-2xl text-[10px] font-bold transition-all mobile-tap-active cursor-pointer ${
                 activeTab === 'my_reports'
-                  ? 'text-[#2563EB] dark:text-blue-400 font-extrabold'
+                  ? 'bg-blue-50/90 dark:bg-blue-950/70 text-blue-600 dark:text-blue-400 font-extrabold shadow-xs scale-[1.02]'
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
-              <FileText className="w-5 h-5 mb-0.5" />
-              <span>{userT('My Work')}</span>
+              <FileText className="w-5 h-5 mb-0.5 shrink-0" />
+              <span className="truncate max-w-[64px]">{userT('My Work')}</span>
             </button>
           )}
 
@@ -821,11 +823,16 @@ export default function MainLayout({
           <button
             type="button"
             onClick={() => setIsMobileOpen(true)}
-            className="flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-[10px] font-bold text-slate-600 dark:text-slate-300 hover:text-[#2563EB] dark:hover:text-blue-400 cursor-pointer transition-all active:scale-95"
+            className="flex flex-col items-center justify-center py-1.5 px-3 rounded-2xl text-[10px] font-bold text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 mobile-tap-active cursor-pointer transition-all"
             aria-label="Open Full Navigation Menu"
           >
-            <Menu className="w-5 h-5 mb-0.5 text-slate-700 dark:text-slate-200" />
-            <span>{userT('Menu')}</span>
+            <div className="relative">
+              <Menu className="w-5 h-5 mb-0.5 text-slate-700 dark:text-slate-300 shrink-0" />
+              {unreadNotifCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-slate-900 animate-pulse" />
+              )}
+            </div>
+            <span className="truncate max-w-[64px]">{userT('Menu')}</span>
           </button>
         </nav>
       </div>

@@ -483,3 +483,40 @@ html.dark [role="dialog"] .border-t,
 html.dark [role="dialog"] .border-b {
   border-color: #334155 !important;
 }
+
+/* ============================================================== */
+/* MOBILE-FIRST UX & SAFE AREA ENHANCEMENTS                      */
+/* ============================================================== */
+.pb-safe {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0.75rem));
+}
+
+.pt-safe {
+  padding-top: max(0.5rem, env(safe-area-inset-top, 0.5rem));
+}
+
+.mb-safe {
+  margin-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Prevent accidental iOS double-tap zoom on buttons and inputs */
+button, a, input, select, textarea {
+  touch-action: manipulation;
+}
+
+/* Smooth mobile horizontal scrolling containers */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Mobile card shadow and micro-interactions */
+@media (max-width: 640px) {
+  .mobile-tap-active:active {
+    transform: scale(0.97);
+    transition: transform 0.1s ease;
+  }
+}
