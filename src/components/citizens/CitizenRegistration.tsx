@@ -283,7 +283,7 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
       zoneName: zones.find((z) => z.id === zoneId)?.name || '',
       woredaName: woredas.find((w) => w.id === woredaId)?.name || '',
       kebeleName: kebeleName.trim(),
-      registeredById: officerDisplayId,
+      registeredById: user?.id || officerDisplayId,
       registeredByName: user?.name || user?.fullName || 'Field Officer',
       registeredByEmployeeId: officerDisplayId,
       assignmentId: user?.assignmentId || null,

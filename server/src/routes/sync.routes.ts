@@ -55,7 +55,21 @@ router.post('/batch', authenticate, async (req: Request, res: Response): Promise
       }
 
       try {
-        const registeredById = c.registeredById || caller.id;
+        let registeredById = caller.id;
+        if (c.registeredById && c.registeredById !== 'offline_officer') {
+          const matchedUser = await prisma.user.findFirst({
+            where: {
+              OR: [
+                { id: c.registeredById },
+                { email: { equals: c.registeredById, mode: 'insensitive' } },
+              ],
+            },
+            select: { id: true },
+          });
+          if (matchedUser) {
+            registeredById = matchedUser.id;
+          }
+        }
 
         // Check for cross-device duplicate detection
         let duplicateStatus: DuplicateReviewStatus = DuplicateReviewStatus.NO_DUPLICATE_DETECTED;

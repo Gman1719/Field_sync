@@ -79,16 +79,24 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
             try {
               const u = JSON.parse(rawUser);
               if (u.email) {
+                const pwd =
+                  localStorage.getItem(`fieldsync_pwd_${u.email.toLowerCase()}`) ||
+                  (u.id ? localStorage.getItem(`fieldsync_pwd_${u.id}`) : null) ||
+                  u.password ||
+                  'Password123!';
                 const lRes = await fetch(`${API_BASE}/auth/login`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ email: u.email, password: 'Password123!' }),
+                  body: JSON.stringify({ email: u.email, password: pwd }),
                 });
                 if (lRes.ok) {
-                  const lData = await lRes.json();
-                  if (lData.success && lData.data?.token) {
-                    authToken = lData.data.token;
-                    localStorage.setItem('fieldsync_token', authToken!);
+                  const contentType = lRes.headers.get('content-type') || '';
+                  if (contentType.includes('application/json')) {
+                    const lData = await lRes.json();
+                    if (lData.success && lData.data?.token) {
+                      authToken = lData.data.token;
+                      localStorage.setItem('fieldsync_token', authToken!);
+                    }
                   }
                 }
               }
@@ -683,11 +691,35 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
               {isOfficer ? userT('My Registered Citizens') : userT('Registered Citizens')} ({filteredCitizens.length} {filteredCitizens.length === 1 ? userT('record') : userT('records')})
             </CardTitle>
           </div>
-          {hasActiveFilters && (
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-50 dark:bg-blue-950/60 text-[#2563EB] dark:text-blue-300 border border-blue-200 dark:border-blue-900">
-              {userT('Showing')} {filteredCitizens.length} {userT('of')} {baseCitizens.length} {isOfficer ? userT('enrolled by you') : userT('total')}
-            </span>
-          )}
+          <div className="flex flex-wrap items-center gap-2">
+            {hasActiveFilters && (
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-50 dark:bg-blue-950/60 text-[#2563EB] dark:text-blue-300 border border-blue-200 dark:border-blue-900">
+                {userT('Showing')} {filteredCitizens.length} {userT('of')} {baseCitizens.length} {isOfficer ? userT('enrolled by you') : userT('total')}
+              </span>
+            )}
+            {stats.pending > 0 && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleSyncNow}
+                disabled={isSyncingNow}
+                className="h-9 px-3 text-xs font-bold border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 hover:bg-amber-100 cursor-pointer shadow-xs transition-all"
+              >
+                {isSyncingNow ? userT('Syncing...') : `${userT('Sync to Cloud')} (${stats.pending})`}
+              </Button>
+            )}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              className="h-9 px-3 text-xs font-semibold cursor-pointer"
+            >
+              {isRefreshing ? userT('Refreshing...') : userT('Refresh')}
+            </Button>
+          </div>
         </CardHeader>
 
         <CardContent className="p-0">
@@ -848,9 +880,15 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
                               {userT('Synced')}
                             </span>
                           ) : (
-                            <span className="inline-block px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
-                              {userT('Pending')}
-                            </span>
+                            <button
+                              type="button"
+                              onClick={handleSyncNow}
+                              disabled={isSyncingNow}
+                              className="inline-block px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 hover:bg-amber-100 hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-2xs"
+                              title={userT('Click to synchronize this record with the central cloud database')}
+                            >
+                              {isSyncingNow ? userT('Syncing...') : userT('Pending')}
+                            </button>
                           )}
                         </td>
 

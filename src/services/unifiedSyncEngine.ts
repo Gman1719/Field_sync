@@ -113,16 +113,25 @@ class UnifiedSyncEngine {
         try {
           const userObj = JSON.parse(rawUser);
           if (userObj.email) {
+            const pwd =
+              localStorage.getItem(`fieldsync_pwd_${userObj.email.toLowerCase()}`) ||
+              (userObj.id ? localStorage.getItem(`fieldsync_pwd_${userObj.id}`) : null) ||
+              userObj.password ||
+              'Password123!';
+
             const loginRes = await fetch(`${API_BASE}/auth/login`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ email: userObj.email, password: 'Password123!' }),
+              body: JSON.stringify({ email: userObj.email, password: pwd }),
             });
             if (loginRes.ok) {
-              const loginData = await loginRes.json();
-              if (loginData.success && loginData.data?.token) {
-                authToken = loginData.data.token;
-                localStorage.setItem('fieldsync_token', authToken!);
+              const contentType = loginRes.headers.get('content-type') || '';
+              if (contentType.includes('application/json')) {
+                const loginData = await loginRes.json();
+                if (loginData.success && loginData.data?.token) {
+                  authToken = loginData.data.token;
+                  localStorage.setItem('fieldsync_token', authToken!);
+                }
               }
             }
           }
