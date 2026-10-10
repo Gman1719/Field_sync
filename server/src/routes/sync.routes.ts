@@ -251,13 +251,30 @@ router.post('/batch', authenticate, async (req: Request, res: Response): Promise
     for (const r of dailyReports) {
       if (!r.id || !r.reportDate) continue;
       try {
-        const officerId = r.officerId || caller.id;
+        let officerId = caller.id;
+        const candidateId = r.officerId || caller.id;
 
-        // Retrieve officer supervisor
-        const officer = await prisma.user.findUnique({
-          where: { id: officerId },
-          select: { supervisorId: true, fullName: true },
+        // Retrieve officer supervisor and ensure valid user id
+        let officer = await prisma.user.findFirst({
+          where: {
+            OR: [
+              { id: candidateId },
+              { email: { equals: candidateId, mode: 'insensitive' } },
+            ],
+          },
+          select: { id: true, supervisorId: true, fullName: true },
         });
+
+        if (officer) {
+          officerId = officer.id;
+        } else {
+          officer = await prisma.user.findUnique({
+            where: { id: caller.id },
+            select: { id: true, supervisorId: true, fullName: true },
+          });
+          officerId = caller.id;
+        }
+
         const supervisorId = officer?.supervisorId || r.supervisorId || null;
 
         // Compute actual confirmed citizens for that date

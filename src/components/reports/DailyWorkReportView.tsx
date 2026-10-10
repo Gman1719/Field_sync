@@ -13,6 +13,7 @@ import ActivityLogger from '../../services/activityLogger';
 import SessionTracker from '../../services/sessionTracker';
 import { getZonedTimeComponents } from '../../config/workingHours';
 import { generateReportId, generateId, formatDisplayUserId } from '../../utils/idGenerator';
+import { syncEngine } from '../../services/unifiedSyncEngine';
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
 import Button from '../ui/Button';
@@ -468,31 +469,74 @@ export default function DailyWorkReportView({
         status: 'PENDING',
       });
 
-      // Step 6: If online, attempt background sync with backend
-      const authToken = localStorage.getItem('fieldsync_token');
+      // Step 6: If online, attempt immediate sync with backend
+      let authToken = localStorage.getItem('fieldsync_token');
       let isSyncedServer = false;
 
-      if (navigator.onLine && authToken) {
-        try {
-          const res = await fetch(`${API_BASE}/reports/daily`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${authToken}`,
-            },
-            body: JSON.stringify(reportPayload),
-          });
+      if (navigator.onLine) {
+        if (!authToken || authToken.startsWith('offline_')) {
+          const rawUser = localStorage.getItem('fieldsync_user');
+          if (rawUser) {
+            try {
+              const u = JSON.parse(rawUser);
+              if (u.email) {
+                const pwd =
+                  localStorage.getItem(`fieldsync_pwd_${u.email.toLowerCase()}`) ||
+                  (u.id ? localStorage.getItem(`fieldsync_pwd_${u.id}`) : null) ||
+                  u.password ||
+                  'Password123!';
+                const lRes = await fetch(`${API_BASE}/auth/login`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ email: u.email, password: pwd }),
+                });
+                if (lRes.ok) {
+                  const lData = await lRes.json();
+                  if (lData.success && lData.data?.token) {
+                    authToken = lData.data.token;
+                    localStorage.setItem('fieldsync_token', authToken!);
+                  }
+                }
+              }
+            } catch {}
+          }
+        }
 
-          if (res.ok) {
-            const resData = await res.json();
-            if (resData.success) {
+        try {
+          const syncRes = await syncEngine.syncAll(true);
+          if (syncRes.success) {
+            const checkRep = await offlineDb.dailyWorkReports.get(reportId);
+            if (checkRep?.syncStatus === 'SYNCED') {
               isSyncedServer = true;
-              await offlineDb.dailyWorkReports.update(reportId, { syncStatus: 'SYNCED' });
               reportPayload.syncStatus = 'SYNCED';
             }
           }
-        } catch (apiErr) {
-          console.warn('Network sync failed, report preserved locally in Dexie:', apiErr.message);
+        } catch (syncErr) {
+          console.warn('SyncEngine batch sync error:', syncErr);
+        }
+
+        if (!isSyncedServer && authToken && !authToken.startsWith('offline_')) {
+          try {
+            const res = await fetch(`${API_BASE}/reports/daily`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${authToken}`,
+              },
+              body: JSON.stringify(reportPayload),
+            });
+
+            if (res.ok) {
+              const resData = await res.json();
+              if (resData.success) {
+                isSyncedServer = true;
+                await offlineDb.dailyWorkReports.update(reportId, { syncStatus: 'SYNCED' });
+                reportPayload.syncStatus = 'SYNCED';
+              }
+            }
+          } catch (apiErr: any) {
+            console.warn('Network sync failed, report preserved locally in Dexie:', apiErr.message);
+          }
         }
       }
 
