@@ -934,7 +934,7 @@ async function handleUpdateUser(req: Request, res: Response): Promise<void> {
     const fullName = validated.fullName || [firstName, middleName, lastName].filter(Boolean).join(' ') || user.fullName;
 
     const updated = await prisma.user.update({
-      where: { id },
+      where: { id: user.id },
       data: {
         firstName,
         middleName,
@@ -957,7 +957,7 @@ async function handleUpdateUser(req: Request, res: Response): Promise<void> {
       req,
       action: 'USER_UPDATED',
       entityType: 'User',
-      entityId: id,
+      entityId: user.id,
       zoneId: updated.zoneId,
       summary: `${req.user!.fullName} updated profile details for ${updated.fullName}`,
       previousValues: {
@@ -1096,7 +1096,7 @@ router.patch('/:id/assignment', authenticate, requireManager, async (req: Reques
     }
 
     const updated = await prisma.user.update({
-      where: { id },
+      where: { id: user.id },
       data: {
         regionId: hierarchy.regionId,
         zoneId: hierarchy.zoneId,
@@ -1111,7 +1111,7 @@ router.patch('/:id/assignment', authenticate, requireManager, async (req: Reques
       req,
       action: 'USER_ASSIGNMENT_UPDATED',
       entityType: 'User',
-      entityId: id,
+      entityId: user.id,
       zoneId: hierarchy.zoneId,
       summary: `${req.user!.fullName} reassigned location/hierarchy for ${updated.fullName}`,
       previousValues: {
@@ -1305,7 +1305,11 @@ router.patch('/:id/role', authenticate, requireManager, async (req: Request, res
 
     const newRole = normalizeRole(role);
 
-    const user = await prisma.user.findUnique({ where: { id } });
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [{ id }, { email: id }],
+      },
+    });
     if (!user) {
       res.status(404).json({ success: false, error: 'User not found' });
       return;
@@ -1332,7 +1336,7 @@ router.patch('/:id/role', authenticate, requireManager, async (req: Request, res
     let transferredOfficersCount = 0;
     if (user.role === Role.SUPERVISOR && newRole !== Role.SUPERVISOR) {
       const supervisedOfficers = await prisma.user.findMany({
-        where: { supervisorId: id, role: Role.FIELD_OFFICER },
+        where: { supervisorId: user.id, role: Role.FIELD_OFFICER },
         select: { id: true, fullName: true },
       });
 
@@ -1383,7 +1387,7 @@ router.patch('/:id/role', authenticate, requireManager, async (req: Request, res
     );
 
     const updated = await prisma.user.update({
-      where: { id },
+      where: { id: user.id },
       data: {
         role: newRole,
         regionId: validatedHierarchy.regionId,
@@ -1400,7 +1404,7 @@ router.patch('/:id/role', authenticate, requireManager, async (req: Request, res
         req,
         action: 'USER_ROLE_UPDATED',
         entityType: 'User',
-        entityId: id,
+        entityId: user.id,
         zoneId: updated.zoneId,
         summary: `${req.user?.fullName || 'Manager'} updated system role for ${updated.fullName} to ${newRole.replace('_', ' ')}`,
         previousValues: { role: user.role },
@@ -1413,7 +1417,7 @@ router.patch('/:id/role', authenticate, requireManager, async (req: Request, res
 
     try {
       await createNotification({
-        recipientId: id,
+        recipientId: user.id,
         title: 'System Role Updated',
         message: `Your system role has been changed to ${newRole.replace('_', ' ')}.`,
         type: 'ACCOUNT',
@@ -1426,7 +1430,7 @@ router.patch('/:id/role', authenticate, requireManager, async (req: Request, res
         message: `${updated.fullName}'s role has been changed from ${user.role} to ${newRole}.`,
         type: 'ACCOUNT',
         priority: NotificationPriority.IMPORTANT,
-        relatedRecordId: id,
+        relatedRecordId: user.id,
         actionUrl: '/users',
       });
     } catch (notifErr: any) {
@@ -1460,7 +1464,11 @@ router.patch('/:id/status', authenticate, requireManager, async (req: Request, r
 
     const newActiveState = isActive !== undefined ? !!isActive : status === 'active';
 
-    const existingUser = await prisma.user.findUnique({ where: { id } });
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [{ id }, { email: id }],
+      },
+    });
     if (!existingUser) {
       res.status(404).json({ success: false, error: 'User record not found in database' });
       return;
@@ -1478,7 +1486,7 @@ router.patch('/:id/status', authenticate, requireManager, async (req: Request, r
     // Departure/Deactivation validation: Check if deactivating a supervisor with active supervisees
     if (existingUser.role === Role.SUPERVISOR && !newActiveState) {
       const supervisedOfficers = await prisma.user.findMany({
-        where: { supervisorId: id, role: Role.FIELD_OFFICER },
+        where: { supervisorId: existingUser.id, role: Role.FIELD_OFFICER },
         select: { id: true, fullName: true },
       });
 
@@ -1508,14 +1516,14 @@ router.patch('/:id/status', authenticate, requireManager, async (req: Request, r
         }
 
         await prisma.user.updateMany({
-          where: { supervisorId: id, role: Role.FIELD_OFFICER },
+          where: { supervisorId: existingUser.id, role: Role.FIELD_OFFICER },
           data: { supervisorId: transferSupervisorId },
         });
       }
     }
 
     const updated = await prisma.user.update({
-      where: { id },
+      where: { id: existingUser.id },
       data: { isActive: newActiveState },
       include: userIncludeRelations,
     });
@@ -1525,7 +1533,7 @@ router.patch('/:id/status', authenticate, requireManager, async (req: Request, r
         req,
         action: 'USER_STATUS_UPDATED',
         entityType: 'User',
-        entityId: id,
+        entityId: existingUser.id,
         zoneId: updated.zoneId,
         summary: `${req.user?.fullName || 'Manager'} ${newActiveState ? 'activated' : 'deactivated'} account for ${updated.fullName}`,
         previousValues: { isActive: !newActiveState },
@@ -1537,7 +1545,7 @@ router.patch('/:id/status', authenticate, requireManager, async (req: Request, r
 
     try {
       await createNotification({
-        recipientId: id,
+        recipientId: existingUser.id,
         title: 'Account Status Updated',
         message: `Your account has been ${newActiveState ? 'reactivated' : 'deactivated'} by management.`,
         type: 'ACCOUNT',
@@ -1550,7 +1558,7 @@ router.patch('/:id/status', authenticate, requireManager, async (req: Request, r
         message: `${updated.fullName}'s account has been ${newActiveState ? 'activated' : 'deactivated'}.`,
         type: 'ACCOUNT',
         priority: NotificationPriority.IMPORTANT,
-        relatedRecordId: id,
+        relatedRecordId: existingUser.id,
         actionUrl: '/users',
       });
 
@@ -1560,7 +1568,7 @@ router.patch('/:id/status', authenticate, requireManager, async (req: Request, r
           message: `${updated.fullName}'s account in your zone has been ${newActiveState ? 'activated' : 'deactivated'}.`,
           type: 'ACCOUNT',
           priority: NotificationPriority.IMPORTANT,
-          relatedRecordId: id,
+          relatedRecordId: existingUser.id,
           actionUrl: '/team',
         });
       }
@@ -1590,6 +1598,7 @@ router.patch('/:id/status', authenticate, requireManager, async (req: Request, r
 router.post('/:id/password-reset', authenticate, requireManager, async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
+    const { temporaryPassword: customTempPassword, password } = req.body || {};
 
     const user = await prisma.user.findFirst({
       where: {
@@ -1601,18 +1610,18 @@ router.post('/:id/password-reset', authenticate, requireManager, async (req: Req
       return;
     }
 
-    const tempPassword = (typeof req.body?.temporaryPassword === 'string' && req.body.temporaryPassword.trim())
-      ? req.body.temporaryPassword.trim()
-      : generateSecureTempPassword();
-    const passwordHash = await bcrypt.hash(tempPassword, 10);
+    const providedPassword = (typeof customTempPassword === 'string' && customTempPassword.trim().length >= 6)
+      ? customTempPassword.trim()
+      : (typeof password === 'string' && password.trim().length >= 6 ? password.trim() : null);
 
-    const mustChangePassword = req.body?.mustChangePassword !== undefined ? Boolean(req.body.mustChangePassword) : true;
+    const tempPassword = providedPassword || generateSecureTempPassword();
+    const passwordHash = await bcrypt.hash(tempPassword, 10);
 
     await prisma.user.update({
       where: { id: user.id },
       data: {
         passwordHash,
-        mustChangePassword,
+        mustChangePassword: true,
       },
     });
 
@@ -1628,7 +1637,7 @@ router.post('/:id/password-reset', authenticate, requireManager, async (req: Req
     });
 
     await createNotification({
-      recipientId: id,
+      recipientId: user.id,
       title: 'Password Reset Initiated',
       message: 'A temporary password has been issued for your account. You will be required to change it upon login.',
       type: 'SECURITY',
@@ -1641,7 +1650,7 @@ router.post('/:id/password-reset', authenticate, requireManager, async (req: Req
       message: `A password reset was issued for ${user.fullName} (${user.email}).`,
       type: 'SECURITY',
       priority: NotificationPriority.NORMAL,
-      relatedRecordId: id,
+      relatedRecordId: user.id,
       actionUrl: '/users',
     });
 

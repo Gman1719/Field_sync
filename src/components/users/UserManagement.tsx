@@ -22,11 +22,11 @@ import Modal from '../ui/Modal';
 
 import LocationDropdown from './LocationDropdown';
 import TempPasswordModal from './TempPasswordModal';
+import UserPasswordResetModal from './UserPasswordResetModal';
 import UserDetailsModal from './UserDetailsModal';
 import UserEditModal from './UserEditModal';
 import UserReassignModal from './UserReassignModal';
 import UserRoleModal from './UserRoleModal';
-import UserPasswordResetModal from './UserPasswordResetModal';
 import { useUserLanguage } from '../../context/UserLanguageContext';
 
 export default function UserManagement({
@@ -499,22 +499,25 @@ export default function UserManagement({
     }
   };
 
-  // 8. Handle Password Reset
+  // 8. Handle Password Reset - Open Interactive Reset Password Modal
   const handleResetPassword = (user: any) => {
     setSelectedUserResetPassword(user);
   };
 
-  // 9. Callback when user is updated in Edit, Reassign, or Role modals
+  // 9. Callback when user is updated in Edit, Reassign, Role, or Reset Password modals
   const handleUserUpdated = (
     updatedUser: any,
     transferredOfficerIds: string[] = [],
     newSupervisorId: string | null = null,
     officerTransferMap: Record<string, string> = {}
   ) => {
+    if (!updatedUser) return;
     if (setUsers) {
       setUsers((prev: any[]) =>
         prev.map((u) => {
-          if (u.id === updatedUser.id) return updatedUser;
+          if (u.id === updatedUser.id || (u.email && updatedUser.email && u.email === updatedUser.email)) {
+            return { ...u, ...updatedUser };
+          }
           if (officerTransferMap && officerTransferMap[u.id]) {
             return { ...u, supervisorId: officerTransferMap[u.id] };
           }
@@ -525,8 +528,12 @@ export default function UserManagement({
         })
       );
     }
-    if (selectedUserDetails && selectedUserDetails.id === updatedUser.id) {
-      setSelectedUserDetails(updatedUser);
+    if (
+      selectedUserDetails &&
+      (selectedUserDetails.id === updatedUser.id ||
+        (selectedUserDetails.email && updatedUser.email && selectedUserDetails.email === updatedUser.email))
+    ) {
+      setSelectedUserDetails((prev: any) => ({ ...prev, ...updatedUser }));
     }
     fetchStats();
   };
@@ -1322,7 +1329,7 @@ export default function UserManagement({
         allUsers={users}
       />
 
-      {/* 10. Interactive User Password Reset Modal */}
+      {/* 9.5 Interactive User Password Reset Modal */}
       <UserPasswordResetModal
         user={selectedUserResetPassword}
         isOpen={Boolean(selectedUserResetPassword)}
@@ -1330,7 +1337,7 @@ export default function UserManagement({
         onUserUpdated={handleUserUpdated}
       />
 
-      {/* 11. Temporary Password Modal */}
+      {/* 10. Temporary Password Modal */}
       {tempPasswordModalData && (
         <TempPasswordModal
           userName={tempPasswordModalData.userName}

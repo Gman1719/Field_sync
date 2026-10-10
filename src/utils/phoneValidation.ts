@@ -30,7 +30,7 @@ export const validateEthiopianPhone = (
   phone?: string | number | null,
   required = true,
   customError: string | null = null
-): PhoneValidationResult & string => {
+): PhoneValidationResult => {
   const original = (phone || '').toString().trim();
   const cleaned = original.replace(/[\s\-\.\(\)]/g, '');
   let message = '';

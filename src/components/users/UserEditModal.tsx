@@ -7,7 +7,7 @@ import Modal from '../ui/Modal';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
 import Badge from '../ui/Badge';
-import { validateEthiopianPhone } from '../../utils/phoneValidation';
+import { validateEthiopianPhone, normalizeEthiopianPhone } from '../../utils/phoneValidation';
 import { API_BASE } from '../../config/api';
 import { db } from '../../services/database';
 import { offlineDb } from '../../db/offlineDb';
@@ -74,6 +74,8 @@ export default function UserEditModal({ user, isOpen, onClose, onUserUpdated }: 
 
     setIsSubmitting(true);
     const fullName = [formData.firstName.trim(), formData.middleName.trim(), formData.lastName.trim()].filter(Boolean).join(' ');
+    const rawPhone = formData.phone?.trim() || null;
+    const cleanPhone = rawPhone ? normalizeEthiopianPhone(rawPhone) : null;
 
     let updatedUser = {
       ...user,
@@ -82,16 +84,15 @@ export default function UserEditModal({ user, isOpen, onClose, onUserUpdated }: 
       lastName: formData.lastName.trim(),
       fullName,
       name: fullName,
-      phone: formData.phone?.trim() || null,
-      phoneNumber: formData.phone?.trim() || null,
+      phone: rawPhone,
+      phoneNumber: cleanPhone || rawPhone,
       updatedAt: new Date().toISOString(),
     };
 
     try {
-      const token = localStorage.getItem('fieldsync_token') || localStorage.getItem('token');
+      const token = localStorage.getItem('fieldsync_token');
       if (navigator.onLine && token) {
         try {
-          const cleanedPhone = formData.phone?.trim() ? formData.phone.trim().replace(/[\s\-\.\(\)]/g, '') : null;
           const putRes = await fetch(`${API_BASE}/users/${user.id}`, {
             method: 'PUT',
             headers: {
@@ -102,8 +103,8 @@ export default function UserEditModal({ user, isOpen, onClose, onUserUpdated }: 
               firstName: formData.firstName.trim(),
               middleName: formData.middleName.trim(),
               lastName: formData.lastName.trim(),
-              phoneNumber: cleanedPhone,
-              phone: cleanedPhone,
+              phoneNumber: cleanPhone || rawPhone,
+              phone: rawPhone,
             }),
           });
 
@@ -223,8 +224,9 @@ export default function UserEditModal({ user, isOpen, onClose, onUserUpdated }: 
                 label={userT('First Name (Given)')}
                 value={formData.firstName}
                 onChange={(e) => {
-                  setFormData(p => ({ ...p, firstName: e.target.value }));
-                  if (errors.firstName) setErrors(p => ({ ...p, firstName: '' }));
+                  const val = e.target.value;
+                  setFormData(p => ({ ...p, firstName: val }));
+                  if (errors.firstName) setErrors(prev => { const c = { ...prev }; delete c.firstName; return c; });
                 }}
                 placeholder={userT('e.g. Aster')}
                 required
@@ -236,8 +238,9 @@ export default function UserEditModal({ user, isOpen, onClose, onUserUpdated }: 
                 label={userT('Father Name (Middle)')}
                 value={formData.middleName}
                 onChange={(e) => {
-                  setFormData(p => ({ ...p, middleName: e.target.value }));
-                  if (errors.middleName) setErrors(p => ({ ...p, middleName: '' }));
+                  const val = e.target.value;
+                  setFormData(p => ({ ...p, middleName: val }));
+                  if (errors.middleName) setErrors(prev => { const c = { ...prev }; delete c.middleName; return c; });
                 }}
                 placeholder={userT('e.g. Awoke')}
                 required
@@ -249,8 +252,9 @@ export default function UserEditModal({ user, isOpen, onClose, onUserUpdated }: 
                 label={userT('Grandfather (Last)')}
                 value={formData.lastName}
                 onChange={(e) => {
-                  setFormData(p => ({ ...p, lastName: e.target.value }));
-                  if (errors.lastName) setErrors(p => ({ ...p, lastName: '' }));
+                  const val = e.target.value;
+                  setFormData(p => ({ ...p, lastName: val }));
+                  if (errors.lastName) setErrors(prev => { const c = { ...prev }; delete c.lastName; return c; });
                 }}
                 placeholder={userT('e.g. Tesfu')}
                 required
@@ -291,8 +295,9 @@ export default function UserEditModal({ user, isOpen, onClose, onUserUpdated }: 
                 type="text"
                 value={formData.phone}
                 onChange={(e) => {
-                  setFormData(p => ({ ...p, phone: e.target.value }));
-                  if (errors.phone) setErrors(p => ({ ...p, phone: '' }));
+                  const val = e.target.value;
+                  setFormData(p => ({ ...p, phone: val }));
+                  if (errors.phone) setErrors(prev => { const c = { ...prev }; delete c.phone; return c; });
                 }}
                 placeholder={userT('+2519XXXXXXXX or 09XXXXXXXX')}
                 helperText={userT('Ethiopian mobile format (09/07 + 8 digits) or +251')}
