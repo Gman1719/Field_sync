@@ -11,7 +11,6 @@ import toast from 'react-hot-toast';
 
 import { offlineDb } from '../../db/offlineDb';
 import { API_BASE } from '../../config/api';
-import { syncEngine } from '../../services/unifiedSyncEngine';
 
 import { Card } from '../ui/Card';
 import Button from '../ui/Button';
@@ -23,7 +22,6 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
   const [reports, setReports] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isSyncingNow, setIsSyncingNow] = useState(false);
   const [selectedDate, setSelectedDate] = useState('');
   const [filterSyncStatus, setFilterSyncStatus] = useState('ALL');
   const [inspectReport, setInspectReport] = useState<any>(null);
@@ -62,71 +60,29 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
   const loadReports = async () => {
     setIsLoading(true);
     try {
-      // Step A: If online, auto-sync pending local records first
-      if (navigator.onLine) {
-        try {
-          await syncEngine.syncAll(true);
-        } catch (syncErr) {
-          console.warn('Auto-sync during reports load:', syncErr);
-        }
-      }
-
-      // Step B: Fetch from local Dexie store
+      // 1. Fetch from local Dexie store
       const localReports = await offlineDb.dailyWorkReports.orderBy('reportDate').reverse().toArray();
 
-      // Step C: If online, fetch central server reports to sync status
-      let authToken = localStorage.getItem('fieldsync_token');
-      if (navigator.onLine) {
-        if (!authToken || authToken.startsWith('offline_')) {
-          const rawUser = localStorage.getItem('fieldsync_user');
-          if (rawUser) {
-            try {
-              const u = JSON.parse(rawUser);
-              if (u.email) {
-                const pwd =
-                  localStorage.getItem(`fieldsync_pwd_${u.email.toLowerCase()}`) ||
-                  (u.id ? localStorage.getItem(`fieldsync_pwd_${u.id}`) : null) ||
-                  u.password ||
-                  'Password123!';
-                const lRes = await fetch(`${API_BASE}/auth/login`, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ email: u.email, password: pwd }),
+      // 2. If online, fetch central server reports
+      const authToken = localStorage.getItem('fieldsync_token');
+      if (navigator.onLine && authToken) {
+        try {
+          const res = await fetch(`${API_BASE}/reports/daily`, {
+            headers: { Authorization: `Bearer ${authToken}` },
+          });
+          if (res.ok) {
+            const resData = await res.json();
+            if (resData.success && Array.isArray(resData.data)) {
+              for (const r of resData.data) {
+                await offlineDb.dailyWorkReports.put({
+                  ...r,
+                  syncStatus: 'SYNCED',
                 });
-                if (lRes.ok) {
-                  const contentType = lRes.headers.get('content-type') || '';
-                  if (contentType.includes('application/json')) {
-                    const lData = await lRes.json();
-                    if (lData.success && lData.data?.token) {
-                      authToken = lData.data.token;
-                      localStorage.setItem('fieldsync_token', authToken!);
-                    }
-                  }
-                }
-              }
-            } catch {}
-          }
-        }
-
-        if (authToken && !authToken.startsWith('offline_')) {
-          try {
-            const res = await fetch(`${API_BASE}/reports/daily`, {
-              headers: { Authorization: `Bearer ${authToken}` },
-            });
-            if (res.ok) {
-              const resData = await res.json();
-              if (resData.success && Array.isArray(resData.data)) {
-                for (const r of resData.data) {
-                  await offlineDb.dailyWorkReports.put({
-                    ...r,
-                    syncStatus: 'SYNCED',
-                  });
-                }
               }
             }
-          } catch (serverErr: any) {
-            console.warn('Could not fetch server reports, using offline Dexie:', serverErr.message);
           }
+        } catch (serverErr: any) {
+          console.warn('Could not fetch server reports, using offline Dexie:', serverErr.message);
         }
       }
 
@@ -144,44 +100,7 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
 
   useEffect(() => {
     loadReports();
-
-    const handleSyncComplete = () => {
-      loadReports();
-    };
-
-    window.addEventListener('sync-completed', handleSyncComplete);
-    window.addEventListener('daily-report-submitted', handleSyncComplete);
-
-    return () => {
-      window.removeEventListener('sync-completed', handleSyncComplete);
-      window.removeEventListener('daily-report-submitted', handleSyncComplete);
-    };
   }, []);
-
-  const handleSyncNow = async () => {
-    if (!navigator.onLine) {
-      toast.error(userT('Device is offline. Connect to the internet to sync.'));
-      return;
-    }
-    setIsSyncingNow(true);
-    try {
-      const res = await syncEngine.syncAll(false);
-      if (res.success) {
-        toast.success(
-          res.syncedCount > 0
-            ? userT(`Successfully synced ${res.syncedCount} record(s) to cloud database!`)
-            : userT('All reports are up to date with cloud.')
-        );
-      } else {
-        toast.error(res.errors[0] || userT('Sync completed with warnings'));
-      }
-      await loadReports();
-    } catch (err: any) {
-      toast.error(`Sync error: ${err.message}`);
-    } finally {
-      setIsSyncingNow(false);
-    }
-  };
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -195,13 +114,11 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
     const totalCitizens = reports.reduce((acc, r) => acc + (Number(r.citizenCountLocal) || 0), 0);
     const totalScreenSecs = reports.reduce((acc, r) => acc + (Number(r.screenTimeSeconds) || 0), 0);
     const syncedCount = reports.filter((r) => r.syncStatus === 'SYNCED').length;
-    const pendingCount = reports.filter((r) => r.syncStatus === 'PENDING').length;
     return {
       totalReports,
       totalCitizens,
       totalScreenTime: formatTime(totalScreenSecs),
       syncedCount,
-      pendingCount,
     };
   }, [reports]);
 
@@ -267,18 +184,6 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={handleSyncNow}
-            disabled={isSyncingNow}
-            className="text-xs h-9 px-3 rounded-xl border-blue-200 dark:border-blue-900/60 bg-blue-50/50 dark:bg-blue-950/30 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-[#2563EB] dark:text-blue-400 font-bold shadow-2xs transition-all cursor-pointer"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${isSyncingNow ? 'animate-spin' : ''}`} />
-            {isSyncingNow ? userT('Syncing...') : `${userT('Sync to Cloud')} (${stats.pendingCount})`}
-          </Button>
-
           {setActiveTab && (
             <Button
               type="button"
@@ -451,186 +356,102 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
             )}
           </div>
         ) : (
-          <>
-            {/* Desktop / Laptop Table Layout */}
-            <div className="hidden md:block overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-[#E2E8F0] dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                    <th className="py-3.5 px-5">{userT('Report Date')}</th>
-                    <th className="py-3.5 px-5 text-center">{userT('Citizens')}</th>
-                    <th className="py-3.5 px-5 text-center">{userT('Screen Time')}</th>
-                    <th className="py-3.5 px-5 text-center">
-                      <span className="block leading-tight text-slate-500 dark:text-slate-400 font-bold tracking-wider text-[10px] uppercase">
-                        {userT('Sync')}<br />{userT('Status')}
-                      </span>
-                    </th>
-                    <th className="py-3.5 px-5 text-center">
-                      <span className="block leading-tight text-slate-500 dark:text-slate-400 font-bold tracking-wider text-[10px] uppercase">
-                        {userT('Action')}
-                      </span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#E2E8F0] dark:divide-[#334155] text-xs">
-                  {filteredReports.map((report) => {
-                    const isToday = report.reportDate === todayStr;
-                    const isSynced = report.syncStatus === 'SYNCED';
-                    const timeStr = report.submittedAt
-                      ? new Date(report.submittedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                      : '';
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-[#E2E8F0] dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  <th className="py-3.5 px-5">{userT('Report Date')}</th>
+                  <th className="py-3.5 px-5 text-center">{userT('Citizens')}</th>
+                  <th className="py-3.5 px-5 text-center">{userT('Screen Time')}</th>
+                  <th className="py-3.5 px-5 text-center">
+                    <span className="block leading-tight text-slate-500 dark:text-slate-400 font-bold tracking-wider text-[10px] uppercase">
+                      {userT('Sync')}<br />{userT('Status')}
+                    </span>
+                  </th>
+                  <th className="py-3.5 px-5 text-center">
+                    <span className="block leading-tight text-slate-500 dark:text-slate-400 font-bold tracking-wider text-[10px] uppercase">
+                      {userT('Action')}
+                    </span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#E2E8F0] dark:divide-[#334155] text-xs">
+                {filteredReports.map((report) => {
+                  const details = parseReportDetails(report);
+                  const isToday = report.reportDate === todayStr;
+                  const isSynced = report.syncStatus === 'SYNCED';
+                  const timeStr = report.submittedAt
+                    ? new Date(report.submittedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    : '';
 
-                    return (
-                      <tr
-                        key={report.id || report.reportDate}
-                        className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
-                      >
-                        {/* Date & Time */}
-                        <td className="py-3.5 px-5 whitespace-nowrap">
-                          <div className="flex items-center gap-2">
-                            <span className="font-extrabold text-slate-900 dark:text-[#F8FAFC]">
-                              {formatDatePretty(report.reportDate)}
-                            </span>
-                            {isToday && (
-                              <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-100 dark:bg-blue-900/60 text-[#2563EB] dark:text-blue-300">
-                                {userT('Today')}
-                              </span>
-                            )}
-                          </div>
-                          {timeStr && (
-                            <span className="text-[11px] text-slate-400 dark:text-slate-500 block mt-0.5">
-                              {timeStr}
+                  return (
+                    <tr
+                      key={report.id || report.reportDate}
+                      className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
+                    >
+                      {/* Date & Time */}
+                      <td className="py-3.5 px-5 whitespace-nowrap">
+                        <div className="flex items-center gap-2">
+                          <span className="font-extrabold text-slate-900 dark:text-[#F8FAFC]">
+                            {formatDatePretty(report.reportDate)}
+                          </span>
+                          {isToday && (
+                            <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-100 dark:bg-blue-900/60 text-[#2563EB] dark:text-blue-300">
+                              {userT('Today')}
                             </span>
                           )}
-                        </td>
-
-                        {/* Citizens */}
-                        <td className="py-3.5 px-5 text-center whitespace-nowrap">
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-blue-50 dark:bg-blue-950/60 text-[#2563EB] dark:text-blue-400">
-                            <Users className="w-3.5 h-3.5" />
-                            {report.citizenCountLocal || 0}
-                          </span>
-                        </td>
-
-                        {/* Screen Time */}
-                        <td className="py-3.5 px-5 text-center whitespace-nowrap">
-                          <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50/70 dark:bg-indigo-950/40 px-3 py-1 rounded-full">
-                            {report.screenTimeFormatted || formatTime(report.screenTimeSeconds)}
-                          </span>
-                        </td>
-
-                        {/* Sync Status */}
-                        <td className="py-3.5 px-5 text-center whitespace-nowrap">
-                          {isSynced ? (
-                            <span className="inline-flex items-center justify-center px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#ecfdf5] dark:bg-emerald-950/60 text-[#065f46] dark:text-emerald-300 border border-[#a7f3d0] dark:border-emerald-700 shadow-2xs">
-                              {userT('Synced')}
-                            </span>
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={handleSyncNow}
-                              disabled={isSyncingNow}
-                              title={userT('Click to sync this report to cloud database now')}
-                              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 dark:hover:bg-amber-900/50 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700 shadow-2xs transition-all cursor-pointer group"
-                            >
-                              <RefreshCw className={`w-3 h-3 ${isSyncingNow ? 'animate-spin' : 'group-hover:rotate-180 transition-transform duration-300'}`} />
-                              {userT('Pending')}
-                            </button>
-                          )}
-                        </td>
-
-                        {/* Action */}
-                        <td className="py-3.5 px-5 text-center whitespace-nowrap">
-                          <button
-                            type="button"
-                            onClick={() => setInspectReport(report)}
-                            className="inline-flex items-center justify-center px-4 py-2 rounded-xl text-xs font-bold bg-[#2563EB] hover:bg-[#1d4ed8] text-white shadow-xs transition-colors cursor-pointer"
-                          >
-                            {userT('Details')}
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Mobile Card List Layout (Responsive for Mobile Screens) */}
-            <div className="block md:hidden divide-y divide-[#E2E8F0] dark:divide-slate-700">
-              {filteredReports.map((report) => {
-                const isToday = report.reportDate === todayStr;
-                const isSynced = report.syncStatus === 'SYNCED';
-                const timeStr = report.submittedAt
-                  ? new Date(report.submittedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                  : '';
-
-                return (
-                  <div
-                    key={report.id || report.reportDate}
-                    className="p-4 space-y-3 hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
-                  >
-                    {/* Top Row: Date, Today Tag & Action */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="font-extrabold text-sm text-slate-900 dark:text-[#F8FAFC]">
-                          {formatDatePretty(report.reportDate)}
-                        </span>
-                        {isToday && (
-                          <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-100 dark:bg-blue-900/60 text-[#2563EB] dark:text-blue-300">
-                            {userT('Today')}
-                          </span>
-                        )}
+                        </div>
                         {timeStr && (
-                          <span className="text-[11px] text-slate-400 dark:text-slate-500">
+                          <span className="text-[11px] text-slate-400 dark:text-slate-500 block mt-0.5">
                             {timeStr}
                           </span>
                         )}
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setInspectReport(report)}
-                        className="inline-flex items-center justify-center px-3 py-1.5 rounded-lg text-xs font-bold bg-[#2563EB] hover:bg-[#1d4ed8] text-white shadow-xs transition-colors cursor-pointer"
-                      >
-                        {userT('Details')}
-                      </button>
-                    </div>
+                      </td>
 
-                    {/* Bottom Row: Metrics & Sync Pill */}
-                    <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-slate-100 dark:border-slate-800/80">
-                      <div className="flex items-center gap-2">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-extrabold bg-blue-50 dark:bg-blue-950/60 text-[#2563EB] dark:text-blue-400">
+                      {/* Citizens */}
+                      <td className="py-3.5 px-5 text-center whitespace-nowrap">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-blue-50 dark:bg-blue-950/60 text-[#2563EB] dark:text-blue-400">
                           <Users className="w-3.5 h-3.5" />
                           {report.citizenCountLocal || 0}
                         </span>
-                        <span className="font-mono font-bold text-xs text-indigo-600 dark:text-indigo-400 bg-indigo-50/70 dark:bg-indigo-950/40 px-2.5 py-1 rounded-full">
+                      </td>
+
+                      {/* Screen Time */}
+                      <td className="py-3.5 px-5 text-center whitespace-nowrap">
+                        <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50/70 dark:bg-indigo-950/40 px-3 py-1 rounded-full">
                           {report.screenTimeFormatted || formatTime(report.screenTimeSeconds)}
                         </span>
-                      </div>
+                      </td>
 
-                      {/* Sync Status Button / Badge */}
-                      {isSynced ? (
-                        <span className="inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold bg-[#ecfdf5] dark:bg-emerald-950/60 text-[#065f46] dark:text-emerald-300 border border-[#a7f3d0] dark:border-emerald-700 shadow-2xs">
-                          {userT('Synced')}
-                        </span>
-                      ) : (
+                      {/* Sync Status */}
+                      <td className="py-3.5 px-5 text-center whitespace-nowrap">
+                        {isSynced ? (
+                          <span className="inline-flex items-center justify-center px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#ecfdf5] dark:bg-emerald-950/60 text-[#065f46] dark:text-emerald-300 border border-[#a7f3d0] dark:border-emerald-700 shadow-2xs">
+                            {userT('Synced')}
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center justify-center px-3.5 py-1.5 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700 shadow-2xs">
+                            {userT('Pending')}
+                          </span>
+                        )}
+                      </td>
+
+                      {/* Action */}
+                      <td className="py-3.5 px-5 text-center whitespace-nowrap">
                         <button
                           type="button"
-                          onClick={handleSyncNow}
-                          disabled={isSyncingNow}
-                          title={userT('Click to sync to cloud database now')}
-                          className="inline-flex items-center justify-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 dark:hover:bg-amber-900/50 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700 shadow-2xs transition-all cursor-pointer group"
+                          onClick={() => setInspectReport(report)}
+                          className="inline-flex items-center justify-center px-4 py-2 rounded-xl text-xs font-bold bg-[#2563EB] hover:bg-[#1d4ed8] text-white shadow-xs transition-colors cursor-pointer"
                         >
-                          <RefreshCw className={`w-3 h-3 ${isSyncingNow ? 'animate-spin' : 'group-hover:rotate-180 transition-transform duration-300'}`} />
-                          {userT('Pending')}
+                          {userT('Details')}
                         </button>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 

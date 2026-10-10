@@ -293,12 +293,16 @@ router.get('/', authenticate, async (req: Request, res: Response): Promise<void>
       const assignedOfficers = await prisma.user.findMany({
         where: {
           role: Role.FIELD_OFFICER,
-          supervisorId: user.id,
+          OR: [
+            { supervisorId: user.id },
+            ...(user.zoneId ? [{ zoneId: user.zoneId }] : []),
+          ],
         },
         select: { id: true },
       });
       const assignedOfficerIds = assignedOfficers.map((o) => o.id);
-      where.registeredById = { in: assignedOfficerIds.length > 0 ? assignedOfficerIds : ['00000000-0000-0000-0000-000000000000'] };
+      assignedOfficerIds.push(user.id);
+      where.registeredById = { in: assignedOfficerIds };
     }
     // Manager has unrestricted organization-wide access
 

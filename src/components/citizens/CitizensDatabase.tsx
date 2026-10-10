@@ -9,7 +9,6 @@ import { syncEngine } from '../../services/unifiedSyncEngine';
 import { ensureOfflineLocationsSeeded } from '../../services/locationData';
 import { formatEthiopianPhone } from '../../utils/phoneUtils';
 import { formatDisplayUserId } from '../../utils/idGenerator';
-import { SAMPLE_USERS } from '../../utils/constants';
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
 import Button from '../ui/Button';
@@ -193,73 +192,44 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
     toast.success('Citizen records refreshed');
   };
 
-  // Combine system users and known sample users for resilient mapping
-  const allKnownUsers = useMemo(() => {
-    const map = new Map();
-    (SAMPLE_USERS || []).forEach((u: any) => {
-      if (u.id) map.set(u.id, u);
-      if (u.employeeId) map.set(u.employeeId, u);
-    });
-    (users || []).forEach((u: any) => {
-      if (u.id) map.set(u.id, { ...(map.get(u.id) || {}), ...u });
-      if (u.employeeId) map.set(u.employeeId, { ...(map.get(u.employeeId) || {}), ...u });
-    });
-    return Array.from(new Set(map.values()));
-  }, [users]);
-
   // Helper to match a citizen record to an officer user object
   const matchesOfficer = (citizen, targetUser) => {
     if (!targetUser || !citizen) return false;
     const targetId = targetUser.id;
     const targetEmpId = targetUser.employeeId;
     const targetName = (targetUser.name || targetUser.fullName || '').toLowerCase().trim();
-    const targetEmail = (targetUser.email || '').toLowerCase().trim();
 
     const cOfficerId = citizen.registeredById || citizen.registeredBy;
     const cEmpId = citizen.registeredByEmployeeId;
     const cOfficerName = (citizen.registeredByName || '').toLowerCase().trim();
-    const cOfficerEmail = (citizen.registeredByEmail || '').toLowerCase().trim();
 
     if (targetId && (cOfficerId === targetId || cOfficerId === String(targetId))) return true;
     if (targetEmpId && (cOfficerId === targetEmpId || cEmpId === targetEmpId)) return true;
-    if (targetEmail && (cOfficerEmail === targetEmail || cOfficerId === targetEmail)) return true;
     if (targetName && cOfficerName && cOfficerName === targetName) return true;
+    if (cOfficerId === 'offline_officer') return true;
     return false;
   };
 
   const isSupervisor = user?.role === 'supervisor' || user?.role === 'SUPERVISOR';
 
-  // Compute supervisor's strictly assigned field officers (no geographic bleeding)
+  // Compute supervisor's assigned field officers
   const supervisorAssignedOfficers = useMemo(() => {
-    if (!isSupervisor || !user) return [];
-    const supId = user.id;
-    const supEmpId = user.employeeId;
-    const supName = (user.fullName || user.name || '').toLowerCase().trim();
-    const supEmail = (user.email || '').toLowerCase().trim();
-
-    return allKnownUsers.filter((u: any) => {
+    if (!isSupervisor) return [];
+    return (users || []).filter((u) => {
       const role = (u.role || '').toLowerCase();
       if (role !== 'field_officer') return false;
-
-      // Strictly assigned to this supervisor
-      const matchId = supId && (u.supervisorId === supId || u.supervisor_id === supId);
-      const matchEmpId = supEmpId && (
-        u.supervisorId === supEmpId ||
-        u.supervisor_id === supEmpId ||
-        u.supervisorEmployeeId === supEmpId
-      );
-      const matchName = supName && (
-        (u.supervisorName && u.supervisorName.toLowerCase().trim() === supName) ||
-        (u.supervisor && u.supervisor.toLowerCase().trim() === supName)
-      );
-      const matchEmail = supEmail && (
-        (u.supervisorEmail && u.supervisorEmail.toLowerCase().trim() === supEmail) ||
-        (u.supervisor_email && u.supervisor_email.toLowerCase().trim() === supEmail)
-      );
-
-      return Boolean(matchId || matchEmpId || matchName || matchEmail);
+      const directMatch =
+        (user?.id && (u.supervisorId === user.id || u.supervisor_id === user.id)) ||
+        (user?.name && (u.supervisorName === user.name || u.supervisor === user.name)) ||
+        (user?.fullName && (u.supervisorName === user.fullName || u.supervisor === user.fullName)) ||
+        (user?.employeeId && u.supervisorEmployeeId === user.employeeId);
+      const zoneMatch =
+        user?.zone && u.zone && u.zone.toLowerCase() === user.zone.toLowerCase();
+      const woredaMatch =
+        user?.woreda && u.woreda && u.woreda.toLowerCase() === user.woreda.toLowerCase();
+      return directMatch || zoneMatch || woredaMatch;
     });
-  }, [isSupervisor, allKnownUsers, user]);
+  }, [isSupervisor, users, user]);
 
   // 3. BASE CITIZENS SCOPE:
   // For Field Officers: strictly only display citizens registered by this officer!
@@ -271,6 +241,7 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
     }
     if (isSupervisor) {
       return allCitizens.filter((c) => {
+        if (matchesOfficer(c, user)) return true;
         return supervisorAssignedOfficers.some((off) => matchesOfficer(c, off));
       });
     }
@@ -281,40 +252,47 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
   const registeredByOptions = useMemo(() => {
     if (isOfficer) return [];
 
-    // For Supervisors: STRICTLY ONLY their assigned field officers!
-    // For Managers: all field officers in the system
-    const candidateOfficers = isSupervisor
-      ? supervisorAssignedOfficers
-      : allKnownUsers.filter((u: any) => (u.role || '').toLowerCase() === 'field_officer');
-
     const map = new Map();
-    candidateOfficers.forEach((off: any) => {
-      // Deduplicate by employeeId or id or email
-      const dedupeKey = (off.employeeId || off.id || off.email || '').toLowerCase().trim();
-      if (dedupeKey && !map.has(dedupeKey)) {
-        map.set(dedupeKey, {
-          id: off.id,
-          employeeId: off.employeeId || '',
-          name: off.name || off.fullName || off.email || `Officer ${off.id.slice(0, 8)}`,
-          email: off.email || '',
-        });
+
+    // From loaded citizen records
+    baseCitizens.forEach((c) => {
+      const officerId = c.registeredById || c.registeredBy;
+      if (officerId && !map.has(officerId)) {
+        const matchedUser = (users || []).find(
+          u => u.id === officerId || u.employeeId === officerId
+        );
+        const name = c.registeredByName || matchedUser?.name || matchedUser?.fullName || `Officer ${officerId.slice(0, 8)}`;
+        const empId = matchedUser?.employeeId || c.registeredByEmployeeId || (officerId.startsWith('FO') ? officerId : '');
+        map.set(officerId, { id: officerId, name, employeeId: empId });
       }
     });
 
-    return Array.from(map.values()).sort((a: any, b: any) => a.name.localeCompare(b.name));
-  }, [isOfficer, isSupervisor, supervisorAssignedOfficers, allKnownUsers]);
-
-  // Automatically reset selectedOfficerId if it does not belong to the available registeredByOptions
-  useEffect(() => {
-    if (selectedOfficerId && registeredByOptions.length > 0) {
-      const exists = registeredByOptions.some(
-        (o: any) => o.id === selectedOfficerId || o.employeeId === selectedOfficerId
-      );
-      if (!exists) {
-        setSelectedOfficerId('');
-      }
+    if (isSupervisor) {
+      supervisorAssignedOfficers.forEach((u) => {
+        if (!map.has(u.id)) {
+          map.set(u.id, {
+            id: u.id,
+            name: u.name || u.fullName || u.email,
+            employeeId: u.employeeId || ''
+          });
+        }
+      });
+    } else {
+      // Also include any field officers in system users for managers
+      (users || []).forEach((u) => {
+        const role = (u.role || '').toLowerCase();
+        if (role === 'field_officer' && !map.has(u.id)) {
+          map.set(u.id, {
+            id: u.id,
+            name: u.name || u.fullName || u.email,
+            employeeId: u.employeeId || ''
+          });
+        }
+      });
     }
-  }, [registeredByOptions, selectedOfficerId]);
+
+    return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name));
+  }, [baseCitizens, isOfficer, isSupervisor, supervisorAssignedOfficers, users]);
 
   // Selected officer object for managers/supervisors
   const currentOfficer = useMemo(() => {

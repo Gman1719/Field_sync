@@ -100,30 +100,13 @@ async function handleDailyReportSubmit(req: Request, res: Response): Promise<voi
       }
 
       const reportId = r.id || generateReportId();
-      let officerId = caller.id;
-      const candidateId = r.officerId || caller.id;
+      const officerId = r.officerId || caller.id;
 
-      // Determine supervisor & woreda, ensuring valid officer user id
-      let officer = await prisma.user.findFirst({
-        where: {
-          OR: [
-            { id: candidateId },
-            { email: { equals: candidateId, mode: 'insensitive' } },
-          ],
-        },
+      // Determine supervisor & woreda
+      const officer = await prisma.user.findUnique({
+        where: { id: officerId },
         select: { id: true, fullName: true, supervisorId: true, woredaId: true },
       });
-
-      if (officer) {
-        officerId = officer.id;
-      } else {
-        officer = await prisma.user.findUnique({
-          where: { id: caller.id },
-          select: { id: true, fullName: true, supervisorId: true, woredaId: true },
-        });
-        officerId = caller.id;
-      }
-
       const supervisorId = officer?.supervisorId || r.supervisorId || null;
 
       // Compute actual server-confirmed citizens for this officer and date
