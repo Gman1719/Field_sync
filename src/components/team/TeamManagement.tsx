@@ -99,31 +99,52 @@ export default function TeamManagement({
   const supervisorOfficers = useMemo(() => {
     if (!isSupervisor) return [];
 
-    let baseOfficers: any[] = [];
-    if (teamMembers && teamMembers.length > 0) {
-      baseOfficers = teamMembers;
-    } else {
-      baseOfficers = users.filter((u: any) => {
-        if (u.role !== 'field_officer') return false;
-        const directMatch =
-          (user?.id && (u.supervisorId === user.id || u.supervisor_id === user.id)) ||
-          (user?.name && u.supervisorName === user.name) ||
-          (user?.employeeId && u.supervisorEmployeeId === user.employeeId);
+    const officerMap = new Map<string, any>();
 
-        const zoneMatch =
-          user?.zone && u.zone && u.zone.toLowerCase() === user.zone.toLowerCase();
+    const addOfficer = (off: any) => {
+      if (!off) return;
+      const key = off.id || off.employeeId;
+      if (!key) return;
+      if (officerMap.has(key)) {
+        officerMap.set(key, { ...officerMap.get(key), ...off });
+      } else {
+        officerMap.set(key, { ...off });
+      }
+    };
 
-        const woredaMatch =
-          user?.woreda && u.woreda && u.woreda.toLowerCase() === user.woreda.toLowerCase();
+    // 1. Add team members passed from app data
+    (teamMembers || []).forEach(addOfficer);
 
-        return directMatch || zoneMatch || woredaMatch;
-      });
-    }
+    // 2. Also inspect users list for direct assignment or zone/woreda operational area match
+    (users || []).forEach((u: any) => {
+      const uRole = (u.role || '').toLowerCase();
+      if (uRole !== 'field_officer') return;
 
-    return baseOfficers.map((off: any) => {
-      const live = liveOfficerData.find((l: any) => l.id === off.id);
-      return live ? { ...off, ...live } : off;
+      const directMatch =
+        Boolean(user?.id && (u.supervisorId === user.id || u.supervisor_id === user.id)) ||
+        Boolean(user?.name && u.supervisorName && u.supervisorName.toLowerCase() === user.name.toLowerCase()) ||
+        Boolean(user?.fullName && u.supervisorName && u.supervisorName.toLowerCase() === user.fullName.toLowerCase()) ||
+        Boolean(user?.employeeId && (u.supervisorEmployeeId === user.employeeId || u.supervisor_employee_id === user.employeeId));
+
+      const zoneMatch =
+        Boolean(user?.zoneId && u.zoneId && u.zoneId.toLowerCase() === user.zoneId.toLowerCase()) ||
+        Boolean(user?.zone && u.zone && u.zone.toLowerCase() === user.zone.toLowerCase());
+
+      const woredaMatch =
+        Boolean(user?.woredaId && u.woredaId && u.woredaId.toLowerCase() === user.woredaId.toLowerCase()) ||
+        Boolean(user?.woreda && u.woreda && u.woreda.toLowerCase() === user.woreda.toLowerCase());
+
+      if (directMatch || zoneMatch || woredaMatch) {
+        addOfficer(u);
+      }
     });
+
+    // 3. Merge live monitoring officers from server
+    (liveOfficerData || []).forEach((live: any) => {
+      addOfficer(live);
+    });
+
+    return Array.from(officerMap.values());
   }, [isSupervisor, teamMembers, users, user, liveOfficerData]);
 
   // Filtered supervisor officers list
@@ -139,12 +160,18 @@ export default function TeamManagement({
 
       if (!matchesSearch) return false;
 
-      const isOnline = (liveStatus || []).some(
-        (l: any) => (l.employeeId === off.employeeId || l.userId === off.id) && l.status === 'online'
-      );
+      const isOnline =
+        off.connectionState === 'ONLINE' ||
+        off.connectionState === 'online' ||
+        (liveStatus || []).some(
+          (l: any) =>
+            (l.employeeId === off.employeeId || l.userId === off.id || l.id === off.id) &&
+            (l.status === 'online' || l.status === 'ONLINE')
+        );
 
       if (statusFilter === 'ONLINE' && !isOnline) return false;
-      if (statusFilter === 'ACTIVE' && off.status !== 'active') return false;
+      const isActive = off.status === 'active' || off.isActive === true;
+      if (statusFilter === 'ACTIVE' && !isActive) return false;
 
       return true;
     });
@@ -357,9 +384,14 @@ export default function TeamManagement({
       r.reportDate === todayStr
     );
 
-    const isOnline = (liveStatus || []).some(
-      (l: any) => (l.employeeId === officer.employeeId || l.userId === officer.id) && l.status === 'online'
-    );
+    const isOnline =
+      officer.connectionState === 'ONLINE' ||
+      officer.connectionState === 'online' ||
+      (liveStatus || []).some(
+        (l: any) =>
+          (l.employeeId === officer.employeeId || l.userId === officer.id || l.id === officer.id) &&
+          (l.status === 'online' || l.status === 'ONLINE')
+      );
 
     return { regCount, todayReport, isOnline };
   };
@@ -510,9 +542,17 @@ export default function TeamManagement({
   if (isSupervisor) {
     const totalOfficers = supervisorOfficers.length;
     const onlineCount = supervisorOfficers.filter((o: any) => {
-      return (liveStatus || []).some((l: any) => (l.employeeId === o.employeeId || l.userId === o.id) && l.status === 'online');
+      return (
+        o.connectionState === 'ONLINE' ||
+        o.connectionState === 'online' ||
+        (liveStatus || []).some(
+          (l: any) =>
+            (l.employeeId === o.employeeId || l.userId === o.id || l.id === o.id) &&
+            (l.status === 'online' || l.status === 'ONLINE')
+        )
+      );
     }).length;
-    const activeCount = supervisorOfficers.filter((o: any) => o.status === 'active').length;
+    const activeCount = supervisorOfficers.filter((o: any) => o.status === 'active' || o.isActive === true).length;
     const totalCitizens = supervisorOfficers.reduce((acc: number, o: any) => acc + getOfficerStats(o).regCount, 0);
 
     return (

@@ -226,9 +226,13 @@ export function useAppData(user: any) {
 
         let finalUsers = cleanInitialUsers;
         try {
-          const response = await fetch(`${API_BASE}/users`);
+          const authToken = localStorage.getItem('fieldsync_token') || localStorage.getItem('token') || sessionStorage.getItem('token');
+          const response = await fetch(`${API_BASE}/users`, {
+            headers: authToken ? { Authorization: `Bearer ${authToken}` } : {},
+          });
           if (response.ok) {
-            const serverUsers = await response.json();
+            const rawJson = await response.json();
+            const serverUsers = Array.isArray(rawJson) ? rawJson : (rawJson?.data || []);
             if (serverUsers && serverUsers.length > 0) {
               const mergedUsers = [...cleanInitialUsers];
               for (const serverUser of serverUsers) {
@@ -495,7 +499,26 @@ export function useAppData(user: any) {
 
   const teamMembers = useMemo(() => {
     if (isSupervisor && user) {
-      return users.filter((u) => u.supervisorId === user.id);
+      return users.filter((u) => {
+        const uRole = (u.role || '').toLowerCase();
+        if (uRole !== 'field_officer') return false;
+
+        const directMatch =
+          Boolean(user.id && (u.supervisorId === user.id || u.supervisor_id === user.id)) ||
+          Boolean(user.employeeId && (u.supervisorEmployeeId === user.employeeId || u.supervisor_employee_id === user.employeeId)) ||
+          Boolean(user.name && u.supervisorName && u.supervisorName.toLowerCase() === user.name.toLowerCase()) ||
+          Boolean(user.fullName && u.supervisorName && u.supervisorName.toLowerCase() === user.fullName.toLowerCase());
+
+        const zoneMatch =
+          Boolean(user.zoneId && u.zoneId && u.zoneId.toLowerCase() === user.zoneId.toLowerCase()) ||
+          Boolean(user.zone && u.zone && u.zone.toLowerCase() === user.zone.toLowerCase());
+
+        const woredaMatch =
+          Boolean(user.woredaId && u.woredaId && u.woredaId.toLowerCase() === user.woredaId.toLowerCase()) ||
+          Boolean(user.woreda && u.woreda && u.woreda.toLowerCase() === user.woreda.toLowerCase());
+
+        return directMatch || zoneMatch || woredaMatch;
+      });
     }
     return [];
   }, [users, user, isSupervisor]);

@@ -577,9 +577,12 @@ router.get('/officers', authenticate, async (req: Request, res: Response): Promi
       isActive: true,
     };
 
-    // Strict Scoping: Supervisor sees ONLY their assigned officers
+    // Scoping: Supervisor sees directly assigned officers or officers in their assigned operational Zone
     if (user.role === Role.SUPERVISOR) {
-      where.supervisorId = user.id;
+      where.OR = [
+        { supervisorId: user.id },
+        ...(user.zoneId ? [{ zoneId: user.zoneId }] : []),
+      ];
     }
 
     const officerIdList = await prisma.user.findMany({
@@ -684,6 +687,9 @@ router.get('/officers', authenticate, async (req: Request, res: Response): Promi
         name: officer.fullName,
         email: officer.email,
         phoneNumber: officer.phoneNumber,
+        status: officer.isActive ? 'active' : 'inactive',
+        isActive: officer.isActive,
+        role: 'field_officer',
         assignment: officer.assignedTasks[0]?.title || 'Standard Citizen Fieldwork',
         region: officer.region?.name || '',
         zone: officer.zone?.name || '',
