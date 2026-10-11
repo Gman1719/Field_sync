@@ -7,6 +7,7 @@ import React, {
   type ReactNode,
 } from 'react';
 import { db, initializeAllData } from '../services/database';
+import { offlineDb } from '../db/offlineDb';
 import { API_BASE } from '../config/api';
 import { SAMPLE_USERS } from '../utils/constants';
 import ActivityLogger from '../services/activityLogger';

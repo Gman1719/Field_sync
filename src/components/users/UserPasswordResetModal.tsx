@@ -176,7 +176,7 @@ export default function UserPasswordResetModal({
             const resData = await response.json();
             if (response.ok && resData.success) {
               const serverTempPwd = resData.data?.temporaryPassword || resData.temporaryPassword;
-              if (serverTempPwd && mode === 'auto') {
+              if (serverTempPwd && mode === 'generate') {
                 finalPassword = serverTempPwd;
               }
               if (resData.user || resData.data?.user) {

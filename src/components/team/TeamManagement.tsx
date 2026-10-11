@@ -54,11 +54,12 @@ export default function TeamManagement({
   const { userT } = useUserLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRegion, setFilterRegion] = useState('All');
-  const [statusFilter, setStatusFilter] = useState('ALL'); // 'ALL', 'ONLINE', 'ACTIVE'
+  const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE'>('ALL'); // 'ALL', 'ACTIVE'
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
   const [selectedTeam, setSelectedTeam] = useState<any>(null);
   const [selectedOfficer, setSelectedOfficer] = useState<any>(null);
   const [liveOfficerData, setLiveOfficerData] = useState<any[]>([]);
+  const [supervisorCitizens, setSupervisorCitizens] = useState<any[]>([]);
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
   const copyToClipboard = (text: string, label: string) => {
@@ -94,6 +95,48 @@ export default function TeamManagement({
       clearInterval(interval);
     };
   }, [isSupervisor]);
+
+  // Fetch all registered citizens for this supervisor's team
+  React.useEffect(() => {
+    if (!isSupervisor) return;
+    let isMounted = true;
+    const fetchCitizens = async () => {
+      try {
+        const token = localStorage.getItem('token') || localStorage.getItem('fieldsync_token') || sessionStorage.getItem('token');
+        const res = await fetch(`${API_BASE}/citizens?limit=100`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && Array.isArray(json.data) && isMounted) {
+            setSupervisorCitizens(json.data);
+          }
+        }
+      } catch (_e) {
+        // Fallback gracefully
+      }
+    };
+    fetchCitizens();
+    const interval = setInterval(fetchCitizens, 20000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [isSupervisor]);
+
+  // Unified citizens dataset merging props and direct server data
+  const allCitizens = useMemo(() => {
+    const map = new Map<string, any>();
+    (citizens || []).forEach((c: any) => {
+      const key = c?.id || c?.clientRecordId;
+      if (key) map.set(key, c);
+    });
+    (supervisorCitizens || []).forEach((c: any) => {
+      const key = c?.id || c?.clientRecordId;
+      if (key) map.set(key, { ...map.get(key), ...c });
+    });
+    return Array.from(map.values());
+  }, [citizens, supervisorCitizens]);
 
   // 1. Determine Supervisor's Dedicated Officers
   const supervisorOfficers = useMemo(() => {
@@ -147,7 +190,7 @@ export default function TeamManagement({
     return Array.from(officerMap.values());
   }, [isSupervisor, teamMembers, users, user, liveOfficerData]);
 
-  // Filtered supervisor officers list
+  // Filtered supervisor officers list (without online/offline filter)
   const filteredSupervisorOfficers = useMemo(() => {
     return supervisorOfficers.filter((off: any) => {
       const q = searchTerm.trim().toLowerCase();
@@ -160,22 +203,12 @@ export default function TeamManagement({
 
       if (!matchesSearch) return false;
 
-      const isOnline =
-        off.connectionState === 'ONLINE' ||
-        off.connectionState === 'online' ||
-        (liveStatus || []).some(
-          (l: any) =>
-            (l.employeeId === off.employeeId || l.userId === off.id || l.id === off.id) &&
-            (l.status === 'online' || l.status === 'ONLINE')
-        );
-
-      if (statusFilter === 'ONLINE' && !isOnline) return false;
-      const isActive = off.status === 'active' || off.isActive === true;
+      const isActive = off.status === 'active' || off.isActive !== false;
       if (statusFilter === 'ACTIVE' && !isActive) return false;
 
       return true;
     });
-  }, [supervisorOfficers, searchTerm, statusFilter, liveStatus]);
+  }, [supervisorOfficers, searchTerm, statusFilter]);
 
   // 2. Manager Multi-Team Groups
   const teams = useMemo(() => {
@@ -364,7 +397,7 @@ export default function TeamManagement({
 
   // Helper for officer stats
   const getOfficerStats = (officer: any) => {
-    const fromProps = citizens.filter((c: any) =>
+    const fromProps = allCitizens.filter((c: any) =>
       c.registeredById === officer.id ||
       c.registeredBy === officer.id ||
       (officer.employeeId && (c.registeredBy === officer.employeeId || c.registeredById === officer.employeeId))
@@ -396,9 +429,37 @@ export default function TeamManagement({
     return { regCount, todayReport, isOnline };
   };
 
+  // Total all-time citizens registered across all assigned officers and supervisor
+  const totalCitizensAllTime = useMemo(() => {
+    const officerIds = new Set(supervisorOfficers.flatMap((o: any) => [o.id, o.employeeId].filter(Boolean)));
+    if (user?.id) officerIds.add(user.id);
+    if (user?.employeeId) officerIds.add(user.employeeId);
+
+    const matchedInCitizens = allCitizens.filter((c: any) =>
+      officerIds.has(c.registeredById) || officerIds.has(c.registeredBy)
+    ).length;
+
+    const sumFromOfficers = supervisorOfficers.reduce((acc: number, o: any) => acc + getOfficerStats(o).regCount, 0);
+
+    return Math.max(matchedInCitizens, sumFromOfficers);
+  }, [supervisorOfficers, allCitizens, user]);
+
+  // Total citizens registered today by assigned officers and supervisor
+  const todayRegisteredCount = useMemo(() => {
+    const officerIds = new Set(supervisorOfficers.flatMap((o: any) => [o.id, o.employeeId].filter(Boolean)));
+    if (user?.id) officerIds.add(user.id);
+    if (user?.employeeId) officerIds.add(user.employeeId);
+
+    return allCitizens.filter((c: any) => {
+      const isAssigned = officerIds.has(c.registeredById) || officerIds.has(c.registeredBy);
+      if (!isAssigned) return false;
+      const dateStr = (c.registrationTimestamp || c.createdAt || c.date || '').slice(0, 10);
+      return dateStr === todayStr;
+    }).length;
+  }, [supervisorOfficers, allCitizens, user, todayStr]);
+
   const renderOfficerDetailModal = () => {
     if (!selectedOfficer) return null;
-    const { isOnline } = getOfficerStats(selectedOfficer);
     const initials = ((selectedOfficer.name || selectedOfficer.fullName || 'FO')[0] || 'O').toUpperCase();
     const directSupervisor =
       selectedOfficer.supervisorName ||
@@ -436,11 +497,8 @@ export default function TeamManagement({
                   <Badge variant="primary" className="text-[10px] font-semibold">
                     {userT('Field Officer')}
                   </Badge>
-                  <Badge variant={isOnline ? 'success' : 'neutral'} dot className="text-[10px] font-semibold">
-                    {isOnline ? userT('Online Now') : userT('Offline')}
-                  </Badge>
-                  <Badge variant={selectedOfficer.status === 'active' ? 'success' : 'neutral'} className="text-[10px] font-semibold">
-                    {selectedOfficer.status ? userT(String(selectedOfficer.status).toUpperCase()) : userT('Active')}
+                  <Badge variant={selectedOfficer.status === 'active' || selectedOfficer.isActive !== false ? 'success' : 'neutral'} className="text-[10px] font-semibold">
+                    {selectedOfficer.status === 'active' || selectedOfficer.isActive !== false ? userT('Active') : userT('Inactive')}
                   </Badge>
                 </div>
               </div>
@@ -541,41 +599,29 @@ export default function TeamManagement({
   // ==========================================
   if (isSupervisor) {
     const totalOfficers = supervisorOfficers.length;
-    const onlineCount = supervisorOfficers.filter((o: any) => {
-      return (
-        o.connectionState === 'ONLINE' ||
-        o.connectionState === 'online' ||
-        (liveStatus || []).some(
-          (l: any) =>
-            (l.employeeId === o.employeeId || l.userId === o.id || l.id === o.id) &&
-            (l.status === 'online' || l.status === 'ONLINE')
-        )
-      );
-    }).length;
     const activeCount = supervisorOfficers.filter((o: any) => o.status === 'active' || o.isActive === true).length;
-    const totalCitizens = supervisorOfficers.reduce((acc: number, o: any) => acc + getOfficerStats(o).regCount, 0);
 
     return (
       <div className="space-y-6 animate-in fade-in duration-150">
         {/* Header Banner */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl border bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700/60 shadow-xs">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-500 border border-blue-200 dark:border-blue-900/40">
-                {userT('Supervisor Field Team')}
-              </span>
-              <span className="text-xs text-slate-400 dark:text-slate-500">•</span>
-              <span className="text-xs text-slate-500 dark:text-slate-400">
-                {(user?.zone && user.zone !== 'Unassigned') ? user.zone : ((user?.region && user.region !== 'Unassigned') ? user.region : userT('Assigned Zone'))}
-              </span>
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200/80 dark:border-blue-900/60 text-blue-600 dark:text-blue-400 shrink-0">
+              <Users className="w-5 h-5" />
             </div>
-
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white mt-2">
-              {userT('Team')}
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-              {userT('Direct field officers assigned to your operational unit')}
-            </p>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+                  {userT('Supervisor Field Team')}
+                </h1>
+                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                  {(user?.zone && user.zone !== 'Unassigned') ? user.zone : ((user?.region && user.region !== 'Unassigned') ? user.region : userT('Assigned Zone'))}
+                </span>
+              </div>
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+                {userT('Direct field officers assigned to your operational unit')}
+              </p>
+            </div>
           </div>
 
           {/* Quick Controls: View Mode & Search */}
@@ -624,18 +670,6 @@ export default function TeamManagement({
           </div>
 
           <div className="p-4 rounded-xl border bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700/60 shadow-xs">
-            <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block">
-              {userT('Online Now')}
-            </span>
-            <div className="mt-1 flex items-baseline gap-2">
-              <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400 font-mono">
-                {onlineCount}
-              </span>
-              <span className="text-xs text-slate-400">{userT('Connected')}</span>
-            </div>
-          </div>
-
-          <div className="p-4 rounded-xl border bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700/60 shadow-xs">
             <span className="text-[11px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider block">
               {userT('Active Status')}
             </span>
@@ -653,9 +687,21 @@ export default function TeamManagement({
             </span>
             <div className="mt-1 flex items-baseline gap-2">
               <span className="text-2xl font-black text-purple-600 dark:text-purple-400 font-mono">
-                {totalCitizens.toLocaleString()}
+                {totalCitizensAllTime.toLocaleString()}
               </span>
               <span className="text-xs text-slate-400">{userT('Total')}</span>
+            </div>
+          </div>
+
+          <div className="p-4 rounded-xl border bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700/60 shadow-xs">
+            <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block">
+              {userT('Today Registered')}
+            </span>
+            <div className="mt-1 flex items-baseline gap-2">
+              <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400 font-mono">
+                {todayRegisteredCount.toLocaleString()}
+              </span>
+              <span className="text-xs text-slate-400">{userT('Today')}</span>
             </div>
           </div>
         </div>
@@ -687,17 +733,6 @@ export default function TeamManagement({
             </button>
             <button
               type="button"
-              onClick={() => setStatusFilter('ONLINE')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-colors ${
-                statusFilter === 'ONLINE'
-                  ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-200 border border-transparent dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-800'
-              }`}
-            >
-              {userT('Online')} ({onlineCount})
-            </button>
-            <button
-              type="button"
               onClick={() => setStatusFilter('ACTIVE')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-colors ${
                 statusFilter === 'ACTIVE'
@@ -724,7 +759,7 @@ export default function TeamManagement({
         ) : viewMode === 'cards' ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredSupervisorOfficers.map((officer: any) => {
-              const { regCount, todayReport, isOnline } = getOfficerStats(officer);
+              const { regCount, todayReport } = getOfficerStats(officer);
               const initials = ((officer.name || officer.fullName || 'FO')[0] || 'O').toUpperCase();
 
               return (
@@ -732,20 +767,12 @@ export default function TeamManagement({
                   key={officer.id || officer.employeeId}
                   className="rounded-2xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-slate-950/40 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-md transition-all flex flex-col justify-between overflow-hidden p-5"
                 >
-                  {/* Top: Avatar, Name & Live Status */}
+                  {/* Top: Avatar & Name */}
                   <div>
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="relative shrink-0">
-                          <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-extrabold text-sm flex items-center justify-center shadow-xs">
-                            {initials}
-                          </div>
-                          <span
-                            className={`absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-white dark:border-slate-800 ${
-                              isOnline ? 'bg-emerald-500' : 'bg-slate-400'
-                            }`}
-                            title={isOnline ? userT('Online') : userT('Offline')}
-                          />
+                        <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-extrabold text-sm flex items-center justify-center shadow-xs shrink-0">
+                          {initials}
                         </div>
 
                         <div className="min-w-0">
@@ -759,11 +786,10 @@ export default function TeamManagement({
                       </div>
 
                       <Badge
-                        variant={isOnline ? 'success' : 'neutral'}
-                        dot
+                        variant={officer.status === 'active' || officer.isActive !== false ? 'success' : 'neutral'}
                         className="text-[10px] shrink-0 font-medium"
                       >
-                        {isOnline ? userT('Online') : userT('Offline')}
+                        {officer.status === 'active' || officer.isActive !== false ? userT('Active') : userT('Inactive')}
                       </Badge>
                     </div>
 
@@ -862,27 +888,20 @@ export default function TeamManagement({
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60">
                   {filteredSupervisorOfficers.map((officer: any) => {
-                    const { regCount, todayReport, isOnline } = getOfficerStats(officer);
+                    const { regCount, todayReport } = getOfficerStats(officer);
                     return (
                       <tr
                         key={officer.id || officer.employeeId}
                         className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors"
                       >
                         <td className="py-3 px-4">
-                          <div className="flex items-center gap-2.5">
-                            <span
-                              className={`w-2 h-2 rounded-full ${
-                                isOnline ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-600'
-                              }`}
-                            />
-                            <div>
-                              <span className="font-bold text-slate-900 dark:text-white block">
-                                {officer.name || officer.fullName}
-                              </span>
-                              <span className="text-[10px] text-slate-400 font-mono">
-                                ID: {officer.id || officer.employeeId}
-                              </span>
-                            </div>
+                          <div>
+                            <span className="font-bold text-slate-900 dark:text-white block">
+                              {officer.name || officer.fullName}
+                            </span>
+                            <span className="text-[10px] text-slate-400 font-mono">
+                              ID: {officer.id || officer.employeeId}
+                            </span>
                           </div>
                         </td>
                         <td className="py-3 px-4 text-slate-600 dark:text-slate-300">
@@ -890,10 +909,10 @@ export default function TeamManagement({
                         </td>
                         <td className="py-3 px-4">
                           <Badge
-                            variant={isOnline ? 'success' : 'neutral'}
+                            variant={officer.status === 'active' || officer.isActive !== false ? 'success' : 'neutral'}
                             className="text-[10px]"
                           >
-                            {isOnline ? userT('Online') : userT('Offline')}
+                            {officer.status === 'active' || officer.isActive !== false ? userT('Active') : userT('Inactive')}
                           </Badge>
                         </td>
                         <td className="py-3 px-4 text-center font-bold font-mono text-slate-900 dark:text-white">

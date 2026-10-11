@@ -152,7 +152,15 @@ async function validateLocationHierarchyAndRole(
 
     let checkedSupervisorId = supervisorId || null;
     if (checkedSupervisorId) {
-      const supervisor = await prisma.user.findUnique({ where: { id: checkedSupervisorId } });
+      const supervisor = await prisma.user.findFirst({
+        where: {
+          OR: [
+            { id: checkedSupervisorId },
+            { email: checkedSupervisorId },
+            { phoneNumber: checkedSupervisorId },
+          ],
+        },
+      });
       if (!supervisor) {
         throw new Error('Assigned supervisor not found in database.');
       }
@@ -165,6 +173,7 @@ async function validateLocationHierarchyAndRole(
       if (supervisor.zoneId && supervisor.zoneId !== zoneId) {
         throw new Error(`Assigned supervisor must operate in the officer's Zone (${zone.name}).`);
       }
+      checkedSupervisorId = supervisor.id;
     } else {
       // Auto-assign to the first active supervisor in the zone if not explicitly specified
       checkedSupervisorId = activeSupervisorsInZone[0].id;
@@ -1028,19 +1037,36 @@ router.put('/:id', authenticate, requireManager, handleUpdateUser);
  * @desc    Manager reassigns Ethiopian administrative location / supervisor
  * @access  Private (Manager Only)
  */
-router.patch('/:id/assignment', authenticate, requireManager, async (req: Request, res: Response): Promise<void> => {
+router.patch('/:id/assignment', authenticate, async (req: Request, res: Response): Promise<void> => {
   try {
+    const caller = req.user!;
+    if (caller.role !== Role.MANAGER && caller.role !== Role.SUPERVISOR) {
+      res.status(403).json({ success: false, error: 'Only Managers and Supervisors can reassign staff' });
+      return;
+    }
+
     const { id } = req.params;
     const validated = reassignLocationSchema.parse(req.body);
 
     const user = await prisma.user.findFirst({
       where: {
-        OR: [{ id }, { email: id }],
+        OR: [{ id }, { email: id }, { phoneNumber: id }],
       },
     });
     if (!user) {
       res.status(404).json({ success: false, error: 'User not found' });
       return;
+    }
+
+    if (caller.role === Role.SUPERVISOR) {
+      if (user.role !== Role.FIELD_OFFICER) {
+        res.status(403).json({ success: false, error: 'Supervisors can only reassign field officers' });
+        return;
+      }
+      if (user.supervisorId !== caller.id && caller.zoneId && user.zoneId !== caller.zoneId) {
+        res.status(403).json({ success: false, error: 'You can only reassign officers assigned to you or within your zone' });
+        return;
+      }
     }
 
     // Strictly validate location hierarchy against user's current role

@@ -89,7 +89,7 @@ export default function UserReassignModal({
         // Try API first
         try {
           if (navigator.onLine) {
-            const token = localStorage.getItem('fieldsync_token');
+            const token = localStorage.getItem('fieldsync_token') || localStorage.getItem('token') || sessionStorage.getItem('token');
             const res = await fetch(`${API_BASE}/users/${user.id}/supervisees`, {
               headers: {
                 ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -160,7 +160,7 @@ export default function UserReassignModal({
         // Try API
         try {
           if (navigator.onLine && supList.length === 0) {
-            const token = localStorage.getItem('fieldsync_token');
+            const token = localStorage.getItem('fieldsync_token') || localStorage.getItem('token') || sessionStorage.getItem('token');
             const res = await fetch(`${API_BASE}/users?role=SUPERVISOR&status=active`, {
               headers: {
                 ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -380,7 +380,7 @@ export default function UserReassignModal({
 
     setIsSubmitting(true);
     try {
-      const token = localStorage.getItem('fieldsync_token');
+      const token = localStorage.getItem('fieldsync_token') || localStorage.getItem('token') || sessionStorage.getItem('token');
       const payload: any = {
         ...assignment,
       };

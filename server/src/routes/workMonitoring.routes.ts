@@ -690,6 +690,7 @@ router.get('/officers', authenticate, async (req: Request, res: Response): Promi
         status: officer.isActive ? 'active' : 'inactive',
         isActive: officer.isActive,
         role: 'field_officer',
+        supervisorId: officer.supervisorId,
         assignment: officer.assignedTasks[0]?.title || 'Standard Citizen Fieldwork',
         region: officer.region?.name || '',
         zone: officer.zone?.name || '',
