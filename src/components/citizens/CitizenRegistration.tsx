@@ -89,8 +89,12 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
   // Compute live calculated age from Date of Birth
   const calculatedAge = useMemo(() => calculateAge(dateOfBirth), [dateOfBirth]);
 
-  // Max selectable date of birth (cannot be born in future)
-  const todayStr = useMemo(() => new Date().toISOString().slice(0, 10), []);
+  // Max selectable date of birth (must be at least 5 years of age)
+  const maxDobDate = useMemo(() => {
+    const d = new Date();
+    d.setFullYear(d.getFullYear() - 5);
+    return d.toISOString().slice(0, 10);
+  }, []);
 
   // 1. Listen for network changes
   useEffect(() => {
@@ -228,7 +232,11 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
       return;
     }
     if (!dateOfBirth) {
-      toast.error('Date of birth is required');
+      toast.error(userT('Date of birth is required'));
+      return;
+    }
+    if (calculatedAge === null || calculatedAge < 5) {
+      toast.error(userT('Citizens registered in this system must be at least 5 years of age.'));
       return;
     }
 
@@ -630,11 +638,14 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
                   <input
                     type="date"
                     value={dateOfBirth}
-                    max={todayStr}
+                    max={maxDobDate}
                     onChange={(e) => setDateOfBirth(e.target.value)}
                     required
                     className="w-full h-11 px-3.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-[#F8FAFC] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB] dark:focus:border-blue-500 transition-all cursor-pointer font-medium"
                   />
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+                    {userT('Minimum age requirement: 5 years (born on or before')} {maxDobDate})
+                  </p>
                 </div>
               </div>
 

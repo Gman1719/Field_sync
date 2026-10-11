@@ -1,11 +1,11 @@
 // View Full Details of User Account, Ethiopian Hierarchy Assignment & Manager Actions
-// Clean, reliable detail modal featuring all 5 functional Manager Administrative Actions
+// Clean, reliable detail modal featuring functional Manager Administrative Actions & Delete User
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import toast from 'react-hot-toast';
 import {
   User, Mail, Phone, ShieldCheck, MapPin, Building2,
-  Edit3, Power, Copy, Check, KeyRound
+  Edit3, Power, Copy, Check, KeyRound, Trash2, AlertTriangle, Users
 } from 'lucide-react';
 import Modal from '../ui/Modal';
 import Button from '../ui/Button';
@@ -20,6 +20,7 @@ interface UserDetailsModalProps {
   onReassign?: (user: any) => void;
   onChangeRole?: (user: any) => void;
   onToggleStatus?: (user: any) => Promise<void> | void;
+  onDeleteUser?: (user: any) => Promise<void> | void;
   onResetPassword?: (user: any) => void;
   onUserUpdated?: (user?: any) => void;
   allUsers?: any[];
@@ -33,22 +34,28 @@ export default function UserDetailsModal({
   onReassign,
   onChangeRole,
   onToggleStatus,
+  onDeleteUser,
   onResetPassword,
+  allUsers = [],
 }: UserDetailsModalProps) {
   const { userT } = useUserLanguage();
   const [userDetails, setUserDetails] = useState<any>(user);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [isTogglingStatus, setIsTogglingStatus] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [superviseesList, setSuperviseesList] = useState<any[]>([]);
 
   // Sync state whenever user prop changes or modal opens
   useEffect(() => {
     if (!isOpen || !user) {
       setUserDetails(null);
+      setSuperviseesList([]);
       return;
     }
 
     setUserDetails(user);
+    setSuperviseesList([]);
 
     if (!user.id) return;
 
@@ -68,6 +75,22 @@ export default function UserDetailsModal({
             setUserDetails((prev: any) => ({ ...(prev || {}), ...resData.data }));
           }
         }
+
+        // If user is supervisor, fetch their supervised officers
+        const role = (user.role || '').toLowerCase();
+        if (role === 'supervisor') {
+          const supRes = await fetch(`${API_BASE}/users/${user.id}/supervisees`, {
+            headers: {
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+          });
+          if (supRes.ok && isMounted) {
+            const supData = await supRes.json();
+            if (supData.success && Array.isArray(supData.data)) {
+              setSuperviseesList(supData.data);
+            }
+          }
+        }
       } catch (err: any) {
         console.warn('Could not fetch remote user details, using cached:', err.message);
       } finally {
@@ -85,6 +108,21 @@ export default function UserDetailsModal({
 
   const current = userDetails || user;
   const isActive = current.status === 'active' || current.isActive === true;
+  const isSupervisor = (current.role || '').toLowerCase() === 'supervisor';
+
+  // Compute supervised field officers across server API list and local allUsers state
+  const localSupervised = useMemo(() => {
+    if (!isSupervisor) return [];
+    return (allUsers || []).filter(
+      (u) =>
+        (u.supervisorId === current.id || u.supervisorId === current.employeeId || (current.email && u.supervisorId === current.email)) &&
+        ((u.role || '').toLowerCase() === 'field_officer')
+    );
+  }, [isSupervisor, current, allUsers]);
+
+  const effectiveSupervisees = superviseesList.length > 0 ? superviseesList : localSupervised;
+  const hasSupervisedOfficers = isSupervisor && effectiveSupervisees.length > 0;
+  const superviseesCount = effectiveSupervisees.length;
 
   const copyToClipboard = (text: string, field: string) => {
     if (!text) return;
@@ -96,6 +134,18 @@ export default function UserDetailsModal({
 
   const handleStatusToggle = async () => {
     if (!onToggleStatus) return;
+
+    // Block deactivating supervisor if they oversee officers
+    if (hasSupervisedOfficers && isActive) {
+      toast.error(
+        userT(
+          `Reassignment Required: This Supervisor currently oversees ${superviseesCount} Field Officer(s). You must reassign all Field Officers to other active Supervisors before deactivating this account.`
+        ),
+        { duration: 6000 }
+      );
+      return;
+    }
+
     setIsTogglingStatus(true);
     try {
       await onToggleStatus(current);
@@ -303,6 +353,39 @@ export default function UserDetailsModal({
           </div>
         </div>
 
+        {/* 3.5 Supervised Officers Warning Banner (Strict Reassignment Requirement) */}
+        {hasSupervisedOfficers && (
+          <div className="p-3.5 sm:p-4 bg-amber-50 dark:bg-amber-950/40 rounded-xl border border-amber-200 dark:border-amber-800/70 space-y-2">
+            <div className="flex items-start gap-2.5">
+              <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+              <div className="min-w-0">
+                <span className="text-xs font-bold text-amber-900 dark:text-amber-200 block">
+                  {userT('Reassignment Required Before Modifications')}
+                </span>
+                <p className="text-[11px] text-amber-700 dark:text-amber-300 mt-0.5 leading-relaxed">
+                  {userT(
+                    `This supervisor currently oversees ${superviseesCount} Field Officer(s). All supervised officers must be reassigned to another active supervisor before changing their role, changing location, deactivating, or deleting this account.`
+                  )}
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-1.5 pt-1 pl-7">
+              <span className="text-[10px] uppercase font-bold text-amber-800 dark:text-amber-300 tracking-wider">
+                {userT('Supervised Officers')}:
+              </span>
+              {effectiveSupervisees.map((off: any) => (
+                <span
+                  key={off.id}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-200 border border-amber-200/80 dark:border-amber-800"
+                >
+                  <Users className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                  <span>{off.fullName || off.name || off.email}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* 4. Manager-Only Administrative Actions */}
         <div className="p-3.5 sm:p-4 bg-slate-50/70 dark:bg-slate-900/60 rounded-xl border border-slate-200/80 dark:border-slate-700/80 space-y-3">
           <h4 className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
@@ -325,13 +408,21 @@ export default function UserDetailsModal({
               </button>
             )}
 
-            {/* 2. Change Role (Disabled for single System Manager) */}
+            {/* 2. Change Role */}
             {onChangeRole && current.role !== 'manager' && (
               <button
                 type="button"
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
+                  if (hasSupervisedOfficers) {
+                    toast.error(
+                      userT(
+                        `Reassignment Required: This Supervisor currently oversees ${superviseesCount} Field Officer(s). Please reassign all officers to other active supervisors before changing their role.`
+                      ),
+                      { duration: 6000 }
+                    );
+                  }
                   onChangeRole(current);
                 }}
                 className="px-3 py-2 rounded-lg text-xs font-semibold text-blue-700 dark:text-blue-300 bg-white dark:bg-slate-800 border border-blue-200 dark:border-blue-700 hover:bg-blue-50/60 dark:hover:bg-blue-900/40 shadow-2xs hover:shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
@@ -348,6 +439,14 @@ export default function UserDetailsModal({
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
+                  if (hasSupervisedOfficers) {
+                    toast.error(
+                      userT(
+                        `Reassignment Required: This Supervisor currently oversees ${superviseesCount} Field Officer(s). Please reassign all officers to other active supervisors before changing location.`
+                      ),
+                      { duration: 6000 }
+                    );
+                  }
                   onReassign(current);
                 }}
                 className="px-3 py-2 rounded-lg text-xs font-semibold text-blue-700 dark:text-blue-300 bg-white dark:bg-slate-800 border border-blue-200 dark:border-blue-700 hover:bg-blue-50/50 dark:hover:bg-blue-900/40 shadow-2xs hover:shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
@@ -369,7 +468,7 @@ export default function UserDetailsModal({
               </button>
             )}
 
-            {/* 5. Deactivate Account / Activate Account (Manager cannot be deactivated) */}
+            {/* 5. Deactivate Account / Activate Account */}
             {onToggleStatus && current.role !== 'manager' && (
               <button
                 type="button"
@@ -383,6 +482,36 @@ export default function UserDetailsModal({
               >
                 <Power className="w-3.5 h-3.5" />
                 <span>{isActive ? userT('Deactivate Account') : userT('Activate Account')}</span>
+              </button>
+            )}
+
+            {/* 6. Delete User Account (Next to Deactivate Account) */}
+            {onDeleteUser && current.role !== 'manager' && (
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={async () => {
+                  if (hasSupervisedOfficers) {
+                    toast.error(
+                      userT(
+                        `Reassignment Required: This Supervisor currently oversees ${superviseesCount} Field Officer(s). You must reassign all officers to another active supervisor before deleting this account.`
+                      ),
+                      { duration: 6000 }
+                    );
+                    return;
+                  }
+                  setIsDeleting(true);
+                  try {
+                    await onDeleteUser(current);
+                  } finally {
+                    setIsDeleting(false);
+                  }
+                }}
+                className="px-3 py-2 rounded-lg text-xs font-semibold text-rose-700 dark:text-rose-300 bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-800/80 hover:bg-rose-50 dark:hover:bg-rose-900/30 shadow-2xs hover:shadow-xs transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50 active:scale-95"
+                title={userT('Permanently Delete User Account')}
+              >
+                <Trash2 className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
+                <span>{userT('Delete User')}</span>
               </button>
             )}
           </div>

@@ -233,19 +233,22 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
 
   // 3. BASE CITIZENS SCOPE:
   // For Field Officers: strictly only display citizens registered by this officer!
-  // For Supervisors: strictly only display citizens registered by their assigned officers!
-  // For Managers: access all citizens in their jurisdiction.
+  // For Supervisors: strictly only display synced citizens registered by their assigned officers!
+  // For Managers: strictly only display synced citizens in the system.
   const baseCitizens = useMemo(() => {
     if (isOfficer) {
       return allCitizens.filter((c) => matchesOfficer(c, user));
     }
     if (isSupervisor) {
       return allCitizens.filter((c) => {
+        // Supervisors only view records synced to the central database
+        if (c.syncStatus && c.syncStatus !== 'SYNCED') return false;
         if (matchesOfficer(c, user)) return true;
         return supervisorAssignedOfficers.some((off) => matchesOfficer(c, off));
       });
     }
-    return allCitizens;
+    // Managers only view records synced to the central database (exclude pending offline drafts on this device)
+    return allCitizens.filter((c) => !c.syncStatus || c.syncStatus === 'SYNCED');
   }, [allCitizens, isOfficer, isSupervisor, user, supervisorAssignedOfficers]);
 
   // 4. Computed Unique Officers for "Registered By" Dropdown (for managers/supervisors)

@@ -573,6 +573,7 @@ export const translationDictionary: Record<string, DictionaryItem> = {
   'Unassigned': { am: 'ያልተመደበ', om: 'Kan hin ramadamne', ti: 'ዘይተመደበ' },
   'Needs assignment': { am: 'ምደባ ያስፈልገዋል', om: 'Ramaddii barbaada', ti: 'ምደባ የድልዮ' },
   'Disabled accounts': { am: 'የታገዱ መለያዎች', om: 'Akkaawuntiiwwan cufaman', ti: 'ዝተዓጸዉ ሕሳባት' },
+  'Delete User': { am: 'ተጠቃሚ ሰርዝ', om: 'Fayyadamaa Haqi', ti: 'ተጠቃሚ ሰርዝ' },
   'Staff Directory': { am: 'የሰራተኞች ማውጫ', om: 'Galmee Hojjattootaa', ti: 'መዝገብ ሰራሕተኛታት' },
   'records': { am: 'መዝገቦች', om: 'galmeewwan', ti: 'መዛግብቲ' },
   'Filtered Records': { am: 'የተጣሩ መረጃዎች', om: 'Galmeewwan Gingilchaman', ti: 'ዝተጻረዩ መዛግብቲ' },

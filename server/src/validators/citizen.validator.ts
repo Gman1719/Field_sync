@@ -33,7 +33,7 @@ export const citizenSchema = z
       .coerce
       .number()
       .int('Age must be a whole number')
-      .min(0, 'Age cannot be negative')
+      .min(5, 'Citizens registered in this system must be at least 5 years old')
       .max(125, 'Please enter a valid age')
       .optional()
       .nullable(),
@@ -92,9 +92,29 @@ export const citizenSchema = z
       .string()
       .optional(),
   })
-  .refine((data) => data.dateOfBirth || (data.age !== undefined && data.age !== null), {
-    message: 'Either Date of Birth or Age must be provided',
-    path: ['age'],
-  });
+  .refine(
+    (data) => {
+      if (data.dateOfBirth) {
+        const birthDate = new Date(data.dateOfBirth);
+        if (!isNaN(birthDate.getTime())) {
+          const today = new Date();
+          let age = today.getFullYear() - birthDate.getFullYear();
+          const monthDiff = today.getMonth() - birthDate.getMonth();
+          if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+          }
+          return age >= 5;
+        }
+      }
+      if (data.age !== undefined && data.age !== null) {
+        return data.age >= 5;
+      }
+      return false;
+    },
+    {
+      message: 'Citizens registered in this system must be at least 5 years of age',
+      path: ['dateOfBirth'],
+    }
+  );
 
 export type CitizenInput = z.infer<typeof citizenSchema>;

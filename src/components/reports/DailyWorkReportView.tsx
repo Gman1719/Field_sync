@@ -248,8 +248,9 @@ export default function DailyWorkReportView({
       }
 
       if (reportsData.length === 0) {
-        // Offline fallback: load from IndexedDB
-        reportsData = await offlineDb.dailyWorkReports.orderBy('reportDate').reverse().toArray();
+        // Offline fallback: load from IndexedDB (only include synced reports for supervisor/manager)
+        const localReports = await offlineDb.dailyWorkReports.orderBy('reportDate').reverse().toArray();
+        reportsData = localReports.filter((r: any) => r.syncStatus === 'SYNCED');
         setTeamReports(reportsData);
       }
 

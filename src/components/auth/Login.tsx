@@ -26,26 +26,12 @@ export default function Login({
   const { theme, toggleTheme } = useTheme();
   const { userT } = useUserLanguage();
 
-  const [email, setEmail] = useState('officer@fieldsync.com');
-  const [password, setPassword] = useState('Password123!');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
-
-  // Initialize credentials if directed from Landing Page role portal
-  useEffect(() => {
-    if (initialRole === 'MANAGER') {
-      setEmail('manager@fieldsync.com');
-      setPassword('Password123!');
-    } else if (initialRole === 'SUPERVISOR') {
-      setEmail('supervisor@fieldsync.com');
-      setPassword('Password123!');
-    } else if (initialRole === 'FIELD_OFFICER') {
-      setEmail('officer@fieldsync.com');
-      setPassword('Password123!');
-    }
-  }, [initialRole]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

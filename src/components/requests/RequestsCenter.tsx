@@ -199,6 +199,8 @@ export default function RequestsCenter({
       });
       // Canceled requests should not be displayed in supervisor/manager page
       combined = combined.filter((r) => (r.status || '').toLowerCase() !== 'cancelled');
+      // Supervisors/Managers should only see requests that have been synced to the database (not pending offline drafts)
+      combined = combined.filter((r) => r.synced !== false && r.syncStatus !== 'PENDING');
     }
 
     // Filter by specific officer if supervisor/manager

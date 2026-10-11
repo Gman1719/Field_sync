@@ -159,6 +159,10 @@ export default function UserManagement({
   const filteredUsers = useMemo(() => {
     return users.filter(u => {
       if (isInvalidDirectional(u)) return false;
+      // Remove manager row from the list of users
+      const userRole = (u.role || '').toLowerCase();
+      if (userRole === 'manager') return false;
+
       if (specialFilter === 'unassigned') {
         if (u.role !== 'field_officer' || (u.supervisorId && u.woredaId)) return false;
       }
@@ -412,11 +416,15 @@ export default function UserManagement({
     // Validation: prevent deactivating a supervisor with assigned field officers
     if (user.role === 'supervisor' && newStatus === 'inactive') {
       const superviseesCount = (users || []).filter(
-        (u) => u.supervisorId === user.id && (u.role?.toLowerCase() === 'field_officer' || u.role === 'FIELD_OFFICER')
+        (u) =>
+          (u.supervisorId === user.id || u.supervisorId === user.employeeId || (user.email && u.supervisorId === user.email)) &&
+          (u.role?.toLowerCase() === 'field_officer' || u.role === 'FIELD_OFFICER')
       ).length;
       if (superviseesCount > 0) {
         toast.error(
-          userT('Reassignment Required: This Supervisor currently oversees active Field Officers. Please reassign all Field Officers to other active Supervisors before deactivating this account.'),
+          userT(
+            `Reassignment Required: This Supervisor currently oversees ${superviseesCount} active Field Officer(s). Please reassign all Field Officers to other active Supervisors before deactivating this account.`
+          ),
           { duration: 6000 }
         );
         setSelectedUserRole(user);
@@ -496,6 +504,76 @@ export default function UserManagement({
     } catch (err: any) {
       console.error('Status toggle error:', err);
       toast.error(`${userT('Failed to change status:')} ${err.message ? userT(err.message) : userT('Unknown error')}`);
+    }
+  };
+
+  // 7.5 Handle Delete User
+  const handleDeleteUser = async (userToDelete: any) => {
+    if (!userToDelete) return;
+    const target = (users || []).find((u) => u.id === userToDelete.id || (u.email && u.email.toLowerCase() === (userToDelete.email || '').toLowerCase())) || userToDelete;
+    const displayName = target.fullName || target.name || 'User';
+
+    // Prevent deleting permanent system manager
+    if (target.role?.toLowerCase() === 'manager') {
+      toast.error(userT('The System Manager account is permanent and cannot be deleted.'));
+      return;
+    }
+
+    // Validation: prevent deleting a supervisor with assigned field officers
+    if (target.role?.toLowerCase() === 'supervisor') {
+      const superviseesCount = (users || []).filter(
+        (u) =>
+          (u.supervisorId === target.id || u.supervisorId === target.employeeId || (target.email && u.supervisorId === target.email)) &&
+          (u.role?.toLowerCase() === 'field_officer' || u.role === 'FIELD_OFFICER')
+      ).length;
+      if (superviseesCount > 0) {
+        toast.error(
+          userT(
+            `Reassignment Required: This Supervisor currently oversees ${superviseesCount} Field Officer(s). Please reassign all Field Officers to other active Supervisors before deleting this account.`
+          ),
+          { duration: 6000 }
+        );
+        return;
+      }
+    }
+
+    if (!window.confirm(`${userT('Are you sure you want to permanently delete user account')} "${displayName}"? ${userT('This action cannot be undone.')}`)) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('fieldsync_token') || localStorage.getItem('token');
+      if (navigator.onLine && token) {
+        const res = await fetch(`${API_BASE}/users/${target.id}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const resData = await res.json();
+        if (!res.ok || !resData.success) {
+          throw new Error(resData.error || 'Failed to delete user');
+        }
+      }
+
+      // Delete from Dexie and offlineDb
+      try {
+        await db.users.delete(target.id);
+        await offlineDb.users.delete(target.id);
+      } catch (_dbErr) {}
+
+      // Remove from state
+      if (setUsers) {
+        setUsers((prev: any[]) => prev.filter((u) => u.id !== target.id && u.email !== target.email));
+      }
+
+      setSelectedUserDetails(null);
+      toast.success(userT(`User account "${displayName}" deleted successfully.`));
+      fetchStats();
+    } catch (err: any) {
+      console.error('Delete user error:', err);
+      toast.error(err.message ? userT(err.message) : userT('Failed to delete user account.'));
     }
   };
 
@@ -816,7 +894,6 @@ export default function UserManagement({
               <option value="all">{userT('All Roles')}</option>
               <option value="field_officer">{userT('Field Officers')}</option>
               <option value="supervisor">{userT('Supervisors')}</option>
-              <option value="manager">{userT('Managers')}</option>
             </select>
 
             <select
@@ -1346,6 +1423,9 @@ export default function UserManagement({
         }}
         onToggleStatus={(u) => {
           handleToggleStatus(u);
+        }}
+        onDeleteUser={(u) => {
+          handleDeleteUser(u);
         }}
         onResetPassword={(u) => {
           const target = u || selectedUserDetails;

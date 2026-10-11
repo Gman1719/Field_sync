@@ -934,6 +934,42 @@ async function handleUpdateUser(req: Request, res: Response): Promise<void> {
       }
     }
 
+    // Validation: Supervisors with active field officers cannot change role without reassigning officers first
+    if (user.role === Role.SUPERVISOR && targetRole !== Role.SUPERVISOR) {
+      const supervisedOfficers = await prisma.user.findMany({
+        where: { supervisorId: user.id, role: Role.FIELD_OFFICER },
+        select: { id: true, fullName: true },
+      });
+      if (supervisedOfficers.length > 0) {
+        res.status(400).json({
+          success: false,
+          code: 'REASSIGNMENT_REQUIRED',
+          error: `Supervisor Role Change Blocked: This supervisor currently oversees ${supervisedOfficers.length} Field Officer(s). You must reassign all field officers to other active supervisors before changing this supervisor's role.`,
+          assignedOfficersCount: supervisedOfficers.length,
+          assignedOfficers: supervisedOfficers,
+        });
+        return;
+      }
+    }
+
+    // Validation: Supervisors with active field officers cannot be deactivated without reassigning officers first
+    if (user.role === Role.SUPERVISOR && validated.isActive === false) {
+      const supervisedOfficers = await prisma.user.findMany({
+        where: { supervisorId: user.id, role: Role.FIELD_OFFICER },
+        select: { id: true, fullName: true },
+      });
+      if (supervisedOfficers.length > 0) {
+        res.status(400).json({
+          success: false,
+          code: 'REASSIGNMENT_REQUIRED',
+          error: `Supervisor Deactivation Blocked: This supervisor currently oversees ${supervisedOfficers.length} Field Officer(s). You must reassign all field officers to other active supervisors before deactivating this account.`,
+          assignedOfficersCount: supervisedOfficers.length,
+          assignedOfficers: supervisedOfficers,
+        });
+        return;
+      }
+    }
+
     const rawPhone = validated.phoneNumber || validated.phone;
     const normalizedPhone = rawPhone !== undefined ? normalizeEthiopianPhone(rawPhone) : user.phoneNumber;
 
@@ -1699,6 +1735,91 @@ router.post('/:id/password-reset', authenticate, requireManager, async (req: Req
   } catch (error: any) {
     console.error('Password reset error:', error);
     res.status(500).json({ success: false, error: 'Failed to reset password' });
+  }
+});
+
+/**
+ * @route   DELETE /api/users/:id
+ * @desc    Manager permanently deletes a user account
+ *          Validates that supervisors with active supervisees cannot be deleted without prior reassignment.
+ * @access  Private (Manager Only)
+ */
+router.delete('/:id', authenticate, requireManager, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [{ id }, { email: id }],
+      },
+    });
+
+    if (!user) {
+      res.status(404).json({ success: false, error: 'User not found' });
+      return;
+    }
+
+    // Guard: Prevent deleting the System Manager
+    if (user.role === Role.MANAGER) {
+      res.status(400).json({
+        success: false,
+        error: 'The System Manager account is permanent and cannot be deleted.',
+      });
+      return;
+    }
+
+    // Validation: Supervisor with supervised field officers cannot be deleted without reassigning officers first
+    if (user.role === Role.SUPERVISOR) {
+      const supervisedOfficers = await prisma.user.findMany({
+        where: { supervisorId: user.id, role: Role.FIELD_OFFICER },
+        select: { id: true, fullName: true },
+      });
+
+      if (supervisedOfficers.length > 0) {
+        res.status(400).json({
+          success: false,
+          code: 'REASSIGNMENT_REQUIRED',
+          error: `Supervisor Deletion Blocked: This supervisor currently oversees ${supervisedOfficers.length} Field Officer(s). You must reassign all field officers to other active supervisors before deleting this account.`,
+          assignedOfficersCount: supervisedOfficers.length,
+          assignedOfficers: supervisedOfficers,
+        });
+        return;
+      }
+    }
+
+    // Reassign registered citizens to manager so citizens are preserved
+    const manager = await prisma.user.findFirst({ where: { role: Role.MANAGER } });
+    if (manager) {
+      await prisma.citizen.updateMany({
+        where: { registeredById: user.id },
+        data: { registeredById: manager.id },
+      });
+    }
+
+    // Clean up dependent notifications and sync errors if any
+    await prisma.notification.deleteMany({ where: { recipientId: user.id } });
+    await prisma.syncError.deleteMany({ where: { officerId: user.id } });
+
+    // Delete the user record
+    await prisma.user.delete({ where: { id: user.id } });
+
+    await recordAuditEvent({
+      req,
+      action: 'USER_DELETED',
+      entityType: 'User',
+      entityId: user.id,
+      zoneId: user.zoneId,
+      summary: `${req.user?.fullName || 'Manager'} deleted user account for ${user.fullName} (${user.role})`,
+      metadata: { deletedUserId: user.id, email: user.email, role: user.role },
+    });
+
+    res.json({
+      success: true,
+      message: `User account for ${user.fullName} has been deleted successfully.`,
+    });
+  } catch (error: any) {
+    console.error('Delete user error:', error);
+    res.status(500).json({ success: false, error: error.message || 'Failed to delete user' });
   }
 });
 
