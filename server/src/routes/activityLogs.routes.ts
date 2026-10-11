@@ -54,35 +54,59 @@ router.post('/', authenticate, async (req: Request, res: Response): Promise<void
         continue;
       }
 
-      const officerId = log.officerId || caller.id;
+      let officerId = caller.id;
+      if (log.officerId && log.officerId !== caller.id) {
+        const userExists = await prisma.user.findUnique({
+          where: { id: log.officerId },
+          select: { id: true },
+        });
+        if (userExists) {
+          officerId = userExists.id;
+        }
+      }
 
-      const saved = await prisma.activityLog.upsert({
-        where: { id: log.id },
-        update: {
-          eventType: log.eventType,
-          description: log.description,
-          deviceTimestamp: log.deviceTimestamp ? new Date(log.deviceTimestamp) : new Date(),
-          relatedRecordId: log.relatedRecordId || null,
-          metadata: log.metadata || null,
-          syncStatus: SyncStatus.SYNCED,
-        },
-        create: {
-          id: log.id,
-          officerId,
-          assignmentId: log.assignmentId || null,
-          eventType: log.eventType,
-          description: log.description,
-          deviceTimestamp: log.deviceTimestamp ? new Date(log.deviceTimestamp) : new Date(),
-          relatedRecordId: log.relatedRecordId || null,
-          metadata: log.metadata || null,
-          syncStatus: SyncStatus.SYNCED,
-        },
-        include: {
-          officer: { select: { fullName: true, email: true } },
-        },
-      });
+      let assignmentId: string | null = null;
+      if (log.assignmentId) {
+        const assignmentExists = await prisma.assignment.findUnique({
+          where: { id: log.assignmentId },
+          select: { id: true },
+        });
+        if (assignmentExists) {
+          assignmentId = assignmentExists.id;
+        }
+      }
 
-      processed.push(formatActivityLog(saved));
+      try {
+        const saved = await prisma.activityLog.upsert({
+          where: { id: log.id },
+          update: {
+            eventType: log.eventType,
+            description: log.description,
+            deviceTimestamp: log.deviceTimestamp ? new Date(log.deviceTimestamp) : new Date(),
+            relatedRecordId: log.relatedRecordId || null,
+            metadata: log.metadata || null,
+            syncStatus: SyncStatus.SYNCED,
+          },
+          create: {
+            id: log.id,
+            officerId,
+            assignmentId,
+            eventType: log.eventType,
+            description: log.description,
+            deviceTimestamp: log.deviceTimestamp ? new Date(log.deviceTimestamp) : new Date(),
+            relatedRecordId: log.relatedRecordId || null,
+            metadata: log.metadata || null,
+            syncStatus: SyncStatus.SYNCED,
+          },
+          include: {
+            officer: { select: { fullName: true, email: true } },
+          },
+        });
+
+        processed.push(formatActivityLog(saved));
+      } catch (err: any) {
+        console.warn(`Skipping invalid activity log (${log.id}):`, err.message);
+      }
     }
 
     res.status(201).json({

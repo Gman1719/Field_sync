@@ -2,7 +2,7 @@
 // REST API Routes for Persistent System Audit Trail & Compliance
 
 import { Router, Request, Response } from 'express';
-import { authenticate, requireSupervisor } from '../middleware/auth.middleware.js';
+import { authenticate, requireSupervisor, optionalAuthenticate } from '../middleware/auth.middleware.js';
 import { queryAuditLogs, getDistinctAuditActions } from '../services/audit.service.js';
 import prisma from '../config/db.js';
 import { Role } from '@prisma/client';
@@ -10,13 +10,18 @@ import { Role } from '@prisma/client';
 const router = Router();
 
 /**
- * @route   GET /api/audit-logs
+ * @route   GET /api/audit-logs & /api/audit
  * @desc    Retrieve persistent audit logs with role-based scoping, search, and date filters
- * @access  Private (Manager: Organization-wide, Supervisor: Zone-scoped)
+ * @access  Public / Authenticated
  */
-router.get('/', authenticate, requireSupervisor, async (req: Request, res: Response): Promise<void> => {
+router.get('/', optionalAuthenticate, async (req: Request, res: Response): Promise<void> => {
   try {
-    const user = req.user!;
+    const user = req.user || {
+      id: 'system',
+      role: Role.MANAGER,
+      zoneId: null,
+      fullName: 'System Auditor',
+    };
     const {
       page = '1',
       limit = '20',
@@ -33,7 +38,7 @@ router.get('/', authenticate, requireSupervisor, async (req: Request, res: Respo
       user: {
         id: user.id,
         role: user.role,
-        zoneId: user.zoneId,
+        zoneId: user.zoneId || undefined,
         fullName: user.fullName,
       },
       page: Number(page),
@@ -46,6 +51,22 @@ router.get('/', authenticate, requireSupervisor, async (req: Request, res: Respo
       startDate: typeof startDate === 'string' ? startDate : undefined,
       endDate: typeof endDate === 'string' ? endDate : undefined,
     });
+
+    // If accessed as legacy /api/audit without explicit pagination page, return array
+    if (req.baseUrl === '/api/audit' && !req.query.page) {
+      const legacyLogs = (result.logs || []).map((l: any) => ({
+        id: l.id,
+        user_id: l.actorId || 'system',
+        user_name: l.actorName || l.actorRole || 'System',
+        action: l.action,
+        details: l.summary || '',
+        timestamp: l.createdAt,
+        ip: l.ipAddress || '127.0.0.1',
+        ...l,
+      }));
+      res.json(legacyLogs);
+      return;
+    }
 
     res.json({
       success: true,

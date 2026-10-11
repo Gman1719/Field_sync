@@ -330,14 +330,17 @@ export function useAppData(user: any) {
         let finalPermissions = permissionsData;
         try {
           if (navigator.onLine) {
+            const authToken = localStorage.getItem('fieldsync_token');
+            const authHeaders = authToken ? { Authorization: `Bearer ${authToken}` } : {};
             const [leavesRes, permsRes] = await Promise.all([
-              fetch(`${API_BASE}/leaves`).catch(() => null),
-              fetch(`${API_BASE}/permissions`).catch(() => null),
+              fetch(`${API_BASE}/leaves`, { headers: authHeaders }).catch(() => null),
+              fetch(`${API_BASE}/permissions`, { headers: authHeaders }).catch(() => null),
             ]);
             if (leavesRes && leavesRes.ok) {
-              const serverLeaves = await leavesRes.json();
-              if (Array.isArray(serverLeaves) && serverLeaves.length > 0) {
-                finalLeaves = serverLeaves;
+              const serverLeaves = await leavesRes.json().catch(() => null);
+              const list = Array.isArray(serverLeaves) ? serverLeaves : (serverLeaves?.data || []);
+              if (Array.isArray(list) && list.length > 0) {
+                finalLeaves = list;
                 if (db.leaves) {
                   await db.leaves.clear();
                   await db.leaves.bulkPut(finalLeaves as any);
@@ -345,9 +348,10 @@ export function useAppData(user: any) {
               }
             }
             if (permsRes && permsRes.ok) {
-              const serverPerms = await permsRes.json();
-              if (Array.isArray(serverPerms) && serverPerms.length > 0) {
-                finalPermissions = serverPerms;
+              const serverPerms = await permsRes.json().catch(() => null);
+              const list = Array.isArray(serverPerms) ? serverPerms : (serverPerms?.data || []);
+              if (Array.isArray(list) && list.length > 0) {
+                finalPermissions = list;
                 if (db.permissions) {
                   await db.permissions.clear();
                   await db.permissions.bulkPut(finalPermissions as any);

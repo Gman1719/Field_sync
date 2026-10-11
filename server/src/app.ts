@@ -23,6 +23,12 @@ import notificationsRoutes from './routes/notifications.routes.js';
 import auditLogsRoutes from './routes/auditLogs.routes.js';
 import workMonitoringRoutes from './routes/workMonitoring.routes.js';
 import chatRoutes from './routes/chat.routes.js';
+import leavesRoutes from './routes/leaves.routes.js';
+import permissionsRoutes from './routes/permissions.routes.js';
+import screenTimeRoutes from './routes/screenTime.routes.js';
+import supervisorReportsRoutes from './routes/supervisorReports.routes.js';
+import alertsRoutes from './routes/alerts.routes.js';
+import verificationRoutes from './routes/verification.routes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -68,6 +74,7 @@ export const createApp = (): Express => {
   app.use('/api/locations', locationsRoutes);
   app.use('/api/citizens', citizensRoutes);
   app.use('/api/assignments', assignmentsRoutes);
+  app.use('/api/tasks', assignmentsRoutes);
   app.use('/api/activity-logs', activityLogsRoutes);
   app.use('/api/activity', activityLogsRoutes);
   app.use('/api/work-sessions', workSessionsRoutes);
@@ -80,6 +87,12 @@ export const createApp = (): Express => {
   app.use('/api/audit', auditLogsRoutes);
   app.use('/api/work-monitoring', workMonitoringRoutes);
   app.use('/api/chat', chatRoutes);
+  app.use('/api/leaves', leavesRoutes);
+  app.use('/api/permissions', permissionsRoutes);
+  app.use('/api/screen-time', screenTimeRoutes);
+  app.use('/api/supervisor-reports', supervisorReportsRoutes);
+  app.use('/api/alerts', alertsRoutes);
+  app.use('/api/verification', verificationRoutes);
 
   // Phase 1 Health Check & Database Verification
   app.get('/api/health', async (_req: Request, res: Response) => {

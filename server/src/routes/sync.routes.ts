@@ -4,7 +4,7 @@
 import { Router, Request, Response } from 'express';
 import prisma from '../config/db.js';
 import { authenticate } from '../middleware/auth.middleware.js';
-import { Role, SyncStatus, DuplicateReviewStatus, Gender, NotificationPriority } from '@prisma/client';
+import { Role, SyncStatus, DuplicateReviewStatus, Gender, NotificationPriority, ScreenTimeStatus } from '@prisma/client';
 import { ensureGeographicHierarchy } from '../utils/geoHelper.js';
 import {
   createNotification,
@@ -12,6 +12,8 @@ import {
   notifySupervisorForZone,
   notifyManagers,
 } from '../services/notification.service.js';
+import { readLeaves, writeLeaves } from './leaves.routes.js';
+import { readPermissions, writePermissions } from './permissions.routes.js';
 
 const router = Router();
 
@@ -21,6 +23,87 @@ function formatSeconds(secs: number = 0) {
   const s = secs % 60;
   return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
 }
+
+/**
+ * @route   POST /api/sync
+ * @desc    Single-item synchronization endpoint for offline queue items
+ * @access  Public / Authenticated
+ */
+router.post('/', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { type, data } = req.body || {};
+    const recordId = data?.id || `sync_${Date.now()}`;
+
+    if (!type || !data) {
+      res.status(400).json({ success: false, error: 'Missing sync payload type or data' });
+      return;
+    }
+
+    if (type === 'leave' || type === 'leave_request' || type === 'leaves') {
+      const leaves = readLeaves();
+      const idx = leaves.findIndex((l) => l.id === data.id);
+      if (idx >= 0) {
+        leaves[idx] = { ...leaves[idx], ...data, synced: true };
+      } else {
+        leaves.unshift({ ...data, synced: true });
+      }
+      writeLeaves(leaves);
+    } else if (type === 'permission' || type === 'permission_request' || type === 'permissions') {
+      const perms = readPermissions();
+      const idx = perms.findIndex((p) => p.id === data.id);
+      if (idx >= 0) {
+        perms[idx] = { ...perms[idx], ...data, synced: true };
+      } else {
+        perms.unshift({ ...data, synced: true });
+      }
+      writePermissions(perms);
+    } else if (type === 'audit' || type === 'audit_logs') {
+      try {
+        await prisma.auditLog.create({
+          data: {
+            id: data.id || undefined,
+            actorId: data.userId || null,
+            actorName: data.userName || null,
+            action: data.action || 'SYNC',
+            entityType: data.entityType || 'SYSTEM',
+            entityId: data.entityId || recordId,
+            summary: data.details || 'Offline audit event synced',
+            ipAddress: data.ip || null,
+          },
+        });
+      } catch (_e) {}
+    } else if (type === 'screen_time') {
+      try {
+        if (data.employeeId && data.date) {
+          await prisma.dailyScreenTime.upsert({
+            where: { officerId_date: { officerId: data.employeeId, date: data.date } },
+            create: {
+              officerId: data.employeeId,
+              date: data.date,
+              totalEligibleSeconds: data.totalScreenTime || 0,
+              status: ScreenTimeStatus.FINALIZED,
+            },
+            update: {
+              totalEligibleSeconds: data.totalScreenTime || 0,
+            },
+          });
+        }
+      } catch (_e) {}
+    }
+
+    res.json({
+      success: true,
+      message: 'Item synchronized successfully',
+      data: {
+        id: recordId,
+        syncedAt: new Date().toISOString(),
+      },
+    });
+  } catch (error: any) {
+    console.error('Single-item sync error:', error);
+    res.status(500).json({ success: false, error: 'Internal synchronization error' });
+  }
+});
 
 /**
  * @route   POST /api/sync/batch

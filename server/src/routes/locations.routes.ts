@@ -66,6 +66,41 @@ router.get('/regions/:regionId/zones', async (req: Request, res: Response): Prom
 });
 
 /**
+ * @route   GET /api/locations/zones
+ * @desc    Get all administrative zones across regions or filtered by regionId
+ * @access  Public / Authenticated
+ */
+router.get('/zones', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { regionId } = req.query;
+    const where: any = {};
+    if (regionId && typeof regionId === 'string') {
+      where.regionId = regionId;
+    }
+    const zones = await prisma.zone.findMany({
+      where,
+      orderBy: { name: 'asc' },
+      select: {
+        id: true,
+        name: true,
+        code: true,
+        regionId: true,
+        description: true,
+      },
+    });
+
+    res.json({
+      success: true,
+      data: zones,
+      count: zones.length,
+    });
+  } catch (error: any) {
+    console.error('Fetch all zones error:', error);
+    res.status(500).json({ success: false, error: 'Failed to retrieve zones' });
+  }
+});
+
+/**
  * @route   GET /api/locations/zones/:zoneId/woredas
  * @desc    Get all woredas / sub-city districts within a specified zone
  * @access  Public / Authenticated

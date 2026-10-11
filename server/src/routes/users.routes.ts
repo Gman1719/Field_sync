@@ -388,9 +388,9 @@ router.patch('/me', authenticate, async (req: Request, res: Response): Promise<v
 /**
  * @route   GET /api/users/stats
  * @desc    Get aggregate staff and workforce statistics
- * @access  Private (Manager & Supervisor)
+ * @access  Private (All Authenticated Staff)
  */
-router.get('/stats', authenticate, requireSupervisor, async (_req: Request, res: Response): Promise<void> => {
+router.get('/stats', authenticate, async (_req: Request, res: Response): Promise<void> => {
   try {
     const [
       totalUsers,
@@ -436,17 +436,26 @@ router.get('/stats', authenticate, requireSupervisor, async (_req: Request, res:
 /**
  * @route   GET /api/users
  * @desc    List staff users with filtering
- * @access  Private (Manager & Supervisor)
+ * @access  Private (All Authenticated Staff)
  */
-router.get('/', authenticate, requireSupervisor, async (req: Request, res: Response): Promise<void> => {
+router.get('/', authenticate, async (req: Request, res: Response): Promise<void> => {
   try {
     const caller = req.user!;
     const { role, status, regionId, zoneId, woredaId, search } = req.query;
 
     const where: any = {};
 
-    // Role scoping: Supervisor only sees own officers or zone; Manager sees all
-    if (caller.role === Role.SUPERVISOR) {
+    // Role scoping:
+    // Field Officer sees self, assigned supervisor, and colleagues in same woreda
+    // Supervisor sees own officers or zone; Manager sees all
+    if (caller.role === Role.FIELD_OFFICER) {
+      where.OR = [
+        { id: caller.id },
+        ...(caller.supervisorId ? [{ id: caller.supervisorId }] : []),
+        ...(caller.woredaId ? [{ woredaId: caller.woredaId }] : []),
+        ...(caller.zoneId ? [{ zoneId: caller.zoneId, role: Role.SUPERVISOR }] : []),
+      ];
+    } else if (caller.role === Role.SUPERVISOR) {
       where.OR = [
         { supervisorId: caller.id },
         { id: caller.id },

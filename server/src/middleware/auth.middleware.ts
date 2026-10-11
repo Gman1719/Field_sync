@@ -166,3 +166,62 @@ export const requireRoles = (...allowedRoles: Role[]) => {
 export const requireManager = requireRoles(Role.MANAGER);
 export const requireSupervisor = requireRoles(Role.SUPERVISOR, Role.MANAGER);
 export const requireOfficer = requireRoles(Role.FIELD_OFFICER, Role.SUPERVISOR, Role.MANAGER);
+
+/**
+ * Optional Authentication: Attaches req.user if a valid token is provided,
+ * otherwise proceeds cleanly without aborting with 401.
+ */
+export const optionalAuthenticate = async (
+  req: Request,
+  _res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return next();
+    }
+
+    const token = authHeader.split(' ')[1];
+    let payload: TokenPayload;
+    try {
+      payload = verifyToken(token);
+    } catch {
+      return next();
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: payload.userId },
+      include: {
+        region: { select: { name: true } },
+        zone: { select: { name: true } },
+        woreda: { select: { name: true } },
+        kebele: { select: { name: true } },
+        supervisor: { select: { fullName: true } },
+      },
+    });
+
+    if (user && user.isActive) {
+      req.user = {
+        id: user.id,
+        fullName: user.fullName,
+        email: user.email,
+        role: user.role,
+        phoneNumber: user.phoneNumber,
+        isActive: user.isActive,
+        mustChangePassword: user.mustChangePassword,
+        regionId: user.regionId,
+        zoneId: user.zoneId,
+        woredaId: user.woredaId,
+        kebeleId: user.kebeleId,
+        regionName: user.region?.name,
+        zoneName: user.zone?.name,
+        woredaName: user.woreda?.name,
+        kebeleName: user.kebele?.name,
+        supervisorId: user.supervisorId,
+        supervisorName: user.supervisor?.fullName,
+      };
+    }
+  } catch (_e) {}
+  next();
+};
