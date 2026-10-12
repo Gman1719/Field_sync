@@ -48,10 +48,22 @@ export interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<AuthContextUser | null>(null);
+  const [user, setUser] = useState<AuthContextUser | null>(() => {
+    try {
+      if (typeof window === 'undefined') return null;
+      const stored = localStorage.getItem('fieldsync_user');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('fieldsync_token') || null);
   const [mustChangePassword, setMustChangePassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    // Fast path: if there is no token and no user, user is a visitor -> zero loading time!
+    return Boolean(localStorage.getItem('fieldsync_token') || localStorage.getItem('fieldsync_user'));
+  });
   const [loginError, setLoginError] = useState('');
 
   useEffect(() => {
@@ -60,11 +72,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       if (storedToken) {
         try {
+          const controller = new AbortController();
+          const timer = setTimeout(() => controller.abort(), 2000);
           const res = await fetch(`${API_BASE}/auth/me`, {
             headers: {
               Authorization: `Bearer ${storedToken}`,
             },
+            signal: controller.signal,
           });
+          clearTimeout(timer);
 
           if (res.ok) {
             const resData = await res.json();

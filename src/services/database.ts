@@ -731,6 +731,10 @@ export const pullSupervisorReportsFromServer = async () => {
 
 export const purgeLegacyDirectionalUsers = async () => {
   try {
+    if (typeof window !== 'undefined' && localStorage.getItem('fieldsync_purged_legacy_v2') === 'true') {
+      return;
+    }
+
     const legacyMockNames = [
       'መሠረት አለሙ', 'Meseret Alemu',
       'ቤተልሔም አበበ', 'Betelhem Abebe',
@@ -1003,6 +1007,10 @@ export const purgeLegacyDirectionalUsers = async () => {
         supervisorId: 'u_sup',
       });
     }
+
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('fieldsync_purged_legacy_v2', 'true');
+    }
   } catch (err) {
     console.warn('Error purging legacy directional users:', err);
   }
@@ -1010,11 +1018,11 @@ export const purgeLegacyDirectionalUsers = async () => {
 
 export const initializeAllData = async () => {
   try {
-    await purgeLegacyDirectionalUsers();
     const userCount = await db.users.count();
     if (userCount > 0) {
       return;
     }
+    await purgeLegacyDirectionalUsers();
 
     const today = getToday();
 

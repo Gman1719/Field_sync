@@ -147,9 +147,14 @@ function AppContent() {
   }
 
   if (!user) {
-    if (isLoading) {
+    // Only display full-screen loading screen if user is specifically attempting direct dashboard access
+    const isDirectDashboard = typeof window !== 'undefined' &&
+      (window.location.hash.toLowerCase() === '#dashboard' || window.location.hash.toLowerCase() === '#app');
+
+    if (isLoading && isDirectDashboard) {
       return <LoadingScreen />;
     }
+
     if (authView === 'login') {
       return (
         <Login
@@ -164,6 +169,7 @@ function AppContent() {
         />
       );
     }
+
     return (
       <LandingPage
         onGoToLogin={(role) => {

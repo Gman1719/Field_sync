@@ -227,9 +227,13 @@ export function useAppData(user: any) {
         let finalUsers = cleanInitialUsers;
         try {
           const authToken = localStorage.getItem('fieldsync_token') || localStorage.getItem('token') || sessionStorage.getItem('token');
+          const controller = new AbortController();
+          const timer = setTimeout(() => controller.abort(), 2000);
           const response = await fetch(`${API_BASE}/users`, {
             headers: authToken ? { Authorization: `Bearer ${authToken}` } : {},
+            signal: controller.signal,
           });
+          clearTimeout(timer);
           if (response.ok) {
             const rawJson = await response.json();
             const serverUsers = Array.isArray(rawJson) ? rawJson : (rawJson?.data || []);
