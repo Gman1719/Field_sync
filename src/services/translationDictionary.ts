@@ -317,6 +317,7 @@ export const translationDictionary: Record<string, DictionaryItem> = {
   'Sync Health': { am: 'የማመሳሰል ጤና ሁኔታ', om: 'Fayyaa Walqabsiisaa', ti: 'ጥዕና ምስምሳል' },
   'Successfully synchronized records with PostgreSQL!': { am: 'መረጃዎች ከዋናው ዳታቤዝ ጋር በተሳካ ሁኔታ ተመሳስለዋል!', om: 'Galmeeleen milkaa\'inaan kuusaa daataa waliin walqabataniiru!', ti: 'መዛግብቲ ምስ ማእከላይ ዳታቤዝ ብዓወት ተመሳሲሎም!' },
 
+  'System Synchronization': { am: 'የስርዓት ማመሳሰል', om: 'Qindoomina Sirnaa', ti: 'ናይ ስርዓት ምስምሳል' },
   'Operations & System Overview': { am: 'የስራዎች እና የስርዓት አጠቃላይ እይታ', om: 'Ilaalcha Waliigalaa Hojiiwwanii fi Sirnaa', ti: 'ሓፈሻዊ ርእይቶ ስርሒታትን ስርዓትን' },
   'Real-time operational metrics across all organizational divisions': {
     am: 'በሁሉም ድርጅታዊ ክፍሎች ውስጥ ያሉ የቀጥታ የስራ መለኪያዎች',

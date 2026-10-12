@@ -6,7 +6,7 @@ import {
 import {
   FileText, Users, UserCheck, CalendarCheck, Calendar, Clock,
   TrendingUp, CheckCircle2, Award, ShieldCheck, AlertCircle,
-  UserPlus, FilePlus2, BarChart3, Radio, ArrowRight, ShieldAlert,
+  UserPlus, FilePlus2, Radio, ArrowRight, ShieldAlert,
   Percent, Sparkles, RefreshCw, AlertTriangle, ChevronRight,
   Activity, MapPin, Eye, Phone, Mail, Check, UserCog, Database, History
 } from 'lucide-react';
@@ -788,7 +788,7 @@ export default function Dashboard({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
             {/* 1. User Management (from 'users' sidebar tab) */}
             <div onClick={() => setActiveTab && setActiveTab('users')} className="cursor-pointer">
               <StatCard
@@ -885,11 +885,11 @@ export default function Dashboard({
               />
             </div>
 
-            {/* 5. System Sync Health (from 'sync_center' sidebar tab) */}
-            <div onClick={() => setActiveTab && setActiveTab('sync_center')} className="cursor-pointer">
+            {/* 5. System Synchronization (non-clickable plain text card with real data) */}
+            <div className="cursor-default select-none">
               <StatCard
-                title={userT('System Sync Health')}
-                value={pendingCitizens === 0 ? '100%' : `${pendingCitizens} ${userT('Pending')}`}
+                title={userT('System Synchronization')}
+                value={totalCitizens > 0 ? `${Math.round((syncedCitizens / totalCitizens) * 100)}%` : '100%'}
                 subtitle={
                   language === 'am'
                     ? `${syncedCitizens} መዝገቦች ተመሳስለዋል`
@@ -904,20 +904,6 @@ export default function Dashboard({
                 iconBg="bg-sky-50 dark:bg-sky-950/80"
                 badge={pendingCitizens === 0 ? userT('Synced') : userT('Pending')}
                 badgeColor={pendingCitizens === 0 ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-amber-50 text-amber-700 border-amber-200"}
-              />
-            </div>
-
-            {/* 6. Analysis & Detail (from 'analytics' sidebar tab) */}
-            <div onClick={() => setActiveTab && setActiveTab('analytics')} className="cursor-pointer">
-              <StatCard
-                title={userT('Analytics & Trends')}
-                value={totalCitizens > 0 ? `${Math.round((todayCitizens / (totalCitizens || 1)) * 100)}% ${userT('Pace')}` : `0% ${userT('Pace')}`}
-                subtitle={userT('Demographic & regional analytics')}
-                icon={BarChart3}
-                iconColor="text-amber-700 dark:text-amber-400"
-                iconBg="bg-amber-50 dark:bg-amber-950/80"
-                badge={userT('Telemetry')}
-                badgeColor="bg-amber-50 text-amber-700 border-amber-200"
               />
             </div>
           </div>
