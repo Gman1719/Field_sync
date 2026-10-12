@@ -127,17 +127,60 @@ router.get('/', authenticate, async (req: Request, res: Response): Promise<void>
 
     const where: any = {};
 
+    const notConditions: any[] = [
+      { eventType: { contains: 'SMS', mode: 'insensitive' } },
+      { description: { contains: 'SMS', mode: 'insensitive' } },
+    ];
+
     // Role-based scoping: By default, each user's activity log contains only their own work
     if (user.role === Role.FIELD_OFFICER) {
       // Field officers can strictly and exclusively see only their own work
       where.officerId = user.id;
     } else if (user.role === Role.SUPERVISOR) {
-      // Supervisors default to their own work, unless querying a specific subordinate
-      if (officerId && officerId !== 'all') {
-        where.officerId = officerId as string;
-      } else {
-        where.officerId = user.id;
-      }
+      // Supervisors strictly see ONLY their own supervisor actions performed on their page
+      where.officerId = user.id;
+      notConditions.push(
+        {
+          eventType: {
+            in: [
+              'WORK_SESSION_STARTED',
+              'WORK_SESSION_PAUSED',
+              'WORK_SESSION_RESUMED',
+              'WORK_SESSION_ENDED',
+              'ATTENDANCE_RECORDED',
+              'ATTENDANCE_CHECK_IN',
+              'ATTENDANCE_CHECK_OUT',
+              'VERIFICATION_CONFIRMED',
+              'VERIFICATION_MISSED',
+              'VERIFICATION_SUBMITTED',
+              'CITIZEN_REGISTERED',
+              'CITIZEN_REGISTRATION_STARTED',
+              'CITIZEN_REGISTRATION_COMPLETED',
+              'CITIZEN_REGISTRATION_SAVED_OFFLINE',
+              'DAILY_REPORT_SUBMITTED',
+              'DAILY_REPORT_DRAFTED',
+              'REQUEST_RECEIVED',
+              'REQUEST_SENT',
+              'LEAVE_REQUESTED',
+              'PERMISSION_REQUESTED',
+              'SUPERVISOR_CONFIRMATION',
+              'USER_CREATED',
+              'USER_STATUS_CHANGE',
+              'ROLE_AND_LOCATION_CHANGE',
+              'WORKSTATION_REASSIGNED',
+              'USER_ROLE_CHANGED',
+            ],
+          },
+        },
+        { description: { contains: 'System Manager', mode: 'insensitive' } },
+        { description: { contains: 'Started daily work session', mode: 'insensitive' } },
+        { description: { contains: 'Work verification missed', mode: 'insensitive' } },
+        { description: { contains: 'Registered citizen', mode: 'insensitive' } },
+        { description: { contains: 'Created new staff account', mode: 'insensitive' } },
+        { description: { contains: 'DEACTIVATE account', mode: 'insensitive' } },
+        { description: { contains: 'ACTIVATE account', mode: 'insensitive' } },
+        { description: { contains: 'Reassigned workstation', mode: 'insensitive' } }
+      );
     } else if (user.role === Role.MANAGER) {
       // Managers default to their own work, unless explicitly querying a specific officer or 'all'
       if (officerId && officerId !== 'all') {
@@ -149,10 +192,7 @@ router.get('/', authenticate, async (req: Request, res: Response): Promise<void>
       }
     }
 
-    where.NOT = [
-      { eventType: { contains: 'SMS', mode: 'insensitive' } },
-      { description: { contains: 'SMS', mode: 'insensitive' } },
-    ];
+    where.NOT = notConditions;
 
     if (eventType && eventType !== 'all') {
       where.eventType = eventType as string;

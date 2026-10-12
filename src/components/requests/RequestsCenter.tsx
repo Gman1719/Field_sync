@@ -390,27 +390,6 @@ export default function RequestsCenter({
         }
       ).catch(() => {});
 
-      // 4. Log in Supervisor Activity Log ("add request in supervisor activity log")
-      if (targetSupervisorId && targetSupervisorId !== 'all') {
-        ActivityLogger.log(
-          'REQUEST_RECEIVED',
-          `Request received: ${user?.fullName || user?.name || 'Field Officer'} submitted ${leaveForm.type} leave request (${leaveForm.startDate} to ${leaveForm.endDate})`,
-          {
-            officerId: targetSupervisorId,
-            userId: targetSupervisorId,
-            officerName: supervisorName,
-            relatedRecordId: newLeaveId,
-            metadata: {
-              requestType: 'leave',
-              leaveType: leaveForm.type,
-              startDate: leaveForm.startDate,
-              endDate: leaveForm.endDate,
-              fromOfficerId: officerId,
-              fromOfficerName: user?.fullName || user?.name || 'Field Officer',
-            },
-          }
-        ).catch(() => {});
-      }
 
       window.dispatchEvent(new CustomEvent('fieldsync-request-updated'));
       setShowLeaveModal(false);
@@ -558,27 +537,6 @@ export default function RequestsCenter({
         }
       ).catch(() => {});
 
-      // 4. Log in Supervisor Activity Log ("add request in supervisor activity log")
-      if (targetSupervisorId && targetSupervisorId !== 'all') {
-        ActivityLogger.log(
-          'REQUEST_RECEIVED',
-          `Request received: ${user?.fullName || user?.name || 'Field Officer'} submitted permission request on ${permissionForm.date} (${permissionForm.startTime} – ${permissionForm.endTime})`,
-          {
-            officerId: targetSupervisorId,
-            userId: targetSupervisorId,
-            officerName: supervisorName,
-            relatedRecordId: newPermId,
-            metadata: {
-              requestType: 'permission',
-              date: permissionForm.date,
-              startTime: permissionForm.startTime,
-              endTime: permissionForm.endTime,
-              fromOfficerId: officerId,
-              fromOfficerName: user?.fullName || user?.name || 'Field Officer',
-            },
-          }
-        ).catch(() => {});
-      }
 
       window.dispatchEvent(new CustomEvent('fieldsync-request-updated'));
       setShowPermissionModal(false);

@@ -265,27 +265,7 @@ export default function LeaveManagement({
         }
       );
 
-      // Record Activity Log for Supervisor ("add request in supervisor activity log")
-      if (targetSupervisorId) {
-        await ActivityLogger.log(
-          'REQUEST_RECEIVED',
-          `Request received: ${leave.employeeName || 'Field Officer'} submitted ${leave.type} leave request (${leave.startDate} to ${leave.endDate})`,
-          {
-            officerId: targetSupervisorId,
-            userId: targetSupervisorId,
-            officerName: supervisorName,
-            relatedRecordId: leave.id,
-            metadata: {
-              requestType: 'leave',
-              leaveType: leave.type,
-              startDate: leave.startDate,
-              endDate: leave.endDate,
-              fromOfficerId: user?.id || leave.employeeId,
-              fromOfficerName: leave.employeeName,
-            },
-          }
-        );
-      }
+
     } catch (error) {
       console.error('Error submitting leave:', error);
       toast.error('Error submitting leave request: ' + error.message);

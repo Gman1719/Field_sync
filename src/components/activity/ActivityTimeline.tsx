@@ -27,14 +27,19 @@ export default function ActivityTimeline({ user }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('ALL');
+  const userRole = String(user?.role || '').toLowerCase();
+  const isSupervisor = userRole === 'supervisor';
+  const isOfficer = userRole === 'field_officer';
+  const isManager = userRole === 'manager' || userRole === 'admin';
 
   /**
    * canViewLog:
-   * STRICT PERSONAL WORK SCOPE:
-   * Each user's activity log must contain ONLY their own work.
-   * Excludes other users' fieldwork, nationwide feeds, supervisee actions,
-   * SMS system events, and background sync engine telemetry.
+   * STRICT ROLE-BASED WORK SCOPE:
+   * - Supervisor: ONLY what the supervisor personally does on their page
+   *   (evaluations, supervisor reports, directives/alerts, leave/permission approvals & rejections,
+   *   assigned tasks, own profile/security). Excludes all officer fieldwork and manager operations.
+   * - Field Officer: ONLY their own fieldwork and personal reports/requests.
+   * - Manager: System-wide operations authored by or assigned to them.
    */
   const canViewLog = useCallback((l: any) => {
     if (!l) return false;
@@ -57,15 +62,120 @@ export default function ActivityTimeline({ user }) {
 
     if (!user?.id) return false;
 
-    // 3. Strict personal ownership: The logged-in user MUST be the author / actor who performed the work
-    const isOwnWork =
+    const currentRole = String(user?.role || '').toLowerCase();
+    const isSup = currentRole === 'supervisor';
+    const isOff = currentRole === 'field_officer';
+    const isMgr = currentRole === 'manager' || currentRole === 'admin';
+
+    // Verify ownership ID
+    const isSelfId =
       l.officerId === user.id ||
       (user.employeeId && l.officerId === user.employeeId) ||
       (l.userId && l.userId === user.id) ||
       (l.actorId && l.actorId === user.id);
 
-    return Boolean(isOwnWork);
-  }, [user?.id, user?.employeeId]);
+    // Resolve author name
+    const authorName = String(
+      l.officerName ||
+      l.userName ||
+      l.actorName ||
+      l.metadata?.officerName ||
+      l.metadata?.userName ||
+      l.metadata?.actorName ||
+      ''
+    ).trim().toLowerCase();
+
+    const currentUserName = String(user.fullName || user.name || '').trim().toLowerCase();
+
+    // -------------------------------------------------------------
+    // SUPERVISOR LOG SCOPING:
+    // Only contains what the supervisor personally does in his page.
+    // Strictly removes officer fieldwork and manager operations.
+    // -------------------------------------------------------------
+    if (isSup) {
+      if (!isSelfId) return false;
+
+      // Exclude field officer fieldwork (sessions, verifications, citizen registrations, daily work reports)
+      if (
+        evt.startsWith('WORK_SESSION_') ||
+        evt.startsWith('ATTENDANCE_') ||
+        evt.startsWith('VERIFICATION_') ||
+        evt.startsWith('CITIZEN_') ||
+        evt.startsWith('DAILY_REPORT_') ||
+        evt.startsWith('ASSIGNMENT_STARTED') ||
+        evt.startsWith('ASSIGNMENT_PAUSED') ||
+        evt.startsWith('ASSIGNMENT_RESUMED') ||
+        evt.startsWith('ASSIGNMENT_COMPLETED') ||
+        evt === 'REQUEST_RECEIVED' ||
+        evt === 'REQUEST_SENT' ||
+        evt === 'LEAVE_REQUESTED' ||
+        evt === 'PERMISSION_REQUESTED' ||
+        evt === 'SUPERVISOR_CONFIRMATION' ||
+        desc.includes('WORK SESSION') ||
+        desc.includes('PRESENCE CHECK') ||
+        desc.includes('REGISTERED CITIZEN') ||
+        desc.includes('WORK VERIFICATION') ||
+        desc.includes('DAILY WORK REPORT') ||
+        desc.includes('REQUEST SENT:') ||
+        desc.includes('REQUEST RECEIVED:')
+      ) {
+        return false;
+      }
+
+      // Exclude system manager administrative operations
+      if (
+        evt === 'USER_CREATED' ||
+        evt === 'USER_STATUS_CHANGE' ||
+        evt === 'ROLE_AND_LOCATION_CHANGE' ||
+        evt === 'WORKSTATION_REASSIGNED' ||
+        evt === 'USER_ROLE_CHANGED' ||
+        evt === 'USER_PASSWORD_RESET' ||
+        authorName.includes('system manager') ||
+        authorName.includes('manager') ||
+        desc.includes('SYSTEM MANAGER') ||
+        desc.includes('CREATED NEW STAFF ACCOUNT') ||
+        desc.includes('DEACTIVATE ACCOUNT') ||
+        desc.includes('ACTIVATE ACCOUNT') ||
+        desc.includes('REASSIGNED WORKSTATION') ||
+        desc.includes('UPDATED ROLE TO') ||
+        l.officerId === 'manager' ||
+        l.metadata?.userRole === 'manager'
+      ) {
+        return false;
+      }
+
+      // Exclude logs where author is labeled as subordinate officer
+      if (authorName.includes('field officer')) {
+        return false;
+      }
+
+      if (
+        authorName &&
+        currentUserName &&
+        !authorName.includes(currentUserName) &&
+        !currentUserName.includes(authorName) &&
+        !authorName.includes('supervisor')
+      ) {
+        return false;
+      }
+
+      return true;
+    }
+
+    // -------------------------------------------------------------
+    // FIELD OFFICER SCOPING: Only their own work
+    // -------------------------------------------------------------
+    if (isOff) {
+      if (!isSelfId) return false;
+      if (authorName.includes('system manager') || authorName.includes('manager')) return false;
+      return true;
+    }
+
+    // -------------------------------------------------------------
+    // MANAGER SCOPING: Manager personal/system logs
+    // -------------------------------------------------------------
+    return Boolean(isSelfId);
+  }, [user]);
 
   const loadLogs = useCallback(async () => {
     if (!user?.id) {
@@ -73,17 +183,52 @@ export default function ActivityTimeline({ user }) {
       return;
     }
 
+    const currentRole = String(user?.role || '').toLowerCase();
+    const isSup = currentRole === 'supervisor';
+
     try {
-      // 1. Purge legacy SMS logs from Dexie cache if present
+      // 1. Purge legacy SMS & misattributed subordinate/manager logs from Dexie cache
       try {
-        const smsLogs = await offlineDb.activityLogs
-          .filter((item) =>
-            String(item.eventType || '').toUpperCase().includes('SMS') ||
-            String(item.description || '').toUpperCase().includes('SMS')
-          )
-          .toArray();
-        if (smsLogs.length > 0) {
-          await Promise.all(smsLogs.map((item) => offlineDb.activityLogs.delete(item.id)));
+        if (isSup) {
+          const staleLogs = await offlineDb.activityLogs
+            .filter((item) => {
+              const evt = String(item.eventType || '').toUpperCase();
+              const desc = String(item.description || '').toUpperCase();
+              if (evt.includes('SMS') || desc.includes('SMS')) return true;
+              if (evt === 'REQUEST_RECEIVED') return true;
+              if (
+                evt.startsWith('WORK_SESSION_') ||
+                evt.startsWith('ATTENDANCE_') ||
+                evt.startsWith('VERIFICATION_') ||
+                evt.startsWith('CITIZEN_') ||
+                evt.startsWith('DAILY_REPORT_') ||
+                evt === 'USER_CREATED' ||
+                evt === 'USER_STATUS_CHANGE' ||
+                desc.includes('SYSTEM MANAGER') ||
+                desc.includes('STARTED DAILY WORK SESSION') ||
+                desc.includes('WORK VERIFICATION') ||
+                desc.includes('PRESENCE CHECK') ||
+                desc.includes('REGISTERED CITIZEN')
+              ) {
+                return true;
+              }
+              return false;
+            })
+            .toArray();
+
+          if (staleLogs.length > 0) {
+            await Promise.all(staleLogs.map((item) => offlineDb.activityLogs.delete(item.id)));
+          }
+        } else {
+          const smsLogs = await offlineDb.activityLogs
+            .filter((item) =>
+              String(item.eventType || '').toUpperCase().includes('SMS') ||
+              String(item.description || '').toUpperCase().includes('SMS')
+            )
+            .toArray();
+          if (smsLogs.length > 0) {
+            await Promise.all(smsLogs.map((item) => offlineDb.activityLogs.delete(item.id)));
+          }
         }
       } catch (_e) {}
 
@@ -100,7 +245,7 @@ export default function ActivityTimeline({ user }) {
             const resData = await res.json();
             if (resData.success && Array.isArray(resData.data)) {
               for (const serverLog of resData.data) {
-                // Ensure only own work is written to cache
+                // Ensure only own valid work is written to cache
                 if (!canViewLog(serverLog)) continue;
                 await offlineDb.activityLogs.put({
                   id: serverLog.id,
@@ -141,7 +286,7 @@ export default function ActivityTimeline({ user }) {
       setIsLoading(false);
       setIsRefreshing(false);
     }
-  }, [canViewLog, user?.id]);
+  }, [canViewLog, user?.id, user?.role]);
 
   useEffect(() => {
     loadLogs();
@@ -386,6 +531,35 @@ export default function ActivityTimeline({ user }) {
     }
   };
 
+  const categoryPills = useMemo(() => {
+    if (isSupervisor) {
+      return [
+        { id: 'ALL', label: 'All Actions' },
+        { id: 'REPORTS', label: 'Reports & Evaluations' },
+        { id: 'REQUESTS', label: 'Leave & Permissions' },
+        { id: 'TASKS', label: 'Directives & Tasks' },
+        { id: 'MANAGEMENT', label: 'Profile & Security' },
+      ];
+    }
+    if (isOfficer) {
+      return [
+        { id: 'ALL', label: 'All Work' },
+        { id: 'REGISTRATIONS', label: 'Registrations' },
+        { id: 'SESSIONS', label: 'Sessions & Attendance' },
+        { id: 'REPORTS', label: 'Reports & Tasks' },
+        { id: 'REQUESTS', label: 'Requests & Decisions' },
+        { id: 'MANAGEMENT', label: 'Profile' },
+      ];
+    }
+    return [
+      { id: 'ALL', label: 'All Operations' },
+      { id: 'MANAGEMENT', label: 'User Operations' },
+      { id: 'REPORTS', label: 'Reports' },
+      { id: 'REQUESTS', label: 'Requests & Decisions' },
+      { id: 'SECURITY', label: 'Profile & Security' },
+    ];
+  }, [isSupervisor, isOfficer]);
+
   // Filter logs by search term and selected category
   const filteredLogs = useMemo(() => {
     return logs.filter((log) => {
@@ -394,9 +568,11 @@ export default function ActivityTimeline({ user }) {
       if (categoryFilter !== 'ALL') {
         if (categoryFilter === 'REGISTRATIONS' && meta.category !== 'REGISTRATIONS') return false;
         if (categoryFilter === 'SESSIONS' && meta.category !== 'SESSIONS') return false;
-        if (categoryFilter === 'REPORTS' && meta.category !== 'REPORTS' && meta.category !== 'TASKS' && meta.category !== 'SUPERVISION') return false;
+        if (categoryFilter === 'REPORTS' && meta.category !== 'REPORTS' && meta.category !== 'SUPERVISION') return false;
+        if (categoryFilter === 'TASKS' && meta.category !== 'TASKS' && meta.category !== 'SUPERVISION') return false;
         if (categoryFilter === 'REQUESTS' && meta.category !== 'REQUESTS') return false;
         if (categoryFilter === 'MANAGEMENT' && meta.category !== 'MANAGEMENT' && meta.category !== 'PROFILE' && meta.category !== 'SECURITY') return false;
+        if (categoryFilter === 'SECURITY' && meta.category !== 'SECURITY' && meta.category !== 'PROFILE') return false;
       }
 
       if (searchTerm.trim()) {
@@ -421,7 +597,11 @@ export default function ActivityTimeline({ user }) {
             <span>{userT('Activity Logs')}</span>
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            {userT('Chronological audit log containing only your work, fieldwork submissions, and operations.')}
+            {isSupervisor
+              ? userT('Activity timeline of your supervisor actions and operational decisions.')
+              : isOfficer
+              ? userT('Chronological audit log containing only your fieldwork, registrations, and daily reports.')
+              : userT('Chronological audit log containing only your management operations and system actions.')}
           </p>
         </div>
 
@@ -456,7 +636,7 @@ export default function ActivityTimeline({ user }) {
 
           {/* Records Count Badge */}
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-700 text-[11px] font-semibold text-slate-600 dark:text-slate-300 shrink-0">
-            <span>{userT('Your Work Records')}:</span>
+            <span>{isSupervisor ? userT('Your Actions') : userT('Your Work Records')}:</span>
             <span className="font-bold text-blue-600 dark:text-blue-400 font-mono">
               {filteredLogs.length} / {logs.length}
             </span>
@@ -465,14 +645,7 @@ export default function ActivityTimeline({ user }) {
 
         {/* Category Pills */}
         <div className="flex items-center gap-1.5 overflow-x-auto pt-1 pb-0.5">
-          {[
-            { id: 'ALL', label: 'All Work' },
-            { id: 'REGISTRATIONS', label: 'Registrations' },
-            { id: 'SESSIONS', label: 'Sessions & Attendance' },
-            { id: 'REPORTS', label: 'Reports & Tasks' },
-            { id: 'REQUESTS', label: 'Requests & Decisions' },
-            { id: 'MANAGEMENT', label: 'Management & Profile' },
-          ].map((cat) => (
+          {categoryPills.map((cat) => (
             <button
               key={cat.id}
               type="button"

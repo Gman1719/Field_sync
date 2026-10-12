@@ -3893,15 +3893,60 @@ export const translationDictionary: Record<string, DictionaryItem> = {
     om: 'Eenyummeessaa Gabaasaa Guutuu Koppii Godhi',
     ti: 'ምሉእ መለለዪ ጸብጻብ ቅዳሕ'
   },
+  'Activity timeline of your supervisor actions and operational decisions.': {
+    am: 'የእርስዎ የተቆጣጣሪ እርምጃዎች እና የአሰራር ውሳኔዎች የጊዜ ሰሌዳ።',
+    om: 'Sarara yeroo gochaalee to\'annoo keessanii fi murteewwan hojii.',
+    ti: 'ናይ ተቖጻጻሪ ስጉምትታትኩምን ናይ ስራሕ ውሳነታትኩምን ናይ ንጥፈት ግዜ ሰሌዳ።'
+  },
+  'Activity timeline of your supervisor actions and operational decisions': {
+    am: 'የእርስዎ የተቆጣጣሪ እርምጃዎች እና የአሰራር ውሳኔዎች የጊዜ ሰሌዳ',
+    om: 'Sarara yeroo gochaalee to\'annoo keessanii fi murteewwan hojii',
+    ti: 'ናይ ተቖጻጻሪ ስጉምትታትኩምን ናይ ስራሕ ውሳነታትኩምን ናይ ንጥፈት ግዜ ሰሌዳ'
+  },
   'Activity timeline of your supervisor actions and your assigned field officers’ fieldwork': {
-    am: 'የተቆጣጣሪ እርምጃዎችዎ እና የተመደቡልዎት የመስክ መኮንኖች የመስክ ስራ እንቅስቃሴ የጊዜ ሰሌዳ',
-    om: 'Sarara yeroo gochaalee to\'annoo keessanii fi hojii dirree oofisaroota dirree isiniif ramadamanii',
-    ti: 'ናይ ተቖጻጻሪ ስጉምትታትኩምን ናይ ዝተመደቡልኩም ናይ መሮር ሰራሕተኛታት ናይ ግዳም ስራሕ ንጥፈታት ናይ ግዜ ሰሌዳ'
+    am: 'የእርስዎ የተቆጣጣሪ እርምጃዎች እና የአሰራር ውሳኔዎች የጊዜ ሰሌዳ',
+    om: 'Sarara yeroo gochaalee to\'annoo keessanii fi murteewwan hojii',
+    ti: 'ናይ ተቖጻጻሪ ስጉምትታትኩምን ናይ ስራሕ ውሳነታትኩምን ናይ ንጥፈት ግዜ ሰሌዳ'
   },
   "Activity timeline of your supervisor actions and your assigned field officers' fieldwork": {
-    am: 'የተቆጣጣሪ እርምጃዎችዎ እና የተመደቡልዎት የመስክ መኮንኖች የመስክ ስራ እንቅስቃሴ የጊዜ ሰሌዳ',
-    om: 'Sarara yeroo gochaalee to\'annoo keessanii fi hojii dirree oofisaroota dirree isiniif ramadamanii',
-    ti: 'ናይ ተቖጻጻሪ ስጉምትታትኩምን ናይ ዝተመደቡልኩም ናይ መሮር ሰራሕተኛታት ናይ ግዳም ስራሕ ንጥፈታት ናይ ግዜ ሰሌዳ'
+    am: 'የእርስዎ የተቆጣጣሪ እርምጃዎች እና የአሰራር ውሳኔዎች የጊዜ ሰሌዳ',
+    om: 'Sarara yeroo gochaalee to\'annoo keessanii fi murteewwan hojii',
+    ti: 'ናይ ተቖጻጻሪ ስጉምትታትኩምን ናይ ስራሕ ውሳነታትኩምን ናይ ንጥፈት ግዜ ሰሌዳ'
+  },
+  'Chronological audit log containing only your supervisor actions and operational decisions.': {
+    am: 'የእርስዎን የተቆጣጣሪ እርምጃዎች እና የአሰራር ውሳኔዎችን ብቻ የያዘ የጊዜ ቅደም ተከተል የኦዲት መዝገብ።',
+    om: 'Galmee ooditii yeroo kan gochaalee to\'annoo fi murteewwan hojii keessan qofa qabate.',
+    ti: 'ናይ ተቖጻጻሪ ስጉምትታትኩምን ናይ ስራሕ ውሳነታትኩምን ጥራሕ ዝሓዘ ናይ ግዜ ቅደም ተከተል ናይ ኦዲት መዝገብ።'
+  },
+  'Chronological audit log containing only your fieldwork, registrations, and daily reports.': {
+    am: 'የመስክ ስራዎን፣ ምዝገባዎችን እና ዕለታዊ ሪፖርቶችን ብቻ የያዘ የጊዜ ቅደም ተከተል የኦዲት መዝገብ።',
+    om: 'Galmee ooditii yeroo kan hojii dirree, galmeewwan fi gabaasa guyyaa keessan qofa qabate.',
+    ti: 'ናይ መሮር ስራሕኩም፣ ምዝገባታትን ዕለታዊ ጸብጻባትን ጥራሕ ዝሓዘ ናይ ግዜ ቅደም ተከተል ናይ ኦዲት መዝገብ።'
+  },
+  'Chronological audit log containing only your management operations and system actions.': {
+    am: 'የእርስዎን የአስተዳደር ስራዎች እና የስርዓት እርምጃዎችን ብቻ የያዘ የጊዜ ቅደም ተከተል የኦዲት መዝገብ።',
+    om: 'Galmee ooditii yeroo kan hojiilee bulchiinsaa fi gochaalee sirnaa keessan qofa qabate.',
+    ti: 'ናይ ምምሕዳር ስራሕኩምን ናይ ስርዓት ስጉምትታትኩምን ጥራሕ ዝሓዘ ናይ ግዜ ቅደም ተከተል ናይ ኦዲት መዝገብ።'
+  },
+  'All Actions': {
+    am: 'ሁሉም እርምጃዎች',
+    om: 'Gochaalee Hunda',
+    ti: 'ኩሎም ስጉምትታት'
+  },
+  'Reports & Evaluations': {
+    am: 'ሪፖርቶች እና ግምገማዎች',
+    om: 'Gabaasa fi Gamaaggama',
+    ti: 'ጸብጻባትን ገምጋማትን'
+  },
+  'Directives & Tasks': {
+    am: 'መመሪያዎች እና ተግባራት',
+    om: 'Qajeelfamoota fi Hojiilee',
+    ti: 'መምርሒታትን ዕማማትን'
+  },
+  'Your Actions': {
+    am: 'የእርስዎ እርምጃዎች',
+    om: 'Gochaalee Keessan',
+    ti: 'ናታትኩም ስጉምትታት'
   },
   'Citizen Name & Citizen ID': {
     am: 'የዜጋ ስም እና የዜጋ መታወቂያ',
