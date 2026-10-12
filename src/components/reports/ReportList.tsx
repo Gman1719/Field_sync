@@ -80,7 +80,7 @@ export default function ReportList({
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
@@ -104,7 +104,7 @@ export default function ReportList({
         </div>
       </div>
 
-      {/* Filter Toolbar */}
+      {}
       <Card>
         <CardContent className="p-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -132,7 +132,7 @@ export default function ReportList({
         </CardContent>
       </Card>
 
-      {/* Reports Table */}
+      {}
       <Card>
         <CardContent className="p-0">
           {filteredReports.length === 0 ? (
@@ -208,7 +208,7 @@ export default function ReportList({
         </CardContent>
       </Card>
 
-      {/* Report Detail Modal */}
+      {}
       <Modal
         isOpen={!!selectedReport}
         onClose={() => setSelectedReport(null)}

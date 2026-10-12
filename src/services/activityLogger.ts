@@ -1,7 +1,3 @@
-// Reusable Offline Activity Logger for FieldSync
-// Catches and records all user work across all roles (Officer, Supervisor, Manager, Admin)
-// Works 100% offline-first and automatically queues/syncs to PostgreSQL
-
 import { offlineDb } from '../db/offlineDb';
 import { API_BASE } from '../config/api';
 import type { ActivityLog } from '../types/index';
@@ -77,9 +73,7 @@ export interface LogEventOptions {
 }
 
 export class ActivityLogger {
-  /**
-   * Helper to retrieve currently authenticated user from localStorage if not explicitly supplied
-   */
+
   private static getFallbackUser() {
     if (typeof window === 'undefined') return null;
     try {
@@ -89,10 +83,6 @@ export class ActivityLogger {
     return null;
   }
 
-  /**
-   * Automatically records a fieldwork/system activity event into IndexedDB and marks for sync.
-   * Works 100% offline. Never requires internet access.
-   */
   static async log(
     eventType: ActivityEventType,
     description: string,
@@ -142,10 +132,9 @@ export class ActivityLogger {
     };
 
     try {
-      // 1. Immediately store in IndexedDB activityLogs
+
       await offlineDb.activityLogs.put(logItem);
 
-      // 2. Add to IndexedDB syncQueue for background sync
       await offlineDb.syncQueue.put({
         id: generateId('syn'),
         entityType: 'activity_log',
@@ -157,12 +146,10 @@ export class ActivityLogger {
         status: 'PENDING',
       });
 
-      // 3. Dispatch reactive event so open UI components immediately refresh
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('fieldsync-activity-logged', { detail: logItem }));
       }
 
-      // 4. If online, fire-and-forget push to central PostgreSQL API
       if (typeof navigator !== 'undefined' && navigator.onLine) {
         const token = localStorage.getItem('fieldsync_token');
         fetch(`${API_BASE}/activity-logs`, {

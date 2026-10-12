@@ -1,6 +1,3 @@
-// server/src/routes/assignments.routes.ts
-// REST API Routes for Fieldwork Assignments, Lifecycle State Transitions & Progress Tracking
-
 import { Router, Request, Response } from 'express';
 import { ZodError } from 'zod';
 import prisma from '../config/db.js';
@@ -12,9 +9,6 @@ import { notifyOfficer } from '../services/notification.service.js';
 
 const router = Router();
 
-/**
- * Format Prisma assignment model into normalized response object
- */
 const formatAssignmentResponse = (a: any) => {
   const registeredCount = a._count?.citizens ?? a.citizens?.length ?? 0;
   const targetCount = a.targetCount || 1;
@@ -31,7 +25,6 @@ const formatAssignmentResponse = (a: any) => {
     startDate: a.startDate ? a.startDate.toISOString().split('T')[0] : '',
     endDate: a.endDate ? a.endDate.toISOString().split('T')[0] : null,
 
-    // Assigned Personnel
     assignedOfficerId: a.assignedOfficerId,
     officerName: a.assignedOfficer?.fullName || '',
     officerEmail: a.assignedOfficer?.email || '',
@@ -41,7 +34,6 @@ const formatAssignmentResponse = (a: any) => {
     supervisorName: a.assignedSupervisor?.fullName || '',
     supervisorEmail: a.assignedSupervisor?.email || '',
 
-    // Administrative Location
     woredaId: a.woredaId,
     kebeleId: a.kebeleId,
     woredaName: a.woreda?.name || '',
@@ -55,17 +47,11 @@ const formatAssignmentResponse = (a: any) => {
   };
 };
 
-/**
- * @route   POST /api/assignments
- * @desc    Create new fieldwork assignment with target count and location
- * @access  Private (Supervisor or Manager only)
- */
 router.post('/', authenticate, requireSupervisor, async (req: Request, res: Response): Promise<void> => {
   try {
     const validated = createAssignmentSchema.parse(req.body);
     const caller = req.user!;
 
-    // Verify assigned officer exists and has FIELD_OFFICER role
     const officer = await prisma.user.findUnique({
       where: { id: validated.assignedOfficerId },
       include: { region: true, zone: true, woreda: true, kebele: true },
@@ -81,12 +67,10 @@ router.post('/', authenticate, requireSupervisor, async (req: Request, res: Resp
       return;
     }
 
-    // Default supervisor: if caller is supervisor, use caller. If not specified, use officer's supervisor
     const supervisorId =
       validated.assignedSupervisorId ||
       (caller.role === Role.SUPERVISOR ? caller.id : officer.supervisorId);
 
-    // Default woreda and kebele from officer's location if not explicitly provided
     const woredaId = validated.woredaId || officer.woredaId;
     const kebeleId = validated.kebeleId || officer.kebeleId;
 
@@ -119,7 +103,6 @@ router.post('/', authenticate, requireSupervisor, async (req: Request, res: Resp
       },
     });
 
-    // Record Audit Log
     await prisma.auditLog.create({
       data: {
         actorId: caller.id,
@@ -134,7 +117,6 @@ router.post('/', authenticate, requireSupervisor, async (req: Request, res: Resp
       },
     });
 
-    // Role-based notification: Notify officer of new assignment
     try {
       await notifyOfficer(officer.id, {
         title: `New Assignment: ${assignment.title}`,

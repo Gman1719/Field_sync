@@ -1,5 +1,3 @@
-// Unified Offline-First Synchronization Engine for FieldSync (Phase 7)
-
 import { offlineDb } from '../db/offlineDb';
 import { API_BASE } from '../config/api';
 import type { SyncQueueItem, SyncErrorRecord } from '../types/index';
@@ -27,24 +25,20 @@ class UnifiedSyncEngine {
 
   constructor() {
     if (typeof window !== 'undefined') {
-      // 1. Auto-sync on network reconnect
+
       window.addEventListener('online', () => {
         console.log('🌐 Network restored: initiating automated synchronization pipeline...');
         this.syncAll();
       });
 
-      // 2. Periodic sync poll every 20 seconds if online
       this.autoSyncTimer = setInterval(() => {
         if (navigator.onLine && !this.isSyncing) {
-          this.syncAll(true); // silent background sync
+          this.syncAll(true); 
         }
       }, 20 * 1000);
     }
   }
 
-  /**
-   * Get counts of pending offline items across all stores and queues
-   */
   async getPendingSummary(): Promise<SyncSummary> {
     try {
       const [citizens, activities, sessions, reports, queuePending, errors, verifications, screenTimes] = await Promise.all([
@@ -93,9 +87,6 @@ class UnifiedSyncEngine {
     }
   }
 
-  /**
-   * Run synchronization pipeline across all pending entity stores using batch API
-   */
   async syncAll(silent: boolean = false): Promise<{ success: boolean; syncedCount: number; errors: string[] }> {
     if (this.isSyncing) {
       if (!silent) console.warn('Sync already in progress, skipping duplicate invocation');

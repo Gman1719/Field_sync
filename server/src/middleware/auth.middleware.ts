@@ -1,6 +1,3 @@
-// server/src/middleware/auth.middleware.ts
-// Authentication and Role-Based Authorization Middleware for FieldSync
-
 import { Request, Response, NextFunction } from 'express';
 import { Role } from '@prisma/client';
 import { verifyToken, TokenPayload } from '../utils/jwt.js';
@@ -34,9 +31,6 @@ declare global {
   }
 }
 
-/**
- * Authenticates incoming request via Bearer JWT token
- */
 export const authenticate = async (
   req: Request,
   res: Response,
@@ -92,7 +86,6 @@ export const authenticate = async (
       return;
     }
 
-    // Backend enforcement for mandatory first-login password change
     if (
       user.mustChangePassword &&
       !req.originalUrl.includes('/change-password') &&
@@ -137,9 +130,6 @@ export const authenticate = async (
   }
 };
 
-/**
- * Role-Based Access Control (RBAC) guard
- */
 export const requireRoles = (...allowedRoles: Role[]) => {
   return (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user) {

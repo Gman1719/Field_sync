@@ -8,7 +8,6 @@ import om from './om';
 import ti from './ti';
 import { translationDictionary } from '../services/translationDictionary';
 
-// Recursively flatten nested locale objects (e.g. { nav: { dashboard: '...' } } -> { 'nav.dashboard': '...' })
 function flattenObject(obj: Record<string, any>, prefix = ''): Record<string, string> {
   const result: Record<string, string> = {};
   for (const [key, value] of Object.entries(obj)) {

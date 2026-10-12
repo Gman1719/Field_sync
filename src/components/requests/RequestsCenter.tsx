@@ -1,8 +1,3 @@
-// src/components/requests/RequestsCenter.tsx
-// Comprehensive Leave Request and Permission Request Management for FieldSync
-// Supports Field Officer intake, supervisor approvals, offline-first storage,
-// attachment uploads, working hours validation, and multi-language localization.
-
 import React, { useState, useMemo } from 'react';
 import {
   Calendar,
@@ -71,12 +66,10 @@ export default function RequestsCenter({
 
   const officerId = user?.employeeId || user?.id;
 
-  // Filter & tab states
   const [selectedStatusTab, setSelectedStatusTab] = useState<'all' | 'pending' | 'approved' | 'rejected' | 'cancelled'>('all');
   const [selectedTypeFilter, setSelectedTypeFilter] = useState<'all' | 'leave' | 'permission'>(defaultType);
   const [selectedOfficerFilter, setSelectedOfficerFilter] = useState<string>('all');
 
-  // Modals state
   const [showLeaveModal, setShowLeaveModal] = useState(false);
   const [showPermissionModal, setShowPermissionModal] = useState(false);
   const [detailModal, setDetailModal] = useState<{
@@ -102,7 +95,6 @@ export default function RequestsCenter({
     data: string;
   }>({ isOpen: false, name: '', data: '' });
 
-  // Form states for Leave
   const [leaveForm, setLeaveForm] = useState({
     type: 'annual' as LeaveType,
     startDate: '',
@@ -114,7 +106,6 @@ export default function RequestsCenter({
   const [leaveErrors, setLeaveErrors] = useState<Record<string, string>>({});
   const [isSubmittingLeave, setIsSubmittingLeave] = useState(false);
 
-  // Form states for Permission
   const [permissionForm, setPermissionForm] = useState({
     date: '',
     startTime: '09:00',
@@ -126,12 +117,10 @@ export default function RequestsCenter({
   const [permissionErrors, setPermissionErrors] = useState<Record<string, string>>({});
   const [isSubmittingPermission, setIsSubmittingPermission] = useState(false);
 
-  // Decision form note
   const [decisionNote, setDecisionNote] = useState('');
   const [decisionError, setDecisionError] = useState('');
   const [isSubmittingDecision, setIsSubmittingDecision] = useState(false);
 
-  // Handle attachment file selection (Max 5MB)
   const handleAttachmentChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     formType: 'leave' | 'permission'
@@ -718,7 +707,6 @@ export default function RequestsCenter({
         }).catch(() => {});
       }
 
-      // 1. Log Confirmation from Supervisor in Officer's Activity Log ("confirmation from supervisor")
       ActivityLogger.log(
         'SUPERVISOR_CONFIRMATION',
         `Confirmation from supervisor: ${reqLabel} request ${type === 'approve' ? 'approved' : 'rejected'} by ${supervisorName}${decisionNote.trim() ? ` (${decisionNote.trim()})` : ''}`,
@@ -736,7 +724,6 @@ export default function RequestsCenter({
         }
       ).catch(() => {});
 
-      // 2. Log in Supervisor's Activity Log
       ActivityLogger.log(
         type === 'approve' ? 'REQUEST_APPROVED' : 'REQUEST_REJECTED',
         `${type === 'approve' ? 'Approved' : 'Rejected'} ${reqLabel} request for ${item.employeeName || 'Field Officer'}${decisionNote.trim() ? ` (${decisionNote.trim()})` : ''}`,
@@ -765,7 +752,6 @@ export default function RequestsCenter({
     }
   };
 
-  // 4. Officer Cancellation of Pending Request
   const handleCancelRequest = async () => {
     const { item, requestCategory } = cancelModal;
     if (!item) return;

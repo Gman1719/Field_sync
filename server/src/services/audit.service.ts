@@ -1,6 +1,3 @@
-// server/src/services/audit.service.ts
-// Enterprise Persistent Audit Trail Service for Manager and Supervisor Operations
-
 import { Request } from 'express';
 import prisma from '../config/db.js';
 import { Role } from '@prisma/client';
@@ -35,7 +32,6 @@ export interface AuditQueryFilters {
   endDate?: string;
 }
 
-// Sensitive key filter - never store credentials or authentication secrets in audit trails
 const SENSITIVE_KEYS = new Set([
   'password',
   'passwordhash',
@@ -51,9 +47,6 @@ const SENSITIVE_KEYS = new Set([
   'apikey',
 ]);
 
-/**
- * Recursively sanitize objects to redact sensitive keys
- */
 export function sanitizeAuditData(data: any): any {
   if (!data || typeof data !== 'object') {
     return data;
@@ -77,9 +70,6 @@ export function sanitizeAuditData(data: any): any {
   return sanitized;
 }
 
-/**
- * Record a persistent audit event on the backend
- */
 export async function recordAuditEvent(params: AuditEventParams): Promise<any> {
   try {
     let {
@@ -98,7 +88,6 @@ export async function recordAuditEvent(params: AuditEventParams): Promise<any> {
       req,
     } = params;
 
-    // Extract caller info from Express Request if available
     if (req) {
       if (!actorId && req.user) actorId = req.user.id;
       if (!actorName && req.user) actorName = req.user.fullName;
@@ -113,7 +102,6 @@ export async function recordAuditEvent(params: AuditEventParams): Promise<any> {
       }
     }
 
-    // Default summary if omitted
     if (!summary) {
       const actorLabel = actorName ? `${actorName} (${actorRole || 'User'})` : 'System';
       summary = `${actorLabel} performed ${action} on ${entityType} #${entityId}`;

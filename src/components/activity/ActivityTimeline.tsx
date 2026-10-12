@@ -1,14 +1,16 @@
-// src/components/activity/ActivityTimeline.tsx
-// Comprehensive Audit Trail & Real-Time Event Feed for FieldSync
-// Catches and displays all user activities across all roles (Officers, Supervisors, Managers, Admins)
-// Supports multi-role scoping, category filters, user filters, date picker, search, and real-time reactive updates.
-
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   Clock,
   RefreshCw,
   CheckCircle2,
   User,
+  Search,
+  Filter,
+  Activity,
+  ShieldCheck,
+  FileText,
+  UserCheck,
+  Calendar,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -24,121 +26,55 @@ export default function ActivityTimeline({ user }) {
   const [expandedRowIds, setExpandedRowIds] = useState(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [usersList, setUsersList] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('ALL');
 
-  const role = (user?.role || '').toLowerCase();
-  const isOfficer = role === 'field_officer';
-  const isSupervisor = role === 'supervisor';
-  const isManagerOrAdmin = role === 'manager' || role === 'admin' || !role;
-
-  // Load all system users to build ID-to-Name maps and populate the user filter dropdown
-  useEffect(() => {
-    const loadUsers = async () => {
-      try {
-        const localUsers = await db.users.toArray();
-        if (localUsers && localUsers.length > 0) {
-          setUsersList(localUsers);
-        }
-      } catch (_err) {}
-    };
-    loadUsers();
-  }, []);
-
-  // Build a lookup map from ID -> Name / Role
-  const usersMap = useMemo(() => {
-    const map: Record<string, any> = {};
-    for (const u of usersList) {
-      if (u.id) map[u.id] = u;
-      if (u.employeeId) map[u.employeeId] = u;
-    }
-    return map;
-  }, [usersList]);
-
-  // Set of officer IDs assigned to this supervisor
-  const teamOfficerIds = useMemo(() => {
-    const ids = new Set<string>();
-    if (!isSupervisor || !user) return ids;
-    for (const u of usersList) {
-      if (u.supervisorId === user.id || u.supervisorId === user.employeeId) {
-        if (u.id) ids.add(u.id);
-        if (u.employeeId) ids.add(u.employeeId);
-      }
-    }
-    return ids;
-  }, [isSupervisor, user, usersList]);
-
-  // Helper to determine if a log is permitted for this viewing user
+  /**
+   * canViewLog:
+   * STRICT PERSONAL WORK SCOPE:
+   * Each user's activity log must contain ONLY their own work.
+   * Excludes other users' fieldwork, nationwide feeds, supervisee actions,
+   * SMS system events, and background sync engine telemetry.
+   */
   const canViewLog = useCallback((l: any) => {
     if (!l) return false;
     const evt = String(l.eventType || '').toUpperCase();
     const desc = String(l.description || '').toUpperCase();
 
-    // 1. Never display SMS logs anywhere in activity logs
+    // 1. Exclude automated SMS logs
     if (evt.includes('SMS') || desc.includes('SMS')) return false;
 
-    // 2. Only work users do each day: eliminate pure network sync & session technical events
+    // 2. Exclude internal background sync engine telemetry (not user work)
     if (
       evt.startsWith('SYNC_') ||
       evt === 'DATA_SYNC_SUCCESSFUL' ||
       evt === 'SYNC_COMPLETED' ||
       evt === 'SYNC_FAILED' ||
-      evt === 'SYNC_ERROR' ||
-      evt === 'USER_LOGIN' ||
-      evt === 'USER_LOGOUT' ||
-      evt === 'USER_PASSWORD_RESET' ||
-      evt === 'PASSWORD_CHANGED'
+      evt === 'SYNC_ERROR'
     ) {
       return false;
     }
 
-    // 3. Managers & Admins have full system-wide visibility of all user work
-    if (isManagerOrAdmin) return true;
-    if (!user?.id) return true;
+    if (!user?.id) return false;
 
-    // 4. Check if the log belongs to this user directly (or addressed to them)
-    const isOwn =
+    // 3. Strict personal ownership: The logged-in user MUST be the author / actor who performed the work
+    const isOwnWork =
       l.officerId === user.id ||
-      l.officerId === user.employeeId ||
-      l.userId === user.id ||
-      l.actorId === user.id ||
-      l.metadata?.officerId === user.id ||
-      l.metadata?.targetOfficerId === user.id ||
-      l.metadata?.targetEmployeeId === user.employeeId ||
-      l.metadata?.fromOfficerId === user.id ||
-      (isOfficer && (!l.officerId || l.officerId === 'officer' || l.officerId === 'staff'));
+      (user.employeeId && l.officerId === user.employeeId) ||
+      (l.userId && l.userId === user.id) ||
+      (l.actorId && l.actorId === user.id);
 
-    if (isOwn) return true;
+    return Boolean(isOwnWork);
+  }, [user?.id, user?.employeeId]);
 
-    // 5. Supervisors can see actions by their supervised officers and incoming requests
-    if (isSupervisor) {
-      if (
-        teamOfficerIds.has(l.officerId) ||
-        teamOfficerIds.has(l.metadata?.targetOfficerId) ||
-        teamOfficerIds.has(l.metadata?.targetEmployeeId) ||
-        teamOfficerIds.has(l.metadata?.fromOfficerId)
-      ) {
-        return true;
-      }
-      if (
-        l.officerId === user.id ||
-        l.metadata?.supervisorId === user.id ||
-        l.metadata?.supervisorId === user.employeeId
-      ) {
-        return true;
-      }
-      // If team list is empty or log has generic officer tag, allow supervisor team view
-      if (teamOfficerIds.size === 0 && (l.officerId === 'officer' || l.officerId === 'staff')) {
-        return true;
-      }
+  const loadLogs = useCallback(async () => {
+    if (!user?.id) {
+      setIsLoading(false);
+      return;
     }
 
-    return false;
-  }, [isManagerOrAdmin, isSupervisor, isOfficer, user, teamOfficerIds]);
-
-  // 1. Load activity logs from Dexie and central server
-  const loadLogs = useCallback(async () => {
     try {
-      // Step 0: Ensure any residual SMS logs are purged from Dexie offlineDb
+      // 1. Purge legacy SMS logs from Dexie cache if present
       try {
         const smsLogs = await offlineDb.activityLogs
           .filter((item) =>
@@ -151,16 +87,11 @@ export default function ActivityTimeline({ user }) {
         }
       } catch (_e) {}
 
-      // Step A: Load from Dexie first (read all logs and filter by viewing permissions)
-      const allLocalLogs = await offlineDb.activityLogs.toArray();
-      let visibleLogs = allLocalLogs.filter(canViewLog);
-
-      // Step B: If online, fetch from backend API
+      // 2. Query server specifically for the logged-in user's own work
       const authToken = localStorage.getItem('fieldsync_token');
       if (navigator.onLine && authToken) {
         try {
-          // Officers query their own logs; Supervisors & Managers query central feed
-          const queryParam = isOfficer && user?.id ? `?officerId=${user.id}&limit=250` : '?limit=250';
+          const queryParam = `?officerId=${encodeURIComponent(user.id)}&limit=250`;
           const res = await fetch(`${API_BASE}/activity-logs${queryParam}`, {
             headers: { Authorization: `Bearer ${authToken}` },
           });
@@ -169,6 +100,7 @@ export default function ActivityTimeline({ user }) {
             const resData = await res.json();
             if (resData.success && Array.isArray(resData.data)) {
               for (const serverLog of resData.data) {
+                // Ensure only own work is written to cache
                 if (!canViewLog(serverLog)) continue;
                 await offlineDb.activityLogs.put({
                   id: serverLog.id,
@@ -191,9 +123,9 @@ export default function ActivityTimeline({ user }) {
         }
       }
 
-      // Re-read updated logs from Dexie and sort chronologically descending
-      const updatedLogs = await offlineDb.activityLogs.toArray();
-      const filteredSorted = updatedLogs
+      // 3. Read and strictly filter local logs for only the logged-in user's work
+      const allLocalLogs = await offlineDb.activityLogs.toArray();
+      const userWorkLogs = allLocalLogs
         .filter(canViewLog)
         .sort((a, b) => {
           const tA = a.deviceTimestamp ? new Date(a.deviceTimestamp).getTime() : 0;
@@ -201,7 +133,7 @@ export default function ActivityTimeline({ user }) {
           return tB - tA;
         });
 
-      setLogs(filteredSorted);
+      setLogs(userWorkLogs);
     } catch (err) {
       console.error('Error loading activity logs:', err);
       toast.error('Failed to load activity logs');
@@ -209,7 +141,7 @@ export default function ActivityTimeline({ user }) {
       setIsLoading(false);
       setIsRefreshing(false);
     }
-  }, [canViewLog, isOfficer, user]);
+  }, [canViewLog, user?.id]);
 
   useEffect(() => {
     loadLogs();
@@ -235,7 +167,7 @@ export default function ActivityTimeline({ user }) {
   const handleRefresh = async () => {
     setIsRefreshing(true);
     await loadLogs();
-    toast.success('Activity logs refreshed');
+    toast.success(userT('Activity logs refreshed'));
   };
 
   const toggleRowExpanded = (id: string) => {
@@ -250,7 +182,7 @@ export default function ActivityTimeline({ user }) {
     });
   };
 
-  // 2. Event Semantic Classifier
+  // Event Semantic Classifier & Badging
   const getEventMeta = (eventType: string) => {
     switch (eventType) {
       // Registrations
@@ -264,12 +196,12 @@ export default function ActivityTimeline({ user }) {
       case 'CITIZEN_REGISTRATION_STARTED':
       case 'CITIZEN_REGISTRATION_SAVED_OFFLINE':
         return {
-          label: 'Registration Saved',
+          label: 'Registration Saved Offline',
           category: 'REGISTRATIONS',
           bgClass: 'bg-blue-50/50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-300 border-blue-200 dark:border-blue-900/40',
         };
 
-      // Sessions & Attendance
+      // Work Sessions & Attendance
       case 'WORK_SESSION_STARTED':
       case 'WORK_SESSION_RESUMED':
         return {
@@ -286,9 +218,14 @@ export default function ActivityTimeline({ user }) {
         };
       case 'ATTENDANCE_RECORDED':
       case 'ATTENDANCE_CHECK_IN':
+        return {
+          label: 'Clocked In',
+          category: 'SESSIONS',
+          bgClass: 'bg-teal-50 dark:bg-teal-950/70 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-900/60',
+        };
       case 'ATTENDANCE_CHECK_OUT':
         return {
-          label: eventType === 'ATTENDANCE_RECORDED' ? 'Attendance Logged' : (eventType === 'ATTENDANCE_CHECK_IN' ? 'Clocked In' : 'Clocked Out'),
+          label: 'Clocked Out',
           category: 'SESSIONS',
           bgClass: 'bg-teal-50 dark:bg-teal-950/70 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-900/60',
         };
@@ -306,15 +243,20 @@ export default function ActivityTimeline({ user }) {
           bgClass: 'bg-rose-50 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-900/60',
         };
 
-      // Reports, Tasks, Leaves & Permissions
+      // Reports & Tasks
       case 'DAILY_REPORT_SUBMITTED':
       case 'REPORT_CREATED':
-      case 'DAILY_REPORT_SAVED':
-      case 'DAILY_REPORT_DRAFTED':
         return {
           label: 'Daily Report Submitted',
           category: 'REPORTS',
           bgClass: 'bg-purple-50 dark:bg-purple-950/70 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-900/60',
+        };
+      case 'DAILY_REPORT_SAVED':
+      case 'DAILY_REPORT_DRAFTED':
+        return {
+          label: 'Daily Report Drafted',
+          category: 'REPORTS',
+          bgClass: 'bg-purple-50/50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-300 border-purple-200 dark:border-purple-900/40',
         };
       case 'TASK_ASSIGNED':
       case 'ASSIGNMENT_STARTED':
@@ -323,7 +265,7 @@ export default function ActivityTimeline({ user }) {
       case 'ASSIGNMENT_COMPLETED':
         return {
           label: eventType === 'TASK_ASSIGNED' ? 'Task Assigned' : eventType.replace(/_/g, ' '),
-          category: 'REPORTS',
+          category: 'TASKS',
           bgClass: 'bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-900/60',
         };
       case 'SUPERVISOR_EVALUATION':
@@ -331,10 +273,11 @@ export default function ActivityTimeline({ user }) {
       case 'OFFICER_ALERT_SENT':
         return {
           label: eventType === 'SUPERVISOR_EVALUATION' ? 'Officer Evaluated' : eventType === 'SUPERVISOR_REPORT' ? 'Supervisor Report' : 'Directive Issued',
-          category: 'REPORTS',
+          category: 'SUPERVISION',
           bgClass: 'bg-purple-50 dark:bg-purple-950/70 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-900/60',
         };
-      // Requests and Supervisor Decisions
+
+      // Requests & Decisions
       case 'REQUEST_SENT':
       case 'LEAVE_REQUESTED':
       case 'PERMISSION_REQUESTED':
@@ -354,7 +297,7 @@ export default function ActivityTimeline({ user }) {
       case 'LEAVE_APPROVED':
       case 'PERMISSION_APPROVED':
         return {
-          label: 'Supervisor Confirmed',
+          label: 'Request Approved',
           category: 'REQUESTS',
           bgClass: 'bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/60',
         };
@@ -373,48 +316,196 @@ export default function ActivityTimeline({ user }) {
           category: 'REQUESTS',
           bgClass: 'bg-violet-50 dark:bg-violet-950/70 text-violet-700 dark:text-violet-300 border-violet-200 dark:border-violet-900/60',
         };
+
+      // Account & Staff Management
+      case 'USER_CREATED':
+        return {
+          label: 'Staff Account Created',
+          category: 'MANAGEMENT',
+          bgClass: 'bg-cyan-50 dark:bg-cyan-950/70 text-cyan-700 dark:text-cyan-300 border-cyan-200 dark:border-cyan-900/60',
+        };
+      case 'USER_STATUS_CHANGE':
+        return {
+          label: 'Account Status Changed',
+          category: 'MANAGEMENT',
+          bgClass: 'bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-900/60',
+        };
+      case 'USER_ROLE_CHANGED':
+        return {
+          label: 'User Role Changed',
+          category: 'MANAGEMENT',
+          bgClass: 'bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-900/60',
+        };
+      case 'WORKSTATION_REASSIGNED':
+      case 'ROLE_AND_LOCATION_CHANGE':
+        return {
+          label: 'Location Reassigned',
+          category: 'MANAGEMENT',
+          bgClass: 'bg-blue-50 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-900/60',
+        };
+      case 'USER_PASSWORD_RESET':
+        return {
+          label: 'Password Reset Issued',
+          category: 'MANAGEMENT',
+          bgClass: 'bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-900/60',
+        };
+
+      // Profile & Security
+      case 'USER_PROFILE_UPDATED':
+      case 'PROFILE_UPDATED':
+        return {
+          label: 'Profile Updated',
+          category: 'PROFILE',
+          bgClass: 'bg-sky-50 dark:bg-sky-950/70 text-sky-700 dark:text-sky-300 border-sky-200 dark:border-sky-900/60',
+        };
+      case 'PASSWORD_CHANGED':
+        return {
+          label: 'Password Changed',
+          category: 'SECURITY',
+          bgClass: 'bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/60',
+        };
+      case 'USER_LOGIN':
+        return {
+          label: 'Logged In',
+          category: 'SESSIONS',
+          bgClass: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700',
+        };
+      case 'USER_LOGOUT':
+        return {
+          label: 'Logged Out',
+          category: 'SESSIONS',
+          bgClass: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700',
+        };
+
       default:
         return {
           label: (eventType || 'ACTIVITY').replace(/_/g, ' '),
-          category: 'REPORTS',
+          category: 'GENERAL',
           bgClass: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700',
         };
     }
   };
+
+  // Filter logs by search term and selected category
+  const filteredLogs = useMemo(() => {
+    return logs.filter((log) => {
+      const meta = getEventMeta(log.eventType);
+
+      if (categoryFilter !== 'ALL') {
+        if (categoryFilter === 'REGISTRATIONS' && meta.category !== 'REGISTRATIONS') return false;
+        if (categoryFilter === 'SESSIONS' && meta.category !== 'SESSIONS') return false;
+        if (categoryFilter === 'REPORTS' && meta.category !== 'REPORTS' && meta.category !== 'TASKS' && meta.category !== 'SUPERVISION') return false;
+        if (categoryFilter === 'REQUESTS' && meta.category !== 'REQUESTS') return false;
+        if (categoryFilter === 'MANAGEMENT' && meta.category !== 'MANAGEMENT' && meta.category !== 'PROFILE' && meta.category !== 'SECURITY') return false;
+      }
+
+      if (searchTerm.trim()) {
+        const query = searchTerm.toLowerCase();
+        const descMatch = (log.description || '').toLowerCase().includes(query);
+        const eventMatch = (log.eventType || '').toLowerCase().includes(query);
+        const labelMatch = meta.label.toLowerCase().includes(query);
+        if (!descMatch && !eventMatch && !labelMatch) return false;
+      }
+
+      return true;
+    });
+  }, [logs, categoryFilter, searchTerm]);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-150">
       {/* 1. Header & Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-xs">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-            {userT('Activity Logs')}
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
+            <Activity className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+            <span>{userT('Activity Logs')}</span>
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            {isManagerOrAdmin
-              ? userT('Central audit feed of all fieldwork submissions, work sessions, registrations, and staff operations')
-              : isSupervisor
-              ? userT('Activity timeline of your supervisor actions and your assigned field officers’ fieldwork')
-              : userT('Chronological audit log of your citizen registrations, work sessions, and fieldwork reports')}
+            {userT('Chronological audit log containing only your work, fieldwork submissions, and operations.')}
           </p>
+        </div>
+
+        <div className="flex items-center gap-2 self-start sm:self-center">
+          <button
+            type="button"
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="px-3.5 py-2 text-xs font-semibold rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/60 shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+            title={userT('Refresh activity logs')}
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-blue-600' : ''}`} />
+            <span>{userT('Refresh')}</span>
+          </button>
         </div>
       </div>
 
-      {/* Main Activity Records Table */}
+      {/* 2. Search & Category Filters */}
+      <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs space-y-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          {/* Search Box */}
+          <div className="relative flex-1">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder={userT('Search your activities by keyword or action...')}
+              className="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-900/60 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+            />
+          </div>
+
+          {/* Records Count Badge */}
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-700 text-[11px] font-semibold text-slate-600 dark:text-slate-300 shrink-0">
+            <span>{userT('Your Work Records')}:</span>
+            <span className="font-bold text-blue-600 dark:text-blue-400 font-mono">
+              {filteredLogs.length} / {logs.length}
+            </span>
+          </div>
+        </div>
+
+        {/* Category Pills */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pt-1 pb-0.5">
+          {[
+            { id: 'ALL', label: 'All Work' },
+            { id: 'REGISTRATIONS', label: 'Registrations' },
+            { id: 'SESSIONS', label: 'Sessions & Attendance' },
+            { id: 'REPORTS', label: 'Reports & Tasks' },
+            { id: 'REQUESTS', label: 'Requests & Decisions' },
+            { id: 'MANAGEMENT', label: 'Management & Profile' },
+          ].map((cat) => (
+            <button
+              key={cat.id}
+              type="button"
+              onClick={() => setCategoryFilter(cat.id)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+                categoryFilter === cat.id
+                  ? 'bg-blue-600 text-white shadow-2xs'
+                  : 'bg-slate-50 dark:bg-slate-900/50 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200/60 dark:border-slate-700/60'
+              }`}
+            >
+              {userT(cat.label)}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 3. Main Activity Records Table */}
       <div className="rounded-2xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-xs overflow-hidden">
         {isLoading ? (
           <div className="py-16 text-center text-slate-400">
             <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-[#2563EB]" />
             <p className="text-xs font-medium">{userT('Loading activity logs...')}</p>
           </div>
-        ) : logs.length === 0 ? (
+        ) : filteredLogs.length === 0 ? (
           <div className="py-16 text-center">
             <Clock className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
             <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-              {userT('No Activity Logged Yet')}
+              {logs.length === 0 ? userT('No Work Activities Recorded Yet') : userT('No Activities Match Filters')}
             </h3>
             <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 max-w-sm mx-auto">
-              {userT('Activities are captured automatically in real-time as users work.')}
+              {logs.length === 0
+                ? userT('Activities are captured automatically in real-time as you complete work.')
+                : userT('Try adjusting your search keyword or selecting a different category.')}
             </p>
           </div>
         ) : (
@@ -423,14 +514,14 @@ export default function ActivityTimeline({ user }) {
               <thead>
                 <tr className="border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/40 text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
                   <th className="py-3 px-4">{userT('Date & Time')}</th>
-                  <th className="py-3 px-4">{userT('USER / STAFF')}</th>
+                  <th className="py-3 px-4">{userT('Action / Event')}</th>
                   <th className="py-3 px-4">{userT('Description')}</th>
                   <th className="py-3 px-4">{userT('Status')}</th>
                   <th className="py-3 px-4 text-right">{userT('Details')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                {logs.map((log) => {
+                {filteredLogs.map((log) => {
                   const meta = getEventMeta(log.eventType);
                   const isSynced = log.syncStatus === 'SYNCED';
                   const isDetailsExpanded = expandedRowIds.has(log.id);
@@ -442,15 +533,6 @@ export default function ActivityTimeline({ user }) {
                   const dateFormatted = dateObj
                     ? dateObj.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })
                     : '—';
-
-                  // Robustly resolve the user name who performed the action
-                  const displayedUserName =
-                    log.officerName ||
-                    usersMap[log.officerId]?.name ||
-                    usersMap[log.officerId]?.fullName ||
-                    log.metadata?.userName ||
-                    log.metadata?.officerName ||
-                    (log.officerId === user?.id ? user?.name || user?.fullName || userT('Me') : log.officerId || userT('Staff Member'));
 
                   const metadataEntries = log.metadata
                     ? Object.entries(log.metadata).filter(
@@ -471,17 +553,11 @@ export default function ActivityTimeline({ user }) {
                           </div>
                         </td>
 
-                        {/* User / Staff Name */}
+                        {/* Action / Event Badge */}
                         <td className="py-3.5 px-4 whitespace-nowrap">
-                          <div className="font-semibold text-slate-900 dark:text-white flex items-center gap-1.5">
-                            <User className="w-3 h-3 text-slate-400 shrink-0" />
-                            <span>{translateText(displayedUserName, language)}</span>
-                          </div>
-                          {log.woredaName && (
-                            <div className="text-[10px] text-slate-400 pl-4.5">
-                              {translateText(log.woredaName, language)}
-                            </div>
-                          )}
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold border ${meta.bgClass}`}>
+                            {userT(meta.label)}
+                          </span>
                         </td>
 
                         {/* Description */}

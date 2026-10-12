@@ -1,6 +1,3 @@
-// server/src/routes/activityLogs.routes.ts
-// REST API Routes for Offline-First Activity Logs & Timeline Tracking (Phase 5)
-
 import { Router, Request, Response } from 'express';
 import prisma from '../config/db.js';
 import { authenticate } from '../middleware/auth.middleware.js';
@@ -23,11 +20,6 @@ const formatActivityLog = (l: any) => ({
   syncStatus: l.syncStatus,
 });
 
-/**
- * @route   POST /api/activity-logs
- * @desc    Idempotent batch or single sync for activity logs
- * @access  Private (Officer, Supervisor, Manager)
- */
 router.post('/', authenticate, async (req: Request, res: Response): Promise<void> => {
   try {
     const caller = req.user!;
@@ -46,7 +38,6 @@ router.post('/', authenticate, async (req: Request, res: Response): Promise<void
         continue;
       }
 
-      // Completely reject any SMS logs
       if (
         String(log.eventType).toUpperCase().includes('SMS') ||
         String(log.description).toUpperCase().includes('SMS')
@@ -136,17 +127,27 @@ router.get('/', authenticate, async (req: Request, res: Response): Promise<void>
 
     const where: any = {};
 
-    // Role-based scoping: Supervisors see only what they did unless querying a specific officer
+    // Role-based scoping: By default, each user's activity log contains only their own work
     if (user.role === Role.FIELD_OFFICER) {
+      // Field officers can strictly and exclusively see only their own work
       where.officerId = user.id;
     } else if (user.role === Role.SUPERVISOR) {
-      if (officerId) {
+      // Supervisors default to their own work, unless querying a specific subordinate
+      if (officerId && officerId !== 'all') {
         where.officerId = officerId as string;
       } else {
         where.officerId = user.id;
       }
+    } else if (user.role === Role.MANAGER) {
+      // Managers default to their own work, unless explicitly querying a specific officer or 'all'
+      if (officerId && officerId !== 'all') {
+        where.officerId = officerId as string;
+      } else if (officerId === 'all') {
+        // Nationwide audit view
+      } else {
+        where.officerId = user.id;
+      }
     }
-    // Manager has nationwide view
 
     where.NOT = [
       { eventType: { contains: 'SMS', mode: 'insensitive' } },
@@ -155,9 +156,6 @@ router.get('/', authenticate, async (req: Request, res: Response): Promise<void>
 
     if (eventType && eventType !== 'all') {
       where.eventType = eventType as string;
-    }
-    if (officerId) {
-      where.officerId = officerId as string;
     }
     if (startDate || endDate) {
       where.deviceTimestamp = {};

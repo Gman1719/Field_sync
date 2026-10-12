@@ -20,7 +20,7 @@ import { useUserLanguage } from '../../context/UserLanguageContext';
 
 export default function SyncCenterView({ user }) {
   const { userT } = useUserLanguage();
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'queue' | 'errors' | 'conflicts'
+  const [activeTab, setActiveTab] = useState('overview'); 
 
   const [summary, setSummary] = useState({
     citizensPending: 0,
@@ -44,17 +44,14 @@ export default function SyncCenterView({ user }) {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [queueFilter, setQueueFilter] = useState('ALL');
 
-  // Load summary and database records
   const loadData = async () => {
     try {
       const s = await syncEngine.getPendingSummary();
       setSummary(s);
 
-      // Load queue items
       const q = await offlineDb.syncQueue.orderBy('queuedAt').reverse().toArray();
       setQueueItems(q);
 
-      // Load error records
       const errs = await offlineDb.syncErrors.orderBy('timestamp').reverse().toArray();
       setErrorRecords(errs);
     } catch (e) {
@@ -62,7 +59,6 @@ export default function SyncCenterView({ user }) {
     }
   };
 
-  // Load backend sync health
   const checkServerHealth = async () => {
     if (!navigator.onLine) return;
     try {

@@ -1,6 +1,3 @@
-// Comprehensive Multilingual Translation Dictionary for FieldSync
-// Languages: English (en), Amharic (am), Afaan Oromoo (om), Tigrinya (ti)
-
 export interface DictionaryItem {
   am: string;
   om: string;
@@ -9,14 +6,12 @@ export interface DictionaryItem {
 
 export const translationDictionary: Record<string, DictionaryItem> = {
 
-  // Brand & General
   'FieldSync': { am: 'ፊልድሲንክ', om: 'FieldSync', ti: 'ፊልድሲንክ' },
   'Offline Report Management System': { am: 'ከመስመር ውጭ ሪፖርት አስተዳደር ስርዓት', om: 'Sisteemii Bulchiinsa Gabaasa Toora-Alaa', ti: 'ስርዓተ ኣዘላለም ሪፖርት ብዘይ መስመር' },
   'National ID Registration • Field Operations • Real-time Sync': { am: 'ብሔራዊ መታወቂያ ምዝገባ • የመስክ ሥራዎች • የቅጽበት ማመሳሰል', om: 'Galmee Waraqaa Eenyummaa Biyyooleessaa • Hojii Dirree • Walqabsiisa Yeroo', ti: 'ምዝገባ ብሄራዊ መንጠቆ • ስራሕቲ ግዳም • ምስምሳል ጊዜ' },
   'Connecting Field Teams to the National Registry': { am: 'የመስክ ቡድኖችን ከብሔራዊ መዝገብ ጋር ማገናኘት', om: 'Garee Dirree Gara Galmee Biyyooleessaatti Walqabsiisuu', ti: 'ጉጅለታት ግዳም ምስ ሃገራዊ መዝገብ ምትእስሳር' },
   'FieldSync Platform • 2026': { am: 'የፊልድሲንክ መድረክ • 2026', om: 'Waliigala FieldSync • 2026', ti: 'መድረኽ ፊልድሲንክ • 2026' },
 
-  // Language Dropdown
   'Select Language': { am: 'ቋንቋ ይምረጡ', om: 'Afaan Filadhu', ti: 'ቋንቋ ምረጽ' },
   'SELECT LANGUAGE': { am: 'ቋንቋ ይምረጡ', om: 'AFAAN FILADHU', ti: 'ቋንቋ ምረጽ' },
   'English': { am: 'እንግሊዝኛ', om: 'Ingiliffa', ti: 'እንግሊዝኛ' },
@@ -26,12 +21,10 @@ export const translationDictionary: Record<string, DictionaryItem> = {
   'Tigrinya': { am: 'ትግርኛ', om: 'Afaan Tigree', ti: 'ትግርኛ' },
   'Change Language': { am: 'ቋንቋ ቀይር', om: 'Afaan Jijjiiri', ti: 'ቋንቋ ቀይር' },
 
-  // Theme
   'Switch to Light Theme': { am: 'ወደ ብርሃን ገጽታ ቀይር', om: 'Gara Ifaatti Jijjiiri', ti: 'ናብ ብርሃን ቀይር' },
   'Switch to Dark Theme': { am: 'ወደ ጨለማ ገጽታ ቀይር', om: 'Gara Dukkanaatti Jijjiiri', ti: 'ናብ ጸሊም ቀይር' },
   'Toggle color theme': { am: 'የቀለም ገጽታ ቀይር', om: 'Bifa Jijjiiri', ti: 'ሕብሪ ቀይር' },
 
-  // Navigation Links & Titles
   'Features': { am: 'ገጽታዎች', om: 'Amaloota', ti: 'ባህርያት' },
   'How It Works': { am: 'እንዴት እንደሚሰራ', om: 'Akkamitti Hojjeta', ti: 'ከመይ ይሰርሕ' },
   'Field Conditions': { am: 'የመስክ ሁኔታዎች', om: 'Haala Dirree', ti: 'ኩነታት ግዳም' },
@@ -74,7 +67,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
   'Team Chat': { am: 'የቡድን ውይይት', om: 'Haasaa Garee', ti: 'ዕላል ጉጅለ' },
   'My Profile': { am: 'የኔ መገለጫ', om: 'Piroofaayilii Koo', ti: 'ናተይ ፕሮፋይል' },
 
-  // Auth & Login
   'Login': { am: 'ግባ', om: 'Seeni', ti: 'እቶ' },
   'Sign In': { am: 'ግባ', om: 'Seeni', ti: 'እቶ' },
   'Signing In...': { am: 'በመግባት ላይ...', om: 'Seenaa jira...', ti: 'ይኣቱ ኣሎ...' },
@@ -100,14 +92,12 @@ export const translationDictionary: Record<string, DictionaryItem> = {
   },
   'Demo Accounts': { am: 'የሙከራ መለያዎች', om: 'Akaawuntii Qormaataa', ti: 'መለያታት ማሳያ' },
 
-  // Roles
   'Manager': { am: 'ስራ አስኪያጅ', om: 'Manaajera', ti: 'ስራሕ ኣካያዲ' },
   'Supervisor': { am: 'ተቆጣጣሪ', om: 'Tooftaa', ti: 'ተቖጻጻሪ' },
   'Field Officer': { am: 'የመስክ ኃላፊ', om: 'Hojjetaa Dirree', ti: 'ሓላፊ ግዳም' },
   'Administrator': { am: 'አስተዳዳሪ', om: 'Bulchaa', ti: 'ኣመሓዳሪ' },
   'Role': { am: 'ሚና', om: 'Gahee', ti: 'ተራ' },
 
-  // Landing Page Hero & Sections
   'Built for Real-World Field Operations': {
     am: 'ለእውነተኛው ዓለም የመስክ ስራዎች የተሰራ',
     om: 'Hojii Dirree Addunyaa Dhugaaf Kan Ijaarame',
@@ -133,7 +123,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
   'Get Started': { am: 'አሁን ይጀምሩ', om: 'Amma Jalqabaa', ti: 'ሕጂ ጀምር' },
   'Access Platform': { am: 'መድረኩን ይጠቀሙ', om: 'Sirnicha Seenaa', ti: 'መድረኽ ተጠቐም' },
 
-  // Workstation & Status
   'Field Officer Workstation': { am: 'የመስክ ኃላፊ የስራ ማዕከል', om: 'Iddoo Hojii Hojjetaa Dirree', ti: 'ናይ ሓላፊ ግዳም ስራሕ መደብ' },
   'Supervisor Command Center': { am: 'የሱፐርቫይዘር መቆጣጠሪያ ማዕከል', om: 'Giddu-gala Ajaja Tooftaa', ti: 'ማእከል ትእዛዝ ተቖጻጻሪ' },
   'Operations Manager Dashboard': { am: 'የስራ አስኪያጅ ዳሽቦርድ', om: 'Daaashboordii Hojii Gaggeessaa', ti: 'ናይ ስራሕ ኣካያዲ ዳሽቦርድ' },
@@ -168,7 +157,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
     ti: 'ኣብ ሰዓት ስራሕ ድንገታዊ ናይ ምርግጋጽ ፍተሻታት ይካየዱ'
   },
 
-  // Dashboard Stats & Metrics
   'Total Reports': { am: 'ጠቅላላ ሪፖርቶች', om: 'Gabaasa Waliigalaa', ti: 'ጠቕላላ ጸብጻባት' },
   'Citizens': { am: 'ዜጎች', om: 'Lammiilee', ti: 'ዜጋታት' },
   'CITIZENS': { am: 'ዜጎች', om: 'LAMMIILEE', ti: 'ዜጋታት' },
@@ -191,7 +179,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
   'Recent Activity': { am: 'የቅርብ ጊዜ እንቅስቃሴ', om: 'Sochii Dhihoo', ti: 'ናይ ቀረባ ንጥፈታት' },
   'Registration Target': { am: 'የምዝገባ ግብ', om: 'Kaayyoo Galmee', ti: 'ናይ ምዝገባ ሸቶ' },
 
-  // Citizen Registration & Management
   'Register Citizen for National ID': { am: 'ዜጋ ለብሔራዊ መታወቂያ ይመዝገቡ', om: 'Lammii Waraqaa Eenyummaa Biyyooleessaaf Galmeessi', ti: 'ዜጋ ንሃገራዊ መንነት ወረቐት መዝግብ' },
   'Enter citizen information for National ID registration': {
     am: 'ለብሔራዊ መታወቂያ ምዝገባ የዜጋውን መረጃ ያስገቡ',
@@ -240,7 +227,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
   'Add New Citizen': { am: 'አዲስ ዜጋ መዝግብ', om: 'Lammii Haaraa Dabali', ti: 'ሓድሽ ዜጋ ወስኽ' },
   'View Details': { am: 'ዝርዝሩን ይመልከቱ', om: 'Bal\'ina Ilaali', ti: 'ዝርዝር ርአ' },
 
-  // Common UI Actions & Controls
   'Save': { am: 'አስቀምጥ', om: 'Olkaayi', ti: 'ዓቅብ' },
   'Cancel': { am: 'ሰርዝ', om: 'Haqi', ti: 'ሰርዝ' },
   'Delete': { am: 'አጥፋ', om: 'Balleessi', ti: 'ደምስስ' },
@@ -269,7 +255,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
   'Select Region': { am: 'ክልል ይምረጡ', om: 'Naannoo Filadhu', ti: 'ክልል ምረጽ' },
   'Select Shift': { am: 'ፈረቃ ይምረጡ', om: 'Garee Hojii Filadhu', ti: 'ተራ ምረጽ' },
 
-  // Reports
   'Submit Daily Report': { am: 'የዕለት ሪፖርት ያስገቡ', om: 'Gabaasa Guyyaa Ergi', ti: 'ናይ መዓልቲ ጸብጻብ ኣእትው' },
   'Site Name': { am: 'የጣቢያው ስም', om: 'Maqaa Bakkaa', ti: 'ስም መደበር' },
   'Citizens Registered Today': { am: 'ዛሬ የተመዘገቡ ዜጎች', om: 'Lammiilee Har\'a Galmaa\'an', ti: 'ሎሚ ዝተመዝገቡ ዜጋታት' },
@@ -293,7 +278,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
   'Submit Report': { am: 'ሪፖርት ያስገቡ', om: 'Gabaasa Ergi', ti: 'ጸብጻብ ኣእትው' },
   'Report submitted successfully!': { am: 'ሪፖርት በተሳካ ሁኔታ ተላልፏል!', om: 'Gabaasni milkaa\'inaan ergameera!', ti: 'ጸብጻብ ብዓወት ተላኢኹ!' },
 
-  // Sessions & Screen Time
   'Start Session': { am: 'ክፍለ ጊዜ ጀምር', om: 'Marsaa Jalqabi', ti: 'እዋን ጀምር' },
   'Pause Session': { am: 'ለጊዜው አቁም', om: 'Marsaa Dhaabi', ti: 'ንጊዜኡ ኣዕርፍ' },
   'Resume Session': { am: 'ቀጥል', om: 'Marsaa Itti Fufi', ti: 'ቀጽል' },
@@ -307,7 +291,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
   'Check In': { am: 'መግቢያ', om: 'Galma Seensaa', ti: 'ምእታው' },
   'Check Out': { am: 'መውጫ', om: 'Galma Ba\'insaa', ti: 'ምውጻእ' },
 
-  // Users
   'Create New User': { am: 'አዲስ ተጠቃሚ ፍጠር', om: 'Fayyadaamaa Haaraa Uumi', ti: 'ሓድሽ ተጠቃሚ ፍጠር' },
   'Add new Field Officer or Supervisor': { am: 'አዲስ የመስክ ኃላፊ ወይም ሱፐርቫይዘር ይጨምሩ', om: 'Hojjetaa dirree ykn tooftaa haaraa dabali', ti: 'ሓድሽ ሓላፊ ግዳም ወይ ተቖጻጻሪ ወስኽ' },
   'All Users': { am: 'ሁሉም ተጠቃሚዎች', om: 'Fayyadamtoota Hunda', ti: 'ኩሎም ተጠቀምቲ' },
@@ -323,11 +306,9 @@ export const translationDictionary: Record<string, DictionaryItem> = {
   'Night': { am: 'ማታ', om: 'Halkan', ti: 'ለይቲ' },
   'Flexible': { am: 'ተለዋዋጭ', om: 'Jijjiiramaa', ti: 'ተለዋዋጢ' },
 
-  // Notifications
   'Mark all as read': { am: 'ሁሉንም እንደተነበቡ ምልክት አድርግ', om: 'Hunda akka dubbifametti mallatteessi', ti: 'ኩሎም ከም እተነበቡ ምልክት ግበር' },
   'No notifications': { am: 'ምንም ማንቂያ የለም', om: 'Beeksisni hin jiru', ti: 'ምንም መጠንቀቕታ የለውን' },
 
-  // Sync Center & Telemetry
   'Sync Now': { am: 'አሁን አመሳስል', om: 'Amma Walqabsiisi', ti: 'ሕጂ ኣመሳስል' },
   'Pull Updates': { am: 'ዝማኔዎችን አምጣ', om: 'Haaromsawwan Fidi', ti: 'ሓደሽቲ ዛዕባታት ኣምጽእ' },
   'All data synchronized': { am: 'ሁሉም መረጃ ተመሳስሏል', om: 'Odeeffannoon hundi walqabateera', ti: 'ኩሉ መረዳእታ ተመሳሲሉ' },
@@ -336,7 +317,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
   'Sync Health': { am: 'የማመሳሰል ጤና ሁኔታ', om: 'Fayyaa Walqabsiisaa', ti: 'ጥዕና ምስምሳል' },
   'Successfully synchronized records with PostgreSQL!': { am: 'መረጃዎች ከዋናው ዳታቤዝ ጋር በተሳካ ሁኔታ ተመሳስለዋል!', om: 'Galmeeleen milkaa\'inaan kuusaa daataa waliin walqabataniiru!', ti: 'መዛግብቲ ምስ ማእከላይ ዳታቤዝ ብዓወት ተመሳሲሎም!' },
 
-  // Dashboard & Telemetry Sections
   'Operations & System Overview': { am: 'የስራዎች እና የስርዓት አጠቃላይ እይታ', om: 'Ilaalcha Waliigalaa Hojiiwwanii fi Sirnaa', ti: 'ሓፈሻዊ ርእይቶ ስርሒታትን ስርዓትን' },
   'Real-time operational metrics across all organizational divisions': {
     am: 'በሁሉም ድርጅታዊ ክፍሎች ውስጥ ያሉ የቀጥታ የስራ መለኪያዎች',
@@ -410,7 +390,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
   'Sync Queue': { am: 'የማመሳሰል ወረፋ', om: 'Tarree Walqabsiisaa', ti: 'ሰልፊ ምስምሳል' },
   'Telemetry': { am: 'ቴሌሜትሪ', om: 'Teelemeetirii', ti: 'ቴሌሜትሪ' },
 
-  // Citizens Database & Directory
   'My Total Registered': { am: 'የኔ ጠቅላላ ምዝገባ', om: 'Galmee Koo Waliigalaa', ti: 'ናተይ ጠቕላላ ዝተመዝገቡ' },
   'Total Registered': { am: 'ጠቅላላ የተመዘገቡ', om: 'Waliigala Galmaa\'an', ti: 'ጠቕላላ ዝተመዝገቡ' },
   'Enrolled by you': { am: 'በእርስዎ የተመዘገቡ', om: 'Isiniin kan galmaa\'e', ti: 'ብኣኻትኩም ዝተመዝገቡ' },
@@ -460,7 +439,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
   'No Citizen Records Found': { am: 'ምንም የዜጋ መረጃ አልተገኘም', om: 'Galmeen lammii hin argamne', ti: 'ዝኾነ መዝገብ ዜጋ ኣይተረኽበን' },
   'Register Citizen Now': { am: 'አሁን ዜጋ ይመዝገቡ', om: 'Amma Lammii Galmeessi', ti: 'ሕጂ ዜጋ መዝግብ' },
 
-  // Citizen Registration Console
   'Citizen Registration Console': { am: 'የዜጎች ምዝገባ ማዕከል', om: 'Iddoo Galmee Lammiilee', ti: 'ማእከል ምዝገባ ዜጋታት' },
   'Register citizens easily': { am: 'ዜጎችን በቀላሉ ይመዝገቡ', om: 'Lammiilee salphatti galmeessaa', ti: 'ንዜጋታት ብቐሊሉ መዝግብ' },
   'Offline Mode • Stored Locally': { am: 'ከመስመር ውጭ ሁነታ • በኮምፒዩተሩ ተቀምጧል', om: 'Haala Toora-Alaa • Meeshaa Irratti Kuufame', ti: 'ዘይመስመር ኩነታት • ኣብ መሳርሒ ተዓቂቡ' },
@@ -494,7 +472,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
   'Choose Woreda First': { am: 'መጀመሪያ ወረዳ ይምረጡ', om: 'Dursa Aanaa Filadhu', ti: 'ቅድም ወረዳ ምረጽ' },
   'Clear Form': { am: 'ቅጹን አጽዳ', om: 'Unka Haqii', ti: 'ፎርም ኣጽሪ' },
 
-  // Daily Work Reports & Submissions
   'Organization Daily Work Reports': { am: 'የድርጅቱ የዕለት የስራ ሪፖርቶች', om: 'Gabaasaalee Hojii Guyyaa Dhaabbataa', ti: 'ናይ ትካል መዓልታዊ ጸብጻባት ስራሕ' },
   'Team Daily Work Reports & Review': { am: 'የቡድን ዕለት የስራ ሪፖርቶች እና ግምገማ', om: 'Gabaasa Hojii Guyyaa Gareefi Gamaggama', ti: 'ናይ ጉጅለ መዓልታዊ ጸብጻብን ገምጋምን' },
   'Central oversight of all field officer submissions, screen-time telemetry & operational roadblocks': {
@@ -553,7 +530,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
   'Active Time': { am: 'ንቁ ሰዓት', om: 'Yeroo Hojii', ti: 'ንጡፍ ግዜ' },
   'Cloud Synced': { am: 'ከደመና ጋር የተመሳሰለ', om: 'Duumessa Waliin Walqabate', ti: 'ምስ ደመና ዝተመሳሰለ' },
 
-  // --- USER & WORKSTATION MANAGEMENT ---
   'User & Workstation Management': { am: 'የተጠቃሚዎች እና የስራ ጣቢያ አስተዳደር', om: 'Bulchiinsa Fayyadamtootaa fi Iddoo Hojii', ti: 'ምሕደራ ተጠቀምትን መደበር ስራሕን' },
   'Administer system accounts, assign Ethiopian administrative hierarchies, and oversee role permissions': {
     am: 'የስርዓት መለያዎችን ያስተዳድሩ፣ የኢትዮጵያ አስተዳደራዊ እርከኖችን ይመድቡ እና የሚና ፈቃዶችን ይቆጣጠሩ',
@@ -750,7 +726,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
     ti: 'ነዚ ዞባ ብዙሓት ተቖጻጸርቲ ተረኺቦም። በጃኹም ዋና ተቖጻጻሪ ምረጹ።'
   },
 
-  // Ethiopian Regions
   'Addis Ababa': { am: 'አዲስ አበባ', om: 'Finfinnee', ti: 'ኣዲስ ኣበባ' },
   'Oromia': { am: 'ኦሮሚያ', om: 'Oromiyaa', ti: 'ኦሮሚያ' },
   'Amhara': { am: 'አማራ', om: 'Amaara', ti: 'ኣምሓራ' },
@@ -766,7 +741,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
   'Central Ethiopia': { am: 'ማዕከላዊ ኢትዮጵያ', om: 'Itoophiyaa Gidduugaleessaa', ti: 'ማእከላይ ኢትዮጵያ' },
   'South West Ethiopia': { am: 'ደቡብ ምዕራብ ኢትዮጵያ', om: 'Itoophiyaa Kibba Lixaa', ti: 'ደቡብ ምዕራብ ኢትዮጵያ' },
 
-  // Ethiopian Zones / Sub-Cities
   'Bole Sub-City': { am: 'ቦሌ ክፍለ ከተማ', om: 'Kutaa Magaalaa Boolee', ti: 'ክፍለ ከተማ ቦሌ' },
   'Yeka Sub-City': { am: 'የካ ክፍለ ከተማ', om: 'Kutaa Magaalaa Yakkkaa', ti: 'ክፍለ ከተማ የካ' },
   'Kirkos Sub-City': { am: 'ቂርቆስ ክፍለ ከተማ', om: 'Kutaa Magaalaa Qirqoos', ti: 'ክፍለ ከተማ ቂርቆስ' },
@@ -793,7 +767,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
   'Faafan Zone': { am: 'ፋፋን ዞን', om: 'Zoonii Faafan', ti: 'ዞባ ፋፋን' },
   'Dire Dawa Administration': { am: 'ድሬዳዋ አስተዳደር', om: 'Bulchiinsa Dirre Dhawaa', ti: 'ምምሕዳር ድሬዳዋ' },
 
-  // Add / Edit User Form Fields
   'Last Name (Grandfather)': { am: 'የአያት ስም', om: 'Maqaa Akaakayyuu', ti: 'ስም ኣባሓጎ' },
   'Save Changes': { am: 'ለውጦችን አስቀምጥ', om: 'Jijjiirama Galmeessi', ti: 'ለውጥታት ኣቐምጥ' },
   'I Have Saved It — Continue': { am: 'አስቀምጬዋለሁ — ቀጥል', om: 'Olkaayeera — Itti Fufi', ti: 'ዓቒበዮ ኣለኹ — ቀጽል' },
@@ -820,7 +793,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
   'Updating...': { am: 'በማዘመን ላይ...', om: 'Haaromsituu jira...', ti: 'የሐድስ ኣሎ...' },
   'Creating...': { am: 'በመፍጠር ላይ...', om: 'Uumaa jira...', ti: 'ይፈጥር ኣሎ...' },
 
-  // Attendance Management
   'Total Scheduled': { am: 'ጠቅላላ የታቀዱ', om: 'Waliigala Karoorfaman', ti: 'ጠቕላላ ዝተመደቡ' },
   'On-time check-ins': { am: 'በሰዓቱ የገቡ', om: 'Yeroon Kan Seenan', ti: 'ብሰዓቶም ዝኣተዉ' },
   'Tardy arrivals': { am: 'ያረፈዱ', om: 'Kan Turan', ti: 'ዝደንጐዩ' },
@@ -838,7 +810,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
     ti: 'ዝተረጋገጸ ናይ ምእታው ግዜን ዝተሰርሑ ሰዓታትን'
   },
 
-  // Activity Timeline
   'Audit Trail & Real-Time Event Feed': { am: 'የኦዲት ታሪክ እና የቀጥታ ክስተቶች ፍሰት', om: 'Seenaa Odiitii fi Ya\'a Taateewwan Kallattii', ti: 'ናይ ኦዲት ታሪክን ቀጥታዊ ፍሰት ፍጻሜታትን' },
   'All Events': { am: 'ሁሉም ክስተቶች', om: 'Taateewwan Hunda', ti: 'ኩሎም ፍጻሜታት' },
   'Search activities or officers...': { am: 'እንቅስቃሴዎችን ወይም ኃላፊዎችን ይፈልጉ...', om: 'Sochiiwwan ykn hojjettoota barbaadaa...', ti: 'ንጥፈታት ወይ ሓለፍቲ ድለዩ...' },
@@ -854,10 +825,8 @@ export const translationDictionary: Record<string, DictionaryItem> = {
   'Work Session Resumed': { am: 'የስራ ክፍለ ጊዜ ቀጥሏል', om: 'Marsaan Hojii Itti Fufeera', ti: 'እዋን ስራሕ ቀጺሉ' },
   'Daily Report Submitted': { am: 'የዕለት ሪፖርት ገብቷል', om: 'Gabaasni Guyyaa Ergameera', ti: 'ናይ መዓልቲ ጸብጻብ ኣትዩ' },
 
-  // System & Branding
   'Offline-First System': { am: 'ከመስመር ውጭ ቀዳሚ ስርዓት', om: 'Sisteemii Dursa Toora-Alaa', ti: 'ቀዳምነት ዘይመስመር ስርዓት' },
 
-  // Header Tab Titles & Navigation
   'Dashboard Overview': { am: 'የዳሽቦርድ አጠቃላይ እይታ', om: 'Ilaalcha Waliigalaa Daashboordii', ti: 'ሓፈሻዊ ርእይቶ ዳሽቦርድ' },
   'Daily Field Reports': { am: 'የዕለት የመስክ ሪፖርቶች', om: 'Gabaasa Dirree Guyyaa', ti: 'ናይ መዓልቲ ናይ ግዳም ጸብጻባት' },
   'Attendance Review': { am: 'የእንደሪ ግምገማ', om: 'Gamaggama Argamaa', ti: 'ገምጋም ህላወ' },
@@ -873,7 +842,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
   'My Profile & Workstation': { am: 'የኔ መገለጫ እና የስራ ጣቢያ', om: 'Piroofaayilii Koo fi Iddoo Hojii', ti: 'ናተይ ፕሮፋይልን መደበር ስራሕን' },
   'Security & Change Password': { am: 'ደህንነት እና የይለፍ ቃል መቀየሪያ', om: 'Nageenya fi Jijjiirraa Jecha Iccitii', ti: 'ደሕንነትን ምቕያር ቃል ምስጢርን' },
 
-  // Sidebar Role-Specific Items
   'Manager Chat': { am: 'የስራ አስኪያጅ ውይይት', om: 'Haasaa Manaajeraa', ti: 'ዕላል ስራሕ ኣካያዲ' },
   'Supervisor Chat': { am: 'የሱፐርቫይዘር ውይይት', om: 'Haasaa Tooftaa', ti: 'ዕላል ተቖጻጻሪ' },
   'Team': { am: 'ቡድን', om: 'Garee', ti: 'ጉጅለ' },
@@ -884,7 +852,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
   'Daily Work Reports': { am: 'የዕለት የስራ ሪፖርቶች', om: 'Gabaasaalee Hojii Guyyaa', ti: 'ናይ መዓልቲ ስራሕ ጸብጻባት' },
   'Reports & Review': { am: 'ሪፖርቶች እና ግምገማ', om: 'Gabaasaaleefi Gamaggama', ti: 'ጸብጻባትን ገምጋምን' },
 
-  // Supervisor & Manager Reports / Reviews
   'Team Daily Reports & Review': { am: 'የቡድን ዕለት ሪፖርቶች እና ግምገማ', om: 'Gabaasa Guyyaa Gareefi Gamaggama', ti: 'ናይ ጉጅለ መዓልታዊ ጸብጻብን ገምጋምን' },
   'Supervisor Evaluations & Reports': { am: 'የሱፐርቫይዘር ግምገማዎች እና ሪፖርቶች', om: 'Gamaaggamaafi Gabaasaalee Tooftaa', ti: 'ገምጋማትን ጸብጻባትን ተቖጻጻሪ' },
   'Submit performance evaluations for field officers and operational self-assessments': {
@@ -910,7 +877,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
   'Pending Sync': { am: 'በማመሳሰል ላይ', om: 'Walsimsiisa Eegaa Jira', ti: 'ምስምሳል ዝጽበ' },
   'Summary': { am: 'ማጠቃለያ', om: 'Cuunfaa', ti: 'ጽሟቕ' },
 
-  // Supervisor Evaluation & Self-Report Forms
   'Submit Officer Evaluation': { am: 'የኃላፊ ግምገማ አስገባ', om: 'Gamaaggama Hojjetaa Galchi', ti: 'ገምጋም ሓላፊ ኣእቱ' },
   'Select Officer': { am: 'ኃላፊ ምረጥ', om: 'Hojjetaa Filadhu', ti: 'ሓላፊ ምረጽ' },
   'Choose Assigned Officer': { am: 'የተመደበ ኃላፊ ይምረጡ', om: 'Hojjetaa Ramadame Filadhaa', ti: 'ዝተመደበ ሓላፊ ምረጹ' },
@@ -953,7 +919,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
   },
   'Submit Operations Report': { am: 'የስራ ሪፖርት አስገባ', om: 'Gabaasa Hojii Galchi', ti: 'ጸብጻብ ስራሕ ኣእቱ' },
 
-  // Screen Time & Monitoring
   'Cumulative daily screen time sent with official daily reports': {
     am: 'ከይፋዊ የዕለት ሪፖርቶች ጋር የተላከ የተጠራቀመ የዕለት ስክሪን ሰዓት',
     om: 'Yeroo iskiiriinii guyyaa walitti qabame kan gabaasa guyyaa waliin ergame',
@@ -968,7 +933,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
   'Submitted with Report': { am: 'ከሪፖርት ጋር ገብቷል', om: 'Gabaasa Waliin Ergameera', ti: 'ምስ ጸብጻብ ኣትዩ' },
   'Screen Time': { am: 'የስክሪን ሰዓት', om: 'Yeroo Iskiiriinii', ti: 'ግዜ ስክሪን' },
 
-  // Team Management
   'Operational Team Directory': { am: 'የስራ ቡድን ማውጫ', om: 'Galmee Garee Hojii', ti: 'መዝገብ ጉጅለ ስራሕ' },
   'Personnel hierarchy, real-time connectivity telemetry, and field officer inspection': {
     am: 'የሰራተኞች እርከን፣ የቀጥታ ግንኙነት ቴሌሜትሪ እና የመስክ ኃላፊዎች ቁጥጥር',
@@ -988,7 +952,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
   'Cumulative Screen Time': { am: 'የተጠራቀመ የስክሪን ሰዓት', om: 'Yeroo Iskiiriinii Walitti Qabame', ti: 'ዝተደመረ ግዜ ስክሪን' },
   'Daily Report Status': { am: 'የዕለት ሪፖርት ሁኔታ', om: 'Haala Gabaasa Guyyaa', ti: 'ኩነታት መዓልታዊ ጸብጻብ' },
 
-  // --- CITIZENS DATABASE & REGISTRATION SPECIFIC ---
   'Frontline citizen enrollment directory with administrative jurisdiction': {
     am: 'የቀዳሚ መስመር የዜጎች ምዝገባ ማውጫ ከአስተዳደራዊ ስልጣን ጋር',
     om: 'Galmee galmeessa lammiilee toora duraa aangoo bulchiinsaa wajjin',
@@ -1010,7 +973,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
   'Success': { am: 'ተሳክቷል', om: 'Milkaa\'eera', ti: 'ተዓዊቱ' },
   'Failed': { am: 'አልተሳካም', om: 'Hin milkoofne', ti: 'ኣይተዓወተን' },
 
-  // --- USER & WORKSTATION MANAGEMENT SUITE TRANSLATIONS ---
   "Central Zone": { am: "ማዕከላዊ ዞን", om: "Godina Giddugaleessaa", ti: "ማእከላይ ዞባ" },
   "Metropolitan Zone": { am: "የሜትሮፖሊታን ዞን", om: "Godina Meetroopoolitaanii", ti: "ሜትሮፖሊታን ዞባ" },
   "Bole Woreda 01": { am: "ቦሌ ወረዳ 01", om: "Aanaa Boolee 01", ti: "ወረዳ ቦሌ 01" },
@@ -1116,7 +1078,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
   "• ID:": { am: "• መለያ፡", om: "• Eenyummaa:", ti: "• መለለዪ፡" },
   "ID:": { am: "መለያ፡", om: "Eenyummaa:", ti: "መለለዪ፡" },
 
-  // --- TEAM MANAGEMENT & EXTENDED ENTERPRISE PAGES TRANSLATIONS ---
   "Supervisor Field Team": { am: "የተቆጣጣሪ የመስክ ቡድን", om: "Garee Dirree To'ataa", ti: "ናይ ተቖጻጻሪ ጉጅለ ግዳም" },
   "Direct field officers assigned to your operational unit": { am: "ለእርስዎ የስራ ክፍል በቀጥታ የተመደቡ የመስክ ኃላፊዎች", om: "Hojjettoota dirree kallattiin kutaalee hojii keessaniif ramadaman", ti: "ንናይ ስራሕ ክፍሊኹም ብቐጥታ ዝተመደቡ ሓለፍቲ ግዳም" },
   "Search officer by name, ID, or woreda...": { am: "ኃላፊዎችን በስም፣ መለያ ወይም ወረዳ ይፈልጉ...", om: "Hojjetaa maqaa, eenyummaa ykn aanaadhaan barbaadi...", ti: "ሓለፍቲ ብሽም፣ መለለዪ ወይ ወረዳ ድለዩ..." },
@@ -1186,7 +1147,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
   "Paused (Lunch Break)": { am: "ለዕረፍት ቆሟል (የምሳ ዕረፍት)", om: "Boqonnaaf Dhaabbate (Boqonnaa Laaqanaa)", ti: "ንዕረፍቲ ደው ኢሉ (ዕረፍቲ ምሳሕ)" },
   "Paused (Page Inactive/Minimized)": { am: "ቆሟል (ገጹ ንቁ ስላልሆነ)", om: "Dhaabbate (Fuulli Socho'aa waan hin taaneef)", ti: "ደው ኢሉ (ገጽ ንጡፍ ስለዘይኮነ)" },
 
-  // --- NOTIFICATION CENTER TRANSLATIONS ---
   "Operational updates, verifications, and system events": {
     am: "የስራ ዝመናዎች፣ ማረጋገጫዎች እና የስርዓት ኩነቶች",
     om: "Odeeffannoo hojii, mirkaneessaa fi ta'eewwan sirnaa",
@@ -1253,7 +1213,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
     ti: "ኣወግድ"
   },
 
-  // --- ANALYTICS DASHBOARD TRANSLATIONS ---
   "Zone Operations Intelligence": {
     am: "የዞን ስራዎች መረጃ",
     om: "Odeeffannoo Hojii Godinaa",
@@ -1585,7 +1544,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
     ti: "የመስክ ኦፊሰራት ናይ ዕለት ስርሖም እንተካይዱ ናይ መረጋገጺ ሓበሬታታትን መልስታትን ኣብዚ ይረአ።"
   },
 
-  // Leave and Permission Requests
   "My Requests": {
     am: "የእኔ ጥያቄዎች",
     om: "Gaaffiiwwan Koo",
@@ -2467,7 +2425,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
     ti: "እዚ መጠንቀቕታ ብውሽጢ-መተግበሪ ምልክታ ቀጥታ ንሰራሕተኛ ይበጽሕ።"
   },
 
-  // Work Sessions & Screen Time
   "Ready to start today's work session?": {
     am: "የዛሬውን የስራ ክፍለ ጊዜ ለመጀመር ዝግጁ ነዎት?",
     om: "Marsaa hojii har'aa jalqabuuf qophiidhaa?",
@@ -2564,7 +2521,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
     ti: "ርክብ"
   },
 
-  // Task & Roster & Attendance
   "Task Management": {
     am: "የስራዎች አስተዳደር",
     om: "Bulchiinsa Hojii",
@@ -2636,15 +2592,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
     ti: "ተኸታታሊ ናይ ንጥፈት መደብ"
   },
 
-  // --- USER MANAGEMENT & WORKSTATION MODULE ---
-
-  // Ethiopian Regions
-
-  // Ethiopian Sub-Cities and Zones
-
-  // Ethiopian Woredas
-
-  // Modal Common & Forms
   'User created successfully': {
     am: 'ተጠቃሚ በተሳካ ሁኔታ ተፈጥሯል',
     om: 'Fayyedamaan milkaa\'inaan uumameera',
@@ -2741,7 +2688,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
     ti: 'ሓድሽ ግዝያዊ መሕለፊ ቃል ዝፍጠር ኮይኑ ኣብ ዝቕጽል ምእታው ምቕያር ግዴታ ይኸውን።'
   },
 
-  // User Details Modal
   'Personnel Record Details': {
     am: 'የሠራተኛ መዝገብ ዝርዝር',
     om: 'Bal\'ina Galmee Hojjetaa',
@@ -2773,7 +2719,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
     ti: 'ኣመሓደርቲ ኣብ ኩሎም ክልላት፣ ዞባታትን ወረዳታትን ስርዓት ምሉእ ናይ ምምሕዳር ቁጽጽር ኣለዎም።'
   },
 
-  // Edit Modal
   'Update official identification name records and direct contact information': {
     am: 'ይፋዊ የመታወቂያ ስም መዝገቦችን እና የቀጥታ አድራሻ መረጃን ያዘምኑ',
     om: 'Galmee maqaa waraqaa eenyummaa fi odeeffannoo qunnamtii kallattii haaromsi',
@@ -2855,7 +2800,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
     ti: 'ዝተኣሳሰረ ናይ ምርግጋጽ መረዳእታ'
   },
 
-  // Location Dropdown & Validation
   'Select Assigned Supervisor *': {
     am: 'የተመደበ ሱፐርቫይዘር ይምረጡ *',
     om: 'To\'ataa Ramadame Filadhu *',
@@ -2897,7 +2841,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
     ti: 'በጃኹም ኩሎም ዘድልዩ መሳልዮታት ምልኡ'
   },
 
-  // Reassignment Modal
   'Reassign Ethiopian Workstation Location': {
     am: 'የኢትዮጵያ የስራ ጣቢያ አካባቢን በድጋሚ መድብ',
     om: 'Bakka Hojii Itoophiyaa Deebisii Ramadi',
@@ -3084,7 +3027,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
     ti: 'ናይ ግዳም መኮንናት!'
   },
 
-  // Role Change Modal
   'Frontline ID registration and citizen data intake': {
     am: 'የግንባር መታወቂያ ምዝገባ እና የዜጎች መረጃ አሰባሰብ',
     om: 'Galmee eenyummaa fuulduraa fi sassaabbii ragaa lammiilee',
@@ -3186,7 +3128,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
     ti: 'ኩሎም ናይ ግዳም መኮንናት ብዓወት ተመሓላሊፎም! ሕጂ ናይ ግደ ለውጢ ክትዛዝሙ ትኽእሉ ኢኹም።'
   },
 
-  // Dashboard & Visual Telemetry Translations
   'Comparison of the number of citizens registered across different zones and supervisory areas': {
     am: 'በተለያዩ ዞኖች እና የክትትል ቦታዎች የተመዘገቡ ዜጎች ቁጥር ንፅፅር',
     om: "Waliin dorgommii lakkoofsa lammiilee zooniiwwanii fi bakkeewwan to'annoo adda addaa keessatti galmaa'anii",
@@ -3412,7 +3353,7 @@ export const translationDictionary: Record<string, DictionaryItem> = {
     om: 'Waliigala',
     ti: 'ጠቕላላ'
   },
-  // --- Notifications Categories & Titles ---
+
   'Alerts': {
     am: 'ማስጠንቀቂያዎች',
     om: 'Akeekkachiisota',
@@ -3489,7 +3430,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
     ti: 'መጠንቀቕታ ተቖጻጻሪ'
   },
 
-  // --- Activity Logs Audit Feed & Table ---
   'Central audit feed of all fieldwork submissions, work sessions, registrations, and staff operations': {
     am: 'የሁሉም የመስክ ስራ ግቤቶች፣ የስራ ክፍለ-ጊዜዎች፣ ምዝገባዎች እና የሰራተኞች ክንውኖች ማዕከላዊ የኦዲት መዝገብ',
     om: 'Gabaasa qorannoo wiirtuu dhiyeessii hojii dirree, turtii hojii, galmeewwan fi hojiiwwan hojjattootaa maraa',
@@ -3516,7 +3456,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
     ti: 'ምሉእ ትካል'
   },
 
-  // --- Analytics Dashboard ---
   'National comparative registration analytics across demographics, jurisdictions, and field officers': {
     am: 'በስነ-ህዝብ፣ በአስተዳደር ወሰን እና በመስክ መኮንኖች ዙሪያ ሀገር አቀፍ የንፅፅር ምዝገባ ትንታኔ',
     om: 'Xiinxala galmee walbira qabuu biyyoolessaa uummata, daangaa bulchiinsaa fi hojjettoota dirree gidduutti',
@@ -3533,7 +3472,6 @@ export const translationDictionary: Record<string, DictionaryItem> = {
     ti: 'ሓፈሻዊ ትርኢት'
   },
 
-  // --- Chat Console Interface & Starters ---
   'Search by name, region, ID...': {
     am: 'በስም፣ በክልል፣ በመለያ ይፈልጉ...',
     om: 'Maqaa, naannoo, eenyummaadhaan barbaadi...',
@@ -4671,6 +4609,3 @@ export const translationDictionary: Record<string, DictionaryItem> = {
     ti: "ተገዛእነት ህልውና"
   }
 };
-
-
-

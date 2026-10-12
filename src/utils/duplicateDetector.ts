@@ -1,5 +1,3 @@
-// Offline-First Multi-Level Duplicate Citizen Detection for FieldSync (Phase 3)
-
 import { offlineDb } from '../db/offlineDb';
 import type { Citizen } from '../types/index';
 import { normalizeEthiopianPhone } from './phoneUtils';
@@ -26,9 +24,6 @@ export interface CandidateCitizen {
   village?: string;
 }
 
-/**
- * Checks local Dexie.js database for existing matching citizens
- */
 export async function detectLocalDuplicates(
   candidate: CandidateCitizen
 ): Promise<DuplicateCheckResult> {
@@ -43,14 +38,13 @@ export async function detectLocalDuplicates(
     const candLast = candidate.lastName.trim().toLowerCase();
 
     for (const existing of existingCitizens) {
-      // Don't compare with self if editing existing client record
+
       if (candidate.clientRecordId && existing.clientRecordId === candidate.clientRecordId) {
         continue;
       }
 
       let isMatch = false;
 
-      // Level 0: Exact Unique Citizen ID Match
       if (candidate.clientRecordId && (existing.clientRecordId === candidate.clientRecordId || existing.id === candidate.clientRecordId)) {
         matchReasons.push(
           `System Citizen ID (${candidate.clientRecordId}) already registered to: ${existing.firstName} ${existing.lastName}`

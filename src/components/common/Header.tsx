@@ -162,7 +162,7 @@ export default function Header({
   return (
     <header className="h-16 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30 px-3 sm:px-6 flex items-center justify-between gap-2 shadow-xs transition-colors duration-200">
       <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
-        {/* Contextual Back Button on Mobile when navigated away from Dashboard */}
+        {}
         {activeTab !== 'dashboard' && setActiveTab ? (
           <button
             type="button"
@@ -176,7 +176,7 @@ export default function Header({
           </button>
         ) : null}
 
-        {/* Prominent, Accessible Mobile Hamburger Menu Button */}
+        {}
         <button
           type="button"
           onClick={() => setIsMobileOpen && setIsMobileOpen(true)}

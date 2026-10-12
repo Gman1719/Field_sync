@@ -1,14 +1,11 @@
-// src/config/workingHours.ts
-// Centralized Ethiopian Official Working Hours, Timezone & Safeguards Configuration (Client)
-
 export interface WorkingHoursConfig {
   timezone: string;
-  morningStart: string;   // "08:30"
-  morningEnd: string;     // "12:30"
-  lunchStart: string;     // "12:30"
-  lunchEnd: string;       // "13:30"
-  afternoonStart: string; // "13:30"
-  afternoonEnd: string;   // "17:30"
+  morningStart: string;   
+  morningEnd: string;     
+  lunchStart: string;     
+  lunchEnd: string;       
+  afternoonStart: string; 
+  afternoonEnd: string;   
   minVerificationGapMinutes: number;
   minVerificationIntervalMinutes: number;
   maxVerificationIntervalMinutes: number;
@@ -31,7 +28,6 @@ export const DEFAULT_WORKING_HOURS_CONFIG: WorkingHoursConfig = {
   verificationTimeoutSeconds: 15,
 };
 
-// Designated work routes/tabs where active screen time counts after starting session
 export const DESIGNATED_WORK_AREAS = [
   'register',
   'citizens',
@@ -43,25 +39,16 @@ export const DESIGNATED_WORK_AREAS = [
   'dashboard',
 ];
 
-/**
- * Checks if a tab/route is an eligible designated work area
- */
 export function isEligibleWorkArea(tabName: string): boolean {
   if (!tabName) return false;
   return DESIGNATED_WORK_AREAS.includes(tabName.toLowerCase());
 }
 
-/**
- * Parses "HH:mm" string to minutes from start of day
- */
 export function timeStringToMinutes(timeStr: string): number {
   const [hours, minutes] = timeStr.split(':').map(Number);
   return (hours || 0) * 60 + (minutes || 0);
 }
 
-/**
- * Returns current local time components in Ethiopia / configured timezone
- */
 export function getZonedTimeComponents(
   date: Date = new Date(),
   timezone: string = DEFAULT_WORKING_HOURS_CONFIG.timezone
@@ -72,8 +59,8 @@ export function getZonedTimeComponents(
   hours: number;
   minutes: number;
   seconds: number;
-  dateStr: string; // YYYY-MM-DD
-  timeStr: string; // HH:mm:ss
+  dateStr: string; 
+  timeStr: string; 
   totalMinutes: number;
 } {
   try {
@@ -247,4 +234,3 @@ export function getDailyVerificationSlots(
 
   return slots;
 }
-

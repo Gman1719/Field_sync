@@ -1,11 +1,9 @@
-// Robust Timestamp-Based Work Session & Screen-Time Telemetry Engine (Phase 5)
-
 import { offlineDb } from '../db/offlineDb';
 import type { WorkSession } from '../types/index';
 import ActivityLogger from './activityLogger';
 import { generateSessionId, generateId } from '../utils/idGenerator';
 
-const INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes inactivity timeout
+const INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000; 
 const DESIGNATED_WORK_TABS = ['register', 'tasks', 'assignments', 'dashboard', 'reports'];
 
 export class SessionTracker {
@@ -15,13 +13,9 @@ export class SessionTracker {
   private static isPaused: boolean = false;
   private static pauseStartedAt: number | null = null;
 
-  /**
-   * Initializes session tracking event listeners (visibility, activity, focus)
-   */
   static initialize() {
     if (typeof window === 'undefined') return;
 
-    // 1. Visibility change listener (tab hidden/minimized)
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'hidden') {
         SessionTracker.pauseTracking('Browser tab hidden or minimized');
@@ -30,7 +24,6 @@ export class SessionTracker {
       }
     });
 
-    // 2. Window focus and blur
     window.addEventListener('blur', () => {
       SessionTracker.pauseTracking('Window lost focus');
     });
@@ -38,7 +31,6 @@ export class SessionTracker {
       SessionTracker.resumeTracking('Window regained focus');
     });
 
-    // 3. User interaction activity listeners (resets inactivity timer)
     const resetActivity = () => {
       SessionTracker.lastActivityTimestamp = Date.now();
       if (SessionTracker.isPaused && document.visibilityState === 'visible' && document.hasFocus()) {
@@ -56,9 +48,6 @@ export class SessionTracker {
     SessionTracker.restoreActiveSession();
   }
 
-  /**
-   * Schedules check for user inactivity timeout
-   */
   private static scheduleInactivityCheck() {
     if (SessionTracker.inactivityTimer) {
       clearTimeout(SessionTracker.inactivityTimer);
@@ -71,9 +60,6 @@ export class SessionTracker {
     }, INACTIVITY_TIMEOUT_MS + 1000);
   }
 
-  /**
-   * Restores active session from localStorage or IndexedDB
-   */
   static async restoreActiveSession(): Promise<WorkSession | null> {
     try {
       const stored = localStorage.getItem('fieldsync_active_work_session');
@@ -88,13 +74,9 @@ export class SessionTracker {
     return null;
   }
 
-  /**
-   * Start a new work session when entering a designated work tab
-   */
   static async startSession(officerId: string, assignmentId?: string | null): Promise<WorkSession> {
     const todayStr = new Date().toISOString().split('T')[0];
 
-    // Check if an active session already exists
     if (SessionTracker.activeSession && !SessionTracker.activeSession.endedAt) {
       SessionTracker.resumeTracking('Resumed existing work session');
       return SessionTracker.activeSession;
@@ -119,10 +101,8 @@ export class SessionTracker {
 
     localStorage.setItem('fieldsync_active_work_session', JSON.stringify(session));
 
-    // Save to Dexie
     await offlineDb.workSessions.put(session);
 
-    // Record activity log
     await ActivityLogger.log(
       'WORK_SESSION_STARTED',
       `Field officer started active work session on ${todayStr}`,

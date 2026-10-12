@@ -1,6 +1,3 @@
-// server/src/utils/jwt.ts
-// JSON Web Token helper utilities for FieldSync
-
 import jwt from 'jsonwebtoken';
 import { Role } from '@prisma/client';
 
@@ -13,18 +10,12 @@ export interface TokenPayload {
   role: Role;
 }
 
-/**
- * Sign a JWT token with user credentials and expiration
- */
 export const signToken = (payload: TokenPayload): string => {
   return jwt.sign(payload, JWT_SECRET, {
     expiresIn: JWT_EXPIRES_IN as any,
   });
 };
 
-/**
- * Verify and decode a JWT token
- */
 export const verifyToken = (token: string): TokenPayload => {
   return jwt.verify(token, JWT_SECRET) as TokenPayload;
 };

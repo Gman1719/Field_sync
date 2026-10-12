@@ -1,5 +1,3 @@
-// Main Application Layout: Sidebar, Header, and Tab Routing
-
 import React, { useState, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 import {
@@ -9,13 +7,11 @@ import {
 } from 'lucide-react';
 import { useUserLanguage } from '../../context/UserLanguageContext';
 
-// Common Components
 import Sidebar from '../common/Sidebar';
 import Header from '../common/Header';
 import OfflineIndicator from '../common/OfflineIndicator';
 import SyncStatus from '../common/SyncStatus';
 
-// Tab View Components
 import Dashboard from '../dashboard/Dashboard';
 import CitizenRegistration from '../citizens/CitizenRegistration';
 import AttendanceManagement from '../attendance/AttendanceManagement';
@@ -70,7 +66,6 @@ export default function MainLayout({
   const isSupervisor = user?.role === 'supervisor';
   const isOfficer = user?.role === 'field_officer' || user?.role === 'FIELD_OFFICER';
 
-  // Live Supervisory Alert delivery for field officers
   const [activeSupervisorAlert, setActiveSupervisorAlert] = useState<OfficerAlertNotification | null>(null);
   const [dismissedAlertIds, setDismissedAlertIds] = useState<Set<string>>(() => {
     try {
@@ -84,7 +79,7 @@ export default function MainLayout({
   const checkIncomingAlerts = React.useCallback(async () => {
     if (!isOfficer || !user?.id) return;
     try {
-      // 1. Fetch unread direct supervisor alerts
+
       const res = await fetchNotifications({ page: 1, limit: 10, status: 'unread' });
       if (res?.success && Array.isArray(res.notifications)) {
         const found = res.notifications.find(
@@ -99,11 +94,8 @@ export default function MainLayout({
         }
       }
 
-      // 2. Automated Daily Report Alert:
-      // Triggered when report submission time has arrived (official working hours end at 17:30)
-      // and the officer has not submitted today's daily work report.
       const { totalMinutes, dateStr: todayDate } = getZonedTimeComponents();
-      const isSubmissionTimeArrived = totalMinutes >= 1050; // 17:30 (official working hours end)
+      const isSubmissionTimeArrived = totalMinutes >= 1050; 
 
       if (isSubmissionTimeArrived) {
         let reportReminderId = sessionStorage.getItem(`fieldsync_report_alert_${todayDate}_${user.id}`);
@@ -575,7 +567,6 @@ export default function MainLayout({
               setAuditLog={setAuditLog}
             />
           )}
-
 
           {/* Requests & Leaves (Officer & Supervisor only, removed from Manager) */}
           {(activeTab === 'requests' || activeTab === 'leaves' || activeTab === 'permissions') && !isManager && (

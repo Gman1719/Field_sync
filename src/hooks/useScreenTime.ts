@@ -1,8 +1,3 @@
-// src/hooks/useScreenTime.ts
-// Authoritative Screen-Time Tracking Engine for FieldSync Field Officers
-// Follows strict rules: No manual pause/resume, official working hours (08:30-12:30, 13:30-17:30),
-// tab focus/visibility, eligible designated work areas, and 5-min inactivity safeguards.
-
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { offlineDb } from '../db/offlineDb';
 import { API_BASE } from '../config/api';
@@ -18,14 +13,14 @@ import { generateSessionId } from '../utils/idGenerator';
 import type { ScreenTimeStatus, DailyScreenTime, WorkSession } from '../types/index';
 
 export interface ScreenTimeHookResult {
-  screenTimeDisplay: string;         // "HH:MM:SS"
-  screenTimeShort: string;           // "5h 42m" or "12m"
-  isScreenTimeRunning: boolean;      // true if currently tracking
-  screenTimeCounter: number;         // total eligible seconds accumulated today
-  trackingStatus: ScreenTimeStatus;  // 'NOT_STARTED' | 'TRACKING' | 'NOT_TRACKING' | 'VERIFICATION_PENDING' | 'FINALIZED'
-  isSessionActive: boolean;          // true if work session has been started and not finalized
-  sessionStartedAt: string | null;   // ISO string of when session started
-  activeWorkArea: string;            // current active tab/route
+  screenTimeDisplay: string;         
+  screenTimeShort: string;           
+  isScreenTimeRunning: boolean;      
+  screenTimeCounter: number;         
+  trackingStatus: ScreenTimeStatus;  
+  isSessionActive: boolean;          
+  sessionStartedAt: string | null;   
+  activeWorkArea: string;            
   startWorkSession: () => Promise<void>;
   finalizeWorkSession: () => Promise<void>;
   pauseAndSaveOnLogout: () => Promise<void>;
@@ -41,8 +36,8 @@ export interface ScreenTimeHookResult {
   activeApprovedPermission?: any | null;
 }
 
-const INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes inactivity timeout
-const HEARTBEAT_INTERVAL_MS = 10 * 1000;     // 10 seconds heartbeat
+const INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000; 
+const HEARTBEAT_INTERVAL_MS = 10 * 1000;     
 
 function formatHMS(totalSecs: number): string {
   const s = Math.max(0, Math.floor(totalSecs || 0));

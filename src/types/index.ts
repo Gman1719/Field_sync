@@ -1,5 +1,3 @@
-// Core TypeScript Domain Interfaces for FieldSync (Phase 1)
-
 export type Role = 'field_officer' | 'supervisor' | 'manager';
 
 export type Gender = 'MALE' | 'FEMALE' | 'OTHER';
@@ -20,7 +18,6 @@ export type AssignmentStatus =
   | 'COMPLETED'
   | 'CANCELLED';
 
-// Geographic Administrative Hierarchy
 export interface Region {
   id: string;
   name: string;
@@ -53,7 +50,6 @@ export interface Kebele {
   description?: string;
 }
 
-// User Profile
 export interface User {
   id: string;
   fullName: string;
@@ -76,10 +72,9 @@ export interface User {
   lastLogin?: string | null;
 }
 
-// Citizen Registration Model with Full Address Hierarchy
 export interface Citizen {
-  id: string;                           // Generated UUID
-  clientRecordId: string;               // Stable client-generated UUID for idempotent synchronization
+  id: string;                           
+  clientRecordId: string;               
   firstName: string;
   middleName?: string;
   lastName: string;
@@ -92,14 +87,12 @@ export interface Citizen {
   nationalId?: string;
   alternativePhone?: string;
 
-  // Complete Administrative Address Hierarchy
   regionId: string;
   zoneId: string;
   woredaId: string;
   kebeleId: string;
-  village: string;                      // Village or Community name
+  village: string;                      
 
-  // Denormalized strings for display and offline caching
   regionName?: string;
   zoneName?: string;
   woredaName?: string;
@@ -116,7 +109,6 @@ export interface Citizen {
   [key: string]: any;
 }
 
-// Assignment Model
 export interface Assignment {
   id: string;
   title: string;
@@ -133,7 +125,6 @@ export interface Assignment {
   endDate?: string | null;
 }
 
-// Activity Log Model
 export interface ActivityLog {
   id: string;
   officerId: string;
@@ -148,7 +139,6 @@ export interface ActivityLog {
   syncStatus: SyncStatus;
 }
 
-// Work Session Model
 export interface WorkSession {
   id: string;
   officerId: string;
@@ -161,7 +151,6 @@ export interface WorkSession {
   syncStatus: SyncStatus;
 }
 
-// Screen Time Statuses
 export type ScreenTimeStatus =
   | 'NOT_STARTED'
   | 'TRACKING'
@@ -169,7 +158,6 @@ export type ScreenTimeStatus =
   | 'VERIFICATION_PENDING'
   | 'FINALIZED';
 
-// Work Verification Statuses
 export type VerificationStatus =
   | 'SCHEDULED'
   | 'PENDING'
@@ -195,12 +183,11 @@ export type VerificationFailureReason =
 export type ConnectionState = 'ONLINE' | 'OFFLINE' | 'UNKNOWN';
 export type LoginState = 'LOGGED_IN' | 'LOGGED_OUT' | 'SESSION_EXPIRED' | 'UNKNOWN';
 
-// Daily Screen Time Model
 export interface DailyScreenTime {
   id: string;
   officerId: string;
   workSessionId?: string | null;
-  date: string; // YYYY-MM-DD
+  date: string; 
   startedAt?: string | null;
   finalizedAt?: string | null;
   totalEligibleSeconds: number;
@@ -210,7 +197,6 @@ export interface DailyScreenTime {
   syncStatus?: SyncStatus;
 }
 
-// Work Verification Model
 export interface WorkVerification {
   id: string;
   officerId: string;
@@ -234,7 +220,6 @@ export interface WorkVerification {
   notes?: string | null;
 }
 
-// Daily Work Report Model
 export interface DailyWorkReport {
   id: string;
   officerId: string;
@@ -263,9 +248,8 @@ export interface DailyWorkReport {
   syncStatus: SyncStatus;
 }
 
-// Synchronization Queue Item Model
 export interface SyncQueueItem {
-  id: string; // Queue Item UUID
+  id: string; 
   entityType: 'citizen' | 'activity_log' | 'work_session' | 'daily_report';
   entityId: string;
   payload: any;
@@ -276,9 +260,8 @@ export interface SyncQueueItem {
   lastError?: string | null;
 }
 
-// Synchronization Error Record Model
 export interface SyncErrorRecord {
-  id: string; // Error Record UUID
+  id: string; 
   officerId: string;
   entityType: string;
   entityId: string;
@@ -289,7 +272,6 @@ export interface SyncErrorRecord {
   resolved: boolean;
 }
 
-// In-App Role-Based Notification Models
 export type NotificationPriority = 'NORMAL' | 'IMPORTANT' | 'URGENT';
 
 export interface AppNotification {
@@ -333,7 +315,6 @@ export interface ChatMessage {
   };
 }
 
-// Leave & Permission Request Models
 export type LeaveType = 'annual' | 'sick' | 'emergency' | 'personal' | 'other';
 export type RequestStatus = 'pending' | 'approved' | 'rejected' | 'cancelled';
 
@@ -343,8 +324,8 @@ export interface LeaveRequest {
   employeeName?: string;
   supervisorId?: string | null;
   type: LeaveType;
-  startDate: string; // YYYY-MM-DD
-  endDate: string;   // YYYY-MM-DD
+  startDate: string; 
+  endDate: string;   
   reason: string;
   attachmentName?: string | null;
   attachmentData?: string | null;
@@ -362,9 +343,9 @@ export interface PermissionRequest {
   employeeId: string;
   employeeName?: string;
   supervisorId?: string | null;
-  date: string;       // YYYY-MM-DD
-  startTime: string;  // HH:mm
-  endTime: string;    // HH:mm
+  date: string;       
+  startTime: string;  
+  endTime: string;    
   durationMinutes?: number;
   reason: string;
   type?: string;

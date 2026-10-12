@@ -1,7 +1,3 @@
-// src/components/screentime/ScreenTimeManagement.tsx
-// Supervisor & Manager Field Officer Screen Time Telemetry Dashboard
-// Displays cumulative daily screen time in clean tabular layout with officer and date filters.
-
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Users,
@@ -37,7 +33,6 @@ export default function ScreenTimeManagement({
   const [officerRoster, setOfficerRoster] = useState<{ id: string; name: string }[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Load live officers screen time from server
   const loadOfficers = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -299,4 +294,4 @@ export default function ScreenTimeManagement({
       </div>
     </div>
   );
-}
+}

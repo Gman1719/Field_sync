@@ -145,13 +145,11 @@ const checkNetworkWithImage = (): Promise<boolean> => {
       }
     };
 
-    // 1. Fast image probe (standard CORS-safe cache-busted probe)
     const img = new Image();
     img.onload = () => finish(true);
     img.onerror = () => finish(false);
     img.src = 'https://www.google.com/favicon.ico?_=' + Date.now();
 
-    // 2. Fast fetch probe (fails rapidly on broken WAN / disconnected internet)
     if (typeof fetch === 'function') {
       try {
         const controller = new AbortController();
@@ -172,7 +170,6 @@ const checkNetworkWithImage = (): Promise<boolean> => {
       } catch (_e) {}
     }
 
-    // Safety timeout: 1500ms max wait
     setTimeout(() => {
       finish(false);
     }, 1500);
@@ -797,7 +794,7 @@ export const purgeLegacyDirectionalUsers = async () => {
     // 1. Collect all target user IDs from db.users and offlineDb.users
     const allDbUsers = await db.users.toArray();
     const allOfflineUsers = await offlineDb.users.toArray();
-    
+
     const targetDbUserIds = new Set<string>();
     const targetEmpIds = new Set<string>();
     const targetNames = new Set<string>(legacyMockNames.map(n => n.toLowerCase()));
@@ -838,7 +835,7 @@ export const purgeLegacyDirectionalUsers = async () => {
       const eid = String(r.employeeId || '');
       const reg = String(r.region || r.officerRegion || '').trim().toLowerCase();
       const name = String(r.name || r.userName || r.employeeName || r.officerName || r.supervisorName || r.registeredByName || '').trim().toLowerCase();
-      
+
       if (idList.includes(uid) || empIdList.includes(eid)) return true;
       if (['north', 'south', 'east', 'west'].includes(reg)) return true;
       if (targetNames.has(name)) return true;

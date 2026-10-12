@@ -1,5 +1,3 @@
-// Dedicated "My Report" View: Displays all historical daily reports submitted by the field officer with clean filters, executive compact table/list, and modernized details modal
-
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   FileText, Calendar, Clock, RefreshCw, Eye,
@@ -29,7 +27,6 @@ export default function MyReportsView({ user, setActiveTab }: { user?: any; setA
 
   const todayStr = useMemo(() => new Date().toISOString().split('T')[0], []);
 
-  // Format seconds helper
   const formatTime = (totalSecs = 0) => {
     const h = Math.floor(totalSecs / 3600);
     const m = Math.floor((totalSecs % 3600) / 60);

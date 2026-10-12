@@ -1,6 +1,3 @@
-// server/src/config/db.ts
-// Singleton instance of Prisma Client
-
 import dns from 'node:dns';
 if (dns.setDefaultResultOrder) {
   dns.setDefaultResultOrder('ipv4first');
@@ -15,7 +12,7 @@ const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 declare global {
-  // Allow global `var` declarations for development hot reload
+
   var prismaGlobal: PrismaClient | undefined;
 }
 

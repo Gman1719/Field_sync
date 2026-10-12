@@ -1,28 +1,3 @@
-// src/utils/idGenerator.ts
-// Universal, Unique ID Generation Utility for FieldSync
-//
-// Rules specified by system requirements:
-// 1. Supervisor: 'sup' + 8 numeric digits (e.g. sup12345678)
-// 2. Field Officer: 'off' + 8 numeric digits (e.g. off12345678)
-// 3. Manager: 'man' + 8 numeric digits (e.g. man12345678)
-// 4. Daily Work Report: 'repo' + 10 numeric digits (e.g. repo1234567890)
-// 5. All other entities in system: first 3 letters + 8 numeric digits:
-//    - Citizen: 'cit' + 8 digits (e.g. cit12345678)
-//    - Task: 'tas' + 8 digits (e.g. tas12345678)
-//    - Leave: 'lea' + 8 digits (e.g. lea12345678)
-//    - Permission: 'per' + 8 digits (e.g. per12345678)
-//    - Alert: 'ale' + 8 digits (e.g. ale12345678)
-//    - Notification: 'not' + 8 digits (e.g. not12345678)
-//    - Attendance: 'att' + 8 digits (e.g. att12345678)
-//    - Verification: 'ver' + 8 digits (e.g. ver12345678)
-//    - Session: 'ses' + 8 digits (e.g. ses12345678)
-//    - Audit/Activity: 'aud' + 8 digits (e.g. aud12345678)
-//    - Chat Message: 'msg' + 8 digits (e.g. msg12345678)
-//    - Sync Queue: 'syn' + 8 digits (e.g. syn12345678)
-
-/**
- * Generates an 8-digit cryptographically unique numeric string in range [10000000, 99999999].
- */
 export function generate8Digit(): string {
   if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
     const uint = new Uint32Array(1);
@@ -33,9 +8,6 @@ export function generate8Digit(): string {
   return Math.floor(10000000 + Math.random() * 90000000).toString();
 }
 
-/**
- * Generates a 10-digit cryptographically unique numeric string in range [1000000000, 9999999999].
- */
 export function generate10Digit(): string {
   if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
     const uint = new Uint32Array(2);

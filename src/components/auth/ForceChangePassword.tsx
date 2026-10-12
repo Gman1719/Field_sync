@@ -130,7 +130,7 @@ export default function ForceChangePassword({ onSetPassword, userName, userEmail
               />
             </div>
 
-            {/* Password Criteria Checklist */}
+            {}
             <div className="p-3.5 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-700 space-y-2 text-xs">
               <span className="font-semibold text-slate-700 dark:text-slate-300 block mb-1">Password Requirements:</span>
               <div className={`flex items-center gap-2 ${hasMinLength ? 'text-emerald-700 dark:text-emerald-400 font-medium' : 'text-slate-400 dark:text-slate-500'}`}>

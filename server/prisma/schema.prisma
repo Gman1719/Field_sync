@@ -1,6 +1,3 @@
-// Prisma schema for FieldSync
-// PostgreSQL Relational Database Schema with Region -> Zone -> Woreda -> Kebele Ethiopian Geographic Hierarchy
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,10 +6,6 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
-// -------------------------------------------------------------
-// ENUMS
-// -------------------------------------------------------------
 
 enum Role {
   FIELD_OFFICER
@@ -107,10 +100,6 @@ enum WorkSessionState {
   FINALIZED
 }
 
-// -------------------------------------------------------------
-// GEOGRAPHIC HIERARCHY MODELS (REGION -> ZONE -> WOREDA -> KEBELE)
-// -------------------------------------------------------------
-
 model Region {
   id          String    @id @default(uuid())
   name        String    @unique
@@ -177,10 +166,6 @@ model Kebele {
   @@map("kebeles")
 }
 
-// -------------------------------------------------------------
-// USER & RBAC MODEL
-// -------------------------------------------------------------
-
 model User {
   id                 String    @id @default(uuid())
   fullName           String
@@ -196,7 +181,6 @@ model User {
   mustChangePassword Boolean   @default(false)
   lastLogin          DateTime?
 
-  // Geographic Placement
   regionId           String?
   zoneId             String?
   woredaId           String?
@@ -207,22 +191,18 @@ model User {
   woreda             Woreda?   @relation(fields: [woredaId], references: [id], onDelete: SetNull)
   kebele             Kebele?   @relation(fields: [kebeleId], references: [id], onDelete: SetNull)
 
-  // Supervisory Hierarchy (Field Officer -> Supervisor)
   supervisorId       String?
   supervisor         User?     @relation("SupervisorOfficers", fields: [supervisorId], references: [id], onDelete: SetNull)
   officers           User[]    @relation("SupervisorOfficers")
 
-  // Operational Links
   registeredCitizens Citizen[]         @relation("OfficerCitizens")
   reviewedDuplicates DuplicateReview[] @relation("ReviewerDuplicates")
   notifications      Notification[]
   auditLogs          AuditLog[]
 
-  // Fieldwork Assignments
   assignedTasks      Assignment[]      @relation("OfficerAssignments")
   supervisedTasks    Assignment[]      @relation("SupervisorAssignments")
 
-  // Activity & Reports
   activityLogs       ActivityLog[]     @relation("OfficerActivityLogs")
   workSessions       WorkSession[]     @relation("OfficerWorkSessions")
   dailyReports       DailyWorkReport[] @relation("OfficerDailyReports")
@@ -243,10 +223,6 @@ model User {
   @@map("users")
 }
 
-// -------------------------------------------------------------
-// CITIZEN MODEL (WITH REGION -> ZONE -> WOREDA -> KEBELE ADDRESS)
-// -------------------------------------------------------------
-
 model Citizen {
   id                    String                @id @default(uuid())
   firstName             String
@@ -256,19 +232,18 @@ model Citizen {
   age                   Int?
   gender                Gender
   maritalStatus         String?
-  phoneNumber           String?               // Optional, not globally unique
-  alternativePhone      String?               // Optional
+  phoneNumber           String?
+  alternativePhone      String?
 
-  // Full Citizen Address Hierarchy
   regionId              String
   zoneId                String
   woredaId              String
   kebeleId              String
-  village               String                // Village or Community (Required)
+  village               String
 
   registeredById        String
   assignmentId          String?
-  clientRecordId        String                @unique // Stable UUID for idempotent sync
+  clientRecordId        String                @unique
   syncStatus            SyncStatus            @default(SYNCED)
   duplicateReviewStatus DuplicateReviewStatus @default(NO_DUPLICATE_DETECTED)
   registrationTimestamp DateTime              @default(now())
@@ -296,10 +271,6 @@ model Citizen {
   @@index([syncStatus])
   @@map("citizens")
 }
-
-// -------------------------------------------------------------
-// FIELDWORK ASSIGNMENT MODEL
-// -------------------------------------------------------------
 
 model Assignment {
   id                   String           @id @default(uuid())
@@ -335,12 +306,8 @@ model Assignment {
   @@map("assignments")
 }
 
-// -------------------------------------------------------------
-// OFFLINE ACTIVITY LOG MODEL
-// -------------------------------------------------------------
-
 model ActivityLog {
-  id               String      @id // Device-generated stable UUID
+  id               String      @id
   officerId        String
   assignmentId     String?
   eventType        String
@@ -364,15 +331,11 @@ model ActivityLog {
   @@map("activity_logs")
 }
 
-// -------------------------------------------------------------
-// WORK SESSIONS & SCREEN TIME MODEL
-// -------------------------------------------------------------
-
 model WorkSession {
-  id               String      @id // Device-generated stable UUID
+  id               String      @id
   officerId        String
   assignmentId     String?
-  reportDate       String      // Formatted YYYY-MM-DD
+  reportDate       String
   startedAt        DateTime
   endedAt          DateTime?
   durationSeconds  Int         @default(0)
@@ -392,15 +355,11 @@ model WorkSession {
   @@map("work_sessions")
 }
 
-// -------------------------------------------------------------
-// DAILY SCREEN TIME TELEMETRY MODEL
-// -------------------------------------------------------------
-
 model DailyScreenTime {
   id                   String           @id @default(uuid())
   officerId            String
   workSessionId        String?
-  date                 String           // Formatted YYYY-MM-DD
+  date                 String
   startedAt            DateTime?
   finalizedAt          DateTime?
   totalEligibleSeconds Int              @default(0)
@@ -418,10 +377,6 @@ model DailyScreenTime {
   @@index([status])
   @@map("daily_screen_times")
 }
-
-// -------------------------------------------------------------
-// RANDOM WORK VERIFICATION MODEL
-// -------------------------------------------------------------
 
 model WorkVerification {
   id                  String                     @id @default(uuid())
@@ -445,7 +400,7 @@ model WorkVerification {
   syncStatus          SyncStatus                 @default(SYNCED)
   syncedAt            DateTime?
 
-  date                String                     // Formatted YYYY-MM-DD
+  date                String
   notes               String?
 
   createdAt           DateTime                   @default(now())
@@ -461,15 +416,11 @@ model WorkVerification {
   @@map("work_verifications")
 }
 
-// -------------------------------------------------------------
-// DAILY WORK REPORT MODEL
-// -------------------------------------------------------------
-
 model DailyWorkReport {
-  id                          String      @id // Device-generated stable UUID
+  id                          String      @id
   officerId                   String
   supervisorId                String?
-  reportDate                  String      // Formatted YYYY-MM-DD
+  reportDate                  String
   assignmentId                String?
   citizenCountLocal           Int         @default(0)
   citizenCountServerConfirmed Int         @default(0)
@@ -496,10 +447,6 @@ model DailyWorkReport {
   @@map("daily_work_reports")
 }
 
-// -------------------------------------------------------------
-// DUPLICATE REVIEW MODEL
-// -------------------------------------------------------------
-
 model DuplicateReview {
   id                   String                @id @default(uuid())
   citizenId            String
@@ -522,10 +469,6 @@ model DuplicateReview {
   @@index([reviewerId])
   @@map("duplicate_reviews")
 }
-
-// -------------------------------------------------------------
-// NOTIFICATION MODEL
-// -------------------------------------------------------------
 
 model Notification {
   id              String               @id @default(uuid())
@@ -553,10 +496,6 @@ model Notification {
   @@map("notifications")
 }
 
-// -------------------------------------------------------------
-// AUDIT LOG MODEL
-// -------------------------------------------------------------
-
 model AuditLog {
   id             String   @id @default(uuid())
   actorId        String?
@@ -583,10 +522,6 @@ model AuditLog {
   @@index([createdAt])
   @@map("audit_logs")
 }
-
-// -------------------------------------------------------------
-// SYNC ERROR MODEL
-// -------------------------------------------------------------
 
 model SyncError {
   id           String   @id @default(uuid())

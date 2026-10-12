@@ -1,6 +1,3 @@
-// server/src/routes/screenTime.routes.ts
-// REST API Routes for Officer Device Screen-Time Telemetry & Synchronization
-
 import { Router, Request, Response } from 'express';
 import prisma from '../config/db.js';
 import fs from 'node:fs';
@@ -41,7 +38,6 @@ function writeLocalScreenTime(records: any[]): void {
 
 const router = Router();
 
-// Helper to format Prisma DailyScreenTime records for frontend consumption
 function mapToLegacyScreenTime(record: any) {
   return {
     id: record.id,
@@ -51,7 +47,7 @@ function mapToLegacyScreenTime(record: any) {
     login_time: record.startedAt ? new Date(record.startedAt).toISOString() : record.login_time || new Date().toISOString(),
     logout_time: record.finalizedAt ? new Date(record.finalizedAt).toISOString() : record.logout_time || null,
     total_screen_time: record.totalEligibleSeconds ?? record.total_screen_time ?? 0,
-    screen_time_limit: record.screen_time_limit || 28800, // 8 hours
+    screen_time_limit: record.screen_time_limit || 28800, 
     trust_score: record.trust_score || 100,
     is_logged_in: record.status === 'TRACKING' || record.is_logged_in || false,
     verified: record.verified ?? true,
@@ -61,7 +57,6 @@ function mapToLegacyScreenTime(record: any) {
   };
 }
 
-// GET /api/screen-time
 router.get('/', async (_req: Request, res: Response) => {
   try {
     const dbRecords = await prisma.dailyScreenTime.findMany({
@@ -75,7 +70,6 @@ router.get('/', async (_req: Request, res: Response) => {
     const mappedDbRecords = dbRecords.map(mapToLegacyScreenTime);
     const localRecords = readLocalScreenTime();
 
-    // Merge: unique by id or by (employee_id + date)
     const recordMap = new Map<string, any>();
     for (const r of mappedDbRecords) {
       recordMap.set(r.id, r);
@@ -95,7 +89,6 @@ router.get('/', async (_req: Request, res: Response) => {
   }
 });
 
-// GET /api/screen-time/employee/:employeeId
 router.get('/employee/:employeeId', async (req: Request, res: Response) => {
   try {
     const { employeeId } = req.params;
@@ -128,7 +121,6 @@ router.get('/employee/:employeeId', async (req: Request, res: Response) => {
   }
 });
 
-// POST /api/screen-time & POST /api/screen-time/sync
 const saveScreenTimeHandler = async (req: Request, res: Response) => {
   try {
     const body = req.body || {};

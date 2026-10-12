@@ -1,6 +1,3 @@
-// server/src/routes/chat.routes.ts
-// Persistent Chat Route for FieldSync (Permanent Manager <-> Supervisor Communication)
-
 import { Router, Request, Response } from 'express';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -11,7 +8,6 @@ const __dirname = path.dirname(__filename);
 const DATA_DIR = path.resolve(__dirname, '../../data');
 const CHAT_FILE = path.join(DATA_DIR, 'chat_messages.json');
 
-// Ensure data directory exists
 if (!fs.existsSync(DATA_DIR)) {
   try {
     fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -76,8 +72,6 @@ function writeMessages(messages: StoredChatMessage[]): void {
 
 const router = Router();
 
-// GET /api/chat/messages
-// Retrieve conversation messages between two users or all messages for a user
 router.get('/messages', (req: Request, res: Response) => {
   try {
     const { userIdA, userIdB, currentUserId } = req.query as {
@@ -119,8 +113,6 @@ router.get('/messages', (req: Request, res: Response) => {
   }
 });
 
-// POST /api/chat/messages
-// Store or sync a message permanently
 router.post('/messages', (req: Request, res: Response) => {
   try {
     const msg: StoredChatMessage = req.body;
@@ -145,8 +137,6 @@ router.post('/messages', (req: Request, res: Response) => {
   }
 });
 
-// POST /api/chat/read
-// Mark conversation messages as read
 router.post('/read', (req: Request, res: Response) => {
   try {
     const { userIdA, userIdB, currentUserId, conversationId } = req.body;
@@ -181,8 +171,6 @@ router.post('/read', (req: Request, res: Response) => {
   }
 });
 
-// POST /api/chat/reaction
-// React to a message
 router.post('/reaction', (req: Request, res: Response) => {
   try {
     const { messageId, emoji, userId } = req.body;
@@ -227,8 +215,6 @@ router.post('/reaction', (req: Request, res: Response) => {
   }
 });
 
-// DELETE /api/chat/messages
-// Explicit deletion of messages by the user
 router.delete('/messages', (req: Request, res: Response) => {
   try {
     const { messageIds } = req.body;

@@ -23,7 +23,6 @@ export default function DuplicateReviewConsole({ user }) {
   const [statusFilter, setStatusFilter] = useState('NEEDS_REVIEW');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Modal Review States
   const [selectedReview, setSelectedReview] = useState(null);
   const [reviewerNotes, setReviewerNotes] = useState('');
   const [isSubmittingDecision, setIsSubmittingDecision] = useState(false);

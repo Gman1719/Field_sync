@@ -28,13 +28,11 @@ export default function VerificationPage({
   const [allVerificationData, setAllVerificationData] = useState([]);
   const [refreshKey, setRefreshKey] = useState(0);
 
-  // Load Synced Verification Records
   const loadData = async () => {
     try {
       setLoading(true);
       let historyData = [];
 
-      // 1. Load from IndexedDB (only synced = true)
       if (db && db.verification_history) {
         const allRecords = await db.verification_history.toArray();
         if (allRecords && allRecords.length > 0) {
@@ -43,7 +41,6 @@ export default function VerificationPage({
         }
       }
 
-      // 2. Merge synced history from localStorage for each officer
       if (users && users.length > 0) {
         const officers = users.filter(u => u.role === 'field_officer');
         for (const officer of officers) {

@@ -1,6 +1,3 @@
-// server/src/routes/auditLogs.routes.ts
-// REST API Routes for Persistent System Audit Trail & Compliance
-
 import { Router, Request, Response } from 'express';
 import { authenticate, requireSupervisor, optionalAuthenticate } from '../middleware/auth.middleware.js';
 import { queryAuditLogs, getDistinctAuditActions } from '../services/audit.service.js';
@@ -9,11 +6,6 @@ import { Role } from '@prisma/client';
 
 const router = Router();
 
-/**
- * @route   GET /api/audit-logs & /api/audit
- * @desc    Retrieve persistent audit logs with role-based scoping, search, and date filters
- * @access  Public / Authenticated
- */
 router.get('/', optionalAuthenticate, async (req: Request, res: Response): Promise<void> => {
   try {
     const user = req.user || {
@@ -52,7 +44,6 @@ router.get('/', optionalAuthenticate, async (req: Request, res: Response): Promi
       endDate: typeof endDate === 'string' ? endDate : undefined,
     });
 
-    // If accessed as legacy /api/audit without explicit pagination page, return array
     if (req.baseUrl === '/api/audit' && !req.query.page) {
       const legacyLogs = (result.logs || []).map((l: any) => ({
         id: l.id,
@@ -83,11 +74,6 @@ router.get('/', optionalAuthenticate, async (req: Request, res: Response): Promi
   }
 });
 
-/**
- * @route   GET /api/audit-logs/actions
- * @desc    Fetch distinct audit actions for filtering
- * @access  Private (Manager & Supervisor)
- */
 router.get('/actions', authenticate, requireSupervisor, async (req: Request, res: Response): Promise<void> => {
   try {
     const user = req.user!;
@@ -102,11 +88,6 @@ router.get('/actions', authenticate, requireSupervisor, async (req: Request, res
   }
 });
 
-/**
- * @route   GET /api/audit-logs/:id
- * @desc    Retrieve full details of a specific audit event
- * @access  Private (Manager & Supervisor)
- */
 router.get('/:id', authenticate, requireSupervisor, async (req: Request, res: Response): Promise<void> => {
   try {
     const user = req.user!;
@@ -132,7 +113,6 @@ router.get('/:id', authenticate, requireSupervisor, async (req: Request, res: Re
       return;
     }
 
-    // Role-based scoping check
     if (user.role === Role.SUPERVISOR) {
       if (user.zoneId && log.zoneId && log.zoneId !== user.zoneId && log.actorId !== user.id) {
         res.status(403).json({ success: false, error: 'Access denied to audit event outside assigned Zone' });

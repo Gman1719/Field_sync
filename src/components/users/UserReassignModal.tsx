@@ -1,7 +1,3 @@
-// Reassign Staff Workstation Location & Supervisor Assignment with Modern UI
-// Strictly validates that supervisors with active Field Officers under their control
-// MUST reassign all officers to active replacement supervisors before changing their operational location.
-
 import React, { useState, useEffect, useMemo } from 'react';
 import toast from 'react-hot-toast';
 import {
@@ -43,7 +39,6 @@ export default function UserReassignModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Supervised officers and replacement supervisor state
   const [supervisedOfficers, setSupervisedOfficers] = useState<any[]>([]);
   const [loadingSupervisedOfficers, setLoadingSupervisedOfficers] = useState(false);
   const [availableSupervisors, setAvailableSupervisors] = useState<any[]>([]);
@@ -57,7 +52,6 @@ export default function UserReassignModal({
     user && (user.role?.toLowerCase() === 'supervisor' || user.role === 'SUPERVISOR')
   );
 
-  // 1. Initialize modal state and fetch supervised officers if user is supervisor
   useEffect(() => {
     if (!user || !isOpen) {
       setSupervisedOfficers([]);
@@ -86,7 +80,6 @@ export default function UserReassignModal({
         setLoadingSupervisedOfficers(true);
         let officersList: any[] = [];
 
-        // Try API first
         try {
           if (navigator.onLine) {
             const token = localStorage.getItem('fieldsync_token') || localStorage.getItem('token') || sessionStorage.getItem('token');
@@ -545,7 +538,7 @@ export default function UserReassignModal({
           </p>
         </div>
 
-        {/* MANDATORY VALIDATION: Active Supervised Officers Section for Supervisors */}
+        {}
         {isSupervisor && (
           <div className="space-y-3">
             {loadingSupervisedOfficers ? (
@@ -555,7 +548,7 @@ export default function UserReassignModal({
               </div>
             ) : supervisedOfficers.length > 0 ? (
               <div className="p-3.5 bg-amber-500/10 dark:bg-amber-950/30 border-2 border-amber-500/40 dark:border-amber-700/60 rounded-xl space-y-3">
-                {/* Warning Header */}
+                {}
                 <div className="flex items-start gap-3">
                   <div className="p-2 rounded-lg bg-amber-500/20 text-amber-700 dark:text-amber-400 shrink-0 mt-0.5">
                     <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400" />
@@ -575,7 +568,7 @@ export default function UserReassignModal({
                   </div>
                 </div>
 
-                {/* Transfer Configuration Box */}
+                {}
                 <div className="p-3 bg-white/95 dark:bg-slate-900/95 rounded-lg border border-blue-300 dark:border-blue-800/60 space-y-3">
                   <div className="flex items-center justify-between pb-1.5 border-b border-slate-200 dark:border-slate-700">
                     <span className="text-xs font-black uppercase text-blue-700 dark:text-blue-300 tracking-wider">
@@ -586,7 +579,7 @@ export default function UserReassignModal({
                     </Badge>
                   </div>
 
-                  {/* Bulk Fill Selector */}
+                  {}
                   <div className="p-2.5 bg-blue-50/70 dark:bg-blue-950/30 rounded-lg border border-blue-200/80 dark:border-blue-800/40 space-y-1">
                     <div className="flex items-center justify-between">
                       <label className="text-[11px] font-bold text-blue-900 dark:text-blue-200 block">

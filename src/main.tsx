@@ -5,12 +5,10 @@ import './locales/index';
 import './index.css';
 import './App.css';
 
-// Clean up legacy shared avatar key that leaked across users
 try {
   localStorage.removeItem('fieldsync_user_avatar');
 } catch (_e) {}
 
-// Unregister stale service workers and clear outdated application caches so latest deployment is loaded immediately
 if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
   navigator.serviceWorker.getRegistrations().then((registrations) => {
     for (const r of registrations) {

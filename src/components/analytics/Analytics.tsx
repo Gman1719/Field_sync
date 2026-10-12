@@ -1,6 +1,3 @@
-// src/components/analytics/Analytics.tsx
-// Comparison Analytics & Demographic Intelligence Dashboard for FieldSync
-
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   BarChart3, Users, MapPin, Calendar, Building2, Globe, ArrowUpDown,
@@ -37,17 +34,13 @@ export interface AnalyticsProps {
 export default function Analytics({ user, setActiveTab }: AnalyticsProps) {
   const { language, userT } = useUserLanguage();
 
-  // Global Date Filtering State
-  const [period, setPeriod] = useState<string>('month'); // 'today' | 'week' | 'month'
+  const [period, setPeriod] = useState<string>('month'); 
 
-  // Manager Zone Filter State
   const [selectedZoneFilter, setSelectedZoneFilter] = useState<string>('all');
 
-  // Specific Chart Filter States
   const [officerDisplayLimit, setOfficerDisplayLimit] = useState<number>(10);
   const [officerSortOrder, setOfficerSortOrder] = useState<'desc' | 'asc' | 'alpha'>('desc');
 
-  // Data & Loading States
   const [dashboardData, setDashboardData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
@@ -55,7 +48,6 @@ export default function Analytics({ user, setActiveTab }: AnalyticsProps) {
   const isSupervisor = user?.role === 'supervisor' || user?.role === 'SUPERVISOR';
   const isManager = user?.role === 'manager' || user?.role === 'MANAGER';
 
-  // Offline computation helper
   const computeOfflineAnalytics = useCallback(async () => {
     try {
       const [allCitizens, allUsers, allZones, allRegions, allWoredas] = await Promise.all([
@@ -69,7 +61,6 @@ export default function Analytics({ user, setActiveTab }: AnalyticsProps) {
       const effectiveZoneName = user?.zone?.name || user?.zone || 'Bole Sub-City';
       const effectiveRegionName = user?.region?.name || user?.region || 'Addis Ababa';
 
-      // Filter citizens based on user role
       let scopedCitizens = allCitizens;
       if (isSupervisor) {
         scopedCitizens = allCitizens.filter((c: any) => {
@@ -84,7 +75,6 @@ export default function Analytics({ user, setActiveTab }: AnalyticsProps) {
 
       const periodCitizenCount = scopedCitizens.length;
 
-      // Gender distribution
       const genderCounts: Record<string, number> = { Female: 0, Male: 0, Other: 0 };
       scopedCitizens.forEach((c: any) => {
         const g = (c.gender || '').toUpperCase();
@@ -111,7 +101,6 @@ export default function Analytics({ user, setActiveTab }: AnalyticsProps) {
         },
       ];
 
-      // Age distribution
       const ageGroups: Record<string, number> = {
         '0-17': 0,
         '18-29': 0,
@@ -142,7 +131,6 @@ export default function Analytics({ user, setActiveTab }: AnalyticsProps) {
         { group: '65+', label: '65+', description: 'Seniors', count: ageGroups['65+'], percentage: periodCitizenCount > 0 ? Math.round((ageGroups['65+'] / periodCitizenCount) * 100) : 0 },
       ];
 
-      // Woreda distribution
       const woredaMap = new Map<string, number>();
       scopedCitizens.forEach((c: any) => {
         const wName = c.woredaName || c.woreda || 'Central Woreda';
@@ -155,7 +143,6 @@ export default function Analytics({ user, setActiveTab }: AnalyticsProps) {
         percentage: periodCitizenCount > 0 ? Math.round((count / periodCitizenCount) * 100) : 0,
       }));
 
-      // Zone distribution
       const zoneMap = new Map<string, number>();
       scopedCitizens.forEach((c: any) => {
         const zName = c.zoneName || c.zone || effectiveZoneName;
@@ -168,7 +155,6 @@ export default function Analytics({ user, setActiveTab }: AnalyticsProps) {
         percentage: periodCitizenCount > 0 ? Math.round((count / periodCitizenCount) * 100) : 0,
       }));
 
-      // Region distribution
       const regMap = new Map<string, number>();
       scopedCitizens.forEach((c: any) => {
         const rName = c.regionName || c.region || effectiveRegionName;
@@ -180,7 +166,6 @@ export default function Analytics({ user, setActiveTab }: AnalyticsProps) {
         percentage: periodCitizenCount > 0 ? Math.round((count / periodCitizenCount) * 100) : 0,
       }));
 
-      // Officer activity list
       const officerCounts = new Map<string, number>();
       scopedCitizens.forEach((c: any) => {
         const offId = c.registeredById || 'u_off';
@@ -244,7 +229,6 @@ export default function Analytics({ user, setActiveTab }: AnalyticsProps) {
     }
   }, [user, isSupervisor, isManager, selectedZoneFilter]);
 
-  // Fetch Dashboard Analytics from PostgreSQL (with seamless offline Dexie fallback)
   const fetchDashboardAnalytics = useCallback(async (manual = false) => {
     if (manual) setIsRefreshing(true);
     else setIsLoading(true);

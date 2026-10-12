@@ -1,6 +1,3 @@
-// server/src/routes/workSessions.routes.ts
-// REST API Routes for Work Sessions & Device Screen Time Telemetry (Phase 6)
-
 import { Router, Request, Response } from 'express';
 import prisma from '../config/db.js';
 import { authenticate } from '../middleware/auth.middleware.js';
@@ -23,11 +20,6 @@ const formatSession = (s: any) => ({
   syncStatus: s.syncStatus,
 });
 
-/**
- * @route   POST /api/work-sessions
- * @desc    Idempotent sync for work sessions and device screen-time metrics
- * @access  Private (Officer, Supervisor, Manager)
- */
 router.post('/', authenticate, async (req: Request, res: Response): Promise<void> => {
   try {
     const caller = req.user!;
@@ -86,11 +78,6 @@ router.post('/', authenticate, async (req: Request, res: Response): Promise<void
   }
 });
 
-/**
- * @route   GET /api/work-sessions
- * @desc    Retrieve work session telemetry and screen time totals
- * @access  Private (Officer, Supervisor, Manager)
- */
 router.get('/', authenticate, async (req: Request, res: Response): Promise<void> => {
   try {
     const user = req.user!;

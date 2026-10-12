@@ -44,13 +44,11 @@ export default function DailyWorkReportView({
 
   const { dateStr: todayStr } = getZonedTimeComponents();
 
-  // Officer States
   const [todayReport, setTodayReport] = useState(null);
   const [pastReports, setPastReports] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Structured Form Input Fields
   const [form, setForm] = useState({
     summary: '',
     achievements: '',
@@ -61,7 +59,6 @@ export default function DailyWorkReportView({
     urgentReason: '',
   });
 
-  // Live Aggregated Metrics for Today (Officer)
   const [localCitizenCount, setLocalCitizenCount] = useState(0);
   const [serverCitizenCount, setServerCitizenCount] = useState(0);
   const [todayActivityCount, setTodayActivityCount] = useState(0);
@@ -69,14 +66,12 @@ export default function DailyWorkReportView({
   const [todayScreenTimeSecs, setTodayScreenTimeSecs] = useState(0);
   const [pendingQueueCount, setPendingQueueCount] = useState(0);
 
-  // Supervisor & Manager States
   const [teamReports, setTeamReports] = useState([]);
   const [selectedOfficerId, setSelectedOfficerId] = useState('');
   const [officersList, setOfficersList] = useState<{ id: string; name: string }[]>([]);
   const [selectedDate, setSelectedDate] = useState('');
   const [inspectModalReport, setInspectModalReport] = useState(null);
 
-  // Format seconds helper
   const formatTime = (totalSecs = 0) => {
     const h = Math.floor(totalSecs / 3600);
     const m = Math.floor((totalSecs % 3600) / 60);

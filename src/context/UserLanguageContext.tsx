@@ -31,7 +31,6 @@ export const UserLanguageProvider: React.FC<{ children: ReactNode }> = ({ childr
     }
   }, [currentUserLanguage]);
 
-  // Synchronize state if i18n language is changed externally
   useEffect(() => {
     const onLanguageChanged = (lng: string) => {
       const code = lng ? lng.split('-')[0] : 'en';
@@ -60,17 +59,14 @@ export const UserLanguageProvider: React.FC<{ children: ReactNode }> = ({ childr
     const trimmed = typeof keyOrText === 'string' ? keyOrText.trim() : String(keyOrText);
     if (!trimmed) return '';
 
-    // 1. Direct query with trimmed key
     let res = i18n.t(trimmed, { defaultValue: '', ...params });
     if (res && res !== trimmed) return res;
 
-    // 2. Query with exact keyOrText
     if (keyOrText !== trimmed) {
       res = i18n.t(keyOrText, { defaultValue: '', ...params });
       if (res && res !== keyOrText) return res;
     }
 
-    // 3. Robust case-insensitive fallback lookup for current language bundle
     const currentLng = currentUserLanguage || 'en';
     if (currentLng !== 'en') {
       const bundle = (i18n.options.resources as any)?.[currentLng]?.translation;

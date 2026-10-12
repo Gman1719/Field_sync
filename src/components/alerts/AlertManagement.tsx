@@ -132,13 +132,11 @@ export default function AlertManagement({ alerts = [], setAlerts, users = [], us
         }))
       };
 
-      // 1. Save alert to IndexedDB
       await db.alerts.add(alertObj);
       if (setAlerts) {
         setAlerts(prev => [alertObj, ...(prev || [])]);
       }
 
-      // 2. Create notifications for all target users
       for (const targetUser of targetUsers) {
         const notification = {
           id: uid(),

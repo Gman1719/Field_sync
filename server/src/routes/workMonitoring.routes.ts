@@ -1,6 +1,3 @@
-// server/src/routes/workMonitoring.routes.ts
-// REST API Routes for Screen-Time Tracking, Random Work Verification & Supervisor Monitoring
-
 import { Router, Request, Response } from 'express';
 import prisma from '../config/db.js';
 import { authenticate } from '../middleware/auth.middleware.js';
@@ -24,7 +21,6 @@ import { notifySupervisorForZone } from '../services/notification.service.js';
 
 const router = Router();
 
-// Helper to format seconds to "5h 42m" or "0m"
 function formatHoursMinutes(totalSeconds: number): string {
   const s = Math.max(0, Math.floor(totalSeconds || 0));
   const h = Math.floor(s / 3600);

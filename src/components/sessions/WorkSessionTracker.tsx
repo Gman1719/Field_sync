@@ -1,8 +1,3 @@
-// src/components/sessions/WorkSessionTracker.tsx
-// Field Officer Work Session & Active Screen-Time Tracking Center
-// Complies with official Ethiopian working hours, automatic on-page tracking,
-// no manual pause/resume/end buttons, and safe offline-first synchronization.
-
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Clock,
@@ -57,7 +52,6 @@ export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }:
 
   const officerId = user?.id || user?.employeeId;
 
-  // Monitor network
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
@@ -69,7 +63,6 @@ export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }:
     };
   }, []);
 
-  // Load officer telemetry history from local Dexie
   const loadHistory = useCallback(async () => {
     if (!officerId) return;
     try {
@@ -128,7 +121,6 @@ export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }:
     }
   };
 
-
   useEffect(() => {
     const handleReset = () => {
       loadHistory();
@@ -143,7 +135,7 @@ export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }:
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
-      {/* Top Banner / Greeting */}
+      {}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-xs">
         <div>
           <div className="flex items-center gap-2">
@@ -206,7 +198,6 @@ export default function WorkSessionTracker({ user, screenTimeInfo: passedInfo }:
                 : userT('Not Started')}
             </span>
           </div>
-
 
         </div>
       </div>

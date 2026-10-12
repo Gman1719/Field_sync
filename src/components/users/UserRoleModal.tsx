@@ -1,6 +1,3 @@
-// Modal for changing a staff member's operational role and workstation location
-// Features mandatory Field Officer reassignment validation when modifying a Supervisor's role
-
 import React, { useState, useEffect, useMemo } from 'react';
 import toast from 'react-hot-toast';
 import {
@@ -61,7 +58,6 @@ export default function UserRoleModal({
   const [locationErrors, setLocationErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Supervised officers and replacement supervisor state
   const [supervisedOfficers, setSupervisedOfficers] = useState<any[]>([]);
   const [loadingSupervisedOfficers, setLoadingSupervisedOfficers] = useState(false);
   const [availableSupervisors, setAvailableSupervisors] = useState<any[]>([]);
@@ -74,7 +70,6 @@ export default function UserRoleModal({
   const currentRole = user?.role?.toLowerCase() || 'field_officer';
   const isCurrentlySupervisor = currentRole === 'supervisor';
 
-  // 1. Fetch supervised officers and other active supervisors when modal opens
   useEffect(() => {
     if (!user || !isOpen) {
       setSupervisedOfficers([]);
@@ -104,7 +99,6 @@ export default function UserRoleModal({
         setLoadingSupervisedOfficers(true);
         let officersList: any[] = [];
 
-        // Try API first
         try {
           if (navigator.onLine) {
             const token = localStorage.getItem('fieldsync_token');

@@ -1,6 +1,3 @@
-// server/src/routes/supervisorReports.routes.ts
-// REST API Routes for Supervisor Evaluations & Performance Reports
-
 import { Router, Request, Response } from 'express';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -40,7 +37,6 @@ export function writeReports(reports: any[]): void {
 
 const router = Router();
 
-// GET /api/supervisor-reports
 router.get('/', (_req: Request, res: Response) => {
   try {
     const reports = readReports();
@@ -51,7 +47,6 @@ router.get('/', (_req: Request, res: Response) => {
   }
 });
 
-// POST /api/supervisor-reports
 router.post('/', (req: Request, res: Response) => {
   try {
     const body = req.body || {};

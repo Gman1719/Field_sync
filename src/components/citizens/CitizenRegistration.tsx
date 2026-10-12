@@ -23,7 +23,6 @@ import Badge from '../ui/Badge';
 import { generateCitizenId, formatDisplayUserId } from '../../utils/idGenerator';
 import { useUserLanguage } from '../../context/UserLanguageContext';
 
-// Helper to calculate age from Date of Birth
 const calculateAge = (dobString) => {
   if (!dobString) return null;
   const birthDate = new Date(dobString);
@@ -47,7 +46,7 @@ export interface CitizenRegistrationProps {
 
 export default function CitizenRegistration({ user, addNotification, onRegistrationSuccess, setActiveTab }: CitizenRegistrationProps) {
   const { userT } = useUserLanguage();
-  // --- Form State ---
+
   const [firstName, setFirstName] = useState('');
   const [middleName, setMiddleName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -55,48 +54,39 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
   const [gender, setGender] = useState('MALE');
   const [maritalStatus, setMaritalStatus] = useState('');
 
-  // Required Contact State (Phone number is mandatory for registry records)
   const [phoneNumber, setPhoneNumber] = useState('');
   const [email, setEmail] = useState('');
 
-  // --- Address Hierarchy State ---
   const [regionId, setRegionId] = useState('');
   const [zoneId, setZoneId] = useState('');
   const [woredaId, setWoredaId] = useState('');
   const [kebeleName, setKebeleName] = useState('');
   const [village, setVillage] = useState('');
 
-  // --- Location Division Options (Cached from Dexie / API) ---
   const [regions, setRegions] = useState([]);
   const [zones, setZones] = useState([]);
   const [woredas, setWoredas] = useState([]);
   const [kebeles, setKebeles] = useState([]);
   const [isLoadingLocations, setIsLoadingLocations] = useState(true);
 
-  // --- Duplicate Detection State ---
   const [duplicateModalOpen, setDuplicateModalOpen] = useState(false);
   const [duplicateMatchReasons, setDuplicateMatchReasons] = useState([]);
   const [duplicateRecords, setDuplicateRecords] = useState([]);
   const [pendingCandidate, setPendingCandidate] = useState(null);
 
-  // --- Submission & Status State ---
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [registeredCitizen, setRegisteredCitizen] = useState(null);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [copiedId, setCopiedId] = useState(false);
 
-
-  // Compute live calculated age from Date of Birth
   const calculatedAge = useMemo(() => calculateAge(dateOfBirth), [dateOfBirth]);
 
-  // Max selectable date of birth (must be at least 5 years of age)
   const maxDobDate = useMemo(() => {
     const d = new Date();
     d.setFullYear(d.getFullYear() - 5);
     return d.toISOString().slice(0, 10);
   }, []);
 
-  // 1. Listen for network changes
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
@@ -108,18 +98,15 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
     };
   }, []);
 
-  // 2. Load & Cache Location Hierarchy from API / Dexie
   useEffect(() => {
     const initLocations = async () => {
       setIsLoadingLocations(true);
       try {
         await ensureOfflineLocationsSeeded();
 
-        // Fetch regions from offline Dexie
         const allRegions = await offlineDb.regions.orderBy('name').toArray();
         setRegions(allRegions);
 
-        // Pre-fill officer's default location if assigned
         if (user?.regionId) {
           setRegionId(user.regionId);
         }
@@ -133,7 +120,6 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
     initLocations();
   }, [user]);
 
-  // 3. Cascading Dropdown Handlers
   useEffect(() => {
     const loadZones = async () => {
       if (!regionId) {
@@ -199,7 +185,6 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
     loadKebeles();
   }, [woredaId, user]);
 
-  // 4. Form Reset
   const handleClear = () => {
     setFirstName('');
     setMiddleName('');
@@ -222,11 +207,9 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
     setTimeout(() => setCopiedId(false), 2000);
   };
 
-  // 5. Submit Handler with 12-Digit Numeric ID Generation & Duplicate Prevention
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Basic required field validations
     if (!firstName.trim() || !middleName.trim() || !lastName.trim()) {
       toast.error('First name, middle name, and last name are required');
       return;
@@ -240,7 +223,6 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
       return;
     }
 
-    // Phone number is required and must be valid Ethiopian mobile
     if (!phoneNumber.trim()) {
       toast.error('Phone number is required');
       return;
@@ -255,7 +237,6 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
       return;
     }
 
-    // Match typed kebele with cached list if available, or generate resolved kebele ID
     const matchedKebele = kebeles.find(
       (k) => k.name.toLowerCase() === kebeleName.trim().toLowerCase()
     );
@@ -431,7 +412,6 @@ export default function CitizenRegistration({ user, addNotification, onRegistrat
       }
 
       setRegisteredCitizen(finalRecord);
-
 
       if (isSyncedServer) {
         toast.success(`Citizen registered & synced! ID: ${finalRecord.clientRecordId}`);

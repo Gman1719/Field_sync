@@ -1,10 +1,3 @@
-// src/components/chat/ChatConsole.tsx
-// Modern Enterprise Field-Operations Communication Console (Strict TypeScript)
-// Visual identity: Clean white/light SaaS aesthetic with full Dark Mode support
-// Features: Click-to-Action (Reactions, Reply, Select), Bulk Selection/Deletion,
-// Visual Media Cards (Photos/Videos/Audio/Docs), Auto-hiding Starter Templates,
-// Minimalist Input Bar matching User Mockup, Profile Photo Display, and Categorized Media in Details Panel.
-
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   Send, Search, Paperclip, Smile, Download,
@@ -44,7 +37,6 @@ interface ChatConsoleProps {
 
 const COMMON_EMOJIS = ['👍', '❤️', '✅', '🎯', '⚠️', '🚀', '🔥', '👏'];
 
-// Telegram-style quick reaction emojis with scrollable drawer
 const TELEGRAM_QUICK_REACTIONS = [
   '🔥', '👏', '😢', '😁', '❤️',
   '👍', '👎', '🎉', '🤩', '😮',
@@ -52,7 +44,6 @@ const TELEGRAM_QUICK_REACTIONS = [
   '💪', '⚡', '✨', '💩', '🥳'
 ];
 
-// Helper to detect if a message contains only emoji characters
 function isOnlyEmojis(text?: string | null): boolean {
   if (!text) return false;
   const trimmed = text.trim();
@@ -93,13 +84,11 @@ const QUICK_TEMPLATES = [
   'Quota reached ahead of schedule; transitioning to secondary kebele.',
 ];
 
-// Helper to resolve contact profile photo
 function getContactPhoto(c: any): string | null {
   if (!c) return null;
   const cId = c.id;
   const normId = normalizeUserId(cId);
 
-  // Check persistent photo in localStorage across all possible aliases
   const keys = [
     cId ? `fieldsync_avatar_${cId}` : null,
     normId ? `fieldsync_avatar_${normId}` : null,
@@ -1219,7 +1208,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
       {/* MAIN CHAT CONVERSATION WORKSPACE                               */}
       {/* ============================================================== */}
       <div className="flex-1 flex flex-col min-w-0 bg-[#F8FAFC] dark:bg-[#0E1621] transition-colors">
-        
+
         {/* Sticky Header or Multi-Select Action Bar */}
         {isSelectionMode ? (
           /* Multi-Select Bulk Action Header */
@@ -1496,7 +1485,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
 
                   {/* Message Item Wrapper with Gestalt Dynamic Distance */}
                   <div className={`flex items-end gap-2.5 ${isMine ? 'justify-end' : 'justify-start'} ${messageSpacing} group relative`}>
-                    
+
                     {/* Multi-Select Checkbox when in Selection Mode (left for received) */}
                     {isSelectionMode && !isMine && (
                       <button
@@ -1537,7 +1526,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                     )}
 
                     <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} max-w-[85%] sm:max-w-[70%]`}>
-                      
+
                       {/* Message Container with Click-to-Open & Hover Action Menu */}
                       <div
                         data-message-menu={msg.id}
@@ -2414,7 +2403,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
       {/* ============================================================== */}
       {showInfoPanel && (
         <div className="w-80 shrink-0 border-l border-[#E2E8F0] dark:border-slate-800 bg-white dark:bg-slate-800 flex flex-col h-full overflow-y-auto animate-in slide-in-from-right-2 duration-200 transition-colors">
-          
+
           {/* Header */}
           <div className="h-16 px-5 border-b border-[#E2E8F0] dark:border-slate-800 flex items-center justify-between shrink-0">
             <h4 className="text-sm font-bold text-[#0F172A] dark:text-slate-100">
@@ -2431,7 +2420,7 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
           </div>
 
           <div className="p-5 space-y-6">
-            
+
             {/* Contact Profile Overview with Profile Photo */}
             <div className="text-center space-y-2 pb-5 border-b border-[#E2E8F0] dark:border-slate-800">
               <div className="relative inline-block">

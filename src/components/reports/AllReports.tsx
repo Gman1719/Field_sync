@@ -17,14 +17,13 @@ import Select from '../ui/Select';
 import StatCard from '../ui/StatCard';
 
 export default function AllReports({ reports = [], users = [], supervisorReports = [] }) {
-  const [activeTab, setActiveTab] = useState('daily'); // 'daily' | 'supervisor'
+  const [activeTab, setActiveTab] = useState('daily'); 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRegion, setSelectedRegion] = useState('All');
   const [dateRange, setDateRange] = useState({ start: '', end: '' });
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [pendingCount, setPendingCount] = useState(0);
 
-  // Check online status and pending sync count
   useEffect(() => {
     const checkStatus = async () => {
       const online = await checkRealInternet();
@@ -48,7 +47,6 @@ export default function AllReports({ reports = [], users = [], supervisorReports
     };
   }, []);
 
-  // Format date/time
   const formatDateTime = (dateStr) => {
     if (!dateStr) return 'N/A';
     const date = new Date(dateStr);
@@ -61,7 +59,6 @@ export default function AllReports({ reports = [], users = [], supervisorReports
     });
   };
 
-  // Check if report is new (< 24h)
   const isNewReport = (report) => {
     const dateStr = report.submittedAt || report.createdAt || report.reportDate;
     if (!dateStr) return false;
@@ -71,7 +68,6 @@ export default function AllReports({ reports = [], users = [], supervisorReports
     return diffHours < 24;
   };
 
-  // Synced daily reports
   const syncedReports = useMemo(() => {
     return reports
       .filter(r => r.synced === true)
@@ -82,7 +78,6 @@ export default function AllReports({ reports = [], users = [], supervisorReports
       });
   }, [reports]);
 
-  // Filtered daily reports
   const filteredReports = useMemo(() => {
     let filtered = syncedReports;
 
@@ -109,7 +104,6 @@ export default function AllReports({ reports = [], users = [], supervisorReports
     return filtered;
   }, [syncedReports, selectedRegion, searchTerm, dateRange]);
 
-  // Filtered supervisor reports
   const filteredSupervisorReports = useMemo(() => {
     let filtered = supervisorReports || [];
     if (selectedRegion !== 'All') {
@@ -132,17 +126,14 @@ export default function AllReports({ reports = [], users = [], supervisorReports
       });
   }, [supervisorReports, selectedRegion, searchTerm]);
 
-  // Count offline reports
   const offlineCount = useMemo(() => {
     return reports.filter(r => r.synced === false).length;
   }, [reports]);
 
-  // Total registrations in filtered reports
   const totalFilteredRegistrations = useMemo(() => {
     return filteredReports.reduce((sum, r) => sum + (Number(r.registrations) || 0), 0);
   }, [filteredReports]);
 
-  // Export handlers
   const handleExportCSV = (data, filename) => {
     if (!data || data.length === 0) {
       toast.error('No data available to export');

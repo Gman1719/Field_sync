@@ -1,6 +1,3 @@
-// server/src/routes/analytics.routes.ts
-// Real-Time Advanced Analytics & Telemetry Engine for FieldSync (Data-Driven PostgreSQL)
-
 import { Router, Request, Response } from 'express';
 import prisma from '../config/db.js';
 import { authenticate, requireSupervisor } from '../middleware/auth.middleware.js';

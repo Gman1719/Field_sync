@@ -59,14 +59,14 @@ export default function Modal({
       aria-labelledby={title ? 'modal-title' : undefined}
       className="fixed inset-0 z-50 overflow-y-auto"
     >
-      {/* Backdrop */}
+      {}
       <div
         className="fixed inset-0 bg-slate-950/40 dark:bg-slate-950/65 backdrop-blur-md transition-opacity animate-in fade-in duration-200"
         onClick={onClose}
         aria-hidden="true"
       />
 
-      {/* Dialog Positioning Wrapper */}
+      {}
       <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-6">
         <div
           className={`relative transform overflow-hidden rounded-2xl sm:rounded-2xl bg-white dark:bg-slate-800 text-left shadow-[0_20px_60px_-10px_rgba(15,23,42,0.2),0_0_0_1px_rgba(15,23,42,0.05)] dark:shadow-[0_24px_64px_-12px_rgba(0,0,0,0.8),0_0_0_1px_rgba(255,255,255,0.08)] border border-slate-200/80 dark:border-slate-700 transition-all sm:my-8 w-full ${

@@ -22,7 +22,7 @@ export default function DuplicateWarningModal({
       className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/40 dark:bg-slate-950/65 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
     >
       <div className="bg-white dark:bg-slate-800 rounded-2xl sm:rounded-3xl max-w-2xl w-full shadow-2xl border border-rose-200/90 dark:border-rose-900/60 overflow-hidden animate-in zoom-in-95 duration-200">
-        {/* Header */}
+        {}
         <div className="px-6 py-5 bg-rose-50/80 dark:bg-rose-950/30 border-b border-rose-100 dark:border-rose-900/40 flex items-start gap-4">
           <div className="w-10 h-10 rounded-2xl bg-rose-600 text-white flex items-center justify-center shrink-0 shadow-sm">
             <AlertOctagon className="w-5 h-5" />
@@ -37,9 +37,9 @@ export default function DuplicateWarningModal({
           </div>
         </div>
 
-        {/* Content */}
+        {}
         <div className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
-          {/* Policy Guidance Alert */}
+          {}
           <div className="p-4 bg-slate-50/80 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 rounded-2xl text-xs space-y-1">
             <span className="font-bold flex items-center gap-1.5 text-slate-800 dark:text-white">
               <ShieldAlert className="w-4 h-4 text-rose-600 dark:text-rose-400" />
@@ -50,7 +50,7 @@ export default function DuplicateWarningModal({
             </p>
           </div>
 
-          {/* Match Reasons */}
+          {}
           <div className="space-y-1.5">
             <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
               Duplicate Detection Triggers:
@@ -68,9 +68,9 @@ export default function DuplicateWarningModal({
             </ul>
           </div>
 
-          {/* Side-by-Side Comparison */}
+          {}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-            {/* New Rejected Entry */}
+            {}
             <div className="p-4 rounded-2xl border border-rose-200 dark:border-rose-900/50 bg-rose-50/30 dark:bg-rose-950/20 space-y-2">
               <div className="flex items-center justify-between">
                 <span className="font-bold text-rose-900 dark:text-rose-300 uppercase tracking-wider text-[11px]">

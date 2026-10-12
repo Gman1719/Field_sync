@@ -1,6 +1,3 @@
-// server/src/server.ts
-// FieldSync Server Entrypoint
-
 import dns from 'node:dns';
 if (dns.setDefaultResultOrder) {
   dns.setDefaultResultOrder('ipv4first');
@@ -14,7 +11,6 @@ import { VerificationSchedulerService } from './services/verificationScheduler.s
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load .env relative to server root
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const app = createApp();

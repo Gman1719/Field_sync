@@ -23,7 +23,6 @@ export default function CreateAssignmentModal({
   const [startDate, setStartDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [endDate, setEndDate] = useState('');
 
-  // Location fields
   const [regionId, setRegionId] = useState('');
   const [zoneId, setZoneId] = useState('');
   const [woredaId, setWoredaId] = useState('');
@@ -37,18 +36,16 @@ export default function CreateAssignmentModal({
 
   const [isLoading, setIsLoading] = useState(false);
 
-  // 1. Fetch available officers and regions on open
   useEffect(() => {
     if (!isOpen) return;
 
     const loadData = async () => {
       try {
         await ensureOfflineLocationsSeeded();
-        // Load regions
+
         let regs = await offlineDb.regions.orderBy('name').toArray();
         setRegions(regs);
 
-        // Load officers from server or Dexie
         const authToken = localStorage.getItem('fieldsync_token');
         if (navigator.onLine && authToken) {
           try {

@@ -1,6 +1,3 @@
-// server/src/services/notification.service.ts
-// Enterprise Role-Based Notification Dispatcher & Scoping Engine for FieldSync
-
 import prisma from '../config/db.js';
 import { Role, NotificationPriority } from '@prisma/client';
 import { generateNotificationId } from '../utils/idGenerator.js';
@@ -9,7 +6,7 @@ export interface CreateNotificationParams {
   recipientId: string;
   title: string;
   message: string;
-  type: string; // e.g. 'ACCOUNT', 'ASSIGNMENT', 'REPORT', 'SYNC', 'DUPLICATE', 'SECURITY', 'SYSTEM'
+  type: string; 
   priority?: NotificationPriority;
   relatedRecordId?: string | null;
   actionUrl?: string | null;
@@ -26,22 +23,14 @@ export interface BroadcastNotificationParams {
   metadata?: Record<string, any> | null;
 }
 
-/**
- * Validates whether a notification is permitted under FieldSync's strict exclusion rules:
- * - Supervisor: Excluded from routine citizen registration/verification alerts; Excluded from leave/permission/task alerts.
- * - Field Officer: Excluded from attendance alerts; Excluded from self daily report creation alerts.
- * - System-wide: Excluded from citizen correction request workflows.
- */
 function isNotificationExcluded(role: Role, type: string, title: string): boolean {
   const normType = (type || '').toUpperCase();
   const normTitle = (title || '').toUpperCase();
 
-  // Global exclusion: Citizen correction workflow
   if (normType.includes('CORRECTION') || normTitle.includes('CORRECTION')) {
     return true;
   }
 
-  // Supervisor exclusions
   if (role === Role.SUPERVISOR) {
     if (
       normType === 'CITIZEN_REGISTERED' ||
@@ -53,11 +42,10 @@ function isNotificationExcluded(role: Role, type: string, title: string): boolea
     }
   }
 
-  // Field Officer exclusions
   if (role === Role.FIELD_OFFICER) {
     if (
       normType.startsWith('ATTENDANCE') ||
-      normType === 'DAILY_REPORT_SUBMITTED' // Field officer does not need a self-alert for submitting their own report
+      normType === 'DAILY_REPORT_SUBMITTED' 
     ) {
       return true;
     }
@@ -66,9 +54,6 @@ function isNotificationExcluded(role: Role, type: string, title: string): boolea
   return false;
 }
 
-/**
- * Creates an authorized, persistent notification in PostgreSQL with deduplication protection.
- */
 export async function createNotification(params: CreateNotificationParams) {
   try {
     const {
@@ -82,7 +67,6 @@ export async function createNotification(params: CreateNotificationParams) {
       metadata = null,
     } = params;
 
-    // 1. Verify recipient exists and is active
     let recipient = await prisma.user.findUnique({
       where: { id: recipientId },
       select: { id: true, role: true, isActive: true },
@@ -119,12 +103,10 @@ export async function createNotification(params: CreateNotificationParams) {
 
     const resolvedRecipientId = recipient.id;
 
-    // 2. Check exclusion rules
     if (isNotificationExcluded(recipient.role, type, title)) {
       return null;
     }
 
-    // 3. Deduplication check: Do not re-create identical notification sent within the last 5 minutes
     const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
     const existingRecent = await prisma.notification.findFirst({
       where: {
@@ -139,7 +121,6 @@ export async function createNotification(params: CreateNotificationParams) {
       return existingRecent;
     }
 
-    // 4. Save notification to PostgreSQL
     const notification = await prisma.notification.create({
       data: {
         id: generateNotificationId(),
@@ -162,9 +143,6 @@ export async function createNotification(params: CreateNotificationParams) {
   }
 }
 
-/**
- * Dispatches an authorized notification to all active Managers.
- */
 export async function notifyManagers(params: BroadcastNotificationParams) {
   try {
     const managers = await prisma.user.findMany({
@@ -188,10 +166,6 @@ export async function notifyManagers(params: BroadcastNotificationParams) {
   }
 }
 
-/**
- * Dispatches an authorized notification strictly to the active Supervisor(s) assigned to a specific Zone.
- * Supervisors never receive notifications for other zones.
- */
 export async function notifySupervisorForZone(zoneId: string, params: BroadcastNotificationParams) {
   if (!zoneId) return [];
 

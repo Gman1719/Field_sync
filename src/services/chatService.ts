@@ -1,6 +1,3 @@
-// src/services/chatService.ts
-// Offline-first enterprise chat service for Manager <-> Supervisor communication (Strict TypeScript)
-
 import { offlineDb } from '../db/offlineDb';
 import type { ChatMessage } from '../types/index';
 import { SAMPLE_USERS } from '../utils/constants';
@@ -14,7 +11,7 @@ let broadcastChannel: BroadcastChannel | null = null;
 try {
   if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
     broadcastChannel = new BroadcastChannel(CHAT_CHANNEL_NAME);
-    // Real-time cross-tab receiver: forwards incoming broadcast messages to local window events
+
     broadcastChannel.onmessage = (event) => {
       if (typeof window !== 'undefined' && event?.data) {
         if (event.data.type === 'NEW_MESSAGE') {
@@ -32,10 +29,9 @@ try {
     };
   }
 } catch {
-  // BroadcastChannel unavailable in this environment
+
 }
 
-// Canonical User ID Normalizer: Harmonizes API IDs, DB IDs (m1 / s1), and demo emails/roles
 export function normalizeUserId(id?: string | null): string {
   if (!id) return '';
   const s = String(id).trim();
@@ -60,14 +56,9 @@ export function getConversationId(userIdA: string, userIdB: string): string {
   return [normalizeUserId(userIdA), normalizeUserId(userIdB)].sort().join('__');
 }
 
-// Real internet connectivity state tracking
 let _lastOnlineVerified = typeof navigator !== 'undefined' ? navigator.onLine : true;
 let _lastCheckTimestamp = 0;
 
-/**
- * Actively probes real internet connectivity (not just local network interface).
- * Essential for localhost testing and real offline detection.
- */
 export async function verifyChatOnline(force = false): Promise<boolean> {
   if (typeof window === 'undefined' || typeof navigator === 'undefined') return true;
 
@@ -102,9 +93,6 @@ export async function verifyChatOnline(force = false): Promise<boolean> {
   }
 }
 
-/**
- * Synchronous network status check leveraging actively verified state.
- */
 export function isChatOnline(): boolean {
   if (typeof window !== 'undefined') {
     if (!navigator.onLine) return false;
@@ -116,12 +104,10 @@ export function isChatOnline(): boolean {
   return typeof navigator !== 'undefined' ? Boolean(navigator.onLine) : true;
 }
 
-// Global window event listeners and background connectivity polling
 if (typeof window !== 'undefined') {
-  // Initial active probe
+
   verifyChatOnline(true).catch(() => {});
 
-  // Periodic active polling every 2.5s
   setInterval(() => {
     verifyChatOnline().catch(() => {});
   }, 2500);
@@ -150,7 +136,6 @@ export async function getConversationMessages(
 
   await seedInitialChatIfEmpty();
 
-  // If online, fetch remote messages from persistent backend store
   if (_lastOnlineVerified || (typeof navigator !== 'undefined' && navigator.onLine)) {
     try {
       const res = await fetch(`${API_BASE}/chat/messages?userIdA=${encodeURIComponent(normA)}&userIdB=${encodeURIComponent(normB)}`);

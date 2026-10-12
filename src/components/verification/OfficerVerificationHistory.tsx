@@ -1,6 +1,3 @@
-// src/components/verification/OfficerVerificationHistory.tsx
-// Dedicated Field Officer Random Presence Verification History & Performance Console
-
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   ShieldCheck,
@@ -31,7 +28,6 @@ export default function OfficerVerificationHistory({ user }: OfficerVerification
 
   const officerId = user?.id || user?.employeeId;
 
-  // Fetch from Dexie and optionally sync from backend
   const loadVerifications = useCallback(
     async (fetchRemote = false) => {
       if (!officerId) {
@@ -40,7 +36,7 @@ export default function OfficerVerificationHistory({ user }: OfficerVerification
       }
 
       try {
-        // 1. Fetch from server if online and remote requested
+
         if (fetchRemote && navigator.onLine) {
           const token = localStorage.getItem('fieldsync_token');
           if (token) {

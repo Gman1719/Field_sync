@@ -1,5 +1,3 @@
-// Edit Staff Profile Modal with Enterprise UX/UI Design & Modern Aesthetics
-
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { User, Phone, Mail, CheckCircle2, Shield, Sparkles } from 'lucide-react';

@@ -1,6 +1,3 @@
-// src/components/supervisor/SupervisorSendAlertPage.tsx
-// Dedicated supervisor page to send direct operational alerts and notifications to their assigned field officers.
-
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   AlertTriangle,
@@ -39,14 +36,12 @@ export default function SupervisorSendAlertPage({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [recentAlerts, setRecentAlerts] = useState<any[]>([]);
 
-  // Load supervisor's assigned officers strictly from backend DB or supervisorId match
   useEffect(() => {
     let isMounted = true;
     const loadOfficers = async () => {
       setLoadingOfficers(true);
       const map = new Map<string, any>();
 
-      // 1. Fetch from backend /work-monitoring/officers (strictly supervisor's assigned officers from DB)
       try {
         const token = localStorage.getItem('fieldsync_token') || localStorage.getItem('token');
         if (token && navigator.onLine) {

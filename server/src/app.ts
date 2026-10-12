@@ -1,6 +1,3 @@
-// server/src/app.ts
-// Express Application Setup & Middleware Configuration for FieldSync
-
 import express, { Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -36,7 +33,6 @@ const __dirname = path.dirname(__filename);
 export const createApp = (): Express => {
   const app = express();
 
-  // Configured allowed origins (local development + production CLIENT_URL)
   const allowedOrigins = [
     'http://localhost:5173',
     'http://127.0.0.1:5173',
@@ -45,7 +41,6 @@ export const createApp = (): Express => {
     .filter(Boolean)
     .map((origin) => (origin as string).replace(/\/+$/, ''));
 
-  // Security Middleware
   app.use(helmet({ contentSecurityPolicy: false }));
   app.use(
     cors({
@@ -54,7 +49,6 @@ export const createApp = (): Express => {
     })
   );
 
-  // Root endpoint: Server Status & Metadata
   app.get('/', (_req: Request, res: Response) => {
     res.json({
       service: 'FieldSync Backend',
@@ -64,11 +58,9 @@ export const createApp = (): Express => {
     });
   });
 
-  // Body Parsing
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-  // REST API Routes
   app.use('/api/auth', authRoutes);
   app.use('/api/users', usersRoutes);
   app.use('/api/locations', locationsRoutes);
@@ -94,10 +86,9 @@ export const createApp = (): Express => {
   app.use('/api/alerts', alertsRoutes);
   app.use('/api/verification', verificationRoutes);
 
-  // Phase 1 Health Check & Database Verification
   app.get('/api/health', async (_req: Request, res: Response) => {
     try {
-      // Verify database connection and fetch core statistics
+
       const [usersCount, regionsCount, zonesCount, woredasCount, citizensCount] = await Promise.all([
         prisma.user.count(),
         prisma.region.count(),
@@ -139,7 +130,6 @@ export const createApp = (): Express => {
     }
   });
 
-  // Global Error Handling Middleware
   app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
     if (err.message && err.message.startsWith('CORS policy')) {
       res.status(403).json({

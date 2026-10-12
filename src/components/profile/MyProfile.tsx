@@ -25,7 +25,6 @@ export default function MyProfile({ user: propUser, defaultTab = 'personal' }) {
   const [activeTab, setActiveTab] = useState(defaultTab);
   const [showEditModal, setShowEditModal] = useState(false);
 
-  // Fetch full live profile details & role-specific statistics
   const fetchProfile = useCallback(async (quiet = false) => {
     if (!quiet) setIsLoading(true);
     else setIsRefreshing(true);

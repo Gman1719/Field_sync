@@ -1,5 +1,3 @@
-// Fieldwork Assignments Management with Target Progress & Lifecycle State Transitions (Phase 4)
-
 import React, { useState, useEffect, useMemo } from 'react';
 import toast from 'react-hot-toast';
 import {
@@ -32,14 +30,12 @@ export default function TaskManagement({ user, addNotification }) {
   const isSupervisor = user?.role === 'supervisor';
   const isManager = user?.role === 'manager';
 
-  // 1. Load Assignments from Server / Dexie
   const loadAssignments = async () => {
     setIsLoading(true);
     try {
-      // Step A: Load from Dexie first
+
       let localRecords = await offlineDb.assignments.toArray();
 
-      // Step B: If online, fetch from backend API to get live citizen counts & sync
       const authToken = localStorage.getItem('fieldsync_token');
       if (navigator.onLine && authToken) {
         try {

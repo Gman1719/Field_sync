@@ -1,5 +1,3 @@
-// Registered Citizens Directory: Scoped strictly to Field Officer for officer role, zero icons as requested, clean typography, responsive data table, and attractive details modal
-
 import React, { useState, useMemo, useEffect } from 'react';
 import toast from 'react-hot-toast';
 
@@ -21,7 +19,6 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
   const { userT } = useUserLanguage();
   const isOfficer = user?.role === 'field_officer' || user?.role === 'FIELD_OFFICER';
 
-  // --- Filter State ---
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedOfficerId, setSelectedOfficerId] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
@@ -30,7 +27,6 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
   const [selectedRegionId, setSelectedRegionId] = useState('');
   const [regions, setRegions] = useState([]);
 
-  // --- Data State ---
   const [allCitizens, setAllCitizens] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCitizen, setSelectedCitizen] = useState(null);
@@ -38,7 +34,6 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
   const [copiedId, setCopiedId] = useState(false);
   const [copiedPhone, setCopiedPhone] = useState(false);
 
-  // 1. Load regions for filter dropdown
   useEffect(() => {
     const fetchRegions = async () => {
       try {
@@ -54,11 +49,10 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
 
   const [isSyncingNow, setIsSyncingNow] = useState(false);
 
-  // 2. Load citizens from Dexie & optionally refresh from server
   const loadCitizens = async () => {
     setIsLoading(true);
     try {
-      // Step A: If online, auto-sync pending local records first
+
       if (navigator.onLine) {
         try {
           await syncEngine.syncAll(true);
@@ -67,10 +61,8 @@ export default function CitizensDatabase({ user, users = [], setActiveTab }) {
         }
       }
 
-      // Step B: Load from local Dexie database
       const localRecords = await offlineDb.citizens.toArray();
 
-      // Step C: If online and token exists, fetch server records to populate local store
       let authToken = localStorage.getItem('fieldsync_token');
       if (navigator.onLine) {
         if (!authToken || authToken.startsWith('offline_')) {

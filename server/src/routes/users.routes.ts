@@ -1,6 +1,3 @@
-// server/src/routes/users.routes.ts
-// REST API Routes for User Profile & User Management Module
-
 import { Router, Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import { ZodError } from 'zod';
@@ -28,7 +25,6 @@ import { recordAuditEvent } from '../services/audit.service.js';
 
 const router = Router();
 
-// Include object for full user details with Ethiopian administrative hierarchy & supervisor
 const userIncludeRelations = {
   region: { select: { id: true, name: true, code: true } },
   zone: { select: { id: true, name: true, code: true } },
@@ -38,13 +34,6 @@ const userIncludeRelations = {
   _count: { select: { registeredCitizens: true } },
 };
 
-/**
- * Strictly validates the Ethiopian Administrative Hierarchy based on user role:
- * - MANAGER: organization-wide scope, all administrative regions/zones/woredas/supervisors forced to null.
- * - SUPERVISOR: regional & zonal level, regionId & zoneId required, zone must belong to region, woreda forced to null.
- * - FIELD_OFFICER: woreda level, regionId, zoneId, & woredaId required. Zone must belong to region, woreda must belong to zone.
- *   If supervisorId is specified, supervisor must exist, have role SUPERVISOR, be active, and belong to the same zone.
- */
 async function validateLocationHierarchyAndRole(
   role: Role,
   regionId?: string | null,
@@ -134,8 +123,6 @@ async function validateLocationHierarchyAndRole(
       throw new Error(`Hierarchy validation failed: Woreda "${woreda.name}" does not belong to Zone "${zone.name}".`);
     }
 
-    // STRICT VALIDATION: A Field Officer can only be registered, assigned, or transferred to a Woreda
-    // if that area has at least one active Supervisor responsible for that Zone.
     const activeSupervisorsInZone = await prisma.user.findMany({
       where: {
         role: Role.SUPERVISOR,
@@ -175,7 +162,7 @@ async function validateLocationHierarchyAndRole(
       }
       checkedSupervisorId = supervisor.id;
     } else {
-      // Auto-assign to the first active supervisor in the zone if not explicitly specified
+
       checkedSupervisorId = activeSupervisorsInZone[0].id;
     }
 
@@ -943,7 +930,6 @@ async function handleUpdateUser(req: Request, res: Response): Promise<void> {
       }
     }
 
-    // Validation: Supervisors with active field officers cannot change role without reassigning officers first
     if (user.role === Role.SUPERVISOR && targetRole !== Role.SUPERVISOR) {
       const supervisedOfficers = await prisma.user.findMany({
         where: { supervisorId: user.id, role: Role.FIELD_OFFICER },
@@ -961,7 +947,6 @@ async function handleUpdateUser(req: Request, res: Response): Promise<void> {
       }
     }
 
-    // Validation: Supervisors with active field officers cannot be deactivated without reassigning officers first
     if (user.role === Role.SUPERVISOR && validated.isActive === false) {
       const supervisedOfficers = await prisma.user.findMany({
         where: { supervisorId: user.id, role: Role.FIELD_OFFICER },
@@ -1440,8 +1425,6 @@ router.patch('/:id/role', authenticate, requireManager, async (req: Request, res
       }
     }
 
-    // Strictly validate Ethiopian Location Hierarchy based on new Role
-    // (e.g. Field Officer requires zone with active supervisor, supervisor requires region & zone, manager has none)
     const rawRegionId = reqRegionId !== undefined ? reqRegionId : user.regionId;
     const rawZoneId = reqZoneId !== undefined ? reqZoneId : user.zoneId;
     const rawWoredaId = reqWoredaId !== undefined ? reqWoredaId : user.woredaId;
@@ -1523,11 +1506,6 @@ router.patch('/:id/role', authenticate, requireManager, async (req: Request, res
   }
 });
 
-/**
- * @route   PATCH /api/users/:id/status
- * @desc    Manager toggles a user's active/inactive status
- * @access  Private (Manager Only)
- */
 router.patch('/:id/status', authenticate, requireManager, async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
@@ -1545,7 +1523,6 @@ router.patch('/:id/status', authenticate, requireManager, async (req: Request, r
       return;
     }
 
-    // Guard: Prevent deactivating the single System Manager
     if (existingUser.role === Role.MANAGER && !newActiveState) {
       res.status(400).json({
         success: false,
@@ -1554,7 +1531,6 @@ router.patch('/:id/status', authenticate, requireManager, async (req: Request, r
       return;
     }
 
-    // Departure/Deactivation validation: Check if deactivating a supervisor with active supervisees
     if (existingUser.role === Role.SUPERVISOR && !newActiveState) {
       const supervisedOfficers = await prisma.user.findMany({
         where: { supervisorId: existingUser.id, role: Role.FIELD_OFFICER },

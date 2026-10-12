@@ -1,6 +1,3 @@
-// src/utils/requestValidation.ts
-// Comprehensive Validation Rules for Leave and Permission Requests in FieldSync
-
 export const LEAVE_TYPES = [
   { id: 'annual', label: 'Annual Leave' },
   { id: 'sick', label: 'Sick Leave' },
@@ -41,9 +38,6 @@ export interface PermissionValidationInput {
   reason: string;
 }
 
-/**
- * Validates a Leave Request according to system rules
- */
 export function validateLeaveRequest(
   input: LeaveValidationInput,
   existingLeaves: any[] = [],
@@ -52,7 +46,6 @@ export function validateLeaveRequest(
 ): { isValid: boolean; errors: Record<string, string> } {
   const errors: Record<string, string> = {};
 
-  // 1. Leave type is required
   if (!input.type || !input.type.trim()) {
     errors.type = userT('Leave type is required.');
   } else {
@@ -62,14 +55,12 @@ export function validateLeaveRequest(
     }
   }
 
-  // 2. Start date validation
   if (!input.startDate) {
     errors.startDate = userT('Start date is required.');
   } else if (!isValidDate(input.startDate)) {
     errors.startDate = userT('Start date must be a valid calendar date (YYYY-MM-DD).');
   }
 
-  // 3. End date validation
   if (!input.endDate) {
     errors.endDate = userT('End date is required.');
   } else if (!isValidDate(input.endDate)) {
@@ -78,14 +69,12 @@ export function validateLeaveRequest(
     errors.endDate = userT('End date cannot be before start date.');
   }
 
-  // 4. Reason validation
   if (!input.reason || !input.reason.trim()) {
     errors.reason = userT('Reason is required.');
   } else if (input.reason.trim().length < 5) {
     errors.reason = userT('Reason must contain meaningful text (at least 5 characters).');
   }
 
-  // 5. Overlap / duplicate check with existing pending/approved leaves
   if (!errors.startDate && !errors.endDate) {
     const overlapping = existingLeaves.find((l) => {
       if (currentId && l.id === currentId) return false;
@@ -94,7 +83,7 @@ export function validateLeaveRequest(
       const s = l.startDate || l.start_date;
       const e = l.endDate || l.end_date;
       if (!s || !e) return false;
-      // Overlap: newStart <= existingEnd && newEnd >= existingStart
+
       return input.startDate <= e && input.endDate >= s;
     });
 

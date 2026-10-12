@@ -1,6 +1,3 @@
-// server/src/services/verificationScheduler.service.ts
-// Authoritative Random Work Verification Scheduler & Connection Tracker
-
 import prisma from '../config/db.js';
 import {
   evaluateWorkingHours,
@@ -25,25 +22,21 @@ interface ConnectedClient {
   userId: string;
   role: Role;
   zoneId: string | null;
-  lastHeartbeat: number; // Date.now()
+  lastHeartbeat: number; 
   trackingState: ScreenTimeStatus;
   currentWorkArea: string;
   pageTimes?: Record<string, number>;
 }
 
 export class VerificationSchedulerService {
-  // In-memory active connection registry
+
   private static connectedClients = new Map<string, ConnectedClient>();
 
-  // Tracks active verification timers: verificationId -> timeout
   private static pendingTimeouts = new Map<string, NodeJS.Timeout>();
 
   private static schedulerInterval: NodeJS.Timeout | null = null;
   private static isRunning = false;
 
-  /**
-   * Heartbeat from FieldSync client (keeps connection alive and updates tracking state)
-   */
   static recordHeartbeat(
     userId: string,
     role: Role,
@@ -75,9 +68,6 @@ export class VerificationSchedulerService {
     return client?.pageTimes || {};
   }
 
-  /**
-   * Remove client on logout or explicit disconnect
-   */
   static recordLogout(userId: string) {
     this.connectedClients.delete(userId);
   }
@@ -86,9 +76,6 @@ export class VerificationSchedulerService {
     this.connectedClients.delete(userId);
   }
 
-  /**
-   * Check connection status of an officer
-   */
   static getOfficerConnectionStatus(userId: string): {
     connectionState: ConnectionState;
     loginState: LoginState;
@@ -103,7 +90,7 @@ export class VerificationSchedulerService {
       };
     }
 
-    const isRecent = Date.now() - client.lastHeartbeat < 45000; // 45s heartbeat window
+    const isRecent = Date.now() - client.lastHeartbeat < 45000; 
     if (!isRecent) {
       return {
         connectionState: ConnectionState.OFFLINE,
@@ -119,27 +106,19 @@ export class VerificationSchedulerService {
     };
   }
 
-  /**
-   * Start the authoritative server scheduler loop
-   */
   static start() {
     if (this.isRunning) return;
     this.isRunning = true;
 
     console.log('⏰ [VerificationScheduler] Service initialized for official working hours.');
 
-    // Run scheduler check every 60 seconds
     this.schedulerInterval = setInterval(() => {
       this.tickScheduler();
     }, 60 * 1000);
 
-    // Initial check on boot
     this.tickScheduler();
   }
 
-  /**
-   * Stop the scheduler
-   */
   static stop() {
     if (this.schedulerInterval) {
       clearInterval(this.schedulerInterval);
@@ -148,33 +127,22 @@ export class VerificationSchedulerService {
     this.isRunning = false;
   }
 
-  /**
-   * Main scheduler tick:
-   * 1. Evaluates official working hours (8:30–12:30, 13:30–17:30).
-   * 2. If lunch or outside working hours: gracefully skips.
-   * 3. For all active FIELD_OFFICERs:
-   *    - Checks last verification time.
-   *    - If randomized window has elapsed (and safeguards satisfied): generates verification check.
-   */
   private static async tickScheduler() {
     try {
       const now = new Date();
       const workingHoursEval = evaluateWorkingHours(now);
 
-      // When official working hours end (17:30 onwards), dispatch daily report submission reminder alerts
       const { totalMinutes } = getZonedTimeComponents(now);
       if (totalMinutes >= 1050) {
         await this.checkAndDispatchDailyReportAlerts(now);
       }
 
-      // Do NOT schedule verifications during lunch (12:30–13:30) or outside 08:30–17:30
       if (!workingHoursEval.isWorkingHours) {
         return;
       }
 
       const todayDateStr = workingHoursEval.dateStr;
 
-      // 1. Fetch all active field officers
       const officers = await prisma.user.findMany({
         where: {
           role: Role.FIELD_OFFICER,
@@ -196,9 +164,6 @@ export class VerificationSchedulerService {
     }
   }
 
-  /**
-   * Evaluates whether an individual officer is due for a random verification
-   */
   private static async evaluateOfficerVerification(
     officer: { id: string; fullName: string; email: string; zoneId: string | null },
     now: Date,
@@ -206,7 +171,6 @@ export class VerificationSchedulerService {
   ) {
     const config = DEFAULT_WORKING_HOURS_CONFIG;
 
-    // 1. Check if there is already a SCHEDULED or PENDING check for this officer
     const activeCheck = await prisma.workVerification.findFirst({
       where: {
         officerId: officer.id,
@@ -216,10 +180,9 @@ export class VerificationSchedulerService {
     });
 
     if (activeCheck) {
-      return; // Already has an ongoing check
+      return; 
     }
 
-    // 2. Count total checks today for this officer
     const totalTodayChecks = await prisma.workVerification.count({
       where: {
         officerId: officer.id,
@@ -228,10 +191,9 @@ export class VerificationSchedulerService {
     });
 
     if (totalTodayChecks >= config.maxDailyChecks) {
-      return; // Safeguard: max daily checks reached
+      return; 
     }
 
-    // 3. Find the most recent verification for this officer today
     const lastVerification = await prisma.workVerification.findFirst({
       where: {
         officerId: officer.id,
@@ -244,36 +206,30 @@ export class VerificationSchedulerService {
     if (lastVerification) {
       const elapsedSinceLast = now.getTime() - lastVerification.scheduledAt.getTime();
       if (elapsedSinceLast < minGapMs) {
-        return; // Safeguard: minimum gap not met
+        return; 
       }
 
-      // Randomization within minInterval and maxInterval
       const minIntervalMs = config.minVerificationIntervalMinutes * 60 * 1000;
       const maxIntervalMs = config.maxVerificationIntervalMinutes * 60 * 1000;
 
-      // Deterministic but pseudo-random check per minute
       const randomThreshold = Math.random();
       if (elapsedSinceLast < minIntervalMs) {
         return;
       }
       if (elapsedSinceLast < maxIntervalMs && randomThreshold > 0.35) {
-        return; // Wait a bit more for natural randomization
+        return; 
       }
     } else {
-      // First check of the day: randomized entry
+
       const randomFirstCheck = Math.random();
       if (randomFirstCheck > 0.4) {
-        return; // Stagger across morning
+        return; 
       }
     }
 
-    // Officer is due for verification!
     await this.triggerVerification(officer, now, todayDateStr);
   }
 
-  /**
-   * Triggers a verification check for the officer
-   */
   static async triggerVerification(
     officer: { id: string; fullName: string; email: string; zoneId: string | null },
     now: Date,
@@ -282,7 +238,6 @@ export class VerificationSchedulerService {
     const deadlineAt = new Date(now.getTime() + DEFAULT_WORKING_HOURS_CONFIG.verificationTimeoutSeconds * 1000);
     const conn = this.getOfficerConnectionStatus(officer.id);
 
-    // Get today's active work session if exists
     const activeSession = await prisma.workSession.findFirst({
       where: {
         officerId: officer.id,
@@ -291,9 +246,8 @@ export class VerificationSchedulerService {
       },
     });
 
-    // Check conditions
     if (conn.loginState === LoginState.LOGGED_OUT) {
-      // Case D / E: Officer logged out / closed app during working hours
+
       const missedV = await prisma.workVerification.create({
         data: {
           id: generateVerificationId(),
@@ -313,7 +267,6 @@ export class VerificationSchedulerService {
         },
       });
 
-      // Find officer's assigned supervisor - notify ONLY assigned supervisor
       const officerWithSup = await prisma.user.findUnique({
         where: { id: officer.id },
         select: {

@@ -1,7 +1,3 @@
-// src/components/notifications/NotificationCenter.tsx
-// Modern, Ultra-Clean Notification Center for FieldSync
-// Features: Real-time alerts, category filters, unread management, deep links, dark-mode ready
-
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Bell,
@@ -67,7 +63,6 @@ export default function NotificationCenter({ user, setActiveTab }: NotificationC
   const [pagination, setPagination] = useState({ total: 0, page: 1, limit: 15, totalPages: 1 });
   const [selectedNotification, setSelectedNotification] = useState<any | null>(null);
 
-  // Load notifications from server/local store
   const loadData = useCallback(
     async (isSilent = false) => {
       if (!isSilent) setLoading(true);
@@ -99,12 +94,11 @@ export default function NotificationCenter({ user, setActiveTab }: NotificationC
 
   useEffect(() => {
     loadData();
-    // Auto-refresh interval (React background live polling)
+
     const interval = setInterval(() => loadData(true), 15000);
     return () => clearInterval(interval);
   }, [loadData]);
 
-  // Handler for marking single read
   const handleMarkRead = async (id: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
     try {
@@ -119,7 +113,6 @@ export default function NotificationCenter({ user, setActiveTab }: NotificationC
     }
   };
 
-  // Handler for marking single unread
   const handleMarkUnread = async (id: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
     try {
@@ -134,7 +127,6 @@ export default function NotificationCenter({ user, setActiveTab }: NotificationC
     }
   };
 
-  // Handler for mark all as read
   const handleMarkAllRead = async () => {
     try {
       const count = await markAllNotificationsRead();

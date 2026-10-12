@@ -1,6 +1,5 @@
 import { translationDictionary } from './translationDictionary';
 
-// Track original text of DOM nodes so switching languages never degrades text quality
 const origTextMap = new WeakMap<Node, string>();
 const origPlaceholderMap = new WeakMap<Element, string>();
 const origTitleMap = new WeakMap<Element, string>();
@@ -10,29 +9,23 @@ let currentLanguage = 'en';
 let isTranslatingDOM = false;
 let rafId: number | null = null;
 
-// Case-insensitive lookup map built for instant retrieval
 const lowercaseLookup = new Map<string, { am: string; om: string; ti: string }>();
 Object.entries(translationDictionary).forEach(([key, val]) => {
   lowercaseLookup.set(key.toLowerCase().trim(), val);
 });
 
-// All phrases and terms sorted by length descending so longest phrases match first
 const sortedPhraseKeys = Object.keys(translationDictionary)
   .filter(k => k.length >= 3)
   .sort((a, b) => b.length - a.length);
 
-/**
- * Translates a single string into the target language.
- */
 export function translateText(rawText: string, lang: string): string {
   if (!rawText || lang === 'en') return rawText;
   const trimmed = rawText.trim();
   if (!trimmed) return rawText;
 
-  // 1. Direct exact match
   if (translationDictionary[trimmed] && (translationDictionary[trimmed] as any)[lang]) {
     const translated = (translationDictionary[trimmed] as any)[lang];
-    // Preserve leading and trailing whitespace
+
     const leading = rawText.match(/^\s*/)?.[0] || '';
     const trailing = rawText.match(/\s*$/)?.[0] || '';
     return `${leading}${translated}${trailing}`;
@@ -158,7 +151,6 @@ export function translateText(rawText: string, lang: string): string {
     if (lang === 'ti') return `ን${name} መሕለፊ ቃል ይቐየር? ሓድሽ ግዝያዊ መሕለፊ ቃል ክፍጠር እዩ ከምኡ'ውን ኣብ ዝቕጽል መእተዊ ምቕያር ግዴታ ይኸውን።`;
   }
 
-  // Pattern: "Are you sure you want to activate/deactivate {name}'s account?"
   if (/^are you sure you want to\s+(activate|deactivate)\s+(.+?)'s account\?/i.test(trimmed)) {
     const match = trimmed.match(/^are you sure you want to\s+(activate|deactivate)\s+(.+?)'s account\?/i);
     const act = match ? match[1].toLowerCase() : '';
@@ -392,7 +384,6 @@ export function translateText(rawText: string, lang: string): string {
     if (lang === 'ti') return `ን${name} ናይ ስራሕ ተራ ናብ ${role} ከምኡ'ውን ቦታ ስራሕ ተመሓይሹ`;
   }
 
-  // Pattern: "DEACTIVATE account for {name}" / "ACTIVATE account for {name}"
   const auditActDeactMatch = trimmed.match(/^(deactivate|activate)\s+account for\s+(.+)$/i);
   if (auditActDeactMatch) {
     const isDeact = /deactivate/i.test(auditActDeactMatch[1]);

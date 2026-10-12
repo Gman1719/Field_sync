@@ -1,8 +1,3 @@
-// src/components/verification/SupervisorVerifications.tsx
-// Supervisor-only page: Shows ALL verification events (both answered & missed) for all
-// field officers under this supervisor's command. Displayed as a rich table with
-// per-officer drill-down, full records table view, search, filters, and aggregate stats.
-
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   ShieldCheck, ShieldAlert, CheckCircle2,
@@ -28,7 +23,7 @@ export interface VerificationRecord {
   officerZone?: string;
   scheduledAt: string;
   respondedAt?: string;
-  status: string; // OFFICER_CONFIRMED | CONFIRMED | MISSED | EXPIRED | NO_RESPONSE
+  status: string; 
   isAnswered: boolean;
   question: string;
   answer: string;
@@ -57,14 +52,12 @@ export default function SupervisorVerifications({ user, users = [] }: Supervisor
   const [expandedOfficer, setExpandedOfficer] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
-  // Fetch officer verifications from Dexie (offline-first) + LocalStorage + API
   const loadVerifications = useCallback(async () => {
     setLoading(true);
     try {
       const isManager = user?.role === 'manager';
       let myOfficers: any[] = [];
 
-      // 1. First fetch strictly assigned officers from backend DB
       try {
         const token = localStorage.getItem('fieldsync_token') || localStorage.getItem('token');
         if (token && navigator.onLine) {

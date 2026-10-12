@@ -1,6 +1,3 @@
-// server/src/validators/assignment.validator.ts
-// Zod schemas for Assignment Creation and Status Lifecycle Transitions
-
 import { z } from 'zod';
 
 export const createAssignmentSchema = z.object({

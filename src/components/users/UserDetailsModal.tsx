@@ -1,16 +1,16 @@
-// View Full Details of User Account, Ethiopian Hierarchy Assignment & Manager Actions
-// Clean, reliable detail modal featuring functional Manager Administrative Actions & Delete User
-
 import React, { useState, useEffect, useMemo } from 'react';
 import toast from 'react-hot-toast';
 import {
   User, Mail, Phone, ShieldCheck, MapPin, Building2,
-  Edit3, Power, Copy, Check, KeyRound, Trash2, AlertTriangle, Users
+  Edit3, Power, Copy, Check, KeyRound, Trash2, AlertTriangle, Users,
+  Activity, Clock, RefreshCw
 } from 'lucide-react';
 import Modal from '../ui/Modal';
 import Button from '../ui/Button';
 import { API_BASE } from '../../config/api';
+import { offlineDb } from '../../db/offlineDb';
 import { useUserLanguage } from '../../context/UserLanguageContext';
+import { translateText } from '../../services/translationEngine';
 
 interface UserDetailsModalProps {
   user: any;
@@ -38,24 +38,30 @@ export default function UserDetailsModal({
   onResetPassword,
   allUsers = [],
 }: UserDetailsModalProps) {
-  const { userT } = useUserLanguage();
+  const { userT, language } = useUserLanguage();
   const [userDetails, setUserDetails] = useState<any>(user);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [isTogglingStatus, setIsTogglingStatus] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [superviseesList, setSuperviseesList] = useState<any[]>([]);
+  const [modalTab, setModalTab] = useState<'profile' | 'activity'>('profile');
+  const [userLogs, setUserLogs] = useState<any[]>([]);
+  const [loadingLogs, setLoadingLogs] = useState(false);
 
-  // Sync state whenever user prop changes or modal opens
   useEffect(() => {
     if (!isOpen || !user) {
       setUserDetails(null);
       setSuperviseesList([]);
+      setUserLogs([]);
+      setModalTab('profile');
       return;
     }
 
     setUserDetails(user);
     setSuperviseesList([]);
+    setUserLogs([]);
+    setModalTab('profile');
 
     if (!user.id) return;
 
@@ -98,7 +104,45 @@ export default function UserDetailsModal({
       }
     };
 
+    const fetchUserActivityLogs = async () => {
+      setLoadingLogs(true);
+      try {
+        const token = localStorage.getItem('fieldsync_token') || localStorage.getItem('token');
+        const res = await fetch(`${API_BASE}/activity-logs?officerId=${encodeURIComponent(user.id)}&limit=100`, {
+          headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        });
+        if (res.ok && isMounted) {
+          const resData = await res.json();
+          if (resData.success && Array.isArray(resData.data)) {
+            setUserLogs(resData.data);
+            return;
+          }
+        }
+      } catch (_e) {}
+
+      // Fallback from Dexie cache for this specific user's work
+      try {
+        const local = await offlineDb.activityLogs
+          .filter((l) => l.officerId === user.id || (user.employeeId && l.officerId === user.employeeId))
+          .toArray();
+        if (isMounted) {
+          const sorted = local.sort(
+            (a, b) => new Date(b.deviceTimestamp || 0).getTime() - new Date(a.deviceTimestamp || 0).getTime()
+          );
+          setUserLogs(sorted);
+        }
+      } catch (_err) {
+        if (isMounted) setUserLogs([]);
+      } finally {
+        if (isMounted) setLoadingLogs(false);
+      }
+    };
+
     fetchFullDetails();
+    fetchUserActivityLogs();
+
     return () => {
       isMounted = false;
     };
@@ -231,8 +275,41 @@ export default function UserDetailsModal({
           </div>
         </div>
 
-        {/* 2. Contact Information Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {/* Navigation Tabs */}
+        <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-700 pb-2">
+          <button
+            type="button"
+            onClick={() => setModalTab('profile')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+              modalTab === 'profile'
+                ? 'bg-blue-600 text-white shadow-2xs'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+          >
+            <User className="w-3.5 h-3.5" />
+            <span>{userT('Profile & Jurisdictions')}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setModalTab('activity')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+              modalTab === 'activity'
+                ? 'bg-blue-600 text-white shadow-2xs'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+          >
+            <Activity className="w-3.5 h-3.5" />
+            <span>{userT('Activity Log')}</span>
+            <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-white/20 dark:bg-slate-700 text-current font-mono">
+              {userLogs.length}
+            </span>
+          </button>
+        </div>
+
+        {modalTab === 'profile' && (
+          <>
+            {/* 2. Contact Information Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="p-3.5 bg-slate-50/70 dark:bg-slate-900/60 rounded-xl border border-slate-200/80 dark:border-slate-700/80 flex items-center justify-between">
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="w-8 h-8 rounded-lg bg-blue-100/70 dark:bg-blue-900/40 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0">
@@ -516,6 +593,83 @@ export default function UserDetailsModal({
             )}
           </div>
         </div>
+          </>
+        )}
+
+        {/* 5. User Activity Log Tab */}
+        {modalTab === 'activity' && (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                <Activity className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                <span>{userT('Work Activities Logged by This User')}</span>
+              </h4>
+              <span className="text-[11px] text-slate-500 font-mono">
+                {userLogs.length} {userT('total activities')}
+              </span>
+            </div>
+
+            {loadingLogs ? (
+              <div className="py-12 text-center text-slate-400">
+                <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-blue-600" />
+                <p className="text-xs font-medium">{userT('Loading activity logs...')}</p>
+              </div>
+            ) : userLogs.length === 0 ? (
+              <div className="py-12 text-center bg-slate-50/70 dark:bg-slate-900/60 rounded-xl border border-slate-200/80 dark:border-slate-700/80">
+                <Clock className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
+                <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  {userT('No Work Activities Recorded for This User')}
+                </p>
+                <p className="text-[11px] text-slate-400 mt-1 max-w-xs mx-auto">
+                  {userT('This log strictly displays only actions and submissions performed by this specific user.')}
+                </p>
+              </div>
+            ) : (
+              <div className="max-h-80 overflow-y-auto space-y-2 pr-1">
+                {userLogs.map((log) => {
+                  const dateObj = log.deviceTimestamp ? new Date(log.deviceTimestamp) : null;
+                  const timeStr = dateObj
+                    ? dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    : '—';
+                  const dateStr = dateObj
+                    ? dateObj.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })
+                    : '—';
+
+                  return (
+                    <div
+                      key={log.id}
+                      className="p-3 bg-slate-50/80 dark:bg-slate-900/60 rounded-xl border border-slate-200/80 dark:border-slate-700/80 flex items-start justify-between gap-3"
+                    >
+                      <div className="space-y-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-700 dark:bg-blue-950/70 dark:text-blue-300 border border-blue-200 dark:border-blue-900/60">
+                            {(log.eventType || 'ACTIVITY').replace(/_/g, ' ')}
+                          </span>
+                          <span className="text-[11px] text-slate-400 font-mono">
+                            {dateStr} • {timeStr}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-800 dark:text-slate-200 font-medium leading-relaxed">
+                          {translateText(log.description, language)}
+                        </p>
+                      </div>
+
+                      <span
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold shrink-0 ${
+                          log.syncStatus === 'SYNCED'
+                            ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/40'
+                            : 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-900/40'
+                        }`}
+                      >
+                        {log.syncStatus === 'SYNCED' ? userT('Synced') : userT('Local')}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Footer */}
         <div className="flex justify-end pt-3 border-t border-slate-200/80 dark:border-slate-700/80">

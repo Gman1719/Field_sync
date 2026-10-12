@@ -35,7 +35,7 @@ export default function UserManagement({
   addNotification
 }) {
   const { userT } = useUserLanguage();
-  // Modal states
+
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedUserDetails, setSelectedUserDetails] = useState(null);
   const [selectedUserEdit, setSelectedUserEdit] = useState(null);
@@ -44,19 +44,16 @@ export default function UserManagement({
   const [selectedUserResetPassword, setSelectedUserResetPassword] = useState(null);
   const [tempPasswordModalData, setTempPasswordModalData] = useState(null);
 
-  // Filters & Search
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [regionFilter, setRegionFilter] = useState('all');
-  const [specialFilter, setSpecialFilter] = useState('all'); // 'all' | 'unassigned'
+  const [specialFilter, setSpecialFilter] = useState('all'); 
 
-  // Server Stats state
   const [serverStats, setServerStats] = useState(null);
   const [loadingStats, setLoadingStats] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Add User Form State
   const initialFormState = {
     firstName: '',
     middleName: '',
@@ -75,7 +72,6 @@ export default function UserManagement({
   const [newUser, setNewUser] = useState(initialFormState);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
-  // 1. Fetch live KPI stats and sync with server
   const fetchStats = useCallback(async () => {
     try {
       setLoadingStats(true);

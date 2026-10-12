@@ -1,6 +1,3 @@
-// src/services/locationData.ts
-// Robust Ethiopian Administrative Hierarchy caching & seeding utility for offline-first operation
-
 import { offlineDb } from '../db/offlineDb';
 import { API_BASE } from '../config/api';
 import ethiopiaLocationsRaw from '../data/ethiopiaLocations.json';
@@ -18,7 +15,6 @@ export async function ensureOfflineLocationsSeeded(): Promise<void> {
         return;
       }
 
-      // 1. If online, attempt to fetch live bundle from backend
       if (navigator.onLine) {
         try {
           const controller = new AbortController();

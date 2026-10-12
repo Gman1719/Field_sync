@@ -1,14 +1,8 @@
-// server/src/validators/user.validator.ts
-// Zod input validation schemas for User Profile & User Management
-
 import { z } from 'zod';
 import crypto from 'crypto';
 import { ETHIOPIAN_PHONE_REGEX } from '../utils/phone.utils.js';
 import { Role } from '@prisma/client';
 
-/**
- * Normalizes input role string to valid Prisma Role enum
- */
 export const normalizeRole = (val: unknown): Role => {
   if (typeof val !== 'string') return Role.FIELD_OFFICER;
   const upper = val.trim().toUpperCase();
@@ -18,18 +12,12 @@ export const normalizeRole = (val: unknown): Role => {
   return Role.FIELD_OFFICER;
 };
 
-/**
- * Cryptographically secure random temporary password generator
- * Generates high-entropy 12-character strings containing uppercase,
- * lowercase, numbers, and special symbols, shuffled with Fisher-Yates.
- */
 export const generateSecureTempPassword = (): string => {
-  const upperCharset = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; // excludes ambiguous I, O
-  const lowerCharset = 'abcdefghijkmnopqrstuvwxyz'; // excludes ambiguous l
-  const digitCharset = '23456789';                 // excludes 0, 1
+  const upperCharset = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; 
+  const lowerCharset = 'abcdefghijkmnopqrstuvwxyz'; 
+  const digitCharset = '23456789';                 
   const symbolCharset = '!@#$%^&*';
 
-  // Guarantee at least 2 characters from each category
   const chars: string[] = [
     upperCharset[crypto.randomInt(0, upperCharset.length)],
     upperCharset[crypto.randomInt(0, upperCharset.length)],
@@ -46,7 +34,6 @@ export const generateSecureTempPassword = (): string => {
     chars.push(allCharset[crypto.randomInt(0, allCharset.length)]);
   }
 
-  // Fisher-Yates shuffle
   for (let i = chars.length - 1; i > 0; i--) {
     const j = crypto.randomInt(0, i + 1);
     [chars[i], chars[j]] = [chars[j], chars[i]];

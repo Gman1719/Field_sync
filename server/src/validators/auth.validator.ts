@@ -1,6 +1,3 @@
-// server/src/validators/auth.validator.ts
-// Zod schemas for Authentication request validation
-
 import { z } from 'zod';
 
 export const loginSchema = z.object({

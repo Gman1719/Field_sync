@@ -1,6 +1,3 @@
-// server/src/routes/leaves.routes.ts
-// Persistent REST API Routes for Officer & Supervisor Leave Requests
-
 import { Router, Request, Response } from 'express';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -40,7 +37,6 @@ export function writeLeaves(leaves: any[]): void {
 
 const router = Router();
 
-// GET /api/leaves
 router.get('/', (req: Request, res: Response) => {
   try {
     const { employeeId, officerId, status } = req.query;
@@ -68,7 +64,6 @@ router.get('/', (req: Request, res: Response) => {
   }
 });
 
-// GET /api/leaves/:id
 router.get('/:id', (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -84,7 +79,6 @@ router.get('/:id', (req: Request, res: Response) => {
   }
 });
 
-// POST /api/leaves
 router.post('/', (req: Request, res: Response) => {
   try {
     const body = req.body || {};

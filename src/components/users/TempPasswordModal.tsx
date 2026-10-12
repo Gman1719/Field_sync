@@ -28,7 +28,7 @@ export default function TempPasswordModal({ userName, userEmail, tempPassword, o
       className="fixed inset-0 z-50 bg-slate-950/40 dark:bg-slate-950/65 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
     >
       <div className="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full shadow-2xl border border-slate-200/90 dark:border-slate-700 overflow-hidden animate-in zoom-in-95 duration-200">
-        {/* Header */}
+        {}
         <div className="p-5 border-b border-slate-100 dark:border-slate-700 flex items-center gap-3.5">
           <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-700 flex items-center justify-center shrink-0 shadow-xs">
             <KeyRound className="w-5 h-5" />

@@ -1,6 +1,3 @@
-// Displays personnel grouped into operational area teams or directly assigned field officers for supervisors
-// Zone-scoped access, real-time live status, performance metrics, and officer inspection
-
 import React, { useState, useMemo } from 'react';
 import {
   Users, Search, UserCheck, Radio, FileText,
@@ -54,7 +51,7 @@ export default function TeamManagement({
   const { userT } = useUserLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRegion, setFilterRegion] = useState('All');
-  const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE'>('ALL'); // 'ALL', 'ACTIVE'
+  const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE'>('ALL'); 
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
   const [selectedTeam, setSelectedTeam] = useState<any>(null);
   const [selectedOfficer, setSelectedOfficer] = useState<any>(null);

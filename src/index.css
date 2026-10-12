@@ -35,7 +35,7 @@
     padding: 0;
     box-sizing: border-box;
   }
-  
+
   html {
     font-size: 16px;
     -webkit-text-size-adjust: 100%;
@@ -58,7 +58,6 @@
     color: #ffffff;
   }
 
-  /* Custom subtle scrollbars */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -83,7 +82,6 @@
     background: #545D68;
   }
 
-  /* Prevent blinding white autofill in dark mode */
   .dark input:-webkit-autofill,
   .dark input:-webkit-autofill:hover,
   .dark input:-webkit-autofill:focus,
@@ -94,7 +92,6 @@
     transition: background-color 5000s ease-in-out 0s;
   }
 
-  /* Enterprise Table Header Polish - Light Mode */
   table thead {
     background-color: #F8FAFC;
     border-bottom: 1px solid #E2E8F0;
@@ -128,25 +125,18 @@
   }
 }
 
-/* ============================================================== */
-/* Sidebar Navigation: Professional Slate Dark                    */
-/* ============================================================== */
 html.dark aside,
 html[data-theme='dark'] aside {
   background-color: #1C2128 !important;
   border-right-color: #444C56 !important;
 }
 
-/* Header Navigation Bar */
 html.dark header,
 html[data-theme='dark'] header {
   background-color: #2D333B !important;
   border-bottom-color: #444C56 !important;
 }
 
-/* ============================================================== */
-/* Main Content Area: Professional Slate Dark Background          */
-/* ============================================================== */
 html.dark,
 html[data-theme='dark'] {
   background-color: #22272E !important;
@@ -166,11 +156,6 @@ html.dark .lg\:pl-64 {
   background-color: #22272E !important;
 }
 
-/* ============================================================== */
-/* Universal Card Elevation in Dark Mode                          */
-/* ============================================================== */
-
-/* Cards: clean simple charcoal surface (#2D333B from image 2) */
 html.dark .bg-white:not(input):not(select):not(textarea),
 html[data-theme='dark'] .bg-white:not(input):not(select):not(textarea),
 html.dark .bg-\[\#F8FAFC\]:not(input):not(select):not(textarea),
@@ -182,7 +167,6 @@ html[data-theme='dark'] .dark\:bg-slate-900:not(body):not(main):not(.min-h-scree
   background-color: #2D333B !important;
 }
 
-/* Universal Inputs in Dark Mode */
 html.dark input:not([type="checkbox"]):not([type="radio"]),
 html.dark select,
 html.dark textarea,
@@ -194,7 +178,6 @@ html[data-theme='dark'] textarea {
   color: #CDD9E5 !important;
 }
 
-/* Card borders */
 html.dark .rounded-3xl.border,
 html.dark .rounded-2xl.border,
 html.dark .rounded-xl.border,
@@ -204,14 +187,12 @@ html[data-theme='dark'] .rounded-xl.border {
   border-color: #444C56 !important;
 }
 
-/* Inner inset sub-containers */
 html.dark .bg-slate-50:not(input):not(select):not(textarea),
 html[data-theme='dark'] .bg-slate-50:not(input):not(select):not(textarea) {
   background-color: #282E35 !important;
   border-color: #444C56 !important;
 }
 
-/* Faint borders */
 html.dark [class*="border-slate-700/"],
 html.dark [class*="border-slate-800/"],
 html.dark .dark\:border-slate-700,
@@ -223,7 +204,6 @@ html[data-theme='dark'] .dark\:border-slate-800 {
   border-color: #444C56 !important;
 }
 
-/* Universal Text — GitHub dim scale */
 html.dark .text-slate-900,
 html[data-theme='dark'] .text-slate-900 {
   color: #CDD9E5 !important;
@@ -260,9 +240,6 @@ html[data-theme='dark'] .dark\:text-slate-400 {
   color: #909DAB !important;
 }
 
-/* ============================================================== */
-/* Table Rows: Professional Slate Dark                            */
-/* ============================================================== */
 html.dark table tbody tr {
   background-color: #2D333B !important;
   border-color: #444C56 !important;
@@ -282,7 +259,6 @@ html.dark table tbody tr:nth-child(even):hover {
   background-color: #323840 !important;
 }
 
-/* Light Theme Stable Rows */
 table tbody tr {
   background-color: #FFFFFF;
 }
@@ -297,9 +273,6 @@ table tbody tr[class*="bg-slate-50"] {
   background-color: #F8FAFC !important;
 }
 
-/* ============================================================== */
-/* Form Controls: Inputs, Textareas, Selects                     */
-/* ============================================================== */
 input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="submit"]):not([type="button"]):not([class*="bg-transparent"]),
 select:not([class*="bg-transparent"]),
 textarea:not([class*="bg-transparent"]) {
@@ -332,7 +305,6 @@ textarea:not([class*="bg-transparent"]):focus {
   outline: none;
 }
 
-/* Dark Theme Form Controls: readable & clearly visible */
 html.dark input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="submit"]):not([type="button"]):not([class*="bg-transparent"]),
 html.dark select:not([class*="bg-transparent"]),
 html.dark textarea:not([class*="bg-transparent"]),
@@ -377,9 +349,6 @@ html[data-theme='dark'] textarea:focus {
   outline: none !important;
 }
 
-/* ============================================================== */
-/* Subtle, Non-Bulky Hero Animations                              */
-/* ============================================================== */
 @keyframes heroEntrance {
   from {
     opacity: 0;
@@ -407,9 +376,6 @@ html[data-theme='dark'] textarea:focus {
   animation: heroEntrance 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.42s both;
 }
 
-/* ============================================================== */
-/* Modal Scrollbars                                               */
-/* ============================================================== */
 [role="dialog"] ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -431,29 +397,22 @@ html.dark [role="dialog"] ::-webkit-scrollbar-thumb:hover {
   background: #475569;
 }
 
-/* ============================================================== */
-/* Universal Dark Mode Modal & Dialog Standards                  */
-/* ============================================================== */
-/* Frosted glass backdrop blur support */
 [role="dialog"] [class*="backdrop-blur"] {
   -webkit-backdrop-filter: blur(14px) !important;
   backdrop-filter: blur(14px) !important;
 }
 
-/* Ensure backdrops are never pitch black or gloomy */
 html.dark [role="dialog"] > div[aria-hidden="true"],
 html.dark [role="dialog"] .fixed.inset-0:not([role="dialog"]) {
   background-color: rgba(11, 15, 25, 0.65) !important;
 }
 
-/* Modal Shells: Crisp slate-800 elevation with slate-700 border */
 html.dark [role="dialog"] [class*="bg-white"],
 html.dark [role="dialog"] [class*="dark:bg-slate-800"],
 html.dark [role="dialog"] [class*="dark:bg-slate-900"] {
   border-color: #334155;
 }
 
-/* Modal Titles & Headings: Luminous, high contrast white */
 html.dark [role="dialog"] h1,
 html.dark [role="dialog"] h2,
 html.dark [role="dialog"] h3,
@@ -462,13 +421,11 @@ html.dark [role="dialog"] #modal-title {
   color: #F8FAFC !important;
 }
 
-/* Modal Form Labels: Crisp slate-300 */
 html.dark [role="dialog"] label {
   color: #CBD5E1 !important;
   font-weight: 600;
 }
 
-/* Modal Subcards & Inset Containers */
 html.dark [role="dialog"] .p-3.bg-slate-50,
 html.dark [role="dialog"] [class*="p-3.5"].bg-slate-50,
 html.dark [role="dialog"] .p-4.bg-slate-50,
@@ -477,16 +434,12 @@ html.dark [role="dialog"] .p-5.bg-slate-50 {
   border-color: #334155 !important;
 }
 
-/* Modal Divider Lines */
 html.dark [role="dialog"] hr,
 html.dark [role="dialog"] .border-t,
 html.dark [role="dialog"] .border-b {
   border-color: #334155 !important;
 }
 
-/* ============================================================== */
-/* MOBILE-FIRST UX & SAFE AREA ENHANCEMENTS                      */
-/* ============================================================== */
 .pb-safe {
   padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0.75rem));
 }
@@ -499,12 +452,10 @@ html.dark [role="dialog"] .border-b {
   margin-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* Prevent accidental iOS double-tap zoom on buttons and inputs */
 button, a, input, select, textarea {
   touch-action: manipulation;
 }
 
-/* Smooth mobile horizontal scrolling containers */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -513,10 +464,9 @@ button, a, input, select, textarea {
   scrollbar-width: none;
 }
 
-/* Mobile card shadow and micro-interactions */
 @media (max-width: 640px) {
   .mobile-tap-active:active {
     transform: scale(0.97);
     transition: transform 0.1s ease;
   }
-}
+}

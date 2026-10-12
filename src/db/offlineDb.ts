@@ -1,5 +1,3 @@
-// Offline-First IndexedDB Database using Dexie.js for FieldSync (Phase 3)
-
 import Dexie, { type EntityTable } from 'dexie';
 import type {
   Citizen,
@@ -42,7 +40,6 @@ export class FieldSyncDatabase extends Dexie {
   constructor() {
     super('FieldSyncOfflineDB');
 
-    // Schema definition for offline-first store
     this.version(1).stores({
       citizens: 'clientRecordId, id, registeredById, regionId, zoneId, woredaId, kebeleId, syncStatus, duplicateReviewStatus, registrationTimestamp',
       regions: 'id, code, name',

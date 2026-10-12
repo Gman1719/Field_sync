@@ -1,5 +1,3 @@
-// Cascading Ethiopian Administrative Location Dropdowns (Region -> Zone -> Woreda -> Supervisor)
-
 import React, { useState, useEffect } from 'react';
 import { MapPin, Building, Home, UserCheck, Loader2, AlertCircle } from 'lucide-react';
 import Select from '../ui/Select';
@@ -128,7 +126,6 @@ export default function LocationDropdown({
   const [loadingWoredas, setLoadingWoredas] = useState(false);
   const [loadingSupervisors, setLoadingSupervisors] = useState(false);
 
-  // 1. Fetch Regions on mount (API -> IndexedDB -> Fallback constants)
   useEffect(() => {
     let isMounted = true;
     const fetchRegions = async () => {

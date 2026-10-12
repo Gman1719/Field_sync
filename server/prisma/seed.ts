@@ -1,7 +1,3 @@
-// server/prisma/seed.ts
-// Database Seed Script for FieldSync using Prisma ORM
-// Seeds Ethiopian Administrative Hierarchy (Region -> Zone -> Woreda -> Kebele) and Initial Users
-
 import { PrismaClient, Role } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import fs from 'fs';
@@ -16,7 +12,6 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Starting FieldSync Database Seed via Prisma...');
 
-  // 1. Load Ethiopian Hierarchy
   const archivePath = path.resolve(__dirname, '../../_archive/api/data/ethiopia-locations.json');
   const legacyPath = path.resolve(__dirname, '../../api/data/ethiopia-locations.json');
   const dataPath = fs.existsSync(archivePath) ? archivePath : legacyPath;

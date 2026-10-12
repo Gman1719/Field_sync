@@ -1,6 +1,3 @@
-// server/src/routes/verification.routes.ts
-// REST API Routes for Random Presence Work Verification & Anti-Spoofing Audit Records
-
 import { Router, Request, Response } from 'express';
 import prisma from '../config/db.js';
 import fs from 'node:fs';
@@ -41,7 +38,6 @@ export function writeVerifications(records: any[]): void {
 
 const router = Router();
 
-// GET /api/verification
 router.get('/', async (_req: Request, res: Response) => {
   try {
     let dbVerifications: any[] = [];
@@ -82,7 +78,6 @@ router.get('/', async (_req: Request, res: Response) => {
   }
 });
 
-// POST /api/verification
 router.post('/', (req: Request, res: Response) => {
   try {
     const body = req.body || {};

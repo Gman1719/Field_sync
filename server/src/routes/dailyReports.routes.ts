@@ -1,6 +1,3 @@
-// server/src/routes/dailyReports.routes.ts
-// REST API Routes for Daily Work Reports, Verification & Offline Submissions (Phase 6)
-
 import { Router, Request, Response } from 'express';
 import crypto from 'node:crypto';
 import prisma from '../config/db.js';
@@ -550,7 +547,6 @@ async function handleReportReview(req: Request, res: Response): Promise<void> {
       console.warn('Failed to notify officer of report review:', notifErr);
     }
 
-    // Record Audit Log for Supervisor Review
     try {
       await recordAuditEvent({
         req,

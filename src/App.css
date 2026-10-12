@@ -1,6 +1,3 @@
-/* ============================================================
-   GLOBAL STYLES
-   ============================================================ */
 * {
   margin: 0;
   padding: 0;
@@ -14,17 +11,11 @@ body {
   line-height: 1.6;
 }
 
-/* ============================================================
-   APP LAYOUT
-   ============================================================ */
 .app {
   display: flex;
   min-height: 100vh;
 }
 
-/* ============================================================
-   LOGIN PAGE - ATTRACTIVE & FORMAL
-   ============================================================ */
 .login-page-full {
   display: flex;
   min-height: 100vh;
@@ -32,7 +23,6 @@ body {
   overflow: hidden;
 }
 
-/* Background Animated Elements */
 .login-bg-animation {
   position: fixed;
   top: 0;
@@ -102,7 +92,6 @@ body {
   75% { transform: translate(-30px, -20px) scale(1.05) rotate(3deg); }
 }
 
-/* Particles */
 .particles-container {
   position: fixed;
   top: 0;
@@ -133,7 +122,6 @@ body {
   100% { transform: translateY(-380px) translateX(-20px) scale(1); opacity: 0; }
 }
 
-/* Login Left Panel */
 .login-left-full {
   flex: 1.2;
   background: linear-gradient(145deg, #1a2a3a 0%, #1e3a5f 100%);
@@ -177,7 +165,6 @@ body {
   animation: pulseGlow 10s ease-in-out infinite reverse;
 }
 
-/* Login Brand */
 .login-brand-full {
   text-align: center;
   margin-bottom: 50px;
@@ -274,7 +261,6 @@ body {
   letter-spacing: 0.5px;
 }
 
-/* Login Features */
 .login-features-full {
   display: flex;
   flex-direction: column;
@@ -356,7 +342,6 @@ body {
   z-index: 1;
 }
 
-/* Login Right Panel */
 .login-right-full {
   flex: 1;
   background: #f8fafc;
@@ -405,7 +390,6 @@ body {
   font-weight: 400;
 }
 
-/* Form Groups */
 .form-group-full {
   margin-bottom: 20px;
 }
@@ -419,7 +403,6 @@ body {
   letter-spacing: 0.3px;
 }
 
-/* Input Wrapper */
 .input-wrapper {
   position: relative;
   width: 100%;
@@ -467,7 +450,6 @@ body {
   font-weight: 400;
 }
 
-/* Eye Button */
 .input-eye-btn {
   position: absolute;
   right: 14px;
@@ -496,7 +478,6 @@ body {
   transform: translateY(-50%) scale(0.9);
 }
 
-/* Login Error */
 .login-error-full {
   color: #dc2626;
   font-size: 14px;
@@ -516,7 +497,6 @@ body {
   80% { transform: translateX(4px); }
 }
 
-/* Login Button */
 .btn-submit-full {
   width: 100%;
   padding: 14px 32px;
@@ -565,7 +545,6 @@ body {
   transform: translateY(0);
 }
 
-/* Demo Credentials */
 .demo-credentials-full {
   margin-top: 32px;
   padding-top: 24px;
@@ -652,7 +631,6 @@ body {
   margin-top: 2px;
 }
 
-/* Login Status */
 .login-status-full {
   margin-top: 16px;
   display: flex;
@@ -690,7 +668,6 @@ body {
   margin-left: 4px;
 }
 
-/* Fade In Animations */
 .fade-in-left {
   animation: fadeInLeft 1s ease forwards;
 }
@@ -709,19 +686,16 @@ body {
   to { opacity: 1; transform: translateX(0) scale(1); }
 }
 
-/* ============================================================
-   RESPONSIVE - LOGIN
-   ============================================================ */
 @media (max-width: 1024px) {
   .login-left-full {
     flex: 1;
     padding: 40px 30px;
   }
-  
+
   .login-brand-full h1 {
     font-size: 34px;
   }
-  
+
   .login-features-full {
     max-width: 100%;
   }
@@ -731,34 +705,34 @@ body {
   .login-page-full {
     flex-direction: column;
   }
-  
+
   .login-left-full {
     padding: 40px 30px;
     min-height: 50vh;
   }
-  
+
   .login-features-full {
     display: none;
   }
-  
+
   .login-right-full {
     padding: 30px 20px;
     min-height: 60vh;
   }
-  
+
   .login-card-full {
     padding: 32px 24px;
     max-width: 100%;
   }
-  
+
   .cred-grid-full {
     grid-template-columns: 1fr !important;
   }
-  
+
   .login-footer-full {
     display: none;
   }
-  
+
   .login-bg-animation,
   .particles-container {
     display: none;
@@ -770,27 +744,24 @@ body {
     padding: 30px 20px;
     min-height: 40vh;
   }
-  
+
   .login-brand-full h1 {
     font-size: 28px;
   }
-  
+
   .tagline-full {
     font-size: 14px;
   }
-  
+
   .login-card-full {
     padding: 24px 16px;
   }
-  
+
   .login-card-full h2 {
     font-size: 22px;
   }
 }
 
-/* ============================================================
-   SIDEBAR
-   ============================================================ */
 .sidebar {
   width: 260px;
   background: #1e3a5f;
@@ -924,9 +895,6 @@ body {
   border-color: #dc2626;
 }
 
-/* ============================================================
-   MAIN CONTENT
-   ============================================================ */
 .main-content {
   flex: 1;
   margin-left: 260px;
@@ -935,9 +903,6 @@ body {
   flex-direction: column;
 }
 
-/* ============================================================
-   HEADER
-   ============================================================ */
 .main-header {
   background: white;
   padding: 16px 32px;
@@ -1001,17 +966,11 @@ body {
   font-weight: 500;
 }
 
-/* ============================================================
-   CONTENT
-   ============================================================ */
 .content {
   padding: 24px 32px;
   flex: 1;
 }
 
-/* ============================================================
-   STATS GRID
-   ============================================================ */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -1055,9 +1014,6 @@ body {
   color: #64748b;
 }
 
-/* ============================================================
-   OFFICER QUICK STATS
-   ============================================================ */
 .officer-quick-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -1085,9 +1041,6 @@ body {
   color: #1a202c;
 }
 
-/* ============================================================
-   FORM CARDS
-   ============================================================ */
 .form-card {
   background: white;
   border-radius: 12px;
@@ -1175,9 +1128,6 @@ body {
   margin-top: 8px;
 }
 
-/* ============================================================
-   TABLES
-   ============================================================ */
 .table-card {
   background: white;
   border-radius: 12px;
@@ -1278,9 +1228,6 @@ tr:hover {
   margin-bottom: 8px;
 }
 
-/* ============================================================
-   BUTTONS
-   ============================================================ */
 .btn-primary {
   padding: 8px 16px;
   background: #1e3a5f;
@@ -1390,9 +1337,6 @@ tr:hover {
   background: #357abd;
 }
 
-/* ============================================================
-   TAGS & BADGES
-   ============================================================ */
 .region-tag {
   background: #e8edf5;
   color: #1e3a5f;
@@ -1601,9 +1545,6 @@ tr:hover {
   color: #92400e;
 }
 
-/* ============================================================
-   SCREEN TIME
-   ============================================================ */
 .screen-time {
   font-weight: 600;
 }
@@ -1632,9 +1573,6 @@ tr:hover {
   color: #dc2626;
 }
 
-/* ============================================================
-   NOTIFICATIONS
-   ============================================================ */
 .notification-container {
   position: relative;
 }
@@ -1750,9 +1688,6 @@ tr:hover {
   color: #64748b;
 }
 
-/* ============================================================
-   MODALS
-   ============================================================ */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -1814,9 +1749,6 @@ tr:hover {
   margin-top: 8px;
 }
 
-/* ============================================================
-   TOP PERFORMERS
-   ============================================================ */
 .top-performers {
   background: white;
   padding: 24px;
@@ -1880,9 +1812,6 @@ tr:hover {
   color: #dc2626;
 }
 
-/* ============================================================
-   CHARTS
-   ============================================================ */
 .trend-chart-card {
   background: white;
   padding: 24px;
@@ -2008,9 +1937,6 @@ tr:hover {
   color: #64748b;
 }
 
-/* ============================================================
-   LOADING SCREEN
-   ============================================================ */
 .loading-screen-full {
   display: flex;
   flex-direction: column;
@@ -2030,9 +1956,6 @@ tr:hover {
   margin-bottom: 16px;
 }
 
-/* ============================================================
-   SYNC LOG
-   ============================================================ */
 .sync-log-overlay {
   position: fixed;
   top: 0;
@@ -2069,9 +1992,6 @@ tr:hover {
   color: #64748b;
 }
 
-/* ============================================================
-   ANIMATIONS
-   ============================================================ */
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
@@ -2091,9 +2011,6 @@ tr:hover {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* ============================================================
-   RESPONSIVE
-   ============================================================ */
 @media (max-width: 1024px) {
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -2104,47 +2021,47 @@ tr:hover {
   .sidebar {
     width: 220px;
   }
-  
+
   .main-content {
     margin-left: 220px;
   }
-  
+
   .main-header {
     padding: 12px 16px;
   }
-  
+
   .content {
     padding: 16px;
   }
-  
+
   .stats-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .form-row {
     grid-template-columns: 1fr;
   }
-  
+
   .notification-dropdown {
     width: 320px;
     right: -40px;
   }
-  
+
   .modal-content {
     padding: 20px;
     margin: 10px;
   }
-  
+
   .header-right {
     flex-wrap: wrap;
     justify-content: center;
   }
-  
+
   .table-actions {
     flex-direction: column;
     width: 100%;
   }
-  
+
   .search-input {
     width: 100%;
     min-width: unset;
@@ -2155,39 +2072,36 @@ tr:hover {
   .sidebar {
     width: 60px;
   }
-  
+
   .sidebar-brand span,
   .nav-item span:not(.nav-badge),
   .user-info,
   .logout-btn {
     display: none;
   }
-  
+
   .nav-item {
     justify-content: center;
     padding: 12px;
   }
-  
+
   .main-content {
     margin-left: 60px;
   }
-  
+
   .login-card-full {
     padding: 24px;
   }
-  
+
   .login-brand-full h1 {
     font-size: 32px;
   }
-  
+
   .login-features-full {
     display: none;
   }
 }
 
-/* ============================================================
-   ADDITIONAL CHART STYLES
-   ============================================================ */
 .css-chart {
   display: flex;
   flex-direction: column;
@@ -2240,9 +2154,6 @@ tr:hover {
   color: #64748b;
 }
 
-/* ============================================================
-   TAB BUTTON STYLES
-   ============================================================ */
 .tab-btn {
   padding: 8px 16px;
   border: none;
@@ -2257,9 +2168,6 @@ tr:hover {
   transform: translateY(-1px);
 }
 
-/* ============================================================
-   BUTTON VISIBILITY - Always visible (no hover required)
-   ============================================================ */
 .btn-primary, 
 .btn-submit, 
 .btn-cancel, 
@@ -2271,15 +2179,11 @@ tr:hover {
   display: inline-flex !important;
 }
 
-/* Ensure buttons are always visible */
 .nav-item {
   opacity: 1 !important;
   visibility: visible !important;
 }
 
-/* ============================================================
-   TEAM CARD HOVER EFFECTS
-   ============================================================ */
 .team-card {
   transition: all 0.2s ease;
 }
@@ -2289,9 +2193,6 @@ tr:hover {
   box-shadow: 0 8px 25px rgba(0,0,0,0.12);
 }
 
-/* ============================================================
-   PERFORMANCE CHART
-   ============================================================ */
 .performance-chart {
   display: flex;
   flex-direction: column;
@@ -2338,9 +2239,6 @@ tr:hover {
   color: white;
 }
 
-/* ============================================================
-   ATTENDANCE STATUS CARD
-   ============================================================ */
 .attendance-status-card {
   background: white;
   border-radius: 12px;
@@ -2401,9 +2299,6 @@ tr:hover {
   color: #6b7f94;
 }
 
-/* ============================================================
-   DASHBOARD HEADER
-   ============================================================ */
 .dashboard-header {
   margin-bottom: 24px;
 }
@@ -2419,9 +2314,6 @@ tr:hover {
   font-size: 14px;
 }
 
-/* ============================================================
-   CHARTS ROW
-   ============================================================ */
 .charts-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -2435,9 +2327,6 @@ tr:hover {
   }
 }
 
-/* ============================================================
-   ATTENDANCE MANAGEMENT FILTERS
-   ============================================================ */
 .attendance-filters {
   display: flex;
   gap: 16px;
@@ -2470,9 +2359,6 @@ tr:hover {
   background: white;
 }
 
-/* ============================================================
-   ATTENDANCE STATS
-   ============================================================ */
 .attendance-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -2480,9 +2366,6 @@ tr:hover {
   margin-bottom: 16px;
 }
 
-/* ============================================================
-   SUPERVISOR REPORTS
-   ============================================================ */
 .supervisor-reports-view .report-actions {
   display: flex;
   gap: 12px;
@@ -2490,9 +2373,6 @@ tr:hover {
   margin-top: 12px;
 }
 
-/* ============================================================
-   VALIDATION STYLES
-   ============================================================ */
 .input-error {
   border-color: #dc2626 !important;
 }
@@ -2526,9 +2406,6 @@ tr:hover {
   font-size: 13px;
 }
 
-/* ============================================================
-   SCROLLBAR STYLES
-   ============================================================ */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -2547,11 +2424,7 @@ tr:hover {
 ::-webkit-scrollbar-thumb:hover {
   background: #a0a7ae;
 }
-/* ============================================================
-   ANIMATED DASHBOARD STYLES
-   ============================================================ */
 
-/* Stat Cards Animation */
 .stat-card-animated {
   animation: fadeInUp 0.6s ease forwards;
   opacity: 0;
@@ -2569,14 +2442,12 @@ tr:hover {
   }
 }
 
-/* Stat Card Hover Animation */
 .stat-card-animated:hover {
   transform: translateY(-4px) scale(1.02);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-/* Count Animation */
 .animate-count {
   animation: countUp 1s ease forwards;
 }
@@ -2592,14 +2463,12 @@ tr:hover {
   }
 }
 
-/* Chart Cards Animation */
 .chart-animated {
   animation: fadeInUp 0.8s ease forwards;
   opacity: 0;
   transform: translateY(30px);
 }
 
-/* Bar Chart Animation */
 .animate-bar {
   animation: growBar 0.8s ease forwards;
   transform-origin: bottom;
@@ -2617,7 +2486,6 @@ tr:hover {
   }
 }
 
-/* Performance Bar Animation */
 .performance-bar {
   animation: growBarHorizontal 0.8s ease forwards;
   transform-origin: left;
@@ -2635,14 +2503,12 @@ tr:hover {
   }
 }
 
-/* CSS Chart Bar Animation */
 .css-chart-bar {
   animation: growBarHorizontal 0.8s ease forwards;
   transform-origin: left;
   transform: scaleX(0);
 }
 
-/* Performer Items Animation */
 .performer-animated {
   animation: fadeInUp 0.8s ease forwards;
   opacity: 0;
@@ -2666,7 +2532,6 @@ tr:hover {
   }
 }
 
-/* Quick Stats Animation */
 .quick-stat-animated {
   animation: fadeInUp 0.6s ease forwards;
   opacity: 0;
@@ -2679,7 +2544,6 @@ tr:hover {
   transition: all 0.3s ease;
 }
 
-/* Status Card Animation */
 .status-card-animated {
   animation: fadeInUp 0.8s ease forwards;
   opacity: 0;
@@ -2692,7 +2556,6 @@ tr:hover {
   transform: translateY(10px);
 }
 
-/* Pulsing animation for live indicators */
 @keyframes pulseGlow {
   0%, 100% { opacity: 0.7; transform: scale(1); }
   50% { opacity: 1; transform: scale(1.02); }
@@ -2702,30 +2565,27 @@ tr:hover {
   animation: pulseGlow 1.5s ease-in-out infinite;
 }
 
-/* Gradient Bar Hover Effect */
 .css-chart-bar:hover {
   filter: brightness(1.1);
   transform: scaleY(1.02);
   transition: all 0.3s ease;
 }
 
-/* Performance Bar Hover */
 .performance-bar:hover {
   filter: brightness(1.1);
   transform: scaleX(1.02);
   transition: all 0.3s ease;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .stat-card-animated {
     animation-duration: 0.4s;
   }
-  
+
   .chart-animated {
     animation-duration: 0.5s;
   }
-  
+
   .animate-bar {
     animation-duration: 0.5s;
   }
@@ -2738,7 +2598,6 @@ tr:hover {
     opacity: 0.3;
   }
 }
-/* Add this to your App.css for pulse animation */
 
 @keyframes pulse {
   0%, 100% {
@@ -2751,7 +2610,6 @@ tr:hover {
   }
 }
 
-/* Offline indicator styles */
 .offline-indicator {
   position: fixed;
   bottom: 80px;
@@ -2770,7 +2628,6 @@ tr:hover {
   animation: pulse 2s ease-in-out infinite;
 }
 
-/* Modal styles */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -2806,7 +2663,6 @@ tr:hover {
   to { transform: translateY(0); opacity: 1; }
 }
 
-/* Sync log styles */
 .sync-log-overlay {
   position: fixed;
   top: 0;
@@ -2846,7 +2702,6 @@ tr:hover {
 .log-entry:last-child {
   border-bottom: none;
 }
-/* Add to your CSS file */
 
 .kiosk-start-btn {
   padding: 8px 16px;
@@ -2882,7 +2737,6 @@ tr:hover {
   border: 2px solid #0b7e4b;
 }
 
-/* Add to existing styles */
 .kiosk-active-overlay {
   position: fixed;
   top: 0;

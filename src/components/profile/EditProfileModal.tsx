@@ -23,7 +23,6 @@ export default function EditProfileModal({ isOpen, onClose, user, onProfileUpdat
   const { userT } = useUserLanguage();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Strictly user-scoped photo: NEVER fall back to other users' photos!
   const persistentSavedPhoto =
     user.profilePhotoUrl ||
     (user.id ? localStorage.getItem(`fieldsync_avatar_${user.id}`) : null) ||

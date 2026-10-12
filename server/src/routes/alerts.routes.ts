@@ -1,6 +1,3 @@
-// server/src/routes/alerts.routes.ts
-// REST API Routes for Field Alerts, Broadcast Notifications & Urgent Operational Signals
-
 import { Router, Request, Response } from 'express';
 import prisma from '../config/db.js';
 import fs from 'node:fs';
@@ -41,10 +38,9 @@ export function writeAlerts(alerts: any[]): void {
 
 const router = Router();
 
-// GET /api/alerts
 router.get('/', async (_req: Request, res: Response) => {
   try {
-    // Attempt to merge Prisma Notifications if available
+
     let dbAlerts: any[] = [];
     try {
       const notifications = await prisma.notification.findMany({
@@ -79,7 +75,6 @@ router.get('/', async (_req: Request, res: Response) => {
   }
 });
 
-// POST /api/alerts
 router.post('/', (req: Request, res: Response) => {
   try {
     const body = req.body || {};

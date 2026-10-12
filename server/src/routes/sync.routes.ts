@@ -1,6 +1,3 @@
-// server/src/routes/sync.routes.ts
-// Centralized Synchronization Engine REST APIs for FieldSync (Phase 7)
-
 import { Router, Request, Response } from 'express';
 import prisma from '../config/db.js';
 import { authenticate } from '../middleware/auth.middleware.js';
@@ -411,7 +408,7 @@ router.post('/batch', authenticate, async (req: Request, res: Response): Promise
             serverReceivedAt: serverTimestamp,
           },
         });
- 
+
         // Upsert DailyScreenTime to reflect synced report cumulative screen time
         if (r.screenTimeSeconds !== undefined && r.screenTimeSeconds !== null) {
           try {

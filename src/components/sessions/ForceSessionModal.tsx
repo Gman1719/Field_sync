@@ -1,7 +1,3 @@
-// src/components/sessions/ForceSessionModal.tsx
-// Blocking overlay shown to field officers during working hours if session not yet started.
-// Cannot be dismissed — officer MUST start the session before accessing the app.
-
 import React, { useState, useEffect } from 'react';
 import {
   Clock, ShieldCheck, Wifi, WifiOff, Sparkles, AlertTriangle

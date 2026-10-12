@@ -1,6 +1,3 @@
-// server/src/routes/auth.routes.ts
-// REST API Authentication Routes for FieldSync (Phase 2)
-
 import { Router, Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import { ZodError } from 'zod';
@@ -12,9 +9,6 @@ import { Role } from '@prisma/client';
 
 const router = Router();
 
-/**
- * Format Prisma user model into normalized response object
- */
 export const formatUserResponse = (user: any) => {
   const roleMap: Record<string, string> = {
     FIELD_OFFICER: 'field_officer',
@@ -64,11 +58,6 @@ export const formatUserResponse = (user: any) => {
   };
 };
 
-/**
- * @route   POST /api/auth/login
- * @desc    Authenticate user credentials, return JWT & profile
- * @access  Public
- */
 router.post('/login', async (req: Request, res: Response): Promise<void> => {
   try {
     const validated = loginSchema.parse(req.body);
@@ -87,7 +76,7 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
     });
 
     if (!user) {
-      // Auto-provision known system/sample users if not yet created in PostgreSQL
+
       const sampleMatch = [
         {
           id: 'u_mgr',
@@ -206,7 +195,6 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Verify password hash (accept bcrypt match or standard system/demo passwords)
     let isPasswordValid = await bcrypt.compare(validated.password, user.passwordHash);
     const isStandardDemoPass =
       validated.password === 'Password123!' ||
@@ -216,7 +204,7 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
 
     if (!isPasswordValid && isStandardDemoPass) {
       isPasswordValid = true;
-      // Auto-update hash in database so future bcrypt checks succeed natively
+
       try {
         const newHash = await bcrypt.hash(validated.password, 10);
         await prisma.user.update({
@@ -236,7 +224,6 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Check account status
     if (!user.isActive) {
       res.status(403).json({
         success: false,
@@ -245,7 +232,6 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Update lastLogin timestamp
     const updatedUser = await prisma.user.update({
       where: { id: user.id },
       data: { lastLogin: new Date() },
@@ -258,14 +244,12 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
       },
     });
 
-    // Issue JWT token
     const token = signToken({
       userId: updatedUser.id,
       email: updatedUser.email,
       role: updatedUser.role,
     });
 
-    // Record login audit log
     await prisma.auditLog.create({
       data: {
         actorId: updatedUser.id,
@@ -305,11 +289,6 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
   }
 });
 
-/**
- * @route   GET /api/auth/me
- * @desc    Get currently authenticated user profile
- * @access  Private (JWT)
- */
 router.get('/me', authenticate, async (req: Request, res: Response): Promise<void> => {
   try {
     if (!req.user) {
@@ -332,18 +311,12 @@ router.get('/me', authenticate, async (req: Request, res: Response): Promise<voi
   }
 });
 
-/**
- * @route   POST /api/auth/change-password
- * @desc    Mandatory or voluntary password change
- * @access  Private (JWT or userId)
- */
 router.post('/change-password', async (req: Request, res: Response): Promise<void> => {
   try {
     const validated = changePasswordSchema.parse(req.body);
 
     let targetUserId = req.body.userId;
 
-    // If Bearer token is provided, extract user from token
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith('Bearer ')) {
       try {
@@ -351,7 +324,7 @@ router.post('/change-password', async (req: Request, res: Response): Promise<voi
         const payload = verifyToken(authHeader.split(' ')[1]);
         targetUserId = payload.userId;
       } catch (e) {
-        // Fall back to targetUserId in body if valid
+
       }
     }
 
@@ -387,7 +360,6 @@ router.post('/change-password', async (req: Request, res: Response): Promise<voi
       return;
     }
 
-    // Verify current password
     const isCurrentValid = await bcrypt.compare(validated.currentPassword, user.passwordHash);
     if (!isCurrentValid) {
       res.status(400).json({
@@ -397,7 +369,6 @@ router.post('/change-password', async (req: Request, res: Response): Promise<voi
       return;
     }
 
-    // Ensure new password is not identical to current password
     if (validated.currentPassword === validated.newPassword) {
       res.status(400).json({
         success: false,
@@ -406,7 +377,6 @@ router.post('/change-password', async (req: Request, res: Response): Promise<voi
       return;
     }
 
-    // Hash new password and clear mustChangePassword flag
     const newPasswordHash = await bcrypt.hash(validated.newPassword, 10);
 
     const updatedUser = await prisma.user.update({
@@ -424,7 +394,6 @@ router.post('/change-password', async (req: Request, res: Response): Promise<voi
       },
     });
 
-    // Record audit log
     await prisma.auditLog.create({
       data: {
         actorId: updatedUser.id,
@@ -437,7 +406,6 @@ router.post('/change-password', async (req: Request, res: Response): Promise<voi
       },
     });
 
-    // Generate fresh JWT token
     const token = signToken({
       userId: updatedUser.id,
       email: updatedUser.email,
@@ -470,11 +438,6 @@ router.post('/change-password', async (req: Request, res: Response): Promise<voi
   }
 });
 
-/**
- * @route   POST /api/auth/logout
- * @desc    Log out session and record audit
- * @access  Private / Public
- */
 router.post('/logout', async (req: Request, res: Response): Promise<void> => {
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith('Bearer ')) {
@@ -489,11 +452,11 @@ router.post('/logout', async (req: Request, res: Response): Promise<void> => {
           entityId: payload.userId,
         },
       });
-      // Explicitly mark client disconnected & logged out for verification tracking
+
       const { VerificationSchedulerService } = await import('../services/verificationScheduler.service.js');
       VerificationSchedulerService.unregisterClient(payload.userId);
     } catch (e) {
-      // Ignore token parse failures on logout
+
     }
   }
 

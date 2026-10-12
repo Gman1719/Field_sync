@@ -1,7 +1,3 @@
-// src/components/users/UserPasswordResetModal.tsx
-// Interactive Password Reset Modal with Auto-Generation, Custom Password Option,
-// Real-time Strength Evaluation, One-Click Clipboard Copy, and Resilient Offline Fallback
-
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import {
@@ -36,7 +32,6 @@ interface UserPasswordResetModalProps {
   onUserUpdated?: (user?: any) => void;
 }
 
-// Cryptographically sound secure password generator
 const generateRandomPassword = (length = 12): string => {
   const upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
   const lower = 'abcdefghijkmnopqrstuvwxyz';
@@ -54,7 +49,6 @@ const generateRandomPassword = (length = 12): string => {
     pwd += all[Math.floor(Math.random() * all.length)];
   }
 
-  // Shuffle
   return pwd.split('').sort(() => 0.5 - Math.random()).join('');
 };
 
@@ -75,7 +69,6 @@ export default function UserPasswordResetModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successData, setSuccessData] = useState<{ password: string } | null>(null);
 
-  // Initialize or re-generate password on modal open
   useEffect(() => {
     if (isOpen && user) {
       setGeneratedPassword(generateRandomPassword(12));

@@ -1,13 +1,3 @@
-// server/src/utils/idGenerator.ts
-// Standardized ID generator for FieldSync backend
-// Formats:
-// - Supervisor:  sup + 8 digits (e.g. sup12345678)
-// - Officer:     off + 8 digits (e.g. off12345678)
-// - Manager:     man + 8 digits (e.g. man12345678)
-// - Report:      repo + 10 digits (e.g. repo1234567890)
-// - Citizen:     cit + 8 digits (e.g. cit12345678)
-// - Others:      first 3 letters + 8 digits
-
 import crypto from 'crypto';
 
 export function generate8Digit(): string {

@@ -1,15 +1,12 @@
-// server/src/config/workingHours.ts
-// Centralized Ethiopian Official Working Hours, Timezone & Safeguards Configuration
-
 export interface WorkingHoursConfig {
   timezone: string;
-  morningStart: string;   // "08:30"
-  morningEnd: string;     // "12:30"
-  lunchStart: string;     // "12:30"
-  lunchEnd: string;       // "13:30"
-  afternoonStart: string; // "13:30"
-  afternoonEnd: string;   // "17:30"
-  // Safeguards
+  morningStart: string;   
+  morningEnd: string;     
+  lunchStart: string;     
+  lunchEnd: string;       
+  afternoonStart: string; 
+  afternoonEnd: string;   
+
   minVerificationGapMinutes: number;
   minVerificationIntervalMinutes: number;
   maxVerificationIntervalMinutes: number;
@@ -32,17 +29,11 @@ export const DEFAULT_WORKING_HOURS_CONFIG: WorkingHoursConfig = {
   verificationTimeoutSeconds: 15,
 };
 
-/**
- * Parses "HH:mm" string to minutes from start of day
- */
 export function timeStringToMinutes(timeStr: string): number {
   const [hours, minutes] = timeStr.split(':').map(Number);
   return (hours || 0) * 60 + (minutes || 0);
 }
 
-/**
- * Returns the current time components in the configured timezone (e.g. Africa/Addis_Ababa)
- */
 export function getZonedTimeComponents(
   date: Date = new Date(),
   timezone: string = DEFAULT_WORKING_HOURS_CONFIG.timezone
@@ -53,8 +44,8 @@ export function getZonedTimeComponents(
   hours: number;
   minutes: number;
   seconds: number;
-  dateStr: string; // YYYY-MM-DD
-  timeStr: string; // HH:mm:ss
+  dateStr: string; 
+  timeStr: string; 
   totalMinutes: number;
 } {
   const formatter = new Intl.DateTimeFormat('en-US', {
@@ -75,7 +66,7 @@ export function getZonedTimeComponents(
   const month = parseInt(findPart('month'), 10);
   const day = parseInt(findPart('day'), 10);
   let hours = parseInt(findPart('hour'), 10);
-  if (hours === 24) hours = 0; // Intl can format 24:00
+  if (hours === 24) hours = 0; 
   const minutes = parseInt(findPart('minute'), 10);
   const seconds = parseInt(findPart('second'), 10);
 
@@ -208,4 +199,3 @@ export function getDailyVerificationSlots(
 
   return slots;
 }
-

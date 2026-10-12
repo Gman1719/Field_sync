@@ -1,6 +1,3 @@
-// server/src/routes/notifications.routes.ts
-// REST API Routes for Persistent Role-Based Notification Management
-
 import { Router, Request, Response } from 'express';
 import prisma from '../config/db.js';
 import { authenticate } from '../middleware/auth.middleware.js';
@@ -8,9 +5,6 @@ import { NotificationPriority } from '@prisma/client';
 
 const router = Router();
 
-/**
- * Returns all recipient IDs associated with a user, including known aliases/demo IDs.
- */
 export function getRecipientIdsForUser(user: { id: string; email?: string; role?: string }): string[] {
   const ids = new Set<string>([user.id]);
   const email = (user.email || '').toLowerCase();
@@ -29,29 +23,22 @@ export function getRecipientIdsForUser(user: { id: string; email?: string; role?
   return Array.from(ids);
 }
 
-/**
- * Robustly resolves any client recipient ID (UUID, email, employeeId, mock id, role)
- * to an existing PostgreSQL User.id to prevent foreign key constraint violations.
- */
 export async function resolveRecipientUserId(rawRecipientId: string, caller?: any): Promise<string | null> {
   if (!rawRecipientId) return null;
   const cleanId = String(rawRecipientId).trim();
 
-  // 1. Direct match by User.id
   const directUser = await prisma.user.findUnique({
     where: { id: cleanId },
     select: { id: true },
   });
   if (directUser) return directUser.id;
 
-  // 2. Direct match by email
   const userByEmail = await prisma.user.findFirst({
     where: { email: { equals: cleanId, mode: 'insensitive' } },
     select: { id: true },
   });
   if (userByEmail) return userByEmail.id;
 
-  // 3. Known alias mapping from standard accounts
   const aliasMap: Record<string, string> = {
     'fo000': 'officer@fieldsync.com',
     'u_off': 'officer@fieldsync.com',
@@ -70,7 +57,6 @@ export async function resolveRecipientUserId(rawRecipientId: string, caller?: an
     if (user) return user.id;
   }
 
-  // 4. Role keywords
   if (cleanId.toLowerCase() === 'supervisor') {
     if (caller?.supervisorId) {
       const sup = await prisma.user.findUnique({
@@ -101,14 +87,12 @@ export async function resolveRecipientUserId(rawRecipientId: string, caller?: an
     if (anyOfficer) return anyOfficer.id;
   }
 
-  // 5. Match by full name
   const byName = await prisma.user.findFirst({
     where: { fullName: { contains: cleanId, mode: 'insensitive' } },
     select: { id: true },
   });
   if (byName) return byName.id;
 
-  // 6. If caller is FIELD_OFFICER sending notification to self
   if (caller?.role === 'FIELD_OFFICER') {
     if (cleanId === caller.id || cleanId === 'self' || cleanId === 'me') {
       return caller.id;
@@ -118,9 +102,6 @@ export async function resolveRecipientUserId(rawRecipientId: string, caller?: an
   return null;
 }
 
-/**
- * Formats a notification model for client consumption.
- */
 function formatNotification(n: any) {
   return {
     id: n.id,
@@ -130,21 +111,16 @@ function formatNotification(n: any) {
     type: n.type,
     priority: n.priority,
     isRead: n.isRead,
-    read: n.isRead, // legacy frontend compatibility
+    read: n.isRead, 
     readAt: n.readAt,
     relatedRecordId: n.relatedRecordId,
     actionUrl: n.actionUrl,
     metadata: n.metadata,
     createdAt: n.createdAt,
-    timestamp: n.createdAt, // legacy frontend compatibility
+    timestamp: n.createdAt, 
   };
 }
 
-/**
- * @route   GET /api/notifications
- * @desc    Retrieve paginated notifications for authenticated user with filters
- * @access  Private (All Roles)
- */
 router.get('/', authenticate, async (req: Request, res: Response): Promise<void> => {
   try {
     const user = req.user!;
@@ -162,20 +138,17 @@ router.get('/', authenticate, async (req: Request, res: Response): Promise<void>
     const limitNum = Math.min(100, Math.max(1, parseInt(limit as string, 10) || 20));
     const skip = (pageNum - 1) * limitNum;
 
-    // Recipient scoping covering user UUID and any registered demo/alias IDs
     const recipientIds = getRecipientIdsForUser(user);
     const where: any = {
       recipientId: { in: recipientIds },
     };
 
-    // Filter by read/unread status
     if (status === 'unread') {
       where.isRead = false;
     } else if (status === 'read') {
       where.isRead = true;
     }
 
-    // Filter by notification category / type
     const categoryFilter = type || category;
     if (categoryFilter && categoryFilter !== 'ALL') {
       if (categoryFilter === 'ALERT' || categoryFilter === 'SUPERVISOR_ALERT') {
@@ -185,12 +158,10 @@ router.get('/', authenticate, async (req: Request, res: Response): Promise<void>
       }
     }
 
-    // Filter by priority
     if (priority && priority !== 'ALL' && Object.values(NotificationPriority).includes(priority as NotificationPriority)) {
       where.priority = priority as NotificationPriority;
     }
 
-    // Search query
     if (search && typeof search === 'string' && search.trim()) {
       where.OR = [
         { title: { contains: search.trim(), mode: 'insensitive' } },
@@ -228,11 +199,6 @@ router.get('/', authenticate, async (req: Request, res: Response): Promise<void>
   }
 });
 
-/**
- * @route   GET /api/notifications/unread-count
- * @desc    Quick lookup for unread notifications badge
- * @access  Private (All Roles)
- */
 router.get('/unread-count', authenticate, async (req: Request, res: Response): Promise<void> => {
   try {
     const user = req.user!;
@@ -254,11 +220,6 @@ router.get('/unread-count', authenticate, async (req: Request, res: Response): P
   }
 });
 
-/**
- * @route   PATCH /api/notifications/:id/read
- * @desc    Mark individual notification as read
- * @access  Private (Recipient Only)
- */
 router.patch('/:id/read', authenticate, async (req: Request, res: Response): Promise<void> => {
   try {
     const user = req.user!;
@@ -293,11 +254,6 @@ router.patch('/:id/read', authenticate, async (req: Request, res: Response): Pro
   }
 });
 
-/**
- * @route   PATCH /api/notifications/:id/unread
- * @desc    Mark individual notification as unread
- * @access  Private (Recipient Only)
- */
 router.patch('/:id/unread', authenticate, async (req: Request, res: Response): Promise<void> => {
   try {
     const user = req.user!;
@@ -332,11 +288,6 @@ router.patch('/:id/unread', authenticate, async (req: Request, res: Response): P
   }
 });
 
-/**
- * @route   POST /api/notifications/mark-all-read
- * @desc    Mark all unread notifications for current user as read
- * @access  Private (Recipient Only)
- */
 router.post('/mark-all-read', authenticate, async (req: Request, res: Response): Promise<void> => {
   try {
     const user = req.user!;
@@ -365,11 +316,6 @@ router.post('/mark-all-read', authenticate, async (req: Request, res: Response):
   }
 });
 
-/**
- * @route   DELETE /api/notifications/:id
- * @desc    Delete notification belonging to current user
- * @access  Private (Recipient Only)
- */
 router.delete('/:id', authenticate, async (req: Request, res: Response): Promise<void> => {
   try {
     const user = req.user!;
@@ -399,11 +345,6 @@ router.delete('/:id', authenticate, async (req: Request, res: Response): Promise
   }
 });
 
-/**
- * @route   POST /api/notifications
- * @desc    Dispatch notification/alert directly to a field officer, supervisor, or user
- * @access  Private
- */
 router.post('/', authenticate, async (req: Request, res: Response): Promise<void> => {
   try {
     const caller = req.user!;
@@ -423,10 +364,8 @@ router.post('/', authenticate, async (req: Request, res: Response): Promise<void
       return;
     }
 
-    // Resolve target recipient user ID
     let resolvedRecipientId = await resolveRecipientUserId(recipientId, caller);
 
-    // If unresolved, handle self-notification or caller's team
     if (!resolvedRecipientId) {
       if (caller.role === 'FIELD_OFFICER') {
         resolvedRecipientId = caller.id;

@@ -24,7 +24,6 @@ export default function LandingPage({ onGoToLogin }: LandingPageProps) {
   const { userT } = useUserLanguage();
   const { user } = useAuth();
 
-  // Dynamic telemetry with user fallback numbers
   const [telemetry, setTelemetry] = useState<{
     loading: boolean;
     healthy: boolean;
@@ -49,7 +48,6 @@ export default function LandingPage({ onGoToLogin }: LandingPageProps) {
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Fetch real-time numbers from backend if available
   useEffect(() => {
     const fetchTelemetry = async () => {
       try {
@@ -86,13 +84,13 @@ export default function LandingPage({ onGoToLogin }: LandingPageProps) {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] dark:bg-slate-900 text-[#0F172A] dark:text-[#F8FAFC] font-sans antialiased selection:bg-[#2563EB] selection:text-white flex flex-col transition-colors duration-200">
-      
+
       {/* ============================================================== */}
       {/* 1. TOP NAVIGATION BAR                                          */}
       {/* ============================================================== */}
       <header className="sticky top-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 shadow-2xs transition-colors duration-200">
         <div className="max-w-[1440px] 2xl:max-w-[1560px] mx-auto px-4 sm:px-6 lg:px-8 h-18 sm:h-20 flex items-center justify-between gap-4">
-          
+
           {/* Left: Brand Identity */}
           <a href="#" className="flex items-center gap-3 shrink-0 group focus:outline-none">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#2563EB] to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-600/20 group-hover:scale-105 transition-transform duration-200 ring-1 ring-blue-500/20">
@@ -211,7 +209,7 @@ export default function LandingPage({ onGoToLogin }: LandingPageProps) {
       {/* 2. HERO SECTION                                                */}
       {/* ============================================================== */}
       <section className="relative pt-10 pb-16 sm:pt-14 sm:pb-20 lg:pt-20 lg:pb-24 bg-[#F8FAFC] dark:bg-slate-900 border-b border-[#E2E8F0] dark:border-slate-800 overflow-hidden transition-colors duration-200">
-        
+
         {/* Subtle Engineering Dot Grid */}
         <div className="absolute inset-0 bg-[radial-gradient(#CBD5E1_1px,transparent_1px)] dark:bg-[radial-gradient(#1E293B_1px,transparent_1px)] [background-size:24px_24px] opacity-40 dark:opacity-25 pointer-events-none" />
 
@@ -219,14 +217,14 @@ export default function LandingPage({ onGoToLogin }: LandingPageProps) {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[420px] bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-teal-500/10 dark:from-blue-500/15 dark:via-indigo-500/15 dark:to-teal-500/15 blur-3xl -z-10 pointer-events-none rounded-full" />
 
         <div className="max-w-[1440px] 2xl:max-w-[1560px] mx-auto px-4 sm:px-6 lg:pl-6 lg:pr-8 xl:pl-8 xl:pr-12 relative z-10">
-          
+
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-14 items-center">
-            
+
             {/* Left Column: Image utilizing left-side space with expanded width and height */}
             <div className="lg:col-span-7 xl:col-span-7 relative group lg:-ml-2 xl:-ml-6">
               {/* Subtle ambient backlight glow behind the image */}
               <div className="absolute -inset-2 bg-gradient-to-r from-blue-600/20 via-indigo-600/20 to-teal-500/20 rounded-3xl blur-2xl opacity-60 dark:opacity-40 pointer-events-none" />
-              
+
               {/* Image Container */}
               <div className="relative rounded-2xl lg:rounded-3xl overflow-hidden border border-[#E2E8F0] dark:border-slate-800 shadow-xl hover:shadow-2xl transition-all duration-300">
                 <img
@@ -239,7 +237,7 @@ export default function LandingPage({ onGoToLogin }: LandingPageProps) {
 
             {/* Right Column: Hero Headlines and Subtitle Text (comfortable line length preserved) */}
             <div className="lg:col-span-5 xl:col-span-5 text-left space-y-6 max-w-xl">
-              
+
               {/* Main Headline */}
               <div className="space-y-2 animate-hero-headline">
                 <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-[3.5rem] font-black text-[#0F172A] dark:text-[#F8FAFC] tracking-tight leading-[1.08]">
@@ -279,7 +277,7 @@ export default function LandingPage({ onGoToLogin }: LandingPageProps) {
       {/* ============================================================== */}
       <section id="built-for-field" className="py-24 bg-white dark:bg-slate-900 border-b border-[#E2E8F0] dark:border-slate-800 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
+
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#0F172A] dark:text-[#F8FAFC]">
               {userT('Built for the Field')}
@@ -290,7 +288,7 @@ export default function LandingPage({ onGoToLogin }: LandingPageProps) {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            
+
             {/* Feature 1: Offline-First Mode */}
             <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200 flex flex-col justify-between">
               <div>
@@ -360,7 +358,7 @@ export default function LandingPage({ onGoToLogin }: LandingPageProps) {
       {/* ============================================================== */}
       <section id="how-it-works" className="py-20 bg-[#F8FAFC] dark:bg-slate-900 border-b border-[#E2E8F0] dark:border-slate-800 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
+
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#0F172A] dark:text-[#F8FAFC]">
               {userT('How FieldSync Works')}
@@ -371,7 +369,7 @@ export default function LandingPage({ onGoToLogin }: LandingPageProps) {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
-            
+
             {/* Step 1: Register Offline */}
             <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200">
               <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/70 text-[#2563EB] dark:text-blue-400 flex items-center justify-center border border-blue-100 dark:border-blue-900/40 mb-4 shadow-2xs">
@@ -433,7 +431,7 @@ export default function LandingPage({ onGoToLogin }: LandingPageProps) {
       {/* ============================================================== */}
       <section id="field-conditions" className="py-24 bg-white dark:bg-slate-900 border-b border-[#E2E8F0] dark:border-slate-800 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
+
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#0F172A] dark:text-[#F8FAFC]">
               {userT('Built for Real Field Conditions')}
@@ -444,7 +442,7 @@ export default function LandingPage({ onGoToLogin }: LandingPageProps) {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
-            
+
             {/* Condition 1 */}
             <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200 flex items-start gap-5">
               <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/80 text-[#2563EB] dark:text-blue-400 flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
@@ -514,7 +512,7 @@ export default function LandingPage({ onGoToLogin }: LandingPageProps) {
       {/* ============================================================== */}
       <section id="roles" className="py-20 bg-[#F8FAFC] dark:bg-slate-900 border-b border-[#E2E8F0] dark:border-slate-800 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
+
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#0F172A] dark:text-[#F8FAFC]">
               {userT('One Platform. Three Roles.')}
@@ -525,7 +523,7 @@ export default function LandingPage({ onGoToLogin }: LandingPageProps) {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-            
+
             {/* Role 1: Field Officer */}
             <div className="bg-white dark:bg-slate-800 rounded-2xl border border-[#E2E8F0] dark:border-slate-700 p-5 sm:p-7 flex flex-col justify-between shadow-xs hover:shadow-lg transition-all duration-200">
               <div>
@@ -661,7 +659,7 @@ export default function LandingPage({ onGoToLogin }: LandingPageProps) {
       {/* ============================================================== */}
       <section id="operations" className="py-16 sm:py-20 lg:py-24 bg-white dark:bg-slate-900 border-b border-[#E2E8F0] dark:border-slate-800 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
+
           <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#0F172A] dark:text-[#F8FAFC]">
               {userT('Field Operations Across Ethiopia')}
@@ -672,7 +670,7 @@ export default function LandingPage({ onGoToLogin }: LandingPageProps) {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-5">
-            
+
             {/* Stat 1: 14 Regions */}
             <div className="p-4 sm:p-5 lg:p-6 rounded-2xl bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200 text-center">
               <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-blue-50 dark:bg-blue-950/80 text-[#2563EB] dark:text-blue-400 flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-xs">
@@ -748,7 +746,7 @@ export default function LandingPage({ onGoToLogin }: LandingPageProps) {
       <section id="security" className="py-20 sm:py-24 bg-[#F8FAFC] dark:bg-slate-900 border-b border-[#E2E8F0] dark:border-slate-800 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
-            
+
             {/* Left Column: Heading & 4 Restyled Security Modular Cards */}
             <div className="lg:col-span-7 space-y-6">
               <div>
@@ -762,7 +760,7 @@ export default function LandingPage({ onGoToLogin }: LandingPageProps) {
 
               {/* Responsive grid layout of security cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                
+
                 {/* 1. Role-Based Access */}
                 <div className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 shadow-xs hover:shadow-lg transition-all duration-200 flex items-start gap-4">
                   <div className="w-11 h-11 rounded-xl bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 shadow-xs">
@@ -851,7 +849,7 @@ export default function LandingPage({ onGoToLogin }: LandingPageProps) {
       {/* ============================================================== */}
       <section className="py-20 sm:py-24 bg-blue-50/50 dark:bg-slate-900 text-center border-t border-blue-100/80 dark:border-slate-800 transition-colors duration-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          
+
           <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black text-[#0F172A] dark:text-[#F8FAFC] tracking-tight leading-tight">
             {userT('Ready to Connect Your Field Operations?')}
           </h2>
@@ -878,9 +876,9 @@ export default function LandingPage({ onGoToLogin }: LandingPageProps) {
       {/* ============================================================== */}
       <footer className="bg-slate-50/70 dark:bg-slate-900 text-[#475569] dark:text-[#94A3B8] pt-16 pb-12 text-sm border-t border-[#E2E8F0] dark:border-slate-800 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
+
           <div className="grid grid-cols-2 md:grid-cols-5 gap-10 lg:gap-12 pb-12 border-b border-[#E2E8F0] dark:border-slate-800">
-            
+
             {/* Brand Column */}
             <div className="col-span-2 space-y-4">
               <div className="flex items-center gap-2.5 text-[#0F172A] dark:text-white font-extrabold text-xl tracking-tight">

@@ -1,6 +1,3 @@
-// src/components/notifications/OfficerAlertModal.tsx
-// Interactive In-App Notification Form Modal delivered directly to field officers when a supervisor sends an alert.
-
 import React from 'react';
 import {
   ShieldAlert,
@@ -79,7 +76,7 @@ export default function OfficerAlertModal({
         className="relative w-full max-w-lg overflow-hidden bg-white dark:bg-slate-900 rounded-3xl border border-amber-200 dark:border-amber-900/60 shadow-2xl animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Top Accent Strip */}
+        {}
         <div
           className={`h-2.5 w-full ${
             isUrgent

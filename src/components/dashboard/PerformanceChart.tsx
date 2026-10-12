@@ -4,7 +4,7 @@ import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recha
 const COLORS = ['#0b7e4b', '#d97706', '#dc2626', '#6b7280', '#3b82f6', '#8b5cf6'];
 
 function PerformanceChart({ data, title = "📊 Performance Distribution" }) {
-  // If no data or all values are 0, show a message
+
   if (!data || data.length === 0 || data.every(d => d.value === 0)) {
     return (
       <div className="chart-container" style={{ width: '100%', height: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

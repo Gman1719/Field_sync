@@ -1,16 +1,8 @@
-// server/src/routes/locations.routes.ts
-// Ethiopian Administrative Division Endpoints (Region -> Zone -> Woreda -> Kebele)
-
 import { Router, Request, Response } from 'express';
 import prisma from '../config/db.js';
 
 const router = Router();
 
-/**
- * @route   GET /api/locations/regions
- * @desc    Get all administrative regions and chartered cities
- * @access  Public / Authenticated
- */
 router.get('/regions', async (_req: Request, res: Response): Promise<void> => {
   try {
     const regions = await prisma.region.findMany({
@@ -34,11 +26,6 @@ router.get('/regions', async (_req: Request, res: Response): Promise<void> => {
   }
 });
 
-/**
- * @route   GET /api/locations/regions/:regionId/zones
- * @desc    Get all administrative zones within a specified region
- * @access  Public / Authenticated
- */
 router.get('/regions/:regionId/zones', async (req: Request, res: Response): Promise<void> => {
   try {
     const { regionId } = req.params;
@@ -65,11 +52,6 @@ router.get('/regions/:regionId/zones', async (req: Request, res: Response): Prom
   }
 });
 
-/**
- * @route   GET /api/locations/zones
- * @desc    Get all administrative zones across regions or filtered by regionId
- * @access  Public / Authenticated
- */
 router.get('/zones', async (req: Request, res: Response): Promise<void> => {
   try {
     const { regionId } = req.query;
@@ -100,11 +82,6 @@ router.get('/zones', async (req: Request, res: Response): Promise<void> => {
   }
 });
 
-/**
- * @route   GET /api/locations/zones/:zoneId/woredas
- * @desc    Get all woredas / sub-city districts within a specified zone
- * @access  Public / Authenticated
- */
 router.get('/zones/:zoneId/woredas', async (req: Request, res: Response): Promise<void> => {
   try {
     const { zoneId } = req.params;
@@ -131,11 +108,6 @@ router.get('/zones/:zoneId/woredas', async (req: Request, res: Response): Promis
   }
 });
 
-/**
- * @route   GET /api/locations/zones/:zoneId/supervisors
- * @desc    Get all active supervisors stationed in a specific administrative zone
- * @access  Public / Authenticated
- */
 router.get('/zones/:zoneId/supervisors', async (req: Request, res: Response): Promise<void> => {
   try {
     const { zoneId } = req.params;
@@ -174,11 +146,6 @@ router.get('/zones/:zoneId/supervisors', async (req: Request, res: Response): Pr
   }
 });
 
-/**
- * @route   GET /api/locations/woredas/:woredaId/kebeles
- * @desc    Get all kebeles within a specified woreda
- * @access  Public / Authenticated
- */
 router.get('/woredas/:woredaId/kebeles', async (req: Request, res: Response): Promise<void> => {
   try {
     const { woredaId } = req.params;
@@ -205,11 +172,6 @@ router.get('/woredas/:woredaId/kebeles', async (req: Request, res: Response): Pr
   }
 });
 
-/**
- * @route   GET /api/locations/bundle
- * @desc    Download complete location dataset for client offline Dexie caching
- * @access  Public / Authenticated
- */
 router.get('/bundle', async (_req: Request, res: Response): Promise<void> => {
   try {
     const [regions, zones, woredas, kebeles] = await Promise.all([
@@ -240,11 +202,6 @@ router.get('/bundle', async (_req: Request, res: Response): Promise<void> => {
   }
 });
 
-/**
- * @route   GET /api/locations/hierarchy
- * @desc    Nested administrative hierarchy (Region -> Zones -> Woredas)
- * @access  Public / Authenticated
- */
 router.get('/hierarchy', async (_req: Request, res: Response): Promise<void> => {
   try {
     const hierarchy = await prisma.region.findMany({

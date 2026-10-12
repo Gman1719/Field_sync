@@ -1,6 +1,3 @@
-/* ============================================================
-   GLOBAL STYLES
-   ============================================================ */
 * {
   margin: 0;
   padding: 0;
@@ -14,17 +11,11 @@ body {
   line-height: 1.6;
 }
 
-/* ============================================================
-   APP LAYOUT
-   ============================================================ */
 .app {
   display: flex;
   min-height: 100vh;
 }
 
-/* ============================================================
-   SIDEBAR
-   ============================================================ */
 .sidebar {
   width: 260px;
   background: #1e3a5f;
@@ -186,9 +177,6 @@ body {
   border-color: #dc2626;
 }
 
-/* ============================================================
-   MAIN CONTENT
-   ============================================================ */
 .main-content {
   flex: 1;
   margin-left: 260px;
@@ -197,9 +185,6 @@ body {
   flex-direction: column;
 }
 
-/* ============================================================
-   HEADER
-   ============================================================ */
 .main-header {
   background: white;
   padding: 16px 32px;
@@ -272,17 +257,11 @@ body {
   transition: all 0.2s;
 }
 
-/* ============================================================
-   CONTENT
-   ============================================================ */
 .content {
   padding: 24px 32px;
   flex: 1;
 }
 
-/* ============================================================
-   STATS GRID
-   ============================================================ */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -326,9 +305,6 @@ body {
   color: #64748b;
 }
 
-/* ============================================================
-   OFFICER QUICK STATS
-   ============================================================ */
 .officer-quick-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -356,9 +332,6 @@ body {
   color: #1a202c;
 }
 
-/* ============================================================
-   FORM CARDS
-   ============================================================ */
 .form-card {
   background: white;
   border-radius: 12px;
@@ -457,9 +430,6 @@ body {
   flex-wrap: wrap;
 }
 
-/* ============================================================
-   TABLES
-   ============================================================ */
 .table-card {
   background: white;
   border-radius: 12px;
@@ -561,9 +531,6 @@ tr:hover {
   margin-bottom: 8px;
 }
 
-/* ============================================================
-   BUTTONS
-   ============================================================ */
 .btn-primary {
   padding: 8px 16px;
   background: #1e3a5f;
@@ -664,9 +631,6 @@ tr:hover {
   background: #357abd;
 }
 
-/* ============================================================
-   TAGS & BADGES
-   ============================================================ */
 .region-tag {
   background: #e8edf5;
   color: #1e3a5f;
@@ -809,9 +773,6 @@ tr:hover {
   color: #991b1b;
 }
 
-/* ============================================================
-   NOTIFICATIONS
-   ============================================================ */
 .notification-container {
   position: relative;
 }
@@ -927,9 +888,6 @@ tr:hover {
   color: #64748b;
 }
 
-/* ============================================================
-   MODALS
-   ============================================================ */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -992,9 +950,6 @@ tr:hover {
   flex-wrap: wrap;
 }
 
-/* ============================================================
-   LOGIN PAGE
-   ============================================================ */
 .login-page-full {
   display: flex;
   min-height: 100vh;
@@ -1231,9 +1186,6 @@ tr:hover {
   background: #b45309;
 }
 
-/* ============================================================
-   TOP PERFORMERS
-   ============================================================ */
 .top-performers {
   background: white;
   padding: 24px;
@@ -1298,9 +1250,6 @@ tr:hover {
   color: #dc2626;
 }
 
-/* ============================================================
-   TREND CHART
-   ============================================================ */
 .trend-chart-card {
   background: white;
   padding: 24px;
@@ -1374,9 +1323,6 @@ tr:hover {
   padding-top: 4px;
 }
 
-/* ============================================================
-   ATTENDANCE CONTROLS
-   ============================================================ */
 .attendance-management {
   margin-top: 8px;
 }
@@ -1401,9 +1347,6 @@ tr:hover {
   color: #64748b;
 }
 
-/* ============================================================
-   ANIMATIONS
-   ============================================================ */
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
@@ -1419,22 +1362,19 @@ tr:hover {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* ============================================================
-   RESPONSIVE
-   ============================================================ */
 @media (max-width: 1024px) {
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .login-page-full {
     flex-direction: column;
   }
-  
+
   .login-left-full {
     padding: 40px 20px;
   }
-  
+
   .login-right-full {
     padding: 20px;
   }
@@ -1444,47 +1384,47 @@ tr:hover {
   .sidebar {
     width: 220px;
   }
-  
+
   .main-content {
     margin-left: 220px;
   }
-  
+
   .main-header {
     padding: 12px 16px;
   }
-  
+
   .content {
     padding: 16px;
   }
-  
+
   .stats-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .form-row {
     grid-template-columns: 1fr;
   }
-  
+
   .notification-dropdown {
     width: 320px;
     right: -40px;
   }
-  
+
   .modal-content {
     padding: 20px;
     margin: 10px;
   }
-  
+
   .header-right {
     flex-wrap: wrap;
     justify-content: center;
   }
-  
+
   .table-actions {
     flex-direction: column;
     width: 100%;
   }
-  
+
   .search-input {
     width: 100%;
     min-width: unset;
@@ -1495,37 +1435,37 @@ tr:hover {
   .sidebar {
     width: 60px;
   }
-  
+
   .sidebar-brand span,
   .nav-item span:not(.nav-badge),
   .user-info,
   .logout-btn {
     display: none;
   }
-  
+
   .nav-item {
     justify-content: center;
     padding: 12px;
   }
-  
+
   .main-content {
     margin-left: 60px;
   }
-  
+
   .login-card-full {
     padding: 24px;
   }
-  
+
   .login-brand-full h1 {
     font-size: 32px;
   }
-  
+
   .language-select {
     padding: 4px 6px;
     font-size: 11px;
   }
 }
-/* Dashboard Styles */
+
 .dashboard-container {
   padding: 20px;
 }

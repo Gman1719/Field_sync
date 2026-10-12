@@ -1,18 +1,15 @@
 import React from 'react';
 import './App.css';
 
-// Context Providers
 import { UserLanguageProvider } from './context/UserLanguageContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 
-// Custom Hooks
 import { useAppData } from './hooks/useAppData';
 import { useScreenTime } from './hooks/useScreenTime';
 import { useVerification } from './hooks/useVerification';
 import { evaluateWorkingHours, getZonedTimeComponents } from './config/workingHours';
 
-// UI Components
 import LandingPage from './components/landing/LandingPage';
 import Login from './components/auth/Login';
 import LoadingScreen from './components/common/LoadingScreen';
@@ -23,10 +20,9 @@ import MainLayout from './components/layout/MainLayout';
 import syncEngine from './services/unifiedSyncEngine';
 
 function AppContent() {
-  const [authView, setAuthView] = React.useState('landing'); // 'landing' | 'login'
+  const [authView, setAuthView] = React.useState('landing'); 
   const [selectedDemoRole, setSelectedDemoRole] = React.useState(null);
 
-  // Allow navigating to Home / Landing page even when authenticated via #home, #landing, or ?view=landing
   const [viewLandingExplicit, setViewLandingExplicit] = React.useState<boolean>(() => {
     if (typeof window !== 'undefined') {
       const h = window.location.hash.toLowerCase();
@@ -64,7 +60,6 @@ function AppContent() {
     handleSetNewPassword
   } = useAuth();
 
-  // Auto-sync pending records when user is logged in and online
   React.useEffect(() => {
     if (user && typeof navigator !== 'undefined' && navigator.onLine) {
       syncEngine.syncAll(true).catch(() => {});
@@ -74,7 +69,6 @@ function AppContent() {
   const appData = useAppData(user);
   const screenTimeInfo = useScreenTime(user);
 
-  // Verification popup for field officers
   const isOfficer = Boolean(user?.role && (user.role.toLowerCase().replace('-', '_') === 'field_officer'));
   const {
     showPopup,
@@ -83,8 +77,6 @@ function AppContent() {
     handleTimeout,
   } = useVerification(isOfficer ? user?.id : null, isOfficer ? (user?.fullName || user?.name) : null);
 
-  // Check whether it is official working hours (08:30 - 17:30 EAT)
-  // In development, testing, localhost, or LAN network addresses, allow session enforcement testing at any time.
   const isWithinWorkingHoursPeriod = React.useCallback(() => {
     const host = typeof window !== 'undefined' ? window.location.hostname : '';
     const isLocalOrDev =
@@ -102,13 +94,10 @@ function AppContent() {
     const wh = evaluateWorkingHours();
     if (wh.isWorkingHours || wh.isLunch) return true;
     const { totalMinutes } = getZonedTimeComponents();
-    // 08:30 (510 min) to 17:30 (1050 min) EAT
+
     return totalMinutes >= 510 && totalMinutes < 1050;
   }, []);
 
-  // Mandatory Work Session enforcement for Field Officers during working hours:
-  // When an officer logs in and their session is not started yet today,
-  // the system forces them to start their session before accessing the app.
   const shouldForceSession =
     Boolean(user) &&
     isOfficer &&
@@ -118,7 +107,6 @@ function AppContent() {
     screenTimeInfo?.trackingStatus !== 'FINALIZED' &&
     !screenTimeInfo?.isOnApprovedLeave;
 
-  // Login handler with audit log
   const handleLogin = async (email, password) => {
     const loggedInUser = await login(email, password, appData.users);
     if (loggedInUser) {
@@ -128,7 +116,6 @@ function AppContent() {
     return false;
   };
 
-  // Logout handler with audit log
   const handleLogout = async () => {
     if (user) {
       appData.addAuditLog('User Logout', { email: user.email });
@@ -141,7 +128,6 @@ function AppContent() {
     await logout();
   };
 
-  // Explicit Landing Page view (accessible even when authenticated via #home, #landing, or navigation)
   if (viewLandingExplicit) {
     return (
       <LandingPage
@@ -160,7 +146,6 @@ function AppContent() {
     );
   }
 
-  // Unauthenticated view
   if (!user) {
     if (isLoading) {
       return <LoadingScreen />;
@@ -190,7 +175,6 @@ function AppContent() {
     );
   }
 
-  // First-time password change view
   if (mustChangePassword) {
     return (
       <ForceChangePassword
@@ -200,7 +184,6 @@ function AppContent() {
     );
   }
 
-  // Authenticated application view
   return (
     <>
       {isOfficer && showPopup && (

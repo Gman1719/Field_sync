@@ -1,5 +1,3 @@
-// Persistent, immutable audit records for Manager (National) and Supervisor (Zone-Scoped)
-
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   ShieldCheck, Search, Download, RefreshCw, Clock, User,
@@ -32,7 +30,6 @@ export default function AuditLog({ user, auditLog = [] }: AuditLogProps) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [availableActions, setAvailableActions] = useState([]);
 
-  // Filter States
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRole, setSelectedRole] = useState('ALL');
   const [selectedAction, setSelectedAction] = useState('ALL');
@@ -41,14 +38,12 @@ export default function AuditLog({ user, auditLog = [] }: AuditLogProps) {
   const [endDate, setEndDate] = useState('');
   const [page, setPage] = useState(1);
 
-  // Detail Modal State
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const isSupervisor = user?.role === 'supervisor' || user?.role === 'SUPERVISOR';
   const isManager = user?.role === 'manager' || user?.role === 'MANAGER';
 
-  // 1. Fetch Distinct Actions for Dropdown
   useEffect(() => {
     const fetchActions = async () => {
       try {

@@ -25,7 +25,6 @@ import { translateText } from '../../services/translationEngine';
 import { useUserLanguage } from '../../context/UserLanguageContext';
 import i18n from '../../locales/index';
 
-// Enterprise Palette
 const CHART_COLORS = ['#1E3A8A', '#0D9488', '#6366F1', '#D97706', '#16A34A', '#2563EB'];
 const GENDER_COLORS: Record<string, string> = {
   'MALE': '#1E3A8A',
@@ -514,7 +513,6 @@ export default function Dashboard({
   const urgentRoadblocks = telemetryData?.compliance?.urgentRoadblocks || [];
   const pendingDuplicates = telemetryData?.duplicates?.pending ?? 0;
 
-
   // Chart 1: 7-Day Velocity Chart (Aggregated accurately from real database records)
   const registrationTrendData = useMemo(() => {
     const data = [];
@@ -774,8 +772,6 @@ export default function Dashboard({
   return (
     <div className="space-y-6">
 
-
-
       {/* ============================================================
           MANAGER DASHBOARD OVERVIEW: CARDS FROM ALL SIDEBAR TABS
          ============================================================ */}
@@ -1022,20 +1018,18 @@ export default function Dashboard({
         </div>
       )}
 
-      {/* ============================================================
-          FIELD OFFICER DASHBOARD VIEW: QUICK ACTION BUTTONS & METRICS
-         ============================================================ */}
+      {}
       {isOfficer && (
         <>
-          {/* Quick Action Shortcuts: Redesigned with Balanced Visual Hierarchy & Tactile Feedback */}
+          {}
           {setActiveTab && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Button 1: Register Citizen */}
+              {}
               <div
                 onClick={() => setActiveTab('register')}
                 className="group relative cursor-pointer overflow-hidden rounded-2xl bg-white dark:bg-slate-800 p-5 border border-blue-200/90 dark:border-blue-900/60 shadow-xs hover:shadow-md hover:border-blue-500 dark:hover:border-blue-400 hover:-translate-y-0.5 transition-all duration-200"
               >
-                {/* Visual accent top line */}
+                {}
                 <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-500" />
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-4 min-w-0">
@@ -1057,7 +1051,7 @@ export default function Dashboard({
                 </div>
               </div>
 
-              {/* Button 2: Daily Work Report */}
+              {}
               <div
                 onClick={() => setActiveTab('report_new')}
                 className={`group relative cursor-pointer overflow-hidden rounded-2xl bg-white dark:bg-slate-800 p-5 border shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 ${

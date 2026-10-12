@@ -1,6 +1,3 @@
-// server/src/validators/citizen.validator.ts
-// Zod Request Validation Schema for Citizen Registration
-
 import { z } from 'zod';
 import { validateEthiopianPhone, normalizeEthiopianPhone } from '../utils/phone.utils.js';
 
@@ -66,7 +63,7 @@ export const citizenSchema = z
         'Invalid Ethiopian alternative phone number'
       )
       .transform((val) => normalizeEthiopianPhone(val)),
-    // Full Address Hierarchy
+
     regionId: z
       .string({ required_error: 'Region is required' })
       .min(1, 'Region is required'),

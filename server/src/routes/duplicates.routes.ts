@@ -1,6 +1,3 @@
-// server/src/routes/duplicates.routes.ts
-// REST API Routes for Duplicate Citizen Detection & Supervisor Review Workflow (Phase 8)
-
 import { Router, Request, Response } from 'express';
 import prisma from '../config/db.js';
 import { authenticate, requireSupervisor } from '../middleware/auth.middleware.js';
@@ -299,7 +296,6 @@ router.post(
         }
       }
 
-      // Record audit log entry
       try {
         await recordAuditEvent({
           req,

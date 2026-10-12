@@ -1,8 +1,3 @@
-// src/components/verification/VerificationPopup.tsx
-// Mandatory 15-Second Random Active-Work Verification Modal
-// Strict compliance: Real-timestamp countdown, "I'm Here" button, keyboard accessible,
-// non-dismissible, dark/light theme fidelity, offline-state awareness.
-
 import React, { useState, useEffect, useRef } from 'react';
 import { ShieldCheck, Wifi, WifiOff, AlertTriangle } from 'lucide-react';
 import type { PendingVerificationData } from '../../hooks/useVerification';
@@ -27,12 +22,10 @@ export default function VerificationPopup({
   const buttonRef = useRef<HTMLButtonElement>(null);
   const isOnline = navigator.onLine && !pendingVerification?.isOffline;
 
-  // Auto-focus the "I'm Here" button on mount for quick keyboard access (space/enter)
   useEffect(() => {
     buttonRef.current?.focus();
   }, []);
 
-  // Trap keyboard events to prevent escape or outside navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -49,7 +42,6 @@ export default function VerificationPopup({
     return () => window.removeEventListener('keydown', handleKeyDown, true);
   }, [hasResponded]);
 
-  // Real-timestamp based countdown (immune to tab throttling/freezing)
   useEffect(() => {
     const tick = () => {
       if (hasResponded) return;
@@ -74,12 +66,10 @@ export default function VerificationPopup({
     onConfirm();
   };
 
-  // Circular progress calculation
   const totalDuration = 15;
   const progressRatio = Math.max(0, Math.min(1, remainingSeconds / totalDuration));
-  const strokeDashoffset = 283 - 283 * progressRatio; // 2 * PI * 45 ≈ 283
+  const strokeDashoffset = 283 - 283 * progressRatio; 
 
-  // Color dynamic based on urgency
   const isUrgent = remainingSeconds <= 5;
   const ringColor = isUrgent ? '#F87171' : remainingSeconds <= 9 ? '#FBBF24' : '#3B82F6';
 
@@ -91,7 +81,7 @@ export default function VerificationPopup({
       aria-describedby="verification-dialog-desc"
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 dark:bg-slate-950/65 backdrop-blur-md select-none animate-in fade-in duration-200"
       onClick={(e) => {
-        // Prevent dismissal on backdrop click
+
         e.preventDefault();
         e.stopPropagation();
       }}
@@ -102,7 +92,7 @@ export default function VerificationPopup({
           dark:bg-slate-800 dark:text-white dark:border-slate-700 animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header Icon & Title */}
+        {}
         <div className="flex flex-col items-center text-center">
           <div className="w-14 h-14 mb-3 rounded-2xl flex items-center justify-center bg-blue-50 dark:bg-blue-900/40 text-[#2563EB] dark:text-blue-400 border border-blue-100 dark:border-blue-700/60 shadow-xs">
             <ShieldCheck className="w-7 h-7" />
@@ -123,11 +113,11 @@ export default function VerificationPopup({
           </p>
         </div>
 
-        {/* Real-time Countdown Timer Ring */}
+        {}
         <div className="my-6 flex flex-col items-center justify-center">
           <div className="relative w-32 h-32 flex items-center justify-center">
             <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 100 100">
-              {/* Background circle */}
+              {}
               <circle
                 cx="50"
                 cy="50"
@@ -136,7 +126,7 @@ export default function VerificationPopup({
                 strokeWidth="6"
                 fill="none"
               />
-              {/* Animated countdown ring */}
+              {}
               <circle
                 cx="50"
                 cy="50"
@@ -151,7 +141,7 @@ export default function VerificationPopup({
               />
             </svg>
 
-            {/* Numeric Display */}
+            {}
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               <span
                 className={`text-4xl font-extrabold font-mono tracking-tighter ${

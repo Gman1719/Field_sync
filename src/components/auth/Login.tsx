@@ -48,13 +48,13 @@ export default function Login({
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col lg:flex-row font-sans selection:bg-[#2563EB] selection:text-white transition-colors duration-200">
-      
-      {/* ============================================================== */}
-      {/* DESKTOP HERO PANEL: Full-height Hero Image (Hidden on Mobile/Tablet) */}
-      {/* ============================================================== */}
+
+      {}
+      {}
+      {}
       <div className="hidden lg:flex lg:w-1/2 p-6 xl:p-8 flex-col justify-center relative">
         <div className="relative w-full h-full min-h-[calc(100vh-3rem)] rounded-3xl overflow-hidden border border-slate-200/90 dark:border-slate-800 shadow-2xl bg-slate-950 group">
-          {/* Background Image - Only the clean image without text overlays */}
+          {}
           <img
             src={heroImage}
             alt="FieldSync Officer performing offline citizen registration"
@@ -63,15 +63,15 @@ export default function Login({
         </div>
       </div>
 
-      {/* ============================================================== */}
-      {/* FORM WORKSPACE PANEL: Fully Optimized for Mobile, Tablet & Desktop */}
-      {/* ============================================================== */}
+      {}
+      {}
+      {}
       <div className="w-full lg:w-1/2 min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col justify-between p-4 sm:p-8 lg:p-10 xl:p-12 transition-colors duration-200 relative overflow-x-hidden">
-        
-        {/* Subtle Ambient Depth Glow */}
+
+        {}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] sm:w-[500px] h-[340px] sm:h-[500px] bg-blue-500/5 dark:bg-blue-600/10 rounded-full blur-3xl pointer-events-none -z-0" />
 
-        {/* Top Header: "Back to Home", Language Selector & Theme Toggle */}
+        {}
         <header className="relative z-20 flex items-center justify-between w-full max-w-xl mx-auto pt-2 pb-4">
           {onBackToHome ? (
             <button
@@ -86,14 +86,14 @@ export default function Login({
           )}
 
           <div className="flex items-center gap-2">
-            {/* Language Selector Dropdown */}
+            {}
             <LanguageSelector
               dropdownAlign="right"
               className="relative z-50"
               buttonClassName="p-2 sm:p-2.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xs hover:bg-slate-50 dark:hover:bg-slate-700 transition-all cursor-pointer flex items-center gap-1.5 text-xs font-bold"
             />
 
-            {/* Theme Toggle Button */}
+            {}
             <button
               type="button"
               onClick={toggleTheme}
@@ -110,11 +110,11 @@ export default function Login({
           </div>
         </header>
 
-        {/* Center Main Card - Elegant & Fully Responsive */}
+        {}
         <main className="relative z-10 w-full max-w-xl mx-auto my-auto py-4 sm:py-6">
           <div className="bg-white dark:bg-slate-800/95 backdrop-blur-xl rounded-3xl border border-slate-200/90 dark:border-slate-700 p-6 sm:p-10 lg:p-12 shadow-xl shadow-slate-200/50 dark:shadow-2xl dark:shadow-black/60 space-y-6 sm:space-y-8">
-            
-            {/* Mobile & Tablet Brand Header (Visible on < lg screens) */}
+
+            {}
             <div className="lg:hidden flex items-center gap-3.5 pb-2 border-b border-slate-100 dark:border-slate-700/60">
               <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#2563EB] to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-600/25 shrink-0 ring-1 ring-blue-500/20">
                 <Radio className="w-6 h-6" />
@@ -129,7 +129,7 @@ export default function Login({
               </div>
             </div>
 
-            {/* Title & Guidance */}
+            {}
             <div className="space-y-1.5 sm:space-y-2">
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
                 {userT('Sign In')}
@@ -139,7 +139,7 @@ export default function Login({
               </p>
             </div>
 
-            {/* Error Message Box */}
+            {}
             {(loginError || error) && (
               <div className="p-3.5 sm:p-4 bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900/80 text-[#DC2626] dark:text-rose-300 rounded-xl text-xs sm:text-sm font-medium flex items-center gap-3 animate-in fade-in duration-150">
                 <span className="w-2.5 h-2.5 rounded-full bg-[#DC2626] shrink-0" />
@@ -147,7 +147,7 @@ export default function Login({
               </div>
             )}
 
-            {/* Form */}
+            {}
             <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-2">
@@ -230,11 +230,11 @@ export default function Login({
           </div>
         </main>
 
-        {/* Minimalist Footer */}
+        {}
         <footer className="relative z-10 text-center text-xs text-slate-500 dark:text-slate-400 max-w-xl mx-auto w-full pt-2 pb-2">
           {userT('FieldSync Platform • 2026')}
         </footer>
       </div>
     </div>
   );
-}
+}

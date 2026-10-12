@@ -1,6 +1,3 @@
-// server/src/routes/citizens.routes.ts
-// REST API Routes for Citizen Registration, Duplicate Detection, and Querying
-
 import { Router, Request, Response } from 'express';
 import { ZodError } from 'zod';
 import prisma from '../config/db.js';
@@ -11,9 +8,6 @@ import { ensureGeographicHierarchy } from '../utils/geoHelper.js';
 
 const router = Router();
 
-/**
- * Format Prisma citizen model into normalized response object
- */
 const formatCitizenResponse = (c: any) => ({
   id: c.id,
   clientRecordId: c.clientRecordId,
@@ -28,7 +22,6 @@ const formatCitizenResponse = (c: any) => ({
   phoneNumber: c.phoneNumber || '',
   alternativePhone: c.alternativePhone || '',
 
-  // Full Address Hierarchy
   regionId: c.regionId,
   zoneId: c.zoneId,
   woredaId: c.woredaId,
@@ -50,22 +43,14 @@ const formatCitizenResponse = (c: any) => ({
   updatedAt: c.updatedAt,
 });
 
-/**
- * @route   POST /api/citizens
- * @desc    Register citizen with full Ethiopian address & duplicate detection
- * @access  Private (Officer, Supervisor, Manager)
- */
 router.post('/', authenticate, async (req: Request, res: Response): Promise<void> => {
   try {
     const validated = citizenSchema.parse(req.body);
     const officerId = req.user!.id;
 
-
-    // 1. Multi-Level Duplicate Detection against PostgreSQL
     const matchReasons: string[] = [];
     let suspectedDuplicates: any[] = [];
 
-    // Level 1: Exact Phone Number Match (normalized)
     if (validated.phoneNumber) {
       const phoneMatches = await prisma.citizen.findMany({
         where: {

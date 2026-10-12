@@ -1,7 +1,3 @@
-// src/hooks/useVerification.ts
-// Offline-First Random Work Verification Hook for FieldSync
-// Handles 15-second mandatory verification modal, offline scheduling fallback, and safe synchronization.
-
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { offlineDb } from '../db/offlineDb';
 import { db } from '../services/database';
@@ -25,7 +21,6 @@ export interface PendingVerificationData {
   isOffline?: boolean;
 }
 
-// Check if officer is on approved leave or approved permission
 async function isAbsenceAuthorized(targetOfficerId: string): Promise<boolean> {
   try {
     const { dateStr, totalMinutes } = getZonedTimeComponents();
@@ -68,7 +63,6 @@ export function useVerification(officerId?: string | null, officerName?: string 
   const offlineCheckIntervalRef = useRef<any>(null);
   const isRespondingRef = useRef(false);
 
-  // 1. Load recent verifications from Dexie
   const loadRecentVerifications = useCallback(async () => {
     if (!officerId) return;
     try {
@@ -90,29 +84,25 @@ export function useVerification(officerId?: string | null, officerName?: string 
     loadRecentVerifications();
   }, [loadRecentVerifications]);
 
-  // 2. Trigger a verification popup
   const triggerVerification = useCallback(
     (data: PendingVerificationData) => {
       setPendingVerification(data);
       setShowPopup(true);
-      // Notify screen-time tracking to pause counting while modal is pending
+
       window.dispatchEvent(new CustomEvent('verification-modal-state', { detail: { pending: true } }));
     },
     []
   );
 
-  // 3. Dismiss popup & restore screen-time state
   const closePopup = useCallback(() => {
     setShowPopup(false);
     setPendingVerification(null);
     window.dispatchEvent(new CustomEvent('verification-modal-state', { detail: { pending: false } }));
   }, []);
 
-  // 4. Online polling / heartbeat listener
   useEffect(() => {
     if (!officerId) return;
 
-    // Listen to incoming verification signals from heartbeat
     const handleIncoming = async (e: any) => {
       const v = e.detail;
       if (v && v.id && !showPopup) {
@@ -129,7 +119,6 @@ export function useVerification(officerId?: string | null, officerName?: string 
 
     window.addEventListener('incoming-verification', handleIncoming);
 
-    // Also poll every 15 seconds if online
     pollIntervalRef.current = setInterval(async () => {
       if (!navigator.onLine || showPopup) return;
       const token = localStorage.getItem('fieldsync_token');

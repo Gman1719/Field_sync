@@ -1,7 +1,3 @@
-// src/components/supervisor/SendOfficerAlertModal.tsx
-// Modal for Supervisors to dispatch targeted operational alerts to specific field officers
-// based on their real-time daily screen time and periodic verification history.
-
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   AlertTriangle,
@@ -59,7 +55,6 @@ export default function SendOfficerAlertModal({
   const [loadingTelemetry, setLoadingTelemetry] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Telemetry states
   const [screenTimeFmt, setScreenTimeFmt] = useState<string>('00:00:00');
   const [reportSubmitted, setReportSubmitted] = useState<boolean>(false);
   const [verificationStats, setVerificationStats] = useState<{
@@ -69,7 +64,6 @@ export default function SendOfficerAlertModal({
     rate: number;
   }>({ total: 0, confirmed: 0, missed: 0, rate: 100 });
 
-  // Form states
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
 
@@ -78,7 +72,6 @@ export default function SendOfficerAlertModal({
   const officerWoreda = typeof officer?.woreda === 'object' ? officer.woreda?.name : officer?.woreda || '';
   const locationLabel = [officerZone, officerWoreda].filter(Boolean).join(' • ');
 
-  // Fetch telemetry (screen time & verification history) for this specific officer
   useEffect(() => {
     if (!officer?.id || !isOpen) return;
 
@@ -89,7 +82,6 @@ export default function SendOfficerAlertModal({
       try {
         const { dateStr: todayStr } = getZonedTimeComponents();
 
-        // 1. Resolve Screen Time
         let resolvedScreenTime = officer.todayScreenTimeFormatted || officer.screenTimeFormatted;
         let resolvedReportSubmitted = Boolean(officer.dailyReportSubmitted);
 
