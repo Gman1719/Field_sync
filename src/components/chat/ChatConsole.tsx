@@ -13,6 +13,7 @@ import {
 import toast from 'react-hot-toast';
 
 import { SAMPLE_USERS } from '../../utils/constants';
+import { offlineDb } from '../../db/offlineDb';
 import type { ChatMessage } from '../../types/index';
 import {
   getConversationMessages,
@@ -179,10 +180,16 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
     return deduplicated;
   }, [users]);
 
-  // Active contact selection
-  const [selectedContact, setSelectedContact] = useState<any>(
-    isSupervisor ? defaultManager : (supervisorsList[0] || null)
-  );
+  // Active contact selection - restored from localStorage to avoid losing the conversation on refresh
+  const [selectedContact, setSelectedContact] = useState<any>(() => {
+    if (isSupervisor) return defaultManager;
+    const savedSupervisorId = typeof window !== 'undefined' ? localStorage.getItem('fieldsync_selected_chat_supervisor') : null;
+    if (savedSupervisorId && supervisorsList.length > 0) {
+      const found = supervisorsList.find((s) => normalizeUserId(s.id) === savedSupervisorId || s.id === savedSupervisorId);
+      if (found) return found;
+    }
+    return supervisorsList[0] || null;
+  });
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState('');
@@ -308,6 +315,16 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
     if (isSupervisor) {
       setSelectedContact(defaultManager);
     } else if (isManager) {
+      const savedSupervisorId = typeof window !== 'undefined' ? localStorage.getItem('fieldsync_selected_chat_supervisor') : null;
+      if (savedSupervisorId && supervisorsList.length > 0) {
+        const found = supervisorsList.find((s) => normalizeUserId(s.id) === savedSupervisorId || s.id === savedSupervisorId);
+        if (found) {
+          if (!selectedContact || normalizeUserId(selectedContact.id) !== normalizeUserId(found.id)) {
+            setSelectedContact(found);
+          }
+          return;
+        }
+      }
       if (!selectedContact || selectedContact.role !== 'supervisor' || normalizeUserId(selectedContact.id) === normalizeUserId(user?.id)) {
         if (supervisorsList.length > 0) {
           setSelectedContact(supervisorsList[0]);
@@ -315,6 +332,28 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
       }
     }
   }, [isSupervisor, isManager, defaultManager, supervisorsList, user?.id]);
+
+  // If Manager hasn't explicitly clicked a supervisor yet, automatically pick the one with the latest chat history
+  useEffect(() => {
+    if (isManager && supervisorsList.length > 0 && typeof window !== 'undefined') {
+      const savedSupervisorId = localStorage.getItem('fieldsync_selected_chat_supervisor');
+      if (!savedSupervisorId) {
+        offlineDb.chatMessages.orderBy('timestamp').reverse().first().then((latestMsg) => {
+          if (latestMsg) {
+            const sId = normalizeUserId(latestMsg.senderId);
+            const rId = normalizeUserId(latestMsg.receiverId);
+            const myId = normalizeUserId(user?.id);
+            const otherId = sId === myId ? rId : sId;
+            const matchedSup = supervisorsList.find((s) => normalizeUserId(s.id) === otherId || s.id === otherId);
+            if (matchedSup) {
+              setSelectedContact(matchedSup);
+              localStorage.setItem('fieldsync_selected_chat_supervisor', normalizeUserId(matchedSup.id) || matchedSup.id);
+            }
+          }
+        }).catch(() => {});
+      }
+    }
+  }, [isManager, supervisorsList, user?.id]);
 
   // Reactive profile avatar version (reloads pictures when supervisor/manager changes dashboard photo)
   const [avatarVersion, setAvatarVersion] = useState(0);
@@ -1145,6 +1184,9 @@ export default function ChatConsole({ user, users = [] }: ChatConsoleProps) {
                     type="button"
                     onClick={() => {
                       setSelectedContact(sup);
+                      if (typeof window !== 'undefined' && sup?.id) {
+                        localStorage.setItem('fieldsync_selected_chat_supervisor', normalizeUserId(sup.id) || sup.id);
+                      }
                       setUnreadMap((prev) => ({ ...prev, [sup.id]: 0 }));
                       setShowMobileSidebar(false);
                     }}

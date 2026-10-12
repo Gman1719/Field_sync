@@ -541,3 +541,30 @@ model SyncError {
   @@index([resolved])
   @@map("sync_errors")
 }
+
+model ChatMessage {
+  id             String   @id
+  senderId       String
+  senderName     String
+  senderRole     String?
+  receiverId     String
+  receiverName   String?
+  conversationId String
+  text           String
+  timestamp      DateTime @default(now())
+  isRead         Boolean  @default(false)
+  status         String   @default("delivered")
+  replyTo        Json?
+  attachment     Json?
+  reactions      Json?
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([conversationId])
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([timestamp])
+  @@map("chat_messages")
+}
+

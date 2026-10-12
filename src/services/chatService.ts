@@ -235,11 +235,11 @@ export async function sendMessage(params: {
   // If online, save to persistent backend endpoint
   if (online) {
     try {
-      fetch(`${API_BASE}/chat/messages`, {
+      await fetch(`${API_BASE}/chat/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newMsg),
-      }).catch(() => {});
+      });
     } catch (_e) {}
   }
 
@@ -290,11 +290,11 @@ export async function deliverPendingChatMessages(currentUserId?: string): Promis
 
     // Save to persistent backend endpoint
     try {
-      fetch(`${API_BASE}/chat/messages`, {
+      await fetch(`${API_BASE}/chat/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updated),
-      }).catch(() => {});
+      });
     } catch (_e) {}
 
     if (typeof window !== 'undefined') {
@@ -336,7 +336,7 @@ export async function markConversationAsRead(userIdA: string, userIdB: string, c
 
     if (_lastOnlineVerified || (typeof navigator !== 'undefined' && navigator.onLine)) {
       try {
-        fetch(`${API_BASE}/chat/read`, {
+        await fetch(`${API_BASE}/chat/read`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -345,7 +345,7 @@ export async function markConversationAsRead(userIdA: string, userIdB: string, c
             currentUserId: normCurrentUserId,
             conversationId: convId,
           }),
-        }).catch(() => {});
+        });
       } catch (_e) {}
     }
 
@@ -409,11 +409,11 @@ export async function addMessageReaction(messageId: string, emoji: string, userI
 
   if (_lastOnlineVerified || (typeof navigator !== 'undefined' && navigator.onLine)) {
     try {
-      fetch(`${API_BASE}/chat/reaction`, {
+      await fetch(`${API_BASE}/chat/reaction`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messageId, emoji, userId: normUserId }),
-      }).catch(() => {});
+      });
     } catch (_e) {}
   }
 
@@ -436,11 +436,11 @@ export async function deleteMessages(messageIds: string[]): Promise<void> {
 
   if (_lastOnlineVerified || (typeof navigator !== 'undefined' && navigator.onLine)) {
     try {
-      fetch(`${API_BASE}/chat/messages`, {
+      await fetch(`${API_BASE}/chat/messages`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messageIds }),
-      }).catch(() => {});
+      });
     } catch (_e) {}
   }
 
@@ -469,11 +469,25 @@ export async function getTotalUnreadCount(currentUserId: string): Promise<number
   }
 }
 
-// Seed realistic field operational dialogue on initialization
+// Seed realistic field operational dialogue only if the system has no existing history
 export async function seedInitialChatIfEmpty(): Promise<void> {
   const count = await offlineDb.chatMessages.count();
 
-  // Normalize legacy placeholder ids (u_mgr / u_sup) and reset existing seed messages
+  // If local DB is empty, first check if the server has persisted messages in PostgreSQL
+  if (count === 0 && (_lastOnlineVerified || (typeof navigator !== 'undefined' && navigator.onLine))) {
+    try {
+      const res = await fetch(`${API_BASE}/chat/messages`);
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+          await offlineDb.chatMessages.bulkPut(json.data);
+          return; // Existing database messages restored! Never overwrite with demo seeds!
+        }
+      }
+    } catch (_e) {}
+  }
+
+  // Normalize legacy placeholder ids (u_mgr / u_sup)
   if (count > 0) {
     const allMsgs = await offlineDb.chatMessages.toArray();
     for (const msg of allMsgs) {
@@ -494,8 +508,8 @@ export async function seedInitialChatIfEmpty(): Promise<void> {
       }
     }
 
-    const mgrSupCount = await offlineDb.chatMessages.where('conversationId').equals('u_mgr__u_sup').count();
-    if (mgrSupCount > 0) return;
+    // If any messages already exist, do NOT insert seed messages
+    return;
   }
 
   const manager = SAMPLE_USERS.find((u) => u.id === 'u_mgr' || u.role === 'manager') || {
@@ -554,4 +568,15 @@ export async function seedInitialChatIfEmpty(): Promise<void> {
   ];
 
   await offlineDb.chatMessages.bulkPut(seedMessages);
+
+  // Sync to PostgreSQL database so it is permanently stored in the cloud
+  for (const m of seedMessages) {
+    try {
+      fetch(`${API_BASE}/chat/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(m),
+      }).catch(() => {});
+    } catch (_e) {}
+  }
 }
