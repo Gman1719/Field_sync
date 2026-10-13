@@ -151,7 +151,10 @@ export class ActivityLogger {
       }
 
       if (typeof navigator !== 'undefined' && navigator.onLine) {
-        const token = localStorage.getItem('fieldsync_token');
+        const token =
+          localStorage.getItem('fieldsync_token') ||
+          localStorage.getItem('token') ||
+          sessionStorage.getItem('token');
         fetch(`${API_BASE}/activity-logs`, {
           method: 'POST',
           headers: {

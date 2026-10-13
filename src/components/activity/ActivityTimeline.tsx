@@ -72,7 +72,14 @@ export default function ActivityTimeline({ user }) {
       l.officerId === user.id ||
       (user.employeeId && l.officerId === user.employeeId) ||
       (l.userId && l.userId === user.id) ||
-      (l.actorId && l.actorId === user.id);
+      (l.actorId && l.actorId === user.id) ||
+      (l.metadata?.userId && l.metadata?.userId === user.id) ||
+      (l.metadata?.officerId && l.metadata?.officerId === user.id) ||
+      (l.metadata?.actorId && l.metadata?.actorId === user.id) ||
+      (l.metadata?.supervisorId && l.metadata?.supervisorId === user.id) ||
+      // Supervisor Getiye dual ID alias support:
+      ((user.id === 'off24182999' || user.id === 'cb0ba983-e234-4596-9cea-34a157af283e') &&
+       (l.officerId === 'off24182999' || l.officerId === 'cb0ba983-e234-4596-9cea-34a157af283e'));
 
     // Resolve author name
     const authorName = String(
@@ -82,10 +89,24 @@ export default function ActivityTimeline({ user }) {
       l.metadata?.officerName ||
       l.metadata?.userName ||
       l.metadata?.actorName ||
+      l.metadata?.supervisorName ||
       ''
     ).trim().toLowerCase();
 
     const currentUserName = String(user.fullName || user.name || '').trim().toLowerCase();
+
+    const isOwnName = Boolean(
+      currentUserName &&
+      authorName &&
+      (authorName === currentUserName ||
+       authorName.includes(currentUserName) ||
+       currentUserName.includes(authorName))
+    );
+
+    const isOwnWork = isSelfId || isOwnName;
+
+    // Reject immediately if the log does not belong to the logged-in user
+    if (!isOwnWork) return false;
 
     // -------------------------------------------------------------
     // SUPERVISOR LOG SCOPING:
@@ -93,14 +114,10 @@ export default function ActivityTimeline({ user }) {
     // Strictly removes officer fieldwork and manager operations.
     // -------------------------------------------------------------
     if (isSup) {
-      if (!isSelfId) return false;
-
-      // Exclude field officer fieldwork (sessions, verifications, citizen registrations, daily work reports)
+      // Exclude field officer fieldwork (sessions, verifications, daily work reports, subordinate requests)
       if (
         evt.startsWith('WORK_SESSION_') ||
-        evt.startsWith('ATTENDANCE_') ||
         evt.startsWith('VERIFICATION_') ||
-        evt.startsWith('CITIZEN_') ||
         evt.startsWith('DAILY_REPORT_') ||
         evt.startsWith('ASSIGNMENT_STARTED') ||
         evt.startsWith('ASSIGNMENT_PAUSED') ||
@@ -113,7 +130,6 @@ export default function ActivityTimeline({ user }) {
         evt === 'SUPERVISOR_CONFIRMATION' ||
         desc.includes('WORK SESSION') ||
         desc.includes('PRESENCE CHECK') ||
-        desc.includes('REGISTERED CITIZEN') ||
         desc.includes('WORK VERIFICATION') ||
         desc.includes('DAILY WORK REPORT') ||
         desc.includes('REQUEST SENT:') ||
@@ -149,16 +165,6 @@ export default function ActivityTimeline({ user }) {
         return false;
       }
 
-      if (
-        authorName &&
-        currentUserName &&
-        !authorName.includes(currentUserName) &&
-        !currentUserName.includes(authorName) &&
-        !authorName.includes('supervisor')
-      ) {
-        return false;
-      }
-
       return true;
     }
 
@@ -166,7 +172,6 @@ export default function ActivityTimeline({ user }) {
     // FIELD OFFICER SCOPING: Only their own work
     // -------------------------------------------------------------
     if (isOff) {
-      if (!isSelfId) return false;
       if (authorName.includes('system manager') || authorName.includes('manager')) return false;
       return true;
     }
@@ -174,7 +179,7 @@ export default function ActivityTimeline({ user }) {
     // -------------------------------------------------------------
     // MANAGER SCOPING: Manager personal/system logs
     // -------------------------------------------------------------
-    return Boolean(isSelfId);
+    return true;
   }, [user]);
 
   const loadLogs = useCallback(async () => {
@@ -187,56 +192,28 @@ export default function ActivityTimeline({ user }) {
     const isSup = currentRole === 'supervisor';
 
     try {
-      // 1. Purge legacy SMS & misattributed subordinate/manager logs from Dexie cache
+      // 1. Purge legacy SMS from Dexie cache if any exist
       try {
-        if (isSup) {
-          const staleLogs = await offlineDb.activityLogs
-            .filter((item) => {
-              const evt = String(item.eventType || '').toUpperCase();
-              const desc = String(item.description || '').toUpperCase();
-              if (evt.includes('SMS') || desc.includes('SMS')) return true;
-              if (evt === 'REQUEST_RECEIVED') return true;
-              if (
-                evt.startsWith('WORK_SESSION_') ||
-                evt.startsWith('ATTENDANCE_') ||
-                evt.startsWith('VERIFICATION_') ||
-                evt.startsWith('CITIZEN_') ||
-                evt.startsWith('DAILY_REPORT_') ||
-                evt === 'USER_CREATED' ||
-                evt === 'USER_STATUS_CHANGE' ||
-                desc.includes('SYSTEM MANAGER') ||
-                desc.includes('STARTED DAILY WORK SESSION') ||
-                desc.includes('WORK VERIFICATION') ||
-                desc.includes('PRESENCE CHECK') ||
-                desc.includes('REGISTERED CITIZEN')
-              ) {
-                return true;
-              }
-              return false;
-            })
-            .toArray();
-
-          if (staleLogs.length > 0) {
-            await Promise.all(staleLogs.map((item) => offlineDb.activityLogs.delete(item.id)));
-          }
-        } else {
-          const smsLogs = await offlineDb.activityLogs
-            .filter((item) =>
-              String(item.eventType || '').toUpperCase().includes('SMS') ||
-              String(item.description || '').toUpperCase().includes('SMS')
-            )
-            .toArray();
-          if (smsLogs.length > 0) {
-            await Promise.all(smsLogs.map((item) => offlineDb.activityLogs.delete(item.id)));
-          }
+        const smsLogs = await offlineDb.activityLogs
+          .filter((item) =>
+            String(item.eventType || '').toUpperCase().includes('SMS') ||
+            String(item.description || '').toUpperCase().includes('SMS')
+          )
+          .toArray();
+        if (smsLogs.length > 0) {
+          await Promise.all(smsLogs.map((item) => offlineDb.activityLogs.delete(item.id)));
         }
       } catch (_e) {}
 
       // 2. Query server specifically for the logged-in user's own work
-      const authToken = localStorage.getItem('fieldsync_token');
+      const authToken =
+        localStorage.getItem('fieldsync_token') ||
+        localStorage.getItem('token') ||
+        sessionStorage.getItem('token');
+
       if (navigator.onLine && authToken) {
         try {
-          const queryParam = `?officerId=${encodeURIComponent(user.id)}&limit=250`;
+          const queryParam = `?limit=250`;
           const res = await fetch(`${API_BASE}/activity-logs${queryParam}`, {
             headers: { Authorization: `Bearer ${authToken}` },
           });

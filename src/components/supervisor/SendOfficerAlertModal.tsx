@@ -282,8 +282,11 @@ export default function SendOfficerAlertModal({
           'SUPERVISOR_ALERT_SENT',
           `Sent alert to ${officerName}: ${title.trim()}`,
           {
-            officerId: officer.id,
+            officerId: currentUser?.id,
+            officerName: currentUser?.name || currentUser?.fullName || 'Supervisor',
             metadata: {
+              targetOfficerId: officer.id,
+              targetOfficerName: officerName,
               supervisorId: currentUser?.id,
               screenTime: screenTimeFmt,
               missedVerifications: verificationStats.missed,
