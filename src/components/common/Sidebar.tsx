@@ -202,6 +202,7 @@ export default function Sidebar({
     }
     try {
       localStorage.setItem('fieldsync_active_tab', id);
+      window.location.hash = `#${id}`;
       window.dispatchEvent(new CustomEvent('fieldsync-tab-change', { detail: { tab: id } }));
     } catch (_e) {}
     setActiveTab(id);

@@ -57,7 +57,20 @@ export default function MainLayout({
   screenTimeInfo
 }) {
   const { userT } = useUserLanguage();
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        const hash = window.location.hash.toLowerCase().replace('#', '');
+        if (hash && hash !== 'dashboard' && hash !== 'app' && hash !== 'home' && hash !== 'landing') {
+          if (hash === 'activity-logs' || hash === 'activitylogs') return 'activity_logs';
+          return hash;
+        }
+        const saved = localStorage.getItem('fieldsync_active_tab');
+        if (saved) return saved;
+      }
+    } catch {}
+    return 'dashboard';
+  });
   const [showSyncLog, setShowSyncLog] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [unreadNotifCount, setUnreadNotifCount] = useState(0);
@@ -228,9 +241,28 @@ export default function MainLayout({
         setActiveTab(e.detail.tab);
       }
     };
+    const handleHashChange = () => {
+      const h = window.location.hash.toLowerCase().replace('#', '');
+      if (h === 'activity_logs' || h === 'activity-logs' || h === 'activitylogs') {
+        setActiveTab('activity_logs');
+      } else if (h && h !== 'home' && h !== 'landing' && h !== 'app' && h !== 'dashboard') {
+        setActiveTab(h);
+      }
+    };
+
     window.addEventListener('fieldsync-tab-change', handleTabChange);
-    return () => window.removeEventListener('fieldsync-tab-change', handleTabChange);
+    window.addEventListener('hashchange', handleHashChange);
+    return () => {
+      window.removeEventListener('fieldsync-tab-change', handleTabChange);
+      window.removeEventListener('hashchange', handleHashChange);
+    };
   }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('fieldsync_active_tab', activeTab);
+    } catch {}
+  }, [activeTab]);
 
   const handleAcknowledgeAlert = async (alertId: string) => {
     try {

@@ -28,7 +28,23 @@ export default function ActivityTimeline({ user }) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('ALL');
-  const userRole = String(user?.role || '').toLowerCase();
+
+  // Robust user resolution: props or local storage session
+  const effectiveUser = useMemo(() => {
+    let resolved = user;
+    if (!resolved?.id && !resolved?.userId && !resolved?._id) {
+      try {
+        const stored = localStorage.getItem('fieldsync_user');
+        if (stored) resolved = JSON.parse(stored);
+      } catch {}
+    }
+    const id = resolved?.id || resolved?.userId || resolved?._id || resolved?.employeeId;
+    const role = resolved?.role || 'FIELD_OFFICER';
+    const fullName = resolved?.fullName || resolved?.name || '';
+    return { ...resolved, id, role, fullName };
+  }, [user]);
+
+  const userRole = String(effectiveUser?.role || '').toLowerCase();
   const isSupervisor = userRole === 'supervisor';
   const isOfficer = userRole === 'field_officer';
   const isManager = userRole === 'manager' || userRole === 'admin';
@@ -38,9 +54,9 @@ export default function ActivityTimeline({ user }) {
    * STRICT ROLE-BASED WORK SCOPE:
    * - Supervisor: ONLY what the supervisor personally does on their page
    *   (evaluations, supervisor reports, directives/alerts, leave/permission approvals & rejections,
-   *   assigned tasks, own profile/security). Excludes all officer fieldwork and manager operations.
+   *   subordinate requests received, own profile/security, logins). Excludes officer fieldwork.
    * - Field Officer: ONLY their own fieldwork and personal reports/requests.
-   * - Manager: System-wide operations authored by or assigned to them.
+   * - Manager: Operations authored by or assigned to them.
    */
   const canViewLog = useCallback((l: any) => {
     if (!l) return false;
@@ -61,25 +77,25 @@ export default function ActivityTimeline({ user }) {
       return false;
     }
 
-    if (!user?.id) return false;
+    const currentUserId = effectiveUser?.id;
+    if (!currentUserId) return true;
 
-    const currentRole = String(user?.role || '').toLowerCase();
+    const currentRole = String(effectiveUser?.role || '').toLowerCase();
     const isSup = currentRole === 'supervisor';
     const isOff = currentRole === 'field_officer';
-    const isMgr = currentRole === 'manager' || currentRole === 'admin';
 
     // Verify ownership ID
     const isSelfId =
-      l.officerId === user.id ||
-      (user.employeeId && l.officerId === user.employeeId) ||
-      (l.userId && l.userId === user.id) ||
-      (l.actorId && l.actorId === user.id) ||
-      (l.metadata?.userId && l.metadata?.userId === user.id) ||
-      (l.metadata?.officerId && l.metadata?.officerId === user.id) ||
-      (l.metadata?.actorId && l.metadata?.actorId === user.id) ||
-      (l.metadata?.supervisorId && l.metadata?.supervisorId === user.id) ||
+      l.officerId === currentUserId ||
+      (effectiveUser.employeeId && l.officerId === effectiveUser.employeeId) ||
+      (l.userId && l.userId === currentUserId) ||
+      (l.actorId && l.actorId === currentUserId) ||
+      (l.metadata?.userId && l.metadata?.userId === currentUserId) ||
+      (l.metadata?.officerId && l.metadata?.officerId === currentUserId) ||
+      (l.metadata?.actorId && l.metadata?.actorId === currentUserId) ||
+      (l.metadata?.supervisorId && l.metadata?.supervisorId === currentUserId) ||
       // Supervisor Getiye dual ID alias support:
-      ((user.id === 'off24182999' || user.id === 'cb0ba983-e234-4596-9cea-34a157af283e') &&
+      ((currentUserId === 'off24182999' || currentUserId === 'cb0ba983-e234-4596-9cea-34a157af283e') &&
        (l.officerId === 'off24182999' || l.officerId === 'cb0ba983-e234-4596-9cea-34a157af283e'));
 
     // Resolve author name
@@ -94,7 +110,7 @@ export default function ActivityTimeline({ user }) {
       ''
     ).trim().toLowerCase();
 
-    const currentUserName = String(user.fullName || user.name || '').trim().toLowerCase();
+    const currentUserName = String(effectiveUser.fullName || effectiveUser.name || '').trim().toLowerCase();
 
     const isOwnName = Boolean(
       currentUserName &&
@@ -109,13 +125,9 @@ export default function ActivityTimeline({ user }) {
     // Reject immediately if the log does not belong to the logged-in user
     if (!isOwnWork) return false;
 
-    // -------------------------------------------------------------
     // SUPERVISOR LOG SCOPING:
-    // Only contains what the supervisor personally does in his page.
-    // Strictly removes officer fieldwork and manager operations.
-    // -------------------------------------------------------------
     if (isSup) {
-      // Exclude field officer fieldwork (sessions, verifications, daily work reports, subordinate requests)
+      // Exclude field officer fieldwork (sessions, verifications, daily work reports)
       if (
         evt.startsWith('WORK_SESSION_') ||
         evt.startsWith('VERIFICATION_') ||
@@ -124,17 +136,14 @@ export default function ActivityTimeline({ user }) {
         evt.startsWith('ASSIGNMENT_PAUSED') ||
         evt.startsWith('ASSIGNMENT_RESUMED') ||
         evt.startsWith('ASSIGNMENT_COMPLETED') ||
-        evt === 'REQUEST_RECEIVED' ||
         evt === 'REQUEST_SENT' ||
         evt === 'LEAVE_REQUESTED' ||
         evt === 'PERMISSION_REQUESTED' ||
-        evt === 'SUPERVISOR_CONFIRMATION' ||
         desc.includes('WORK SESSION') ||
         desc.includes('PRESENCE CHECK') ||
         desc.includes('WORK VERIFICATION') ||
         desc.includes('DAILY WORK REPORT') ||
-        desc.includes('REQUEST SENT:') ||
-        desc.includes('REQUEST RECEIVED:')
+        desc.includes('REQUEST SENT:')
       ) {
         return false;
       }
@@ -148,7 +157,6 @@ export default function ActivityTimeline({ user }) {
         evt === 'USER_ROLE_CHANGED' ||
         evt === 'USER_PASSWORD_RESET' ||
         authorName.includes('system manager') ||
-        authorName.includes('manager') ||
         desc.includes('SYSTEM MANAGER') ||
         desc.includes('CREATED NEW STAFF ACCOUNT') ||
         desc.includes('DEACTIVATE ACCOUNT') ||
@@ -161,44 +169,28 @@ export default function ActivityTimeline({ user }) {
         return false;
       }
 
-      // Exclude logs where author is labeled as subordinate officer
-      if (authorName.includes('field officer')) {
-        return false;
-      }
-
       return true;
     }
 
-    // -------------------------------------------------------------
-    // FIELD OFFICER SCOPING: Only their own work
-    // -------------------------------------------------------------
+    // FIELD OFFICER SCOPING:
     if (isOff) {
-      if (authorName.includes('system manager') || authorName.includes('manager')) return false;
+      if (authorName.includes('system manager')) return false;
       return true;
     }
 
-    // -------------------------------------------------------------
-    // MANAGER SCOPING: Manager personal/system logs
-    // -------------------------------------------------------------
     return true;
-  }, [user]);
+  }, [effectiveUser]);
 
   const loadLogs = useCallback(async () => {
-    if (!user?.id) {
-      setIsLoading(false);
-      return;
-    }
-
-    const currentRole = String(user?.role || '').toLowerCase();
-    const isSup = currentRole === 'supervisor';
+    setIsLoading(true);
 
     try {
       // 1. Purge legacy SMS from Dexie cache if any exist
       try {
         const smsLogs = await offlineDb.activityLogs
           .filter((item) =>
-            String(item.eventType || '').toUpperCase().includes('SMS') ||
-            String(item.description || '').toUpperCase().includes('SMS')
+            String(item?.eventType || '').toUpperCase().includes('SMS') ||
+            String(item?.description || '').toUpperCase().includes('SMS')
           )
           .toArray();
         if (smsLogs.length > 0) {
@@ -212,10 +204,10 @@ export default function ActivityTimeline({ user }) {
         localStorage.getItem('token') ||
         sessionStorage.getItem('token');
 
+      const serverLogs: any[] = [];
       if (navigator.onLine && authToken) {
         try {
-          const queryParam = `?limit=250`;
-          const res = await fetch(`${API_BASE}/activity-logs${queryParam}`, {
+          const res = await fetch(`${API_BASE}/activity-logs?limit=250`, {
             headers: { Authorization: `Bearer ${authToken}` },
           });
 
@@ -223,9 +215,9 @@ export default function ActivityTimeline({ user }) {
             const resData = await res.json();
             if (resData.success && Array.isArray(resData.data)) {
               for (const serverLog of resData.data) {
-                // Ensure only own valid work is written to cache
                 if (!canViewLog(serverLog)) continue;
-                await offlineDb.activityLogs.put({
+                serverLogs.push(serverLog);
+                offlineDb.activityLogs.put({
                   id: serverLog.id,
                   officerId: serverLog.officerId,
                   officerName: serverLog.officerName || serverLog.officer?.fullName,
@@ -237,7 +229,7 @@ export default function ActivityTimeline({ user }) {
                   relatedRecordId: serverLog.relatedRecordId,
                   metadata: serverLog.metadata,
                   syncStatus: 'SYNCED',
-                });
+                }).catch(() => {});
               }
             }
           }
@@ -246,25 +238,39 @@ export default function ActivityTimeline({ user }) {
         }
       }
 
-      // 3. Read and strictly filter local logs for only the logged-in user's work
-      const allLocalLogs = await offlineDb.activityLogs.toArray();
-      const userWorkLogs = allLocalLogs
-        .filter(canViewLog)
-        .sort((a, b) => {
-          const tA = a.deviceTimestamp ? new Date(a.deviceTimestamp).getTime() : 0;
-          const tB = b.deviceTimestamp ? new Date(b.deviceTimestamp).getTime() : 0;
-          return tB - tA;
-        });
+      // 3. Read local logs and merge with server logs seamlessly
+      const allLocalLogs = await offlineDb.activityLogs.toArray().catch(() => []);
+      const combinedMap = new Map<string, any>();
+
+      for (const s of serverLogs) {
+        if (canViewLog(s)) {
+          combinedMap.set(s.id, {
+            ...s,
+            syncStatus: 'SYNCED',
+          });
+        }
+      }
+
+      for (const l of allLocalLogs) {
+        if (canViewLog(l) && !combinedMap.has(l.id)) {
+          combinedMap.set(l.id, l);
+        }
+      }
+
+      const userWorkLogs = Array.from(combinedMap.values()).sort((a, b) => {
+        const tA = a.deviceTimestamp ? new Date(a.deviceTimestamp).getTime() : 0;
+        const tB = b.deviceTimestamp ? new Date(b.deviceTimestamp).getTime() : 0;
+        return tB - tA;
+      });
 
       setLogs(userWorkLogs);
     } catch (err) {
       console.error('Error loading activity logs:', err);
-      toast.error('Failed to load activity logs');
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
     }
-  }, [canViewLog, user?.id, user?.role]);
+  }, [canViewLog, effectiveUser?.id]);
 
   useEffect(() => {
     loadLogs();
@@ -515,7 +521,8 @@ export default function ActivityTimeline({ user }) {
         { id: 'ALL', label: 'All Actions' },
         { id: 'REPORTS', label: 'Reports & Evaluations' },
         { id: 'REQUESTS', label: 'Leave & Permissions' },
-        { id: 'TASKS', label: 'Directives & Tasks' },
+        { id: 'TASKS', label: 'Directives & Alerts' },
+        { id: 'SESSIONS', label: 'Sessions & Logins' },
         { id: 'MANAGEMENT', label: 'Profile & Security' },
       ];
     }
@@ -541,6 +548,7 @@ export default function ActivityTimeline({ user }) {
   // Filter logs by search term and selected category
   const filteredLogs = useMemo(() => {
     return logs.filter((log) => {
+      if (!log) return false;
       const meta = getEventMeta(log.eventType);
 
       if (categoryFilter !== 'ALL') {
@@ -678,15 +686,19 @@ export default function ActivityTimeline({ user }) {
                   const isDetailsExpanded = expandedRowIds.has(log.id);
 
                   const dateObj = log.deviceTimestamp ? new Date(log.deviceTimestamp) : null;
-                  const timeFormatted = dateObj
+                  const isValidDate = dateObj && !isNaN(dateObj.getTime());
+                  const timeFormatted = isValidDate
                     ? dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
                     : '—';
-                  const dateFormatted = dateObj
+                  const dateFormatted = isValidDate
                     ? dateObj.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })
                     : '—';
 
-                  const metadataEntries = log.metadata
-                    ? Object.entries(log.metadata).filter(
+                  const parsedMetadata = typeof log.metadata === 'string'
+                    ? (() => { try { return JSON.parse(log.metadata); } catch { return null; } })()
+                    : log.metadata;
+                  const metadataEntries = parsedMetadata && typeof parsedMetadata === 'object' && !Array.isArray(parsedMetadata)
+                    ? Object.entries(parsedMetadata).filter(
                         ([k, v]) => v !== null && v !== undefined && typeof v !== 'object'
                       )
                     : [];
