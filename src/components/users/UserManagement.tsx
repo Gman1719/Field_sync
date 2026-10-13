@@ -157,15 +157,7 @@ export default function UserManagement({
     // System is restricted to a single System Manager (manager@fieldsync.com)
     if (role === 'manager' && email !== 'manager@fieldsync.com') return true;
     if (email === 'abebe@fieldsync.com' || u.id === 'u_demo_mgr' || u.id === 'm1') return true;
-
-    const reg = (u.region || '').trim().toLowerCase();
-    const zone = (u.zone || '').trim().toLowerCase();
-    const name = (u.name || u.fullName || '').trim().toLowerCase();
-    const isDirectionalReg = ['north', 'south', 'east', 'west', 'all'].includes(reg);
-    const isZonalDummy = zone.includes('zonal jurisdiction') || reg.includes('organization-wide');
-    const isLegacyMockId = /^([so]\d+|m1)$/i.test(u.id) || /^FO00[1-9]/i.test(u.employeeId || '') || /^SUP00[1-9]/i.test(u.employeeId || '');
-    const isMockName = ['ብርሃን ገብረእግዚአብሔር', 'ሣህለ ሙሉጌታ', 'ኪዳን ጥላሁን', 'dawit haile mariam'].includes(name);
-    return isDirectionalReg || isZonalDummy || isLegacyMockId || isMockName;
+    return false;
   };
 
   // 2. Computed KPI Stats fallback & live updates
@@ -1466,6 +1458,9 @@ export default function UserManagement({
           handleToggleStatus(u);
         }}
         onDeleteUser={(u) => {
+          handleDeleteUser(u);
+        }}
+        onDelete={(u) => {
           handleDeleteUser(u);
         }}
         onResetPassword={(u) => {

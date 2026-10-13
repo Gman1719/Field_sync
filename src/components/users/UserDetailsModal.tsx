@@ -21,6 +21,7 @@ interface UserDetailsModalProps {
   onChangeRole?: (user: any) => void;
   onToggleStatus?: (user: any) => Promise<void> | void;
   onDeleteUser?: (user: any) => Promise<void> | void;
+  onDelete?: (user: any) => Promise<void> | void;
   onResetPassword?: (user: any) => void;
   onUserUpdated?: (user?: any) => void;
   allUsers?: any[];
@@ -35,6 +36,7 @@ export default function UserDetailsModal({
   onChangeRole,
   onToggleStatus,
   onDeleteUser,
+  onDelete,
   onResetPassword,
   allUsers = [],
 }: UserDetailsModalProps) {
@@ -78,7 +80,21 @@ export default function UserDetailsModal({
         if (res.ok && isMounted) {
           const resData = await res.json();
           if (resData.success && resData.data) {
-            setUserDetails((prev: any) => ({ ...(prev || {}), ...resData.data }));
+            const d = resData.data;
+            const normalized = {
+              ...d,
+              region: typeof d.region === 'object' && d.region ? d.region.name : (d.region || ''),
+              regionId: d.regionId || (typeof d.region === 'object' ? d.region?.id : null),
+              zone: typeof d.zone === 'object' && d.zone ? d.zone.name : (d.zone || ''),
+              zoneId: d.zoneId || (typeof d.zone === 'object' ? d.zone?.id : null),
+              woreda: typeof d.woreda === 'object' && d.woreda ? d.woreda.name : (d.woreda || ''),
+              woredaId: d.woredaId || (typeof d.woreda === 'object' ? d.woreda?.id : null),
+              supervisorName: d.supervisor?.fullName || d.supervisor?.name || d.supervisorName || null,
+              phoneNumber: d.phoneNumber || d.phone || null,
+              phone: d.phoneNumber || d.phone || null,
+              registeredCitizensCount: Number(d.registeredCitizensCount ?? d._count?.registeredCitizens ?? 0),
+            };
+            setUserDetails((prev: any) => ({ ...(prev || {}), ...normalized }));
           }
         }
 
@@ -222,6 +238,15 @@ export default function UserDetailsModal({
   const fullName = [current.firstName, current.middleName, current.lastName].filter(Boolean).join(' ') || current.fullName || current.name || 'User';
   const initial = (current.firstName?.[0] || fullName?.[0] || 'U').toUpperCase();
 
+  const regionDisplay = typeof current?.region === 'object' && current?.region ? current.region.name : (typeof current?.region === 'string' ? current.region : '');
+  const zoneDisplay = typeof current?.zone === 'object' && current?.zone ? current.zone.name : (typeof current?.zone === 'string' ? current.zone : '');
+  const woredaDisplay = typeof current?.woreda === 'object' && current?.woreda ? current.woreda.name : (typeof current?.woreda === 'string' ? current.woreda : '');
+  const supervisorDisplay =
+    (typeof current?.supervisor === 'object' && current?.supervisor ? (current.supervisor.fullName || current.supervisor.name) : null) ||
+    (typeof current?.supervisorName === 'string' ? current.supervisorName : null) ||
+    (typeof current?.supervisorId === 'string' ? current.supervisorId : null) ||
+    userT('Unassigned');
+
   return (
     <Modal
       isOpen={isOpen}
@@ -256,7 +281,7 @@ export default function UserDetailsModal({
                   </span>
                   <button
                     type="button"
-                    onClick={() => copyToClipboard(current.employeeId || current.id, 'Employee ID')}
+                    onClick={() => copyToClipboard(String(current.employeeId || current.id || ''), 'Employee ID')}
                     className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-0.5 cursor-pointer"
                     title={userT('Copy ID')}
                   >
@@ -266,7 +291,7 @@ export default function UserDetailsModal({
                 <div className="flex items-center gap-2 mt-2">
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200/80 dark:bg-blue-500/20 dark:text-blue-300 dark:border-blue-500/40 capitalize shadow-2xs">
                     <ShieldCheck className="w-3.5 h-3.5" />
-                    {userT(current.role ? current.role.replace('_', ' ') : 'Role')}
+                    {userT(typeof current.role === 'string' ? current.role.replace('_', ' ') : 'Role')}
                   </span>
                   <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold shadow-2xs ${
                     isActive
@@ -283,7 +308,7 @@ export default function UserDetailsModal({
             <div className="flex sm:flex-col items-end justify-between sm:justify-center border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-200/60 dark:border-slate-700">
               <span className="text-[11px] text-slate-500 dark:text-slate-400">{userT('Citizens Registered')}</span>
               <span className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-                {(current.registeredCitizensCount || current.registrationsCount || 0).toLocaleString()}
+                {(Number(current.registeredCitizensCount || current.registrationsCount || 0) || 0).toLocaleString()}
               </span>
             </div>
           </div>
@@ -402,19 +427,19 @@ export default function UserDetailsModal({
                   <div className="p-2.5 bg-white dark:bg-slate-800 rounded-lg border border-slate-200/80 dark:border-slate-700 shadow-2xs">
                     <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">{userT('Region')}</span>
                     <span className="text-xs font-bold text-slate-900 dark:text-white block mt-0.5">
-                      {current.region ? userT(current.region) : '—'}
+                      {regionDisplay ? userT(regionDisplay) : '—'}
                     </span>
                   </div>
                   <div className="p-2.5 bg-white dark:bg-slate-800 rounded-lg border border-slate-200/80 dark:border-slate-700 shadow-2xs">
                     <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">{userT('Zone / Sub-City')}</span>
                     <span className="text-xs font-bold text-slate-900 dark:text-white block mt-0.5">
-                      {current.zone ? userT(current.zone) : '—'}
+                      {zoneDisplay ? userT(zoneDisplay) : '—'}
                     </span>
                   </div>
                   <div className="p-2.5 bg-white dark:bg-slate-800 rounded-lg border border-slate-200/80 dark:border-slate-700 shadow-2xs">
                     <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">{userT('Woreda / Station')}</span>
                     <span className="text-xs font-bold text-slate-900 dark:text-white block mt-0.5">
-                      {current.role === 'supervisor' ? userT('All Woredas') : (current.woreda ? userT(current.woreda) : '—')}
+                      {current.role === 'supervisor' ? userT('All Woredas') : (woredaDisplay ? userT(woredaDisplay) : '—')}
                     </span>
                   </div>
                 </div>
@@ -428,11 +453,11 @@ export default function UserDetailsModal({
                       <div>
                         <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block">{userT('Direct Assigned Supervisor')}</span>
                         <span className="text-sm font-semibold text-slate-900 dark:text-white">
-                          {current.supervisorName || current.supervisorId || userT('Unassigned')}
+                          {supervisorDisplay}
                         </span>
                       </div>
                     </div>
-                    {current.supervisorName && (
+                    {supervisorDisplay && supervisorDisplay !== userT('Unassigned') && (
                       <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/40 px-2.5 py-0.5 rounded-full border border-blue-200 dark:border-blue-700">
                         {userT('Zonal Supervisor')}
                       </span>
@@ -513,6 +538,7 @@ export default function UserDetailsModal({
                       ),
                       { duration: 6000 }
                     );
+                    return;
                   }
                   onChangeRole(current);
                 }}
@@ -537,6 +563,7 @@ export default function UserDetailsModal({
                       ),
                       { duration: 6000 }
                     );
+                    return;
                   }
                   onReassign(current);
                 }}
@@ -577,7 +604,7 @@ export default function UserDetailsModal({
             )}
 
             {/* 6. Delete User Account (Next to Deactivate Account) */}
-            {onDeleteUser && current.role !== 'manager' && (
+            {(onDeleteUser || onDelete) && current.role !== 'manager' && (
               <button
                 type="button"
                 disabled={isDeleting}
@@ -593,7 +620,11 @@ export default function UserDetailsModal({
                   }
                   setIsDeleting(true);
                   try {
-                    await onDeleteUser(current);
+                    const deleteFn = onDeleteUser || onDelete;
+                    if (deleteFn) {
+                      await deleteFn(current);
+                    }
+                    onClose();
                   } finally {
                     setIsDeleting(false);
                   }
