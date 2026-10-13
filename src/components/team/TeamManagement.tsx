@@ -427,10 +427,20 @@ export default function TeamManagement({
 
     const regCount = Math.max(fromProps, fromOfficerObj);
 
-    const todayReport = reports.find((r: any) =>
-      (r.employeeId === officer.employeeId || r.officerId === officer.id || r.userId === officer.id) &&
-      r.reportDate === todayStr
-    );
+    const todayReport =
+      Boolean(officer.dailyReportSubmitted) ||
+      Boolean(officer.todayReport) ||
+      Boolean(officer.dailyReports && officer.dailyReports.length > 0) ||
+      Boolean(
+        (reports || []).some((r: any) =>
+          (r.employeeId === officer.employeeId ||
+           r.employeeId === officer.id ||
+           r.officerId === officer.id ||
+           r.officerId === officer.employeeId ||
+           r.userId === officer.id) &&
+          (r.reportDate === todayStr || r.date === todayStr)
+        )
+      );
 
     const isOnline =
       officer.connectionState === 'ONLINE' ||
@@ -615,6 +625,13 @@ export default function TeamManagement({
   if (isSupervisor) {
     const totalOfficers = supervisorOfficers.length;
     const activeCount = supervisorOfficers.filter((o: any) => o.status === 'active' || o.isActive === true).length;
+    const zoneName =
+      (user?.zone && user.zone !== 'Unassigned') ? user.zone :
+      (user?.zoneName && user.zoneName !== 'Unassigned') ? user.zoneName :
+      (supervisorOfficers[0]?.zone && supervisorOfficers[0].zone !== 'Unassigned') ? supervisorOfficers[0].zone :
+      (supervisorOfficers[0]?.zoneName) ? supervisorOfficers[0].zoneName :
+      (user?.zoneId === 'zone-am-north-shewa' || !user?.zone) ? 'North Shewa Zone' :
+      ((user?.region && user.region !== 'Unassigned') ? user.region : userT('Assigned Zone'));
 
     return (
       <div className="space-y-6 animate-in fade-in duration-150">
@@ -632,7 +649,7 @@ export default function TeamManagement({
                 <span>{userT('Direct field officers assigned to your operational unit')}</span>
                 <span>•</span>
                 <span className="font-medium text-slate-600 dark:text-slate-300">
-                  {(user?.zone && user.zone !== 'Unassigned') ? user.zone : ((user?.region && user.region !== 'Unassigned') ? user.region : userT('Assigned Zone'))}
+                  {zoneName}
                 </span>
               </p>
             </div>
