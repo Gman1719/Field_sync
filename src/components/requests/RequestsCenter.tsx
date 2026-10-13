@@ -31,6 +31,7 @@ import { ActivityLogger } from '../../services/activityLogger';
 import {
   validateLeaveRequest,
   validatePermissionRequest,
+  getTodayDateString,
   LEAVE_TYPES,
   timeStringToMinutes,
 } from '../../utils/requestValidation';
@@ -65,6 +66,7 @@ export default function RequestsCenter({
   const isManager = user?.role === 'manager';
 
   const officerId = user?.employeeId || user?.id;
+  const todayDate = useMemo(() => getTodayDateString(), []);
 
   const [selectedStatusTab, setSelectedStatusTab] = useState<'all' | 'pending' | 'approved' | 'rejected' | 'cancelled'>('all');
   const [selectedTypeFilter, setSelectedTypeFilter] = useState<'all' | 'leave' | 'permission'>(defaultType);
@@ -273,9 +275,21 @@ export default function RequestsCenter({
     e.preventDefault();
     setLeaveErrors({});
 
+    const myLeaves = leaves.filter(
+      (l) =>
+        (l.employeeId && (l.employeeId === officerId || l.employeeId === user?.id)) ||
+        (l.employee_id && (l.employee_id === officerId || l.employee_id === user?.id))
+    );
+    const myPermissions = permissions.filter(
+      (p) =>
+        (p.employeeId && (p.employeeId === officerId || p.employeeId === user?.id)) ||
+        (p.employee_id && (p.employee_id === officerId || p.employee_id === user?.id))
+    );
+
     const validation = validateLeaveRequest(
       leaveForm,
-      leaves.filter((l) => (l.employeeId || l.employee_id) === officerId),
+      myLeaves,
+      myPermissions,
       undefined,
       userT
     );
@@ -413,10 +427,21 @@ export default function RequestsCenter({
     e.preventDefault();
     setPermissionErrors({});
 
+    const myLeaves = leaves.filter(
+      (l) =>
+        (l.employeeId && (l.employeeId === officerId || l.employeeId === user?.id)) ||
+        (l.employee_id && (l.employee_id === officerId || l.employee_id === user?.id))
+    );
+    const myPermissions = permissions.filter(
+      (p) =>
+        (p.employeeId && (p.employeeId === officerId || p.employeeId === user?.id)) ||
+        (p.employee_id && (p.employee_id === officerId || p.employee_id === user?.id))
+    );
+
     const validation = validatePermissionRequest(
       permissionForm,
-      permissions.filter((p) => (p.employeeId || p.employee_id) === officerId),
-      leaves.filter((l) => (l.employeeId || l.employee_id) === officerId),
+      myPermissions,
+      myLeaves,
       undefined,
       userT
     );
@@ -1290,6 +1315,7 @@ export default function RequestsCenter({
                   </label>
                   <input
                     type="date"
+                    min={todayDate}
                     value={leaveForm.startDate}
                     onChange={(e) => setLeaveForm({ ...leaveForm, startDate: e.target.value })}
                     className="w-full text-xs sm:text-sm p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-slate-400 focus:outline-hidden"
@@ -1305,6 +1331,7 @@ export default function RequestsCenter({
                   </label>
                   <input
                     type="date"
+                    min={leaveForm.startDate && leaveForm.startDate >= todayDate ? leaveForm.startDate : todayDate}
                     value={leaveForm.endDate}
                     onChange={(e) => setLeaveForm({ ...leaveForm, endDate: e.target.value })}
                     className="w-full text-xs sm:text-sm p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-slate-400 focus:outline-hidden"
@@ -1430,6 +1457,7 @@ export default function RequestsCenter({
                 </label>
                 <input
                   type="date"
+                  min={todayDate}
                   value={permissionForm.date}
                   onChange={(e) => setPermissionForm({ ...permissionForm, date: e.target.value })}
                   className="w-full text-xs sm:text-sm p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"

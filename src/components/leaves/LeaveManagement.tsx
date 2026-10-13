@@ -612,6 +612,7 @@ export default function LeaveManagement({
             <Input
               label={userT('Start Date')}
               type="date"
+              min={new Date().toISOString().split('T')[0]}
               value={newLeave.startDate}
               onChange={(e) => {
                 setNewLeave(prev => ({ ...prev, startDate: e.target.value }));
@@ -624,6 +625,7 @@ export default function LeaveManagement({
             <Input
               label={userT('End Date')}
               type="date"
+              min={newLeave.startDate || new Date().toISOString().split('T')[0]}
               value={newLeave.endDate}
               onChange={(e) => {
                 setNewLeave(prev => ({ ...prev, endDate: e.target.value }));

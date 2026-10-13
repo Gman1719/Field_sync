@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { readLeaves } from './leaves.routes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -79,9 +80,66 @@ router.get('/:id', (req: Request, res: Response) => {
   }
 });
 
-router.post('/', (req: Request, res: Response) => {
+router.post('/', (req: Request, res: Response): void => {
   try {
     const body = req.body || {};
+    const todayStr = new Date().toISOString().split('T')[0];
+    const pDate = String(body.date || '').split('T')[0];
+    const empId = String(body.employeeId || body.officerId || '').trim().toLowerCase();
+
+    // 1. Past date validation
+    if (pDate && pDate < todayStr) {
+      res.status(400).json({ success: false, error: 'Permission date cannot be in the past' });
+      return;
+    }
+
+    // 2. Duplication validation with active leaves covering this date
+    const leaves = readLeaves();
+    const activeLeave = leaves.find((l) => {
+      const lEmp = String(l.employeeId || l.officerId || '').trim().toLowerCase();
+      if (empId && lEmp && lEmp !== empId) return false;
+      const st = String(l.status || '').toLowerCase();
+      if (st !== 'pending' && st !== 'approved' && st !== 'active') return false;
+      const ls = String(l.startDate || '').split('T')[0];
+      const le = String(l.endDate || '').split('T')[0];
+      if (!ls || !le) return false;
+      return pDate >= ls && pDate <= le;
+    });
+
+    if (activeLeave) {
+      res.status(400).json({
+        success: false,
+        error: `Duplicate conflict: You already have a ${activeLeave.status} leave request covering ${pDate} (${activeLeave.startDate} - ${activeLeave.endDate}). Cannot request permission on a leave date.`,
+      });
+      return;
+    }
+
+    // 3. Overlapping permission on the same date
+    const perms = readPermissions();
+    const overlappingPerm = perms.find((p) => {
+      if (body.id && p.id === body.id) return false;
+      const pEmp = String(p.employeeId || p.officerId || '').trim().toLowerCase();
+      if (empId && pEmp && pEmp !== empId) return false;
+      const st = String(p.status || '').toLowerCase();
+      if (st !== 'pending' && st !== 'approved' && st !== 'active') return false;
+      const existingDate = String(p.date || '').split('T')[0];
+      if (existingDate !== pDate) return false;
+
+      const pStart = p.startTime || '09:00';
+      const pEnd = p.endTime || '12:00';
+      const newStart = body.startTime || '09:00';
+      const newEnd = body.endTime || '12:00';
+      return newStart < pEnd && newEnd > pStart;
+    });
+
+    if (overlappingPerm) {
+      res.status(400).json({
+        success: false,
+        error: `Conflicts with an existing ${overlappingPerm.status} permission on ${pDate} (${overlappingPerm.startTime} - ${overlappingPerm.endTime})`,
+      });
+      return;
+    }
+
     const newRecord = {
       id: body.id || `perm_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       employeeId: body.employeeId || body.officerId || 'unknown',
@@ -99,7 +157,6 @@ router.post('/', (req: Request, res: Response) => {
       ...body,
     };
 
-    const perms = readPermissions();
     const existingIndex = perms.findIndex((p) => p.id === newRecord.id);
 
     if (existingIndex >= 0) {
