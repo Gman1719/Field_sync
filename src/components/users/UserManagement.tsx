@@ -75,7 +75,7 @@ export default function UserManagement({
   const fetchStats = useCallback(async () => {
     try {
       setLoadingStats(true);
-      const token = localStorage.getItem('fieldsync_token');
+      const token = localStorage.getItem('fieldsync_token') || localStorage.getItem('token') || sessionStorage.getItem('token');
       const res = await fetch(`${API_BASE}/users/stats`, {
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -85,16 +85,69 @@ export default function UserManagement({
       if (res.ok && data.success) {
         setServerStats(data.data);
       }
-    } catch (err) {
-      console.warn('Could not fetch server user stats, using client computation:', err.message);
+    } catch (err: any) {
+      console.warn('Could not fetch server user stats, using client computation:', err?.message);
     } finally {
       setLoadingStats(false);
     }
   }, []);
 
+  const fetchUsers = useCallback(async () => {
+    try {
+      const token = localStorage.getItem('fieldsync_token') || localStorage.getItem('token') || sessionStorage.getItem('token');
+      const res = await fetch(`${API_BASE}/users`, {
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const serverUsers = Array.isArray(data) ? data : (data?.data || []);
+        if (Array.isArray(serverUsers) && serverUsers.length > 0) {
+          const mapped = serverUsers.map((u: any) => ({
+            id: u.id,
+            employeeId: u.employeeId || u.employee_id || u.id,
+            name: u.name || u.fullName,
+            fullName: u.fullName || u.name,
+            firstName: u.firstName || u.first_name,
+            middleName: u.middleName || u.middle_name,
+            lastName: u.lastName || u.last_name,
+            email: u.email,
+            role: (u.role || '').toLowerCase(),
+            status: u.status || (u.isActive ? 'active' : 'inactive'),
+            isActive: u.isActive !== false && u.status !== 'inactive',
+            region: typeof u.region === 'object' && u.region ? u.region.name : (u.region || ''),
+            regionId: u.regionId || u.region_id,
+            zone: typeof u.zone === 'object' && u.zone ? u.zone.name : (u.zone || ''),
+            zoneId: u.zoneId || u.zone_id,
+            woreda: typeof u.woreda === 'object' && u.woreda ? u.woreda.name : (u.woreda || ''),
+            woredaId: u.woredaId || u.woreda_id,
+            supervisorId: u.supervisorId || u.supervisor_id,
+            supervisorName: u.supervisorName || u.supervisor?.fullName || null,
+            phone: u.phoneNumber || u.phone,
+            phoneNumber: u.phoneNumber || u.phone,
+            registeredCitizensCount: u.registeredCitizensCount ?? u._count?.registeredCitizens ?? 0,
+            profilePhotoUrl: u.profilePhotoUrl || u.profile_photo_url || null,
+          }));
+
+          if (setUsers) {
+            setUsers(mapped);
+          }
+          try {
+            await db.users.clear();
+            await db.users.bulkAdd(mapped as any);
+          } catch (_e) {}
+        }
+      }
+    } catch (err: any) {
+      console.warn('Could not fetch server users in UserManagement:', err?.message);
+    }
+  }, [setUsers]);
+
   useEffect(() => {
     fetchStats();
-  }, [fetchStats, users.length]);
+    fetchUsers();
+  }, [fetchStats, fetchUsers]);
 
   // Helper to exclude legacy directional mock users and extra non-system managers
   const isInvalidDirectional = (u: any) => {
@@ -155,9 +208,6 @@ export default function UserManagement({
   const filteredUsers = useMemo(() => {
     return users.filter(u => {
       if (isInvalidDirectional(u)) return false;
-      // Remove manager row from the list of users
-      const userRole = (u.role || '').toLowerCase();
-      if (userRole === 'manager') return false;
 
       if (specialFilter === 'unassigned') {
         if (u.role !== 'field_officer' || (u.supervisorId && u.woredaId)) return false;
@@ -890,6 +940,7 @@ export default function UserManagement({
               <option value="all">{userT('All Roles')}</option>
               <option value="field_officer">{userT('Field Officers')}</option>
               <option value="supervisor">{userT('Supervisors')}</option>
+              <option value="manager">{userT('Managers')}</option>
             </select>
 
             <select
@@ -1399,23 +1450,17 @@ export default function UserManagement({
         onEdit={(u) => {
           const target = u || selectedUserDetails;
           setSelectedUserDetails(null);
-          setTimeout(() => {
-            setSelectedUserEdit(target);
-          }, 50);
+          setSelectedUserEdit(target);
         }}
         onChangeRole={(u) => {
           const target = u || selectedUserDetails;
           setSelectedUserDetails(null);
-          setTimeout(() => {
-            setSelectedUserRole(target);
-          }, 50);
+          setSelectedUserRole(target);
         }}
         onReassign={(u) => {
           const target = u || selectedUserDetails;
           setSelectedUserDetails(null);
-          setTimeout(() => {
-            setSelectedUserReassign(target);
-          }, 50);
+          setSelectedUserReassign(target);
         }}
         onToggleStatus={(u) => {
           handleToggleStatus(u);
@@ -1426,9 +1471,7 @@ export default function UserManagement({
         onResetPassword={(u) => {
           const target = u || selectedUserDetails;
           setSelectedUserDetails(null);
-          setTimeout(() => {
-            setSelectedUserResetPassword(target);
-          }, 50);
+          setSelectedUserResetPassword(target);
         }}
         onUserUpdated={handleUserUpdated}
       />

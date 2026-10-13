@@ -228,7 +228,7 @@ export function useAppData(user: any) {
         try {
           const authToken = localStorage.getItem('fieldsync_token') || localStorage.getItem('token') || sessionStorage.getItem('token');
           const controller = new AbortController();
-          const timer = setTimeout(() => controller.abort(), 2000);
+          const timer = setTimeout(() => controller.abort(), 10000);
           const response = await fetch(`${API_BASE}/users`, {
             headers: authToken ? { Authorization: `Bearer ${authToken}` } : {},
             signal: controller.signal,
@@ -242,8 +242,13 @@ export function useAppData(user: any) {
               for (const serverUser of serverUsers) {
                 if (isLegacyDirectional(serverUser)) continue;
                 const existingIndex = mergedUsers.findIndex(
-                  (u) => u.id === serverUser.id || u.employeeId === serverUser.employee_id
+                  (u) => u.id === serverUser.id || (serverUser.employee_id && u.employeeId === serverUser.employee_id) || (serverUser.employeeId && u.employeeId === serverUser.employeeId)
                 );
+                const regName = typeof serverUser.region === 'object' && serverUser.region ? serverUser.region.name : (serverUser.region || serverUser.region_name || '');
+                const zoneName = typeof serverUser.zone === 'object' && serverUser.zone ? serverUser.zone.name : (serverUser.zone || serverUser.zone_name || '');
+                const woredaName = typeof serverUser.woreda === 'object' && serverUser.woreda ? serverUser.woreda.name : (serverUser.woreda || serverUser.woreda_name || '');
+                const userRole = (serverUser.role || '').toLowerCase();
+
                 if (existingIndex >= 0) {
                   mergedUsers[existingIndex] = {
                     ...mergedUsers[existingIndex],
@@ -252,16 +257,17 @@ export function useAppData(user: any) {
                     middleName: serverUser.middleName || serverUser.middle_name,
                     lastName: serverUser.lastName || serverUser.last_name,
                     email: serverUser.email,
-                    role: serverUser.role,
+                    role: userRole,
                     regionId: serverUser.regionId || serverUser.region_id,
                     zoneId: serverUser.zoneId || serverUser.zone_id,
                     woredaId: serverUser.woredaId || serverUser.woreda_id,
-                    region: serverUser.region || serverUser.region_name,
-                    zone: serverUser.zone || serverUser.zone_name,
-                    woreda: serverUser.woreda || serverUser.woreda_name,
+                    region: regName,
+                    zone: zoneName,
+                    woreda: woredaName,
                     supervisorId: serverUser.supervisorId || serverUser.supervisor_id,
                     supervisorName: serverUser.supervisorName || serverUser.supervisor_name,
-                    status: serverUser.status,
+                    status: serverUser.status || (serverUser.isActive ? 'active' : 'inactive'),
+                    isActive: serverUser.isActive !== false && serverUser.status !== 'inactive',
                     mustChangePassword:
                       serverUser.mustChangePassword !== undefined
                         ? serverUser.mustChangePassword
@@ -277,36 +283,37 @@ export function useAppData(user: any) {
                   };
                 } else {
                   const defaultPassword =
-                    serverUser.role === 'manager'
+                    userRole === 'manager'
                       ? 'manager123'
-                      : serverUser.role === 'supervisor'
+                      : userRole === 'supervisor'
                       ? 'super123'
                       : 'officer123';
                   mergedUsers.push({
                     id: serverUser.id,
-                    employeeId: serverUser.employeeId || serverUser.employee_id,
+                    employeeId: serverUser.employeeId || serverUser.employee_id || serverUser.id,
                     name: serverUser.name || serverUser.fullName,
                     firstName: serverUser.firstName || serverUser.first_name,
                     middleName: serverUser.middleName || serverUser.middle_name,
                     lastName: serverUser.lastName || serverUser.last_name,
                     email: serverUser.email,
                     password: serverUser.password_hash || defaultPassword,
-                    role: serverUser.role,
+                    role: userRole,
                     regionId: serverUser.regionId || serverUser.region_id,
                     zoneId: serverUser.zoneId || serverUser.zone_id,
                     woredaId: serverUser.woredaId || serverUser.woreda_id,
-                    region: serverUser.region || serverUser.region_name,
-                    zone: serverUser.zone || serverUser.zone_name,
-                    woreda: serverUser.woreda || serverUser.woreda_name,
+                    region: regName,
+                    zone: zoneName,
+                    woreda: woredaName,
                     supervisorId: serverUser.supervisorId || serverUser.supervisor_id,
                     supervisorName: serverUser.supervisorName || serverUser.supervisor_name,
-                    status: serverUser.status,
+                    status: serverUser.status || (serverUser.isActive ? 'active' : 'inactive'),
+                    isActive: serverUser.isActive !== false && serverUser.status !== 'inactive',
                     mustChangePassword:
                       serverUser.mustChangePassword !== undefined
                         ? serverUser.mustChangePassword
                         : Boolean(serverUser.must_change_password),
                     lastLogin: serverUser.lastLogin || serverUser.last_login,
-                    phone: serverUser.phone || '',
+                    phone: serverUser.phoneNumber || serverUser.phone || '',
                     profilePhotoUrl:
                       serverUser.profilePhotoUrl ||
                       serverUser.profile_photo_url ||

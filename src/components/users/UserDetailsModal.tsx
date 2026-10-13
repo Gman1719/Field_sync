@@ -69,7 +69,7 @@ export default function UserDetailsModal({
     const fetchFullDetails = async () => {
       setLoadingDetails(true);
       try {
-        const token = localStorage.getItem('fieldsync_token') || localStorage.getItem('token');
+        const token = localStorage.getItem('fieldsync_token') || localStorage.getItem('token') || sessionStorage.getItem('token');
         const res = await fetch(`${API_BASE}/users/${user.id}`, {
           headers: {
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -107,7 +107,7 @@ export default function UserDetailsModal({
     const fetchUserActivityLogs = async () => {
       setLoadingLogs(true);
       try {
-        const token = localStorage.getItem('fieldsync_token') || localStorage.getItem('token');
+        const token = localStorage.getItem('fieldsync_token') || localStorage.getItem('token') || sessionStorage.getItem('token');
         const res = await fetch(`${API_BASE}/activity-logs?officerId=${encodeURIComponent(user.id)}&limit=100`, {
           headers: {
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -156,12 +156,26 @@ export default function UserDetailsModal({
 
   // Compute supervised field officers across server API list and local allUsers state
   const localSupervised = useMemo(() => {
-    if (!isSupervisor) return [];
-    return (allUsers || []).filter(
-      (u) =>
-        (u.supervisorId === current.id || u.supervisorId === current.employeeId || (current.email && u.supervisorId === current.email)) &&
-        ((u.role || '').toLowerCase() === 'field_officer')
-    );
+    if (!isSupervisor || !current) return [];
+    const supId = current.id != null ? String(current.id) : null;
+    const supEmpId = current.employeeId != null ? String(current.employeeId) : null;
+    const supEmail = current.email ? String(current.email).toLowerCase() : null;
+
+    return (allUsers || []).filter((u) => {
+      if (!u) return false;
+      const role = (u.role || '').toLowerCase();
+      if (role !== 'field_officer') return false;
+
+      const oSupId = u.supervisorId != null ? String(u.supervisorId) : null;
+      const oSupEmpId = u.supervisorEmployeeId != null ? String(u.supervisorEmployeeId) : null;
+      const oSupEmail = u.supervisorEmail ? String(u.supervisorEmail).toLowerCase() : null;
+
+      return (
+        Boolean(supId && (oSupId === supId || oSupEmpId === supId)) ||
+        Boolean(supEmpId && (oSupId === supEmpId || oSupEmpId === supEmpId)) ||
+        Boolean(supEmail && (oSupId === supEmail || oSupEmail === supEmail))
+      );
+    });
   }, [isSupervisor, current, allUsers]);
 
   const effectiveSupervisees = superviseesList.length > 0 ? superviseesList : localSupervised;
@@ -450,13 +464,13 @@ export default function UserDetailsModal({
               <span className="text-[10px] uppercase font-bold text-amber-800 dark:text-amber-300 tracking-wider">
                 {userT('Supervised Officers')}:
               </span>
-              {effectiveSupervisees.map((off: any) => (
+              {effectiveSupervisees.map((off: any, idx: number) => (
                 <span
-                  key={off.id}
+                  key={off?.id || off?.employeeId || `sup-off-${idx}`}
                   className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-200 border border-amber-200/80 dark:border-amber-800"
                 >
                   <Users className="w-3 h-3 text-amber-600 dark:text-amber-400" />
-                  <span>{off.fullName || off.name || off.email}</span>
+                  <span>{off?.fullName || off?.name || off?.email || 'Field Officer'}</span>
                 </span>
               ))}
             </div>
@@ -626,13 +640,15 @@ export default function UserDetailsModal({
               </div>
             ) : (
               <div className="max-h-80 overflow-y-auto space-y-2 pr-1">
-                {userLogs.map((log) => {
-                  const dateObj = log.deviceTimestamp ? new Date(log.deviceTimestamp) : null;
-                  const timeStr = dateObj
-                    ? dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                {userLogs.map((log: any) => {
+                  const ts = log.deviceTimestamp || log.timestamp || log.createdAt;
+                  const parsedDate = ts ? new Date(ts) : null;
+                  const isDateValid = parsedDate instanceof Date && !isNaN(parsedDate.getTime());
+                  const timeStr = isDateValid
+                    ? parsedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                     : '—';
-                  const dateStr = dateObj
-                    ? dateObj.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })
+                  const dateStr = isDateValid
+                    ? parsedDate.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })
                     : '—';
 
                   return (
