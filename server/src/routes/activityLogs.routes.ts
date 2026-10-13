@@ -139,6 +139,7 @@ router.get('/', authenticate, async (req: Request, res: Response): Promise<void>
       where.OR = [
         { officerId: user.id },
         ...(employeeId ? [{ officerId: employeeId }] : []),
+        { officer: { fullName: { equals: user.fullName, mode: 'insensitive' } } },
       ];
     } else if (user.role === Role.SUPERVISOR) {
       where.OR = [
@@ -192,6 +193,7 @@ router.get('/', authenticate, async (req: Request, res: Response): Promise<void>
         where.OR = [
           { officerId: user.id },
           ...(employeeId ? [{ officerId: employeeId }] : []),
+          { officer: { fullName: { equals: user.fullName, mode: 'insensitive' } } },
         ];
       }
     }

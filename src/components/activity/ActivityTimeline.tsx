@@ -27,6 +27,7 @@ export default function ActivityTimeline({ user }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('ALL');
   const userRole = String(user?.role || '').toLowerCase();
   const isSupervisor = userRole === 'supervisor';
   const isOfficer = userRole === 'field_officer';
