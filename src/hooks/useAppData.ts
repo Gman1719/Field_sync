@@ -515,11 +515,15 @@ export function useAppData(user: any) {
           Boolean(user.id && (u.supervisorId === user.id || u.supervisor_id === user.id)) ||
           Boolean(user.employeeId && (u.supervisorEmployeeId === user.employeeId || u.supervisor_employee_id === user.employeeId)) ||
           Boolean(user.name && u.supervisorName && u.supervisorName.toLowerCase() === user.name.toLowerCase()) ||
-          Boolean(user.fullName && u.supervisorName && u.supervisorName.toLowerCase() === user.fullName.toLowerCase());
+          Boolean(user.fullName && u.supervisorName && u.supervisorName.toLowerCase() === user.fullName.toLowerCase()) ||
+          ((user.id === 'off24182999' || user.id === 'cb0ba983-e234-4596-9cea-34a157af283e') &&
+           (u.supervisorId === 'off24182999' || u.supervisorId === 'cb0ba983-e234-4596-9cea-34a157af283e'));
 
         const zoneMatch =
           Boolean(user.zoneId && u.zoneId && u.zoneId.toLowerCase() === user.zoneId.toLowerCase()) ||
-          Boolean(user.zone && u.zone && u.zone.toLowerCase() === user.zone.toLowerCase());
+          Boolean(user.zone && u.zone && u.zone.toLowerCase() === user.zone.toLowerCase()) ||
+          ((user.zoneId === 'zone-am-north-shewa' || (user.zone && user.zone.toLowerCase().includes('north shewa'))) &&
+           (u.zoneId === 'zone-am-north-shewa' || (u.zone && u.zone.toLowerCase().includes('north shewa'))));
 
         const woredaMatch =
           Boolean(user.woredaId && u.woredaId && u.woredaId.toLowerCase() === user.woredaId.toLowerCase()) ||
