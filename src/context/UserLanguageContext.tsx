@@ -102,7 +102,14 @@ export const UserLanguageProvider: React.FC<{ children: ReactNode }> = ({ childr
 export const useUserLanguage = (): UserLanguageContextValue => {
   const context = useContext(UserLanguageContext);
   if (!context) {
-    throw new Error('useUserLanguage must be used within a UserLanguageProvider');
+    return {
+      currentUserLanguage: 'en',
+      language: 'en',
+      changeUserLanguage: () => {},
+      userT: (keyOrText: string) => keyOrText || '',
+      t: (keyOrText: string) => keyOrText || '',
+      userLanguages,
+    };
   }
   return context;
 };

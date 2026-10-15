@@ -27,6 +27,7 @@ import UserDetailsModal from './UserDetailsModal';
 import UserEditModal from './UserEditModal';
 import UserReassignModal from './UserReassignModal';
 import UserRoleModal from './UserRoleModal';
+import ErrorBoundary from '../common/ErrorBoundary';
 import { useUserLanguage } from '../../context/UserLanguageContext';
 
 export default function UserManagement({
@@ -1434,76 +1435,107 @@ export default function UserManagement({
       </Modal>
 
       {/* 6. User Details Modal */}
-      <UserDetailsModal
-        user={selectedUserDetails}
-        isOpen={Boolean(selectedUserDetails)}
+      <ErrorBoundary
+        onReset={() => setSelectedUserDetails(null)}
         onClose={() => setSelectedUserDetails(null)}
-        allUsers={users}
-        onEdit={(u) => {
-          const target = u || selectedUserDetails;
-          setSelectedUserDetails(null);
-          setSelectedUserEdit(target);
-        }}
-        onChangeRole={(u) => {
-          const target = u || selectedUserDetails;
-          setSelectedUserDetails(null);
-          setSelectedUserRole(target);
-        }}
-        onReassign={(u) => {
-          const target = u || selectedUserDetails;
-          setSelectedUserDetails(null);
-          setSelectedUserReassign(target);
-        }}
-        onToggleStatus={(u) => {
-          handleToggleStatus(u);
-        }}
-        onDeleteUser={(u) => {
-          handleDeleteUser(u);
-        }}
-        onDelete={(u) => {
-          handleDeleteUser(u);
-        }}
-        onResetPassword={(u) => {
-          const target = u || selectedUserDetails;
-          setSelectedUserDetails(null);
-          setSelectedUserResetPassword(target);
-        }}
-        onUserUpdated={handleUserUpdated}
-      />
+        fallbackTitle={userT('Unable to open User Details')}
+        fallbackMessage={userT('An unexpected issue occurred while rendering this user account. The main directory remains active.')}
+      >
+        <UserDetailsModal
+          user={selectedUserDetails}
+          isOpen={Boolean(selectedUserDetails)}
+          onClose={() => setSelectedUserDetails(null)}
+          allUsers={users}
+          onEdit={(u) => {
+            const target = u || selectedUserDetails;
+            setSelectedUserDetails(null);
+            setSelectedUserEdit(target);
+          }}
+          onChangeRole={(u) => {
+            const target = u || selectedUserDetails;
+            setSelectedUserDetails(null);
+            setSelectedUserRole(target);
+          }}
+          onReassign={(u) => {
+            const target = u || selectedUserDetails;
+            setSelectedUserDetails(null);
+            setSelectedUserReassign(target);
+          }}
+          onToggleStatus={(u) => {
+            handleToggleStatus(u);
+          }}
+          onDeleteUser={(u) => {
+            handleDeleteUser(u);
+          }}
+          onDelete={(u) => {
+            handleDeleteUser(u);
+          }}
+          onResetPassword={(u) => {
+            const target = u || selectedUserDetails;
+            setSelectedUserDetails(null);
+            setSelectedUserResetPassword(target);
+          }}
+          onUserUpdated={handleUserUpdated}
+        />
+      </ErrorBoundary>
 
       {/* 7. User Edit Modal */}
-      <UserEditModal
-        user={selectedUserEdit}
-        isOpen={Boolean(selectedUserEdit)}
+      <ErrorBoundary
+        onReset={() => setSelectedUserEdit(null)}
         onClose={() => setSelectedUserEdit(null)}
-        onUserUpdated={handleUserUpdated}
-      />
+        fallbackTitle={userT('Unable to open Edit Profile')}
+      >
+        <UserEditModal
+          user={selectedUserEdit}
+          isOpen={Boolean(selectedUserEdit)}
+          onClose={() => setSelectedUserEdit(null)}
+          onUserUpdated={handleUserUpdated}
+        />
+      </ErrorBoundary>
 
       {/* 8. User Reassign Modal */}
-      <UserReassignModal
-        user={selectedUserReassign}
-        isOpen={Boolean(selectedUserReassign)}
+      <ErrorBoundary
+        onReset={() => setSelectedUserReassign(null)}
         onClose={() => setSelectedUserReassign(null)}
-        onUserUpdated={handleUserUpdated}
-        allUsers={users}
-      />
+        fallbackTitle={userT('Unable to open Change Location')}
+      >
+        <UserReassignModal
+          user={selectedUserReassign}
+          isOpen={Boolean(selectedUserReassign)}
+          onClose={() => setSelectedUserReassign(null)}
+          onUserUpdated={handleUserUpdated}
+          allUsers={users}
+        />
+      </ErrorBoundary>
 
       {/* 9. User Role Modal */}
-      <UserRoleModal
-        user={selectedUserRole}
-        isOpen={Boolean(selectedUserRole)}
+      <ErrorBoundary
+        onReset={() => setSelectedUserRole(null)}
         onClose={() => setSelectedUserRole(null)}
-        onUserUpdated={handleUserUpdated}
-        allUsers={users}
-      />
+        fallbackTitle={userT('Unable to open Change Role')}
+      >
+        <UserRoleModal
+          user={selectedUserRole}
+          isOpen={Boolean(selectedUserRole)}
+          onClose={() => setSelectedUserRole(null)}
+          onUserUpdated={handleUserUpdated}
+          allUsers={users}
+        />
+      </ErrorBoundary>
 
       {/* 9.5 Interactive User Password Reset Modal */}
-      <UserPasswordResetModal
-        user={selectedUserResetPassword}
-        isOpen={Boolean(selectedUserResetPassword)}
+      <ErrorBoundary
+        onReset={() => setSelectedUserResetPassword(null)}
         onClose={() => setSelectedUserResetPassword(null)}
-        onUserUpdated={handleUserUpdated}
-      />
+        fallbackTitle={userT('Unable to open Reset Password')}
+      >
+        <UserPasswordResetModal
+          user={selectedUserResetPassword}
+          isOpen={Boolean(selectedUserResetPassword)}
+          onClose={() => setSelectedUserResetPassword(null)}
+          onUserUpdated={handleUserUpdated}
+        />
+      </ErrorBoundary>
 
       {/* 10. Temporary Password Modal */}
       {tempPasswordModalData && (

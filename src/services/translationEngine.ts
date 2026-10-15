@@ -19,7 +19,9 @@ const sortedPhraseKeys = Object.keys(translationDictionary)
   .sort((a, b) => b.length - a.length);
 
 export function translateText(rawText: string, lang: string): string {
-  if (!rawText || lang === 'en') return rawText;
+  if (typeof rawText !== 'string' || !rawText || lang === 'en') {
+    return typeof rawText === 'string' ? rawText : String(rawText || '');
+  }
   const trimmed = rawText.trim();
   if (!trimmed) return rawText;
 

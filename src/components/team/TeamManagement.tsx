@@ -59,6 +59,7 @@ export default function TeamManagement({
   const [directOfficers, setDirectOfficers] = useState<any[]>([]);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [dbUsers, setDbUsers] = useState<any[]>([]);
+  const [supervisorCitizens, setSupervisorCitizens] = useState<any[]>([]);
 
   React.useEffect(() => {
     let isMounted = true;

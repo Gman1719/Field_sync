@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import Modal from '../ui/Modal';
 import Button from '../ui/Button';
+import ErrorBoundary from '../common/ErrorBoundary';
 import { API_BASE } from '../../config/api';
 import { offlineDb } from '../../db/offlineDb';
 import { useUserLanguage } from '../../context/UserLanguageContext';
@@ -170,6 +171,31 @@ export default function UserDetailsModal({
   const isActive = current.status === 'active' || current.isActive === true;
   const isSupervisor = (current.role || '').toLowerCase() === 'supervisor';
 
+  // Safe string coercion helper to prevent [object Object] or React child crashes
+  const getSafeString = (val: any): string => {
+    if (val == null) return '';
+    if (typeof val === 'string') return val;
+    if (typeof val === 'number') return String(val);
+    if (typeof val === 'object') {
+      if (typeof val.fullName === 'string') return val.fullName;
+      if (typeof val.name === 'string') return val.name;
+      if (typeof val.title === 'string') return val.title;
+      if (typeof val.email === 'string') return val.email;
+    }
+    return '';
+  };
+
+  const getSafeLocationName = (loc: any): string => {
+    if (!loc) return '';
+    if (typeof loc === 'string') return loc;
+    if (typeof loc === 'object') {
+      if (typeof loc.name === 'string') return loc.name;
+      if (typeof loc.title === 'string') return loc.title;
+      if (typeof loc.label === 'string') return loc.label;
+    }
+    return '';
+  };
+
   // Compute supervised field officers across server API list and local allUsers state
   const localSupervised = useMemo(() => {
     if (!isSupervisor || !current) return [];
@@ -177,7 +203,8 @@ export default function UserDetailsModal({
     const supEmpId = current.employeeId != null ? String(current.employeeId) : null;
     const supEmail = current.email ? String(current.email).toLowerCase() : null;
 
-    return (allUsers || []).filter((u) => {
+    const safeUsers = Array.isArray(allUsers) ? allUsers : [];
+    return safeUsers.filter((u) => {
       if (!u) return false;
       const role = (u.role || '').toLowerCase();
       if (role !== 'field_officer') return false;
@@ -194,7 +221,7 @@ export default function UserDetailsModal({
     });
   }, [isSupervisor, current, allUsers]);
 
-  const effectiveSupervisees = superviseesList.length > 0 ? superviseesList : localSupervised;
+  const effectiveSupervisees = Array.isArray(superviseesList) && superviseesList.length > 0 ? superviseesList : (Array.isArray(localSupervised) ? localSupervised : []);
   const hasSupervisedOfficers = isSupervisor && effectiveSupervisees.length > 0;
   const superviseesCount = effectiveSupervisees.length;
 
@@ -235,17 +262,28 @@ export default function UserDetailsModal({
     }
   };
 
-  const fullName = [current.firstName, current.middleName, current.lastName].filter(Boolean).join(' ') || current.fullName || current.name || 'User';
-  const initial = (current.firstName?.[0] || fullName?.[0] || 'U').toUpperCase();
+  const nameParts = [
+    getSafeString(current?.firstName),
+    getSafeString(current?.middleName),
+    getSafeString(current?.lastName),
+  ].filter(Boolean);
 
-  const regionDisplay = typeof current?.region === 'object' && current?.region ? current.region.name : (typeof current?.region === 'string' ? current.region : '');
-  const zoneDisplay = typeof current?.zone === 'object' && current?.zone ? current.zone.name : (typeof current?.zone === 'string' ? current.zone : '');
-  const woredaDisplay = typeof current?.woreda === 'object' && current?.woreda ? current.woreda.name : (typeof current?.woreda === 'string' ? current.woreda : '');
+  const fullName = nameParts.length > 0
+    ? nameParts.join(' ')
+    : (getSafeString(current?.fullName) || getSafeString(current?.name) || 'User');
+
+  const initial = (fullName.trim()[0] || 'U').toUpperCase();
+
+  const regionDisplay = getSafeLocationName(current?.region);
+  const zoneDisplay = getSafeLocationName(current?.zone);
+  const woredaDisplay = getSafeLocationName(current?.woreda);
   const supervisorDisplay =
-    (typeof current?.supervisor === 'object' && current?.supervisor ? (current.supervisor.fullName || current.supervisor.name) : null) ||
-    (typeof current?.supervisorName === 'string' ? current.supervisorName : null) ||
-    (typeof current?.supervisorId === 'string' ? current.supervisorId : null) ||
-    userT('Unassigned');
+    (typeof current?.supervisor === 'object' && current?.supervisor
+      ? (getSafeString(current.supervisor.fullName) || getSafeString(current.supervisor.name))
+      : null) ||
+    getSafeString(current?.supervisorName) ||
+    (current?.supervisorId ? String(current.supervisorId) : null) ||
+    (userT ? userT('Unassigned') : 'Unassigned');
 
   return (
     <Modal
@@ -254,6 +292,7 @@ export default function UserDetailsModal({
       title={userT('Staff Account & Profile Details')}
       size="lg"
     >
+      <ErrorBoundary onReset={onClose} onClose={onClose} fallbackTitle={userT('Unable to render user details modal')}>
       <div className="space-y-5">
         {/* 1. Hero Profile Banner */}
         <div className="relative overflow-hidden p-5 sm:p-5.5 bg-gradient-to-br from-slate-50 via-white to-blue-50/30 dark:from-slate-800 dark:via-slate-800 dark:to-slate-800 border border-slate-200/90 dark:border-slate-700 rounded-xl shadow-xs">
@@ -671,8 +710,8 @@ export default function UserDetailsModal({
               </div>
             ) : (
               <div className="max-h-80 overflow-y-auto space-y-2 pr-1">
-                {userLogs.map((log: any) => {
-                  const ts = log.deviceTimestamp || log.timestamp || log.createdAt;
+                {userLogs.map((log: any, logIdx: number) => {
+                  const ts = log?.deviceTimestamp || log?.timestamp || log?.createdAt;
                   const parsedDate = ts ? new Date(ts) : null;
                   const isDateValid = parsedDate instanceof Date && !isNaN(parsedDate.getTime());
                   const timeStr = isDateValid
@@ -682,33 +721,36 @@ export default function UserDetailsModal({
                     ? parsedDate.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })
                     : '—';
 
+                  const rawDesc = typeof log?.description === 'string' ? log.description : (log?.description ? String(log.description) : '');
+                  const translatedDesc = rawDesc ? translateText(rawDesc, language) : userT('Activity logged');
+
                   return (
                     <div
-                      key={log.id}
+                      key={log?.id || `log-${logIdx}`}
                       className="p-3 bg-slate-50/80 dark:bg-slate-900/60 rounded-xl border border-slate-200/80 dark:border-slate-700/80 flex items-start justify-between gap-3"
                     >
                       <div className="space-y-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-700 dark:bg-blue-950/70 dark:text-blue-300 border border-blue-200 dark:border-blue-900/60">
-                            {(log.eventType || 'ACTIVITY').replace(/_/g, ' ')}
+                            {String(log?.eventType || 'ACTIVITY').replace(/_/g, ' ')}
                           </span>
                           <span className="text-[11px] text-slate-400 font-mono">
                             {dateStr} • {timeStr}
                           </span>
                         </div>
                         <p className="text-xs text-slate-800 dark:text-slate-200 font-medium leading-relaxed">
-                          {translateText(log.description, language)}
+                          {translatedDesc}
                         </p>
                       </div>
 
                       <span
                         className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold shrink-0 ${
-                          log.syncStatus === 'SYNCED'
+                          log?.syncStatus === 'SYNCED'
                             ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/40'
                             : 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-900/40'
                         }`}
                       >
-                        {log.syncStatus === 'SYNCED' ? userT('Synced') : userT('Local')}
+                        {log?.syncStatus === 'SYNCED' ? userT('Synced') : userT('Local')}
                       </span>
                     </div>
                   );
@@ -725,6 +767,7 @@ export default function UserDetailsModal({
           </Button>
         </div>
       </div>
+      </ErrorBoundary>
     </Modal>
   );
 }
